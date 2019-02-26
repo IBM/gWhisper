@@ -6,7 +6,7 @@ The main design goals are:
 - Reflection support (no proto files required)
 - Tab-Completion For Services, Methods __and their arguments__
     (currently only supported in Bash)
-- Human readable output in <font color="green">color</font>
+- Human readable output in color
 - Usable directly in the shell
 - No need to escape characters
  
