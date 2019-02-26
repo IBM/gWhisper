@@ -8,6 +8,5 @@ The main design goals are:
     (currently only supported in Bash)
 - Human readable output in color
 - Usable directly in the shell
-- No need to escape characters
  
 The code for this tool will be released to the public soon.
