@@ -4,7 +4,7 @@ It allows to invoke gRPC calls from the command-line.
  
 The main design goals are:
 - Reflection support (no proto files required)
-- Tab-Completion For Services, Methods __and their arguments__
+- Tab-Completion for services, methods __and their arguments__
     (currently only supported in Bash)
 - Human readable output in color
 - Usable directly in the shell
