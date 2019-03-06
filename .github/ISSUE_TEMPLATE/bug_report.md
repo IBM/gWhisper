@@ -23,11 +23,5 @@ A clear and concise description of what you expected to happen.
  - Compiler version (if related to build):
  - CMake version (if related to build):
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
 **Additional context**
 Add any other context about the problem here.
