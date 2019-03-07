@@ -26,16 +26,20 @@ Execute `gwhisper --help` or click [here](doc/Usage.txt) to get detailed informa
 
 ## Download gWhisper
 
+### Release version
+Download the latest release [here](https://github.com/IBM/gWhisper/releases/latest)
+
+### Development version
 Clone the repository
 
     git clone https://github.com/IBM/gWhisper.git
 
-Initialize third-party submodules (currently only "google test")
+To be able to build and run tests, initialize third-party submodules (this will download _googletest_)
 
     cd gWhisper
     git submodule update --init
 
-NOTE: Please do not download gWhisper as ZIP from GitHub. GitHub currently does not support submodules, which is why you will end up with an incomplete codebase.
+NOTE: If you retrieved gWhisper from GitHub as an archive (zip or tar.gz), submodules are not included, as GitHub currently does not fully support submodules.
 
 ## Prerequisites
 
@@ -69,9 +73,8 @@ Run the executable (use TabCompletion):
     ./build/gwhisper [<Options>] <IP-Address> <Service> <Method> <Args>
 
 NOTE:
-If you are not building in a checked out git repository you should set the environment variable `GWHISPER_BUILD_VERSION` to the appropriate version of the source code.
-This will end up as part of the version string, returned when calling `gWhisper --version`.
-In case you are building within the git repository, the version is automatically determined during the build. You may however add additional information to the version string by using this environment variable.
+You may set the environment variable `GWHISPER_BUILD_VERSION` to a string of your choice before building.
+This string will end up as part of the version string, returned when calling `gWhisper --version`.
 
 ## Current development status
 
