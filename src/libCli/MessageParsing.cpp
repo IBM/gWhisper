@@ -1,0 +1,296 @@
+// Copyright 2019 IBM Corporation
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include <libCli/MessageParsing.hpp>
+
+using namespace ArgParse;
+
+namespace cli
+{
+
+/// Parses a single field falue from a given parse tree into a protobuf message.
+/// @param f_parseTree Parse tree containing the field value information.
+/// @param f_message protobuf message to which the field value should be added
+/// @param f_factory Factory for creation of additional messages (required for nested messages)
+/// @param f_fieldDescriptor Descriptor describing the type of the field
+/// @param f_isRepeated if true, field value will be added as a repeated field value.
+///        (protobuf reflection api unfortunately does not provide a combined API for setting unique fields and adding to repeated fields)
+/// @returns 0 if field value could be added to the message. -1 otherwise.
+int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_message, google::protobuf::DynamicMessageFactory & f_factory, const google::protobuf::FieldDescriptor * f_fieldDescriptor, bool f_isRepeated = false)
+{
+    const google::protobuf::Reflection* reflection = f_message->GetReflection();
+    std::string valueString = f_parseTree.findFirstChild("FieldValue");
+
+    switch(f_fieldDescriptor->cpp_type())
+    {
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_FLOAT:
+            {
+                float value = std::stod(valueString);
+                if(f_isRepeated)
+                {
+                    reflection->AddFloat(f_message, f_fieldDescriptor, value);
+                }
+                else
+                {
+                    reflection->SetFloat(f_message, f_fieldDescriptor, value);
+                }
+            }
+            break;
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_DOUBLE:
+            {
+                double value = std::stod(valueString);
+                if(f_isRepeated)
+                {
+                    reflection->AddDouble(f_message, f_fieldDescriptor, value);
+                }
+                else
+                {
+                    reflection->SetDouble(f_message, f_fieldDescriptor, value);
+                }
+            }
+            break;
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_INT32:
+            {
+                long value = std::stol(valueString, 0, 0);
+                if(f_isRepeated)
+                {
+                    reflection->AddInt32(f_message, f_fieldDescriptor, value);
+                }
+                else
+                {
+                    reflection->SetInt32(f_message, f_fieldDescriptor, value);
+                }
+            }
+            break;
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_INT64:
+            {
+                long value = std::stol(valueString, 0, 0);
+                if(f_isRepeated)
+                {
+                    reflection->AddInt64(f_message, f_fieldDescriptor, value);
+                }
+                else
+                {
+                    reflection->SetInt64(f_message, f_fieldDescriptor, value);
+                }
+            }
+            break;
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT32:
+            {
+                unsigned long value = std::stoul(valueString, 0, 0);
+                if(f_isRepeated)
+                {
+                    reflection->AddUInt32(f_message, f_fieldDescriptor, value);
+                }
+                else
+                {
+                    reflection->SetUInt32(f_message, f_fieldDescriptor, value);
+                }
+            }
+            break;
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT64:
+            {
+                unsigned long value = std::stoul(valueString, 0, 0);
+                if(f_isRepeated)
+                {
+                    reflection->AddUInt64(f_message, f_fieldDescriptor, value);
+                }
+                else
+                {
+                    reflection->SetUInt64(f_message, f_fieldDescriptor, value);
+                }
+            }
+            break;
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_BOOL:
+            if( valueString == "1" || valueString == "true" || valueString == "True" )
+            {
+                if(f_isRepeated)
+                {
+                    reflection->AddBool(f_message, f_fieldDescriptor, true);
+                }
+                else
+                {
+                    reflection->SetBool(f_message, f_fieldDescriptor, true);
+                }
+            }
+            else
+            {
+                if(f_isRepeated)
+                {
+                    reflection->AddBool(f_message, f_fieldDescriptor, false);
+                }
+                else
+                {
+                    reflection->SetBool(f_message, f_fieldDescriptor, false);
+                }
+            }
+            break;
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_ENUM:
+            {
+                const google::protobuf::EnumValueDescriptor * enumVal = f_fieldDescriptor->enum_type()->FindValueByName(valueString);
+                if(enumVal != nullptr)
+                {
+                if(f_isRepeated)
+                {
+                    reflection->AddEnum(f_message, f_fieldDescriptor, enumVal);
+                }
+                else
+                {
+                    reflection->SetEnum(f_message, f_fieldDescriptor, enumVal);
+                }
+                }
+                else
+                {
+                    std::cerr << "Error parsing enum for field '" << f_fieldDescriptor->name() << "'" << std::endl;
+                    return -1;
+                }
+            }
+            break;
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_STRING:
+            // we could have a string or a bytes input here
+            if(f_fieldDescriptor->type() == google::protobuf::FieldDescriptor::Type::TYPE_BYTES)
+            {
+                std::string resultString;
+                // if we have a bytes field, we parse a hex string:
+                if(valueString.substr(0,2) != "0x")
+                {
+                    std::cerr << "Error parsing bytes field '" << f_fieldDescriptor->name() << "': Given value does not start with '0x'. Expected a hex string" << std::endl;
+                    return -1;
+                }
+                if(valueString.size()%2 != 0)
+                {
+                    std::cerr << "Error parsing bytes field '" << f_fieldDescriptor->name() << "': Given value is not a multiple of 8 bits long" << std::endl;
+                    return -1;
+                }
+                for(size_t pos = 2; pos+1<valueString.size(); pos+=2)
+                {
+                    uint8_t byteVal = std::stoul(valueString.substr(pos,2), 0, 16);
+                    resultString.append(1,byteVal);
+                }
+                if(f_isRepeated)
+                {
+                    reflection->AddString(f_message, f_fieldDescriptor, resultString);
+                }
+                else
+                {
+                    reflection->SetString(f_message, f_fieldDescriptor, resultString);
+                }
+            }
+            else
+            {
+                // otherwise we directly parse the given string:
+                if(f_isRepeated)
+                {
+                    reflection->AddString(f_message, f_fieldDescriptor, valueString);
+                }
+                else
+                {
+                    reflection->SetString(f_message, f_fieldDescriptor, valueString);
+                }
+            }
+            break;
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE:
+            {
+                const google::protobuf::Descriptor * subMessageDescriptor = f_fieldDescriptor->message_type();
+                std::unique_ptr<google::protobuf::Message> subMessage = parseMessage(f_parseTree, f_factory, subMessageDescriptor);
+                if(subMessage != nullptr)
+                {
+                if(f_isRepeated)
+                {
+                    reflection->AddAllocatedMessage(f_message, f_fieldDescriptor, subMessage.release());
+                }
+                else
+                {
+                    reflection->SetAllocatedMessage(f_message, subMessage.release(), f_fieldDescriptor);
+                }
+                }
+                else
+                {
+                    std::cerr << "Error parsing sub-message for field '" << f_fieldDescriptor->name() << "'" << std::endl;
+                    return -1;
+                }
+            }
+            break;
+        default:
+            std::cerr << "Error: Parsing Field '" << f_fieldDescriptor->name() << "'. It has the unsupported type: '" << f_fieldDescriptor->type_name() << "'" << std::endl;
+            return -1;
+
+    }
+
+    return 0;
+}
+
+std::unique_ptr<google::protobuf::Message> parseMessage(ParsedElement & f_parseTree, google::protobuf::DynamicMessageFactory & f_factory, const google::protobuf::Descriptor* f_messageDescriptor)
+{
+    std::unique_ptr<google::protobuf::Message> message(f_factory.GetPrototype(f_messageDescriptor)->New());
+
+    // we iterate over all fields:
+    bool found = false;
+    ParsedElement & parsedFields = f_parseTree.findFirstSubTree("Fields", found);
+    if(not found)
+    {
+        std::cerr << "Error: no Fields found in parseTree for message '" << f_messageDescriptor->name() << "'" << std::endl;
+        return nullptr;
+    }
+    //std::cout << "Parsing message from tree: \n" << f_parseTree.getDebugString(" ") << std::endl;
+    int rc = 0;
+    for(std::shared_ptr<ParsedElement> parsedField : parsedFields.getChildren())
+    {
+        if(parsedField->isCompletelyParsed())
+        {
+            //std::cout << "Parsing field from tree: \n" << parsedField->getDebugString(" ") << std::endl;
+            const google::protobuf::FieldDescriptor * fieldDescriptor = f_messageDescriptor->FindFieldByName(parsedField->findFirstChild("FieldName"));
+            if(fieldDescriptor == nullptr)
+            {
+                std::cerr << "Warning: Field '" << parsedField->findFirstChild("FieldName") << "' does not exist. Ignoring." << std::endl;
+                continue;
+            }
+
+            // now we have to parse the field value according to its type:
+            ParsedElement & fieldValue = parsedField->findFirstSubTree("FieldValue", found);
+            if(found)
+            {
+                if(fieldDescriptor->is_repeated())
+                {
+                    std::vector<ArgParse::ParsedElement *> repeatedFieldValues;
+                    // note: the f_doNotSearchChildsOfMatchingElements flag needs to be set to true here
+                    // this ensures, that we can have repeated fields as part of repeated messages
+                    fieldValue.findAllSubTrees("RepeatedValue", repeatedFieldValues, true);
+                    for(auto repeatedValue : repeatedFieldValues)
+                    {
+                        rc = parseFieldValue(*repeatedValue, message.get(), f_factory, fieldDescriptor, true);
+                    }
+                }
+                else
+                {
+                    rc = parseFieldValue(fieldValue, message.get(), f_factory, fieldDescriptor);
+                }
+            }
+            else
+            {
+                std::cerr << "Error: No Value given for field '" << parsedField->findFirstChild("FieldName") << "'" << std::endl;
+                return nullptr;
+            }
+            if(rc != 0)
+            {
+                message.reset();
+                break;
+            }
+        }
+    }
+
+    return std::move(message);
+}
+
+}

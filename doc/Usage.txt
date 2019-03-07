@@ -1,0 +1,88 @@
+gWhisper - A gRPC command-line client
+This command allows to call gRPC RPCs on any gRPC server with reflection enabled.
+You may use TAB completion for all arguments (currently only supported in BASH).
+
+SYNOPSIS:
+gwhisper [OPTIONS] <hostname>[:port] <service> <method> [<fieldName>=FIELD_VALUE ]...
+
+The default TCP port used to connect to a gRPC server is 50051.
+
+OPTIONS:
+  -h
+  --help
+      Shows this help.
+  --noColor
+      Disables colors in the output of gRPC replies.
+  --customOutput OUTPUT_FORMAT
+      Instead of printing the reply message using the default human readable
+      format, a custom format as specified in OUTPUT_FORMAT is used.
+      See OUTPUT_FORMAT section for a description of the OUTPUT_FORMAT language.
+      Note that this is an experimental feature and will be documented in detail,
+      once finished.
+  --complete
+      Shows possible next arguments.
+      The output is rendered to be usable as input for bash-completion.
+  --dot
+      Prints a graphviz digraph, representing the current grammar of the parser.
+
+FIELD_VALUE:
+  Field values in the request message may be specified as follows
+  - integers:
+      decimal (e.g. 46, -46, +46)
+      hexadecimal (e.g. 0x45ab, -0x45ab, +0x45ab)
+      octal (e.g. 078, -078, +078)
+  - floats:
+      decimal (e.g. 31, -67.421e-8, 83.456, 23.3e8)
+      hexadecimal (e.g. -0xa7b6p-7)
+  - bytes:
+      As a hex number (e.g. 0xab4b2f5e9d7f)
+      NOTE: Only multiple of 8 bits possible
+  - strings:
+      As a string without quotes. (e.g. ThisIsAString)
+      NOTE: currently strings may not contain ' ', ',' or ':'
+  - enum values:
+      As the enum value name
+      Enum values are tab-completed
+  - bools
+      true, false, 1, 0
+      Bool values are tab-completed
+  - nested types:
+      The nested type fields enclosed in colons. E.g. target=:field1=1 field2=2 :
+      Nested types are tab-completed
+      NOTE: currently after each field value a space is required
+  - repeated fields:
+      A list of field values enclosed in colons, separated with a comma and a whitespace.
+      E.g. values=:2, 4, 16, 32:
+      Repeated fields are tab-completed
+  - map fields:
+      As a repeated field with nested key, value pairs (protobuf representation of maps).
+      E.g. my_map=::key=5 value=testval :, :key=40 value=anotherValue::
+      Map fields are tab-completed
+
+OUTPUT_FORMAT:
+    This is a program written in a very simple formatting language. A valid program has
+    the following form:
+        @ (.<FieldName>)+ : ( <String> || /<FieldName>/ ) :
+    Example:
+        ./gwhisper --customOutput @.listOfDevices:Found device /device_name/$'\n': 127.0.0.1 discoveryService.devices GetDevices
+
+    Output:
+        Found device Mouse
+        Found device Keyboard
+        Found device Screen
+        ...
+    This will search for any number of fields with a name "listOfDevices" in the RPC reply message. For each match (multiple in case of repeated field), The string `"Found device /device_name/\n"` is printed with `/device_name/` replaced by the value of the field `"device_name"`.
+
+
+EXAMPLES:
+  gWhisper exampledomain.org:50059 bakery orderCookies amount=5
+      Connects to the gRPC server running at exampledomain.org on TCP port 50059
+      and calls the orderCookies RPC method of the bakery service.
+      A request message will be passed to the RPC call with the 'amount' field
+      set to 5. Other fields, which might be present, are left at default values.
+
+  gWhisper [2001:db8::2:1]:50059 bakery orderCookies config=:chocolate=true smarties=false : amount=5
+      Uses IPv6 address and nested types in the request message.
+
+  gWhisper 192.168.0.43 bakery orderCookies amount=0xa
+      Uses IPv4 address, default TCP port of 50051 and field value as hex.
