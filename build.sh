@@ -20,7 +20,8 @@ if [ ! -f "$BUILD_DIR/Makefile" ]; then
     cd $BUILD_DIR
     cmake $SOURCE_DIR "$@"
     RC=$?
-    if [ "$RC" ne 0 ]; then
+    if [ "$RC" -ne 0 ]; then
+        # cmake failed
         exit $RC
     fi
     cd $SOURCE_DIR
