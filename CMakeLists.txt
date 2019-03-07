@@ -51,5 +51,15 @@ include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}/src")
 
 add_subdirectory(src)
-add_subdirectory(tests)
+
+if(EXISTS "${PROJECT_SOURCE_DIR}/third_party/googletest/CMakeLists.txt")
+    # we only build tests if googletest is available
+    # If the gWhisper source package is downloaded from GitHub as archive (tar or zip)
+    # submodules are not included. This ensures, that we build at least the functional
+    # code in this case.
+    add_subdirectory(tests)
+else()
+    message(WARNING "googletest submodule not found, not building tests. Please be sure to get the submodules with 'git submodule update --init' to also build tests.")
+endif()
+
 add_subdirectory(third_party)

@@ -23,5 +23,5 @@ add_custom_target(compileCommands
     )
 
 add_custom_target(versionDefine
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/generateVersionDefine.sh > ${CMAKE_CURRENT_BINARY_DIR}/versionDefine.h
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/generateVersionDefine.sh ${PROJECT_SOURCE_DIR} > ${CMAKE_CURRENT_BINARY_DIR}/versionDefine.h
     )

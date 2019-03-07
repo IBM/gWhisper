@@ -14,5 +14,8 @@
 
 cmake_minimum_required (VERSION 2.8)
 
-add_subdirectory(googletest)
+if(EXISTS "${PROJECT_SOURCE_DIR}/third_party/googletest/CMakeLists.txt")
+    add_subdirectory(googletest)
+endif()
+
 add_subdirectory(gRPC_utils)
