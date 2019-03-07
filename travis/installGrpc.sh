@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Copyright 2019 IBM Corporation
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SOURCE_DIR="$PWD"
-BUILD_DIR="$SOURCE_DIR/build"
-if [ ! -f "$BUILD_DIR/Makefile" ]; then
-    mkdir $BUILD_DIR
-    cd $BUILD_DIR
-    cmake $SOURCE_DIR "$@"
-    RC=$?
-    if [ "$RC" ne 0 ]; then
-        exit $RC
-    fi
-    cd $SOURCE_DIR
-fi
-cd $BUILD_DIR
+git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc
+cd grpc
+git submodule update --init
 make -j8
-exit $?
+sudo make install
+cd third_party/protobuf
+sudo make install
