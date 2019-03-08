@@ -52,16 +52,16 @@ class GrammarElement
          *  If X2 > 1 and the candidateDepth is zero, parsing will stop and the
          *      returned candidates are ignored.
          *  If X2 > 1 and the candidateDepth is > 0, parsing is done for all
-         *      those childs with a candidateDepth reduced by 1 again.
+         *      those children with a candidateDepth reduced by 1 again.
          *  If X2 == 1 parsing will continue
          *  NOTE: This description describes the behavior of Concatenations as an example
          *      Behavior for other Elements is similar, but might differ slightly.
          *      For example Alternations always continues parsing
          *      (think: An Alternation with an alternation as a child is
-         *      semantically the same as a single Alternation with merged childs)
+         *      semantically the same as a single Alternation with merged children)
          *  Currently only a candidateDepth of 1 is tested.
          * @param startChild The child number to start parsing from. Can be
-         *  used to start parsing from a specific gramar element.
+         *  used to start parsing from a specific grammar element.
          *  Currently this is mostly used internally.
          *  TODO: Think about making this protected
          * @returns ParseRc with the following attributes:

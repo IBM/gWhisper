@@ -100,12 +100,12 @@ class Concatenation : public GrammarElement
                             newCandidateDepth--;
                         }
 
-                        // we only go on parsing the next childs, if we have only one candidate (unique follow up possible)
+                        // we only go on parsing the next children, if we have only one candidate (unique follow up possible)
                         // or we still are allowed to fork
                         // Otherwise we just do not return ANY candidates
                         if(candidateDepth > 0 || childRc.candidates.size() == 1)
                         {
-                            // Now continue parsing the other childs, using this candidate as a base:
+                            // Now continue parsing the other children, using this candidate as a base:
                             ParseRc candidateRc;
                             if(!candidateRoot->isStopped())
                             {
@@ -142,9 +142,9 @@ class Concatenation : public GrammarElement
                 if(childRc.isGood() || childRc.errorType == ParseRc::ErrorType::missingText)
                 {
                     //std::cout << "Concat "<< std::to_string(m_instanceId) <<  " have good child "  << std::to_string(i) << " matched string: " << newParsedElement->getMatchedString() << std::endl;
-                    // need to do this AFTER candidate avaluation, as some parse
+                    // need to do this AFTER candidate evaluation, as some parse
                     // methods will return good rc but still have candidates (e.g. repetition)
-                    // in this case we whould add their results to their candidates again
+                    // in this case we would add their results to their candidates again
                     f_out_ParsedElement.addChild(newParsedElement);
                     if(not childRc.isGood())
                     {

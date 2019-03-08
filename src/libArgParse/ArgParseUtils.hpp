@@ -32,7 +32,7 @@ struct ParseRc
     ErrorType errorType = ErrorType::success;
     size_t lenParsedSuccessfully = 0;
     size_t lenParsed = 0;
-    
+
     std::string toString()
     {
         switch(errorType)
@@ -51,7 +51,7 @@ struct ParseRc
             break;
         }
     }
-    
+
     bool isGood()
     {
         return errorType == ErrorType::success;

@@ -16,10 +16,10 @@
 /// This is a summary header file for a group of classes which compose an argument parsing system.
 /// The high-level concept of this framework is as follows:
 /// - GrammarElement instances are created from a memory pool and compose a graph representing the grammar to parse.
-/// - Multiple derivations of GrammarElement implement different gramar features (Alternation, Concatenation, FixedString, Optional, RegEx, ...)
+/// - Multiple derivations of GrammarElement implement different grammar features (Alternation, Concatenation, FixedString, Optional, RegEx, ...)
 ///   Those elements provide the building blocks for the grammar to be implemented by the user.
 /// - GrammarElements may be combined by calling the addChild() methods.
-/// - GrammarElements may be associated with a string tag, which will be assigned to all elements whcih get parsed by this element. (similar to backreferences in regex)
+/// - GrammarElements may be associated with a string tag, which will be assigned to all elements which get parsed by this element. (similar to backreferences in regex)
 /// - Once the Grammar is constructed, the user may call parse() with a given string on one of the GramarElements (typically the root/start element)
 /// - The parse() function will generate
 ///   - a parse tree containing all parsed values, composed of ParsedElement instances
@@ -27,7 +27,7 @@
 ///   - additional meta information about the parse (return code, parsed length, etc.)
 /// - The parse tree provides utility functions to access parsed data:
 ///   - search of tagged elements
-///   - interation/inspection of the tree
+///   - iteration/inspection of the tree
 /// - Each ParsedElement contains a reference to its associated GrammarElement.
 
 // TODO: individual classes and their member functions of this framework are not yet documented well enough
