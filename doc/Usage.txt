@@ -75,14 +75,14 @@ OUTPUT_FORMAT:
 
 
 EXAMPLES:
-  gWhisper exampledomain.org:50059 bakery orderCookies amount=5
+  gwhisper exampledomain.org:50059 bakery orderCookies amount=5
       Connects to the gRPC server running at exampledomain.org on TCP port 50059
       and calls the orderCookies RPC method of the bakery service.
       A request message will be passed to the RPC call with the 'amount' field
       set to 5. Other fields, which might be present, are left at default values.
 
-  gWhisper [2001:db8::2:1]:50059 bakery orderCookies config=:chocolate=true smarties=false : amount=5
+  gwhisper [2001:db8::2:1]:50059 bakery orderCookies config=:chocolate=true smarties=false : amount=5
       Uses IPv6 address and nested types in the request message.
 
-  gWhisper 192.168.0.43 bakery orderCookies amount=0xa
+  gwhisper 192.168.0.43 bakery orderCookies amount=0xa
       Uses IPv4 address, default TCP port of 50051 and field value as hex.
