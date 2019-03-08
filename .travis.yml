@@ -7,8 +7,10 @@ dist: xenial
 
 before_install:
     - sudo apt-get update
-    - sudo apt-get install -y g++ cmake build-essential autoconf libtool pkg-config
+    - sudo apt-get install -y g++ cmake build-essential autoconf libtool pkg-config cppcheck
     - ./travis/installGrpc.sh
 
 
-script: ./build.sh
+script:
+    - ./build.sh
+    - cppcheck --enable=all --inconclusive --std=c++11 -I./src ./src/
