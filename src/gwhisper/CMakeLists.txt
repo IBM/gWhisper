@@ -33,3 +33,7 @@ target_link_libraries ( ${TARGET_NAME}
     )
 
 add_dependencies(${TARGET_NAME} compileCommands versionDefine)
+
+install(TARGETS ${TARGET_NAME}
+    RUNTIME DESTINATION bin
+    )

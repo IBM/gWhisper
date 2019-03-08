@@ -63,3 +63,5 @@ else()
 endif()
 
 add_subdirectory(third_party)
+
+install(FILES complete.bash DESTINATION /usr/share/bash-completion/completions/ RENAME gwhisper)
