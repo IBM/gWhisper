@@ -16,7 +16,4 @@ before_install:
 
 script:
     - ./build.sh
-    - cppcheck --enable=all --inconclusive --std=c++11 --project=compile_commands.json -q -i third_party
-    - echo GOOGLE_PROTOBUF_VERSION=$GOOGLE_PROTOBUF_VERSION
-    - echo GOOGLE_PROTOBUF_MIN_PROTOC_VERSION=$GOOGLE_PROTOBUF_MIN_PROTOC_VERSION
-
+    - cppcheck --enable=all --inconclusive --std=c++11 -DGOOGLE_PROTOBUF_VERSION=3006001 --project=compile_commands.json -q -i third_party
