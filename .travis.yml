@@ -13,8 +13,6 @@ before_install:
     - sudo apt-get update
     - sudo apt-get install -y g++ cmake build-essential autoconf libtool pkg-config
     - ./travis/installGrpc.sh
-    - echo GOOGLE_PROTOBUF_VERSION=$GOOGLE_PROTOBUF_VERSION
-    - echo GOOGLE_PROTOBUF_MIN_PROTOC_VERSION=$GOOGLE_PROTOBUF_MIN_PROTOC_VERSION
 
 script:
     - ./build.sh
