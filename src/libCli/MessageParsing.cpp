@@ -29,7 +29,7 @@ namespace cli
 /// @returns 0 if field value could be added to the message. -1 otherwise.
 int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_message, google::protobuf::DynamicMessageFactory & f_factory, const google::protobuf::FieldDescriptor * f_fieldDescriptor, bool f_isRepeated = false)
 {
-    const google::protobuf::Reflection* reflection = f_message->GetReflection();
+    const google::protobuf::Reflection *reflection = f_message->GetReflection();
     std::string valueString = f_parseTree.findFirstChild("FieldValue");
 
     switch(f_fieldDescriptor->cpp_type())
