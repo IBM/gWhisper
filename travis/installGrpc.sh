@@ -17,7 +17,7 @@
 git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc
 cd grpc
 git submodule update --init
-make -j8
+make CC=ccache\ gcc CXX=ccache\ g++ -j8
 sudo make install
 cd third_party/protobuf
 sudo make install
