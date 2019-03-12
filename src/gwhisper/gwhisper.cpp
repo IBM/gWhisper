@@ -50,7 +50,6 @@ int main(int argc, char **argv)
     // First we construct the initial Grammar for the CLI tool:
     Grammar grammarPool;
     GrammarElement * grammarRoot = cli::constructGrammar(grammarPool);
-    std::string baseGrammar = grammarRoot->toString();
 
     // Now we parse the given arguments using the grammar:
     std::string args = getArgsAsString(argc, argv);

@@ -33,7 +33,7 @@ struct ParseRc
     size_t lenParsedSuccessfully = 0;
     size_t lenParsed = 0;
 
-    std::string toString()
+    std::string toString() const
     {
         switch(errorType)
         {
@@ -52,12 +52,12 @@ struct ParseRc
         }
     }
 
-    bool isGood()
+    bool isGood() const
     {
         return errorType == ErrorType::success;
     }
 
-    bool isBad()
+    bool isBad() const
     {
         return not isGood();
     }

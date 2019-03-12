@@ -25,7 +25,6 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
     if(f_debug)
     {
         std::cerr << "Input string \"" << f_args << "\"\nCandidates:\n" << std::endl;
-        size_t n = f_parseTree.getMatchedString().size();
         for(auto candidate : f_candidates)
         {
             std::string candidateStr =candidate->getMatchedString();

@@ -44,7 +44,7 @@ class RegEx : public GrammarElement
 {
     public:
 
-        RegEx(const std::string f_regEx, std::string f_elementName = "") :
+        RegEx(const std::string & f_regEx, const std::string & f_elementName = "") :
             GrammarElement("RegEx", f_elementName),
             m_regEx(f_regEx),
             m_regExString(f_regEx)

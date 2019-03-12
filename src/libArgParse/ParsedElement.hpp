@@ -31,13 +31,13 @@ class ParsedElement
         {
         }
 
-        ParsedElement(ParsedElement * f_parent) :
+        explicit ParsedElement(ParsedElement * f_parent) :
             m_grammarElement(nullptr),
             m_parent(f_parent)
         {
         }
 
-        ParsedElement(GrammarElement * f_grammarElement) :
+        explicit ParsedElement(GrammarElement * f_grammarElement) :
             m_grammarElement(f_grammarElement),
             m_parent(this)
         {
@@ -77,7 +77,7 @@ class ParsedElement
         }
 
         // prints out the complete parse tree.
-        std::string getDebugString(std::string f_prefix = "");
+        std::string getDebugString(const std::string & f_prefix = "");
 
         std::vector<std::shared_ptr<ParsedElement> > & getChildren()
         {
@@ -113,12 +113,12 @@ class ParsedElement
             m_parent = f_parent;
         }
 
-        ParsedElement * getParent()
+        ParsedElement * getParent() const
         {
             return m_parent;
         }
 
-        ParsedElement * getRoot()
+        ParsedElement * getRoot() const
         {
             ParsedElement * result = getParent();
             while(result->getParent() != result)
@@ -141,7 +141,7 @@ class ParsedElement
                 m_children.back()->setStops();
             }
         }
-        bool isStopped()
+        bool isStopped() const
         {
             if(m_stops)
             {
@@ -163,7 +163,7 @@ class ParsedElement
             m_incompleteParse = true;
         }
 
-        bool isCompletelyParsed()
+        bool isCompletelyParsed() const
         {
             return (not m_incompleteParse);
         }

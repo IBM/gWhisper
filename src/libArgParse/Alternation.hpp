@@ -20,7 +20,7 @@ namespace ArgParse
 class Alternation : public GrammarElement
 {
     public:
-        Alternation(const std::string & f_elementName = ""):
+        explicit Alternation(const std::string & f_elementName = ""):
             GrammarElement("Alternation", f_elementName)
         {
         }

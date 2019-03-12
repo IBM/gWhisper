@@ -20,7 +20,7 @@ namespace ArgParse
 class Repetition : public GrammarElement
 {
     public:
-        Repetition(const std::string & f_elementName = ""):
+        explicit Repetition(const std::string & f_elementName = ""):
             GrammarElement("Repetition", f_elementName)
         {
         }
@@ -40,9 +40,6 @@ class Repetition : public GrammarElement
             ParseRc rc;
             ParseRc childRc;
             f_out_ParsedElement.setGrammarElement(this);
-
-            GrammarElement * candidate = nullptr;
-            ParseRc candidateRc;
 
             GrammarElement * child = nullptr;
             if(m_children.size() > 0)

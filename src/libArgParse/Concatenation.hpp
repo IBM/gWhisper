@@ -19,7 +19,7 @@ namespace ArgParse
 class Concatenation : public GrammarElement
 {
     public:
-        Concatenation(const std::string & f_elementName = "") :
+        explicit Concatenation(const std::string & f_elementName = "") :
             GrammarElement("Concatenation", f_elementName)
         {
         }

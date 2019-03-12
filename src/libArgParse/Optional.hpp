@@ -21,7 +21,7 @@ namespace ArgParse
 class Optional : public GrammarElement
 {
     public:
-        Optional(const std::string & f_elementName = "") :
+        explicit Optional(const std::string & f_elementName = "") :
             GrammarElement("Optional", f_elementName)
         {
         }
@@ -44,7 +44,6 @@ class Optional : public GrammarElement
             ParseRc childRc;
             f_out_ParsedElement.setGrammarElement(this);
 
-            GrammarElement * candidate = nullptr;
             ParseRc candidateRc;
 
             auto child = m_children[0]; // FIXME: range check

@@ -16,7 +16,7 @@
 
 //uint32_t ArgParse::GrammarElement::m_instanceCounter = 0;
 
-std::string ArgParse::ParsedElement::getDebugString(std::string f_prefix)
+std::string ArgParse::ParsedElement::getDebugString(const std::string & f_prefix)
 {
     std::string result;
     if(m_grammarElement == nullptr)
@@ -47,10 +47,8 @@ std::string ArgParse::ParsedElement::findFirstChild(const std::string & f_elemen
 
 void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements)
 {
-    bool match = false;
     if(m_grammarElement->getElementName() == f_elementName)
     {
-        match = true;
         f_out_result.push_back(this);
         if(f_doNotSearchChildsOfMatchingElements)
         {

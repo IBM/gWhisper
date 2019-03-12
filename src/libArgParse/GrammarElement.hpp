@@ -27,7 +27,8 @@ class GrammarElement;
 class GrammarElement
 {
     public:
-        GrammarElement(std::string f_typeName, std::string f_elementName = "") :
+        GrammarElement(const std::string & f_typeName, const std::string & f_elementName = "") :
+            m_parent(this),
             m_typeName(f_typeName),
             m_elementName(f_elementName),
             m_instanceId(getAndIncrementInstanceCounter())

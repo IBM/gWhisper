@@ -22,7 +22,7 @@ namespace ArgParse
 class GrammarInjector : public GrammarElement
 {
     public:
-        GrammarInjector(std::string f_typeName, const std::string & f_elementName = "") :
+        explicit GrammarInjector(const std::string & f_typeName, const std::string & f_elementName = "") :
             GrammarElement("GrammarInjector::" + f_typeName, f_elementName)
         {
         }

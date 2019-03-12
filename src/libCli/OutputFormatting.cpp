@@ -386,33 +386,30 @@ std::string OutputFormatter::stringFromBytes(const std::string & f_value, const 
     for(size_t i = 0; i<f_value.size(); )
     {
         // first decide on linebreaks, prefix etc:
-        if(i<f_value.size())
+        if(i%8 == 0)
         {
-            if(i%8 == 0)
+            if(f_value.size() > 8)
             {
-                if(f_value.size() > 8)
-                {
-                    result += "\n" + prefix;
-                    std::stringstream streamAddr;
-                    streamAddr << std::setfill (' ') << std::setw(maxAddrTextSize);
-                    // TODO: should place address as hex also...
-                    streamAddr << i;
-                    result += streamAddr.str();
-                    result += ": ";
-                }
-                else
-                {
-                    result += " = ";
-                }
-            }
-            else if(i%4 == 0)
-            {
-                result += "  ";
+                result += "\n" + prefix;
+                std::stringstream streamAddr;
+                streamAddr << std::setfill (' ') << std::setw(maxAddrTextSize);
+                // TODO: should place address as hex also...
+                streamAddr << i;
+                result += streamAddr.str();
+                result += ": ";
             }
             else
             {
-                result += " ";
+                result += " = ";
             }
+        }
+        else if(i%4 == 0)
+        {
+            result += "  ";
+        }
+        else
+        {
+            result += " ";
         }
 
         // now do the actual hexdump:

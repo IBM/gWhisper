@@ -20,13 +20,17 @@ namespace ArgParse
     class Grammar
     {
         public:
+            Grammar() :
+                m_rootElement(nullptr)
+            {
+            }
             template<class T, class... Args >
                 T * createElement( Args&&... f_args )
                 {
                     T * newNodePtr = new T(std::forward<Args>(f_args)...);
                     std::unique_ptr<T> newNode(newNodePtr);
                     m_nodes.push_back(std::move(newNode));
-                    return newNodePtr;
+                    return static_cast<T*>(m_nodes.back().get());
                 }
 
             void setRoot( GrammarElement * f_rootElement)
