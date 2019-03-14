@@ -11,17 +11,27 @@ OPTIONS:
   -h
   --help
       Shows this help.
+
   --noColor
       Disables colors in the output of gRPC replies.
+
   --customOutput OUTPUT_FORMAT
       Instead of printing the reply message using the default human readable
       format, a custom format as specified in OUTPUT_FORMAT is used.
       See OUTPUT_FORMAT section for a description of the OUTPUT_FORMAT language.
       Note that this is an experimental feature and will be documented in detail,
       once finished.
+
   --complete
       Shows possible next arguments.
       The output is rendered to be usable as input for bash-completion.
+
+  --connectTimeoutMilliseconds=TIMEOUT_VALUE
+      Default: 500
+      Sets the timeout for the gRPC Channel to go into connected state. If the
+      channel is not in connected state after the specified timeout, the gRPC
+      call and reflection-based completion attempts are aborted.
+
   --dot
       Prints a graphviz digraph, representing the current grammar of the parser.
 

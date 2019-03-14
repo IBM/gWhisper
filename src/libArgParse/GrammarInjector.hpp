@@ -31,7 +31,20 @@ class GrammarInjector : public GrammarElement
             if(m_children.size() == 0)
             {
                 // we first need to inject new grammar:
-                addChild(getGrammar(f_out_ParsedElement.getRoot()));
+                GrammarElement * newGrammar = getGrammar(f_out_ParsedElement.getRoot());
+                if(newGrammar != nullptr)
+                {
+                    // retrieving grammar succeeded :-)
+                    addChild(newGrammar);
+                }
+                else
+                {
+                    // retrieving grammar failed :-(
+                    // -> we need to cause parse to fail due to missing grammar.
+                    ParseRc rc;
+                    rc.errorType = ParseRc::ErrorType::unexpectedText;
+                    return rc;
+                }
             }
 
             f_out_ParsedElement.setGrammarElement(this);

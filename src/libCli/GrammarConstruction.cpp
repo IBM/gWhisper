@@ -15,6 +15,8 @@
 #include <libCli/GrammarConstruction.hpp>
 #include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
 
+#include <libCli/cliUtils.hpp>
+
 using namespace ArgParse;
 
 namespace cli
@@ -53,6 +55,10 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             std::shared_ptr<grpc::Channel> channel =
                 grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
 
+            if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
+            {
+                return nullptr;
+            }
 
             grpc::ProtoReflectionDescriptorDatabase descDb(channel);
             grpc::protobuf::DescriptorPool descPool(&descDb);
@@ -61,20 +67,20 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             if(service == nullptr)
             {
                 //std::cerr << "Error: Service not found" << std::endl;
-                return m_grammar.createElement<FixedString>("");
+                return nullptr;
             }
 
             auto method = service->FindMethodByName(methodName);
             if(method == nullptr)
             {
                 //std::cerr << "Error: Method not found" << std::endl;
-                return m_grammar.createElement<FixedString>("");
+                return nullptr;
             }
 
             if(method->client_streaming())
             {
                 std::cerr << "Error: Client streaming RPCs not supported." << std::endl;
-                return m_grammar.createElement<FixedString>("");
+                return nullptr;
             }
 
             auto concat = m_grammar.createElement<Concatenation>();
@@ -276,6 +282,11 @@ class GrammarInjectorMethods : public GrammarInjector
                 grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
 
 
+            if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
+            {
+                return nullptr;
+            }
+
             grpc::ProtoReflectionDescriptorDatabase descDb(channel);
             grpc::protobuf::DescriptorPool descPool(&descDb);
 
@@ -288,6 +299,10 @@ class GrammarInjectorMethods : public GrammarInjector
                 {
                     result->addChild(m_grammar.createElement<FixedString>(service->method(i)->name()));
                 }
+            }
+            else
+            {
+                return nullptr;
             }
             return result;
         };
@@ -324,14 +339,18 @@ class GrammarInjectorServices : public GrammarInjector
                 grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
 
 
+            if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
+            {
+                return nullptr;
+            }
+
             grpc::ProtoReflectionDescriptorDatabase descDb(channel);
-            //grpc::protobuf::DescriptorPool desc_pool(&desc_db);
 
             std::vector<grpc::string> serviceList;
             if(not descDb.GetServices(&serviceList) )
             {
                 printf("error retrieving service list\n");
-                //return -1;
+                return nullptr;
             }
 
             auto result = m_grammar.createElement<Alternation>();
@@ -405,6 +424,10 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--color", "Color"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--version", "Version"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--printParsedMessage", "PrintParsedMessage"));
+    GrammarElement * timeoutOption = f_grammarPool.createElement<Concatenation>();
+    timeoutOption->addChild(f_grammarPool.createElement<FixedString>("--connectTimeoutMilliseconds="));
+    timeoutOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "connectTimeout"));
+    optionsalt->addChild(timeoutOption);
     optionsalt->addChild(customOutputFormat);
     // FIXME FIXME FIXME: we cannot distinguish between --complete and --completeDebug.. this is a problem for arguments too, as we cannot guarantee, that we do not have an argument starting with the name of an other argument.
     // -> could solve by makeing FixedString greedy

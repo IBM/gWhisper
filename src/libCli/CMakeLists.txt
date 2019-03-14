@@ -21,6 +21,7 @@ set(TARGET_SRC
     ./GrammarConstruction.cpp
     ./Completion.cpp
     ./Call.cpp
+    ./cliUtils.cpp
     )
 add_library(${TARGET_NAME} ${TARGET_SRC})
 target_link_libraries ( ${TARGET_NAME}
