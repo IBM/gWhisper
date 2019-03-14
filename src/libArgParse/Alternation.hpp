@@ -14,6 +14,9 @@
 
 #pragma once
 #include <libArgParse/GrammarElement.hpp>
+class test6
+{
+};
 
 namespace ArgParse
 {

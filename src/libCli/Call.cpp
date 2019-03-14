@@ -26,6 +26,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <libCli/cliUtils.hpp>
+
 using namespace ArgParse;
 
 namespace cli
@@ -164,6 +166,12 @@ int call(ParsedElement & parseTree)
     std::shared_ptr<grpc::Channel> channel =
         grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
 
+
+    if(not waitForChannelConnected(channel, getConnectTimeoutMs(&parseTree)))
+    {
+        std::cerr << "Error: channel not connected afer 500ms" << std::endl;
+        return -1;
+    }
 
     grpc::ProtoReflectionDescriptorDatabase descDb(channel);
     grpc::protobuf::DescriptorPool descPool(&descDb);
