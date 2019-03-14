@@ -169,7 +169,7 @@ int call(ParsedElement & parseTree)
 
     if(not waitForChannelConnected(channel, getConnectTimeoutMs(&parseTree)))
     {
-        std::cerr << "Error: channel not connected afer 500ms" << std::endl;
+        std::cerr << "Error: channel connection attempt timed out" << std::endl;
         return -1;
     }
 
