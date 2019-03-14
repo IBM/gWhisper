@@ -18,4 +18,4 @@ before_install:
 
 script:
     - ./build.sh
-    - cppcheck --enable=all --inconclusive --std=c++11 -DGOOGLE_PROTOBUF_VERSION=3006001 --project=compile_commands.json -i third_party -j `nproc --all` -q
+    - cppcheck --enable=warning,style,performance,portability,unusedFunction --std=c++11 -DGOOGLE_PROTOBUF_VERSION=3006001 --project=compile_commands.json --suppress='*:*third_party*' --quiet
