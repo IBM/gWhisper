@@ -17,6 +17,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <limits>
 
 namespace ArgParse
 {
@@ -106,7 +107,7 @@ class ParsedElement
         //      2, 5, 7
         //  search for B with f_doNotSearchChildsOfMatchingElements == false:
         //      2, 3, 5, 7
-        void findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements = false);
+        void findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements = false, uint32_t f_depth = std::limits<uint32_t>::max());
 
         void setParent(ParsedElement * f_parent)
         {

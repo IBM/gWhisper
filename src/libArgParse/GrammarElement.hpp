@@ -84,6 +84,8 @@ class GrammarElement
             return result;
         }
 
+        // TODO: maybe we should return a pointer to the newly added child here.
+        // this would make grammar construction easier
         GrammarElement * addChild(GrammarElement * f_child)
         {
             f_child->setParent(this);

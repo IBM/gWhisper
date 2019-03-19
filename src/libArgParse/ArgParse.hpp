@@ -54,4 +54,5 @@
 #include <libArgParse/GrammarElement.hpp>
 #include <libArgParse/ArgParseUtils.hpp>
 #include <libArgParse/GrammarInjector.hpp>
+#include <libArgParse/GrammarFactory.hpp>
 

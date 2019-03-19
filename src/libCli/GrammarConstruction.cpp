@@ -170,25 +170,38 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE:
                     {
-                        //std::cerr << "Field '" << field->name() << "' has message type: '" << field->type_name() << "'" << std::endl;
-                        auto subMessage = m_grammar.createElement<Concatenation>("FieldValue");
-                        subMessage->addChild(m_grammar.createElement<FixedString>(":"));
+                        ArgParse::GrammarFactory grammarFactory(m_grammar);
 
-                        auto childFieldsRep = m_grammar.createElement<Repetition>("Fields");
-                        auto concat = m_grammar.createElement<Concatenation>();
                         auto fieldsAlt = getMessageGrammar(f_field->message_type());
-                        concat->addChild(fieldsAlt);
+                        auto  prepostfix = m_grammar.createElement<FixedString>(":");
+                        GrammarElement * subMessage = grammarFactory.createList(
+                                "FieldValue",
+                                fieldsAlt,
+                                m_grammar.createElement<WhiteSpace>(),
+                                false,
+                                prepostfix,
+                                prepostfix
+                                );
 
-                        auto separation = m_grammar.createElement<WhiteSpace>();
-                        //auto separation = m_grammar.createElement<Alternation>();
-                        //separation->addChild(m_grammar.createElement<WhiteSpace>());
-                        //separation->addChild(m_grammar.createElement<FixedString>(","));
-                        concat->addChild(separation);
+                        ////std::cerr << "Field '" << field->name() << "' has message type: '" << field->type_name() << "'" << std::endl;
+                        //auto subMessage = m_grammar.createElement<Concatenation>("FieldValue");
+                        //subMessage->addChild(m_grammar.createElement<FixedString>(":"));
 
-                        childFieldsRep->addChild(concat);
-                        subMessage->addChild(childFieldsRep);
+                        //auto childFieldsRep = m_grammar.createElement<Repetition>("Fields");
+                        //auto concat = m_grammar.createElement<Concatenation>();
+                        //auto fieldsAlt = getMessageGrammar(f_field->message_type());
+                        //concat->addChild(fieldsAlt);
 
-                        subMessage->addChild(m_grammar.createElement<FixedString>(":"));
+                        //auto separation = m_grammar.createElement<WhiteSpace>();
+                        ////auto separation = m_grammar.createElement<Alternation>();
+                        ////separation->addChild(m_grammar.createElement<WhiteSpace>());
+                        ////separation->addChild(m_grammar.createElement<FixedString>(","));
+                        //concat->addChild(separation);
+
+                        //childFieldsRep->addChild(concat);
+                        //subMessage->addChild(childFieldsRep);
+
+                        //subMessage->addChild(m_grammar.createElement<FixedString>(":"));
                         f_fieldGrammar->addChild(subMessage);
                         break;
                     }
@@ -198,6 +211,9 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             }
         }
 
+        // FIXME: we do want to generate a list via factory here not an alternation.
+        // This makes life much easier and avoids duplicate code as all messages have
+        // same parse structure.
         GrammarElement * getMessageGrammar(const grpc::protobuf::Descriptor* f_messageDescriptor)
         {
             auto fields = m_grammar.createElement<Alternation>();

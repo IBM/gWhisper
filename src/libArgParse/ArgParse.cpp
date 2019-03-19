@@ -45,8 +45,12 @@ std::string ArgParse::ParsedElement::findFirstChild(const std::string & f_elemen
     }
 }
 
-void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements)
+void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements, uint32_t f_depth)
 {
+    if(f_depth == 0)
+    {
+        return;
+    }
     if(m_grammarElement->getElementName() == f_elementName)
     {
         f_out_result.push_back(this);
@@ -58,7 +62,7 @@ void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName,
 
     for(auto child : m_children)
     {
-        child->findAllSubTrees(f_elementName, f_out_result);
+        child->findAllSubTrees(f_elementName, f_out_result, f_depth - 1);
     }
 }
 
