@@ -19,7 +19,9 @@ before_install:
 script:
     - ./build.sh
     - cppcheck --enable=warning,style,performance,portability,unusedFunction --std=c++11 -DGOOGLE_PROTOBUF_VERSION=3006001 --project=compile_commands.json --suppress='*:*third_party*' --quiet
-    - cd build && ctest
-    - cd build && sudo make install
+    - cd build
+    - ctest
+    - sudo make install
+    - cd ..
     - ./travis/runFunctionTests.sh
 
