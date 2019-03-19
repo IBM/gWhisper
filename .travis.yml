@@ -10,7 +10,6 @@ cache: ccache
 addons:
     snaps:
         - cppcheck
-        - protobuf
 
 before_install:
     - sudo apt-get update
