@@ -10,6 +10,7 @@ cache: ccache
 addons:
     snaps:
         - cppcheck
+        - protobuf
 
 before_install:
     - sudo apt-get update
@@ -19,3 +20,7 @@ before_install:
 script:
     - ./build.sh
     - cppcheck --enable=warning,style,performance,portability,unusedFunction --std=c++11 -DGOOGLE_PROTOBUF_VERSION=3006001 --project=compile_commands.json --suppress='*:*third_party*' --quiet
+    - cd build && ctest
+    - cd build && sudo make install
+    - ./travis/runFunctionTests.sh
+
