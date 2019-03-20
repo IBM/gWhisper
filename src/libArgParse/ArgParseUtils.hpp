@@ -30,6 +30,8 @@ struct ParseRc
     };
 
     ErrorType errorType = ErrorType::success;
+
+    // TODO: define what those two lengths actually mean
     size_t lenParsedSuccessfully = 0;
     size_t lenParsed = 0;
 
