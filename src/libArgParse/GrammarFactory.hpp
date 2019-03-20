@@ -52,10 +52,10 @@ namespace ArgParse
                     // need to wrap list body into an optional element
                     auto optionalListBody = m_grammarPool.createElement<Optional>();
                     auto listBody = m_grammarPool.createElement<Concatenation>();
-                    listBody.addChild(f_element);
-                    listBody.addChild(repetition);
-                    optionalListBody.addChild(listBody);
-                    listGrammar.addChild(optionalListBody);
+                    listBody->addChild(f_element);
+                    listBody->addChild(repetition);
+                    optionalListBody->addChild(listBody);
+                    listGrammar->addChild(optionalListBody);
                 }
                 else
                 {
@@ -68,13 +68,11 @@ namespace ArgParse
                     listGrammar->addChild(f_postfix);
                 }
 
-
-                fieldGrammar->addChild(repeatedGrammar);
-                
+                return listGrammar;
             }
 
         private:
             Grammar & m_grammarPool;
-    }
+    };
 
 }

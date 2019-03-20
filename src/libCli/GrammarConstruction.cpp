@@ -83,21 +83,21 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 return nullptr;
             }
 
-            auto concat = m_grammar.createElement<Concatenation>();
+            return getMessageGrammar("Message", method->input_type());
+            //auto concat = m_grammar.createElement<Concatenation>();
 
-            auto separation = m_grammar.createElement<WhiteSpace>();
-            //auto separation = m_grammar.createElement<Alternation>();
-            //separation->addChild(m_grammar.createElement<WhiteSpace>());
-            //separation->addChild(m_grammar.createElement<FixedString>(","));
-            concat->addChild(separation);
+            //auto separation = m_grammar.createElement<WhiteSpace>();
+            ////auto separation = m_grammar.createElement<Alternation>();
+            ////separation->addChild(m_grammar.createElement<WhiteSpace>());
+            ////separation->addChild(m_grammar.createElement<FixedString>(","));
+            //concat->addChild(separation);
 
-            auto fields = getMessageGrammar(method->input_type());
-            concat->addChild(fields);
+            //concat->addChild(fields);
 
-            auto result = m_grammar.createElement<Repetition>("Fields");
-            result->addChild(concat);
+            //auto result = m_grammar.createElement<Repetition>("Fields");
+            //result->addChild(concat);
 
-            return result;
+            //return result;
         };
 
     private:
@@ -172,16 +172,17 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                     {
                         ArgParse::GrammarFactory grammarFactory(m_grammar);
 
-                        auto fieldsAlt = getMessageGrammar(f_field->message_type());
-                        auto  prepostfix = m_grammar.createElement<FixedString>(":");
-                        GrammarElement * subMessage = grammarFactory.createList(
-                                "FieldValue",
-                                fieldsAlt,
-                                m_grammar.createElement<WhiteSpace>(),
-                                false,
-                                prepostfix,
-                                prepostfix
-                                );
+                        //auto fieldsAlt = getMessageGrammar(f_field->message_type());
+                        auto subMessage = getMessageGrammar("FieldValue", f_field->message_type(), m_grammar.createElement<FixedString>(":"));
+                        //auto  prepostfix = m_grammar.createElement<FixedString>(":");
+                        //GrammarElement * subMessage = grammarFactory.createList(
+                        //        "FieldValue",
+                        //        fieldsAlt,
+                        //        m_grammar.createElement<WhiteSpace>(),
+                        //        false,
+                        //        prepostfix,
+                        //        prepostfix
+                        //        );
 
                         ////std::cerr << "Field '" << field->name() << "' has message type: '" << field->type_name() << "'" << std::endl;
                         //auto subMessage = m_grammar.createElement<Concatenation>("FieldValue");
@@ -214,9 +215,20 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         // FIXME: we do want to generate a list via factory here not an alternation.
         // This makes life much easier and avoids duplicate code as all messages have
         // same parse structure.
-        GrammarElement * getMessageGrammar(const grpc::protobuf::Descriptor* f_messageDescriptor)
+        GrammarElement * getMessageGrammar(const std::string & f_rootElementName, const grpc::protobuf::Descriptor* f_messageDescriptor, GrammarElement * f_wrappingElement = nullptr)
         {
-            auto fields = m_grammar.createElement<Alternation>();
+            ArgParse::GrammarFactory grammarFactory(m_grammar);
+            auto fieldsAlt = m_grammar.createElement<Alternation>();
+            auto  prepostfix = m_grammar.createElement<FixedString>(":");
+            GrammarElement * message = grammarFactory.createList(
+                    f_rootElementName,
+                    fieldsAlt,
+                    m_grammar.createElement<WhiteSpace>(),
+                    false,
+                    f_wrappingElement,
+                    f_wrappingElement
+                    );
+
             // iterate over fields:
             for(int i = 0; i< f_messageDescriptor->field_count(); i++)
             {
@@ -224,11 +236,11 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
                 //std::cerr << "Iterating field " << std::to_string(i) << " of message " << f_messageDescriptor->name() << "with name: '" << field->name() <<"'"<< std::endl;
 
-                // now we add grammar to the fields alternation:
-                auto fieldGrammar = m_grammar.createElement<Concatenation>();
+                // now we add grammar to the fieldsAlt alternation:
+                auto fieldGrammar = m_grammar.createElement<Concatenation>("Field");
                 fieldGrammar->addChild(m_grammar.createElement<FixedString>(field->name(), "FieldName"));
                 fieldGrammar->addChild(m_grammar.createElement<FixedString>("="));
-                fields->addChild(fieldGrammar);
+                fieldsAlt->addChild(fieldGrammar);
                 if(field->is_repeated())
                 {
                     auto repeatedValue = m_grammar.createElement<Concatenation>("RepeatedValue");
@@ -259,8 +271,8 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 }
             }
 
-            //std::cout << "Grammar generated:\n" << fields->toString() << std::endl;
-            return fields;
+            //std::cout << "Grammar generated:\n" << fieldsAlt->toString() << std::endl;
+            return message;
         }
 
 
@@ -486,7 +498,7 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     cmain->addChild(f_grammarPool.createElement<GrammarInjectorServices>(f_grammarPool, "Service"));
     cmain->addChild(f_grammarPool.createElement<WhiteSpace>());
     cmain->addChild(f_grammarPool.createElement<GrammarInjectorMethods>(f_grammarPool, "Method"));
-    //cmain->addChild(f_grammarPool.createElement<WhiteSpace>());
+    cmain->addChild(f_grammarPool.createElement<WhiteSpace>());
     cmain->addChild(f_grammarPool.createElement<GrammarInjectorMethodArgs>(f_grammarPool, "MethodArgs"));
 
     return cmain;

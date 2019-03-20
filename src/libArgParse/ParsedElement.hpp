@@ -66,7 +66,7 @@ class ParsedElement
             m_matchedString = f_string;
         }
 
-        // prints the "flattened parse tree" i.e. the complete matched string.
+        /// prints the "flattened parse tree" i.e. the complete matched string.
         std::string getMatchedString() const
         {
             std::string result = m_matchedString;
@@ -77,37 +77,58 @@ class ParsedElement
             return result;
         }
 
-        // prints out the complete parse tree.
+        /// prints out the complete parse tree.
         std::string getDebugString(const std::string & f_prefix = "");
 
+        /// Returns a list of children.
         std::vector<std::shared_ptr<ParsedElement> > & getChildren()
         {
             return m_children;
         }
 
-        // depth first search for a single element, directly returning the matched string.
-        // @param f_elementName element name to search for (inherited from grammar element)
-        std::string findFirstChild(const std::string & f_elementName);
+        /// depth first search for a single element, directly returning the matched string.
+        /// @param f_elementName element name to search for (inherited from grammar element)
+        /// @param f_depth The maximum depth which should still be searched.
+        ///  f_depth=0 will only compare f_elementName with the element name of
+        ///  the ParsedElement for which this method is called.
+        ///  f_depth=1 will check all children
+        ///  f_depth=2 will check all children and their children
+        ///  and so on.
+        std::string findFirstChild(const std::string & f_elementName, uint32_t f_depth = std::numeric_limits<uint32_t>::max());
 
-        // depth first search for a single element.
-        // @param f_elementName element name to search for (inherited from grammar element)
-        ParsedElement & findFirstSubTree(const std::string & f_elementName, bool & f_out_found);
+        /// depth first search for a single element.
+        /// @param f_elementName element name to search for (inherited from grammar element)
+        /// @param f_out_found out parameter. true is written if a match was found
+        ///  false is written otherwise.
+        /// @param f_depth The maximum depth which should still be searched.
+        ///  f_depth=0 will only compare f_elementName with the element name of
+        ///  the ParsedElement for which this method is called.
+        ///  f_depth=1 will check all children
+        ///  f_depth=2 will check all children and their children
+        ///  and so on.
+        ParsedElement & findFirstSubTree(const std::string & f_elementName, bool & f_out_found, uint32_t f_depth = std::numeric_limits<uint32_t>::max());
 
-        // depth first search for elements.
-        // @param f_elementName element name to search for (inherited from grammar element)
-        // @param f_out_result vector to which found elements are written to
-        // @param f_doNotSearchChildsOfMatchingElements if true, the search will
-        //  not traverse deeper in a branch after finding the first match.
-        //  example: <NodeId>.<ElementName>
-        //  1.A -> 2.B -> 3.B
-        //      -> 4.C -> 5.B
-        //             -> 6.D
-        //      -> 7.B
-        //  search for B with f_doNotSearchChildsOfMatchingElements == true:
-        //      2, 5, 7
-        //  search for B with f_doNotSearchChildsOfMatchingElements == false:
-        //      2, 3, 5, 7
-        void findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements = false, uint32_t f_depth = std::limits<uint32_t>::max());
+        /// depth first search for elements.
+        /// @param f_elementName element name to search for (inherited from grammar element)
+        /// @param f_out_result vector to which found elements are written to
+        /// @param f_doNotSearchChildsOfMatchingElements if true, the search will
+        ///  not traverse deeper in a branch after finding the first match.
+        ///  example: <NodeId>.<ElementName>
+        ///  1.A -> 2.B -> 3.B
+        ///      -> 4.C -> 5.B
+        ///             -> 6.D
+        ///      -> 7.B
+        ///  search for B with f_doNotSearchChildsOfMatchingElements == true:
+        ///      2, 5, 7
+        ///  search for B with f_doNotSearchChildsOfMatchingElements == false:
+        ///      2, 3, 5, 7
+        /// @param f_depth The maximum depth which should still be searched.
+        ///  f_depth=0 will only compare f_elementName with the element name of
+        ///  the ParsedElement for which this method is called.
+        ///  f_depth=1 will check all children
+        ///  f_depth=2 will check all children and their children
+        ///  and so on.
+        void findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements = false, uint32_t f_depth = std::numeric_limits<uint32_t>::max());
 
         void setParent(ParsedElement * f_parent)
         {

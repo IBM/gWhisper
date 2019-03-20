@@ -8,32 +8,60 @@ gwhisper [OPTIONS] <hostname>[:port] <service> <method> [<fieldName>=FIELD_VALUE
 The default TCP port used to connect to a gRPC server is 50051.
 
 OPTIONS:
-  -h
-  --help
-      Shows this help.
 
-  --noColor
-      Disables colors in the output of gRPC replies.
+ General options:
 
-  --customOutput OUTPUT_FORMAT
-      Instead of printing the reply message using the default human readable
-      format, a custom format as specified in OUTPUT_FORMAT is used.
-      See OUTPUT_FORMAT section for a description of the OUTPUT_FORMAT language.
-      Note that this is an experimental feature and will be documented in detail,
-      once finished.
+   -h
+   --help
+       Shows this help and exits.
 
-  --complete
-      Shows possible next arguments.
-      The output is rendered to be usable as input for bash-completion.
+   --version
+       Prints version information and exits.
 
-  --connectTimeoutMilliseconds=TIMEOUT_VALUE
-      Default: 500
-      Sets the timeout for the gRPC Channel to go into connected state. If the
-      channel is not in connected state after the specified timeout, the gRPC
-      call and reflection-based completion attempts are aborted.
+ Behavioral options:
 
-  --dot
-      Prints a graphviz digraph, representing the current grammar of the parser.
+   --complete
+       Shows possible next arguments and exits.
+       The output is formatted to be usable as input for bash-completion.
+
+   --connectTimeoutMilliseconds=TIMEOUT_VALUE
+       Default: 500
+       Sets the timeout for the gRPC Channel to go into connected state. If the
+       channel is not in connected state after the specified timeout, the gRPC
+       call and reflection-based completion attempts are aborted.
+
+
+ Output formatting options:
+
+   --noColor
+       Disables colors in the output of gRPC replies.
+       NOTE: colors are automatically disabled when gwhisper is outputting
+       into a pipe.
+
+   --color
+       Enables colors also in pipes.
+
+   --customOutput OUTPUT_FORMAT
+       Instead of printing the reply message using the default human readable
+       format, a custom format as specified in OUTPUT_FORMAT is used.
+       See OUTPUT_FORMAT section for a description of the OUTPUT_FORMAT language.
+       Note that this is an experimental feature and will be documented in detail,
+       once finished.
+
+ Debug options:
+ The following options are useful for debugging gwhisper.
+
+   --dot
+       Prints a graphviz digraph, representing the current grammar of the parser.
+
+   --printParsedMessage
+       Prints the parsed request message in a human readable format before calling
+       the remote procedure.
+   
+   --debugComplete
+       Prints debug information about completion (might only be useful if
+       --complete is also present). The kind of information displayed is not
+       fixed yet.
 
 FIELD_VALUE:
   Field values in the request message may be specified as follows
