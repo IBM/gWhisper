@@ -236,29 +236,29 @@ std::unique_ptr<google::protobuf::Message> parseMessage(ParsedElement & f_parseT
     std::unique_ptr<google::protobuf::Message> message(f_factory.GetPrototype(f_messageDescriptor)->New());
 
     // we iterate over all fields:
-    bool found = false;
-    ParsedElement & parsedFields = f_parseTree.findFirstSubTree("Fields", found);
-    if(not found)
-    {
-        std::cerr << "Error: no Fields found in parseTree for message '" << f_messageDescriptor->name() << "'" << std::endl;
-        return nullptr;
-    }
     //std::cout << "Parsing message from tree: \n" << f_parseTree.getDebugString(" ") << std::endl;
     int rc = 0;
-    for(std::shared_ptr<ParsedElement> parsedField : parsedFields.getChildren())
+    std::vector<ArgParse::ParsedElement*> fields;
+    f_parseTree.findAllSubTrees("Field", fields, true, 2);
+    if(fields.size() == 0)
+    {
+        std::cerr << "Warning: no Fields found in parseTree for message '" << f_messageDescriptor->name() << "'" << std::endl;
+    }
+    for(ParsedElement * parsedField : fields)
     {
         if(parsedField->isCompletelyParsed())
         {
             //std::cout << "Parsing field from tree: \n" << parsedField->getDebugString(" ") << std::endl;
-            const google::protobuf::FieldDescriptor * fieldDescriptor = f_messageDescriptor->FindFieldByName(parsedField->findFirstChild("FieldName"));
+            const google::protobuf::FieldDescriptor * fieldDescriptor = f_messageDescriptor->FindFieldByName(parsedField->findFirstChild("FieldName", 1));
             if(fieldDescriptor == nullptr)
             {
-                std::cerr << "Warning: Field '" << parsedField->findFirstChild("FieldName") << "' does not exist. Ignoring." << std::endl;
+                std::cerr << "Warning: Field '" << parsedField->findFirstChild("FieldName", 1) << "' does not exist. Ignoring." << std::endl;
                 continue;
             }
 
             // now we have to parse the field value according to its type:
-            ParsedElement & fieldValue = parsedField->findFirstSubTree("FieldValue", found);
+            bool found = false;
+            ParsedElement & fieldValue = parsedField->findFirstSubTree("FieldValue", found, 1);
             if(found)
             {
                 if(fieldDescriptor->is_repeated())

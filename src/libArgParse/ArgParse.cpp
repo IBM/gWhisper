@@ -31,10 +31,10 @@ std::string ArgParse::ParsedElement::getDebugString(const std::string & f_prefix
     return result;
 }
 
-std::string ArgParse::ParsedElement::findFirstChild(const std::string & f_elementName)
+std::string ArgParse::ParsedElement::findFirstChild(const std::string & f_elementName, uint32_t f_depth)
 {
     bool found = false;
-    ParsedElement & result = findFirstSubTree(f_elementName, found);
+    ParsedElement & result = findFirstSubTree(f_elementName, found, f_depth);
     if(found)
     {
         return result.getMatchedString();
@@ -45,7 +45,7 @@ std::string ArgParse::ParsedElement::findFirstChild(const std::string & f_elemen
     }
 }
 
-void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements)
+void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements, uint32_t f_depth)
 {
     if(m_grammarElement->getElementName() == f_elementName)
     {
@@ -56,13 +56,18 @@ void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName,
         }
     }
 
+    if(f_depth == 0)
+    {
+        return;
+    }
+
     for(auto child : m_children)
     {
-        child->findAllSubTrees(f_elementName, f_out_result);
+        child->findAllSubTrees(f_elementName, f_out_result, f_depth - 1);
     }
 }
 
-ArgParse::ParsedElement & ArgParse::ParsedElement::findFirstSubTree(const std::string & f_elementName, bool & f_out_found)
+ArgParse::ParsedElement & ArgParse::ParsedElement::findFirstSubTree(const std::string & f_elementName, bool & f_out_found, uint32_t f_depth)
 {
     //std::cout << "searching for " << f_elementName << " going through " << m_grammarElement->getTypeName() << " " << m_grammarElement->getElementName() << std::endl;
     if(m_grammarElement->getElementName() == f_elementName)
@@ -71,12 +76,17 @@ ArgParse::ParsedElement & ArgParse::ParsedElement::findFirstSubTree(const std::s
         //std::cout << "searched for " << f_elementName << " returning true\n";
         return *this;
     }
+    else if(f_depth == 0)
+    {
+        f_out_found = false;
+        return *this;
+    }
     else
     {
         for(auto child : m_children)
         {
             bool found = false;
-            ParsedElement & result = child->findFirstSubTree(f_elementName, found);
+            ParsedElement & result = child->findFirstSubTree(f_elementName, found, f_depth - 1);
             if(found)
             {
                 f_out_found = true;
