@@ -40,3 +40,5 @@ if(BUILD_CONFIG_USE_BOOST_REGEX)
 endif()
 
 add_test(NAME UnitTests COMMAND ${TARGET_NAME})
+
+add_subdirectory(testServer)

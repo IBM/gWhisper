@@ -1,0 +1,219 @@
+// Copyright 2019 IBM Corporation
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package examples;
+
+service ScalarTypeRpcs
+{
+    // All numbers given in input are incremented by one.
+    rpc incrementNumbers (Numbers) returns (Numbers);
+
+    // A given Bool is negated.
+    rpc negateBool (Bool) returns (Bool);
+
+    // A given text is capitalized.
+    rpc capitalizeString (String) returns (String);
+
+    // A given data buffer is bitwise inverted.
+    rpc bitwiseInvertBytes (Bytes) returns (Bytes);
+}
+
+service ComplexTypeRpcs
+{
+    // TODO: Any, Map
+
+    // Enums:
+
+    // returns given Enum value back.
+    rpc echoColorEnum (ColorEnum) returns (ColorEnum);
+
+    // OneOf:
+
+    // Choose number, string or both and get a hello world reply as chosen.
+    rpc getNumberOrStringOneOf (NumberOrStringChoice) returns (NumberOrStringOneOf);
+
+    // Give a number, a string or both and the RPC tells you what kind of choice it received.
+    rpc sendNumberOrStringOneOf (NumberOrStringOneOf) returns (NumberOrStringChoice);
+
+    // Repeated:
+
+    // All numbers in the request are added and returned.
+    rpc addAllNumbers (RepeatedNumbers) returns (Uint32);
+
+    // The last color of all given is returned.
+    rpc getLastColor  (RepeatedColors) returns (ColorEnum);
+
+    // A repeated message with string and numbers is echoed.
+    rpc echoNumberandStrings (RepeatedNumberAndString) returns (RepeatedNumberAndString);
+}
+
+service NestedTypeRpcs
+{
+    rpc duplicateEverything1d (NestedMessage1d) returns (NestedMessage1d);
+    rpc duplicateEverything2d (NestedMessage2d) returns (NestedMessage2d);
+    rpc nestedEmpty (NestedEmpty) returns (google.protobuf.Empty);
+    rpc getTime (google.protobuf.Empty) returns (google.protobuf.Timestamp);
+}
+
+service StreamingRpcs
+{
+    // Returns a stream of <number> messages of type Empty, then closes the stream.
+    rpc replyStreamEmpty (Uint32) returns (stream google.protobuf.Empty);
+
+    // Returns continuous stream of messages containing a timestamp with a frequency of about 10Hz.
+    rpc replyStreamTimestamp10Hz (Uint32) returns (stream google.protobuf.Timestamp);
+
+    // The following RPCs are not supported in the current version of gWhisper.
+    // gWhisper should print a meaningful error message in an attempt to call them.
+
+    // Receives a stream of numbers, which are all added and returned as a single number.
+    rpc requestStreamAddAllNumbers (stream Uint32) returns (Uint32);
+    
+    // Counts all streamed messages and returns the count.
+    rpc requestStreamCountMessages (stream google.protobuf.Empty) returns (Uint32);
+
+    // Received numbers are negated and streamed back.
+    rpc bidirectionalStreamNegateNumbers (stream Int32) returns (stream Int32);
+}
+
+service StatusHandling
+{
+    rpc neverEndingRpc (google.protobuf.Empty) returns (google.protobuf.Empty);
+    rpc giveStatusAborted (google.protobuf.Empty) returns (google.protobuf.Empty);
+    rpc notImplementedRpc (google.protobuf.Empty) returns (google.protobuf.Empty);
+}
+
+// TODO: packages, namespaces
+
+enum Colors
+{
+    white = 0;
+    black = 1;
+    red   = 2;
+    green = 3;
+    blue  = 4;
+}
+
+message RepeatedNumberAndString
+{
+    repeated NumberAndString number_and_strings = 1;
+}
+
+message RepeatedNumbers
+{
+    repeated uint32 numbers = 1;
+}
+
+message RepeatedColors
+{
+    repeated Colors colors = 1;
+}
+
+message ColorEnum
+{
+    Colors color = 1;
+}
+
+message NumberOrStringChoice
+{
+    enum Choice
+    {
+        getNumber = 0;
+        getString = 1;
+        both      = 2;
+    }
+
+    Choice choice = 1;
+}
+
+message NumberOrStringOneOf
+{
+    message NumberAndString
+    {
+        int32 number = 1;
+        string str   = 2;
+    }
+    oneof number_or_string
+    {
+        int32 number = 1;
+        string str   = 2;
+        NumberAndString both = 3;
+    }
+}
+
+message Int32
+{
+    int32 number = 1;
+}
+
+message Uint32
+{
+    uint32 number = 1;
+}
+
+message String
+{
+    string text = 1;
+}
+
+message Bytes
+{
+    bytes data = 1;
+}
+
+message Numbers
+{
+    double m_double = 1;
+    float m_float   = 2;
+    int32 m_int32   = 3;
+    int64 m_int64   = 4;
+    uint32 m_uint32 = 5;
+    uint64 m_uint64 = 6;
+    // For now encoding variants (sint, fixed, sfixed) not provided, as the API
+    // is the same as for the above types.
+}
+
+message Bool
+{
+    bool m_bool = 1;
+}
+
+message NumberAndString
+{
+    uint32 number = 1;
+    string str    = 2;
+}
+
+message NestedMessage1d
+{
+    Numbers some_numbers = 1;
+    NumberAndString number_and_string = 2;
+    string str = 3;
+}
+
+message NestedMessage2d
+{
+    NestedMessage1d sub_tree = 1;
+    NumberAndString number_and_string = 2;
+    string str = 3;
+}
+
+message NestedEmpty
+{
+    google.protobuf.Empty emptyChild = 1;
+}
