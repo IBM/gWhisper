@@ -85,7 +85,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
             do
                 if [ ${expectedLine:0:1} = "/" ]; then
                     expectedLine=${expectedLine:1}
-                    if [ "${receivedLine[$idx]}" =~ $expected ]; then
+                    if [[ ! "${received[$idx]}" =~ $expectedLine ]]; then
                         fail=true
                         failtext="line $(((idx+1))) received text does not match expected regex."
                         break
@@ -103,9 +103,9 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         if [ $fail = true ]; then
             failedTests+=("line: ${testline}, name: '${testname}'")
             echo " Received:"
-            printf '  %s\n' "${received[@]}"
+            printf '  '%s'\n' "${received[@]}"
             echo " Expected:"
-            printf '  %s\n' "${expected[@]}"
+            printf '  '%s'\n' "${expected[@]}"
             echo -e " ${RED}FAIL:${NC} $failtext"
         else
             echo -e " ${GREEN}OK${NC}"

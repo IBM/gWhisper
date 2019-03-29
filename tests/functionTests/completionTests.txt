@@ -14,10 +14,95 @@
 
 #START_TEST parse should fail with no arguments
 @@CMD@@
-Parse failed. Parsed until: ''
+/Parse failed
 #END_TEST
 
 #START_TEST complete a space after option
 @@CMD@@ --complete
 --complete 
 #END_TEST
+
+#START_TEST Complete port or services
+@@CMD@@ --complete 127.0.0.1 
+127.0.0.1:
+127.0.0.1 examples.ScalarTypeRpcs 
+127.0.0.1 examples.NestedTypeRpcs 
+127.0.0.1 examples.ComplexTypeRpcs 
+127.0.0.1 examples.StreamingRpcs 
+/^127.0.0.1 grpc.reflection.*$
+#END_TEST
+
+#START_TEST complete RPCs
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs 
+examples.ScalarTypeRpcs incrementNumbers 
+examples.ScalarTypeRpcs negateBool 
+examples.ScalarTypeRpcs capitalizeString 
+examples.ScalarTypeRpcs bitwiseInvertBytes 
+#END_TEST
+
+#START_TEST l1 number fields
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs incrementNumbers
+incrementNumbers m_double=
+incrementNumbers m_float=
+incrementNumbers m_int32=
+incrementNumbers m_int64=
+incrementNumbers m_uint32=
+incrementNumbers m_uint64=
+#END_TEST
+
+#START_TEST l1 bytes field
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes
+bitwiseInvertBytes data=0x
+#END_TEST
+
+#START_TEST l1 bytes field
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs capitalizeString 
+capitalizeString text=
+#END_TEST
+
+#START_TEST l1 bool field
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs negateBool
+negateBool m_bool=true
+negateBool m_bool=false
+negateBool m_bool=1
+negateBool m_bool=0
+#END_TEST
+
+#START_TEST l1 bool field only value
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs negateBool m_bool=
+true
+false
+1
+0
+#END_TEST
+
+#START_TEST repeated number field
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers
+addAllNumbers numbers=:
+#END_TEST
+
+#START_TEST repeated number field numbers cannot be completed
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:
+#END_TEST
+
+#START_TEST repeated number field After number choide: colon or comma
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:324
+324, 
+324:
+#END_TEST
+
+#START_TEST repeated number field After number choide: colon or comma
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:123, 324
+324, 
+324:
+#END_TEST
+
+#START_TEST enum values
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoColorEnum color=
+white
+black
+red
+green
+blue
+#END_TEST
+
