@@ -14,4 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# no function tests currently exist
+cd tests/functionTests
+./runCompletionTests.sh ../../build/ ./completionTests.txt
+return $?

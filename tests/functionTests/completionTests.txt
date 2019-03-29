@@ -12,8 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required (VERSION 2.8)
+#START_TEST parse should fail with no arguments
+@@CMD@@
+Parse failed. Parsed until: ''
+#END_TEST
 
-add_subdirectory(unitTests)
-add_subdirectory(functionTests)
-add_subdirectory(testServer)
+#START_TEST complete a space after option
+@@CMD@@ --complete
+--complete 
+#END_TEST

@@ -14,6 +14,4 @@
 
 cmake_minimum_required (VERSION 2.8)
 
-add_subdirectory(unitTests)
-add_subdirectory(functionTests)
-add_subdirectory(testServer)
+add_test(NAME CompletionFunctionTests COMMAND ${PROJECT_SOURCE_DIR}/tests/functionTests/runCompletionTests.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests.txt)
