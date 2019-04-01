@@ -32,6 +32,10 @@
 /^127.0.0.1 grpc.reflection.*$
 #END_TEST
 
+##############################################################################
+# Scalar type RPCs
+##############################################################################
+
 #START_TEST complete RPCs
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs 
 examples.ScalarTypeRpcs incrementNumbers 
@@ -76,6 +80,11 @@ false
 0
 #END_TEST
 
+##############################################################################
+# Complex type RPCs
+##############################################################################
+
+
 #START_TEST repeated number field
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers
 addAllNumbers numbers=:
@@ -104,5 +113,85 @@ black
 red
 green
 blue
+#END_TEST
+
+#START_TEST oneof input choices again
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs sendNumberOrStringOneOf both=:number=5 str=5:
+ number=
+ str=
+ both=
+#END_TEST
+
+#START_TEST oneof input choices
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs sendNumberOrStringOneOf 
+sendNumberOrStringOneOf number=
+sendNumberOrStringOneOf str=
+sendNumberOrStringOneOf both=
+#END_TEST
+
+#START_TEST repeated enum complete the only field
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs getLastColor 
+getLastColor colors=:white
+getLastColor colors=:black
+getLastColor colors=:red
+getLastColor colors=:green
+getLastColor colors=:blue
+#END_TEST
+
+#START_TEST repeated enum, complete first element after field name
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs getLastColor colors=:
+white
+black
+red
+green
+blue
+#END_TEST
+
+#START_TEST repeated enum, complete second element
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs getLastColor colors=:black
+black, white
+black, black
+black, red
+black, green
+black, blue
+black:
+#END_TEST
+
+#START_TEST repeated enum, complete second element after comma
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs getLastColor colors=:black, 
+black, white
+black, black
+black, red
+black, green
+black, blue
+#END_TEST
+
+#START_TEST repeated enum, complete after last element colon
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs getLastColor colors=:black, white:
+ colors=:white
+ colors=:black
+ colors=:red
+ colors=:green
+ colors=:blue
+#END_TEST
+
+#START_TEST repeated sub message
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings
+echoNumberAndStrings number_and_strings=::number=
+echoNumberAndStrings number_and_strings=::str=
+#END_TEST
+
+#START_TEST repeated sub message after first element
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::number=5 str=asd
+asd number=
+asd str=
+asd:
+#END_TEST
+
+#START_TEST repeated sub message after first element end
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::number=5 str=asd:
+, :number=
+, :str=
+:
 #END_TEST
 

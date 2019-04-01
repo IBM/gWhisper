@@ -165,7 +165,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                         //f_fieldGrammar->addChild(stringContainer);
 
                         // Using this as a workaround until parser gets better regex support
-                        f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[^ ]*", "FieldValue"));
+                        f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[^:, ]*", "FieldValue"));
                     }
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE:

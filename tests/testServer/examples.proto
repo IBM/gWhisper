@@ -59,7 +59,7 @@ service ComplexTypeRpcs
     rpc getLastColor  (RepeatedColors) returns (ColorEnum);
 
     // A repeated message with string and numbers is echoed.
-    rpc echoNumberandStrings (RepeatedNumberAndString) returns (RepeatedNumberAndString);
+    rpc echoNumberAndStrings (RepeatedNumberAndString) returns (RepeatedNumberAndString);
 }
 
 service NestedTypeRpcs
