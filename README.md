@@ -51,7 +51,7 @@ Nested arguments (the config field contains a sub-message):
     gwhisper exampledomain.org bakery orderCookies config=:chocolate=true smarties=false : amount=5
 
 IPv6 address and explicit TCP port with an enum typed field:
-    
+
     gwhisper [2001:db8::2:1]:50059 bakery orderCookies type=ChunkyStyle amount=0x7
 
 ## Download
@@ -131,12 +131,12 @@ What is working:
 - Tab Completion (bash only)
 - Calling RPCs (unary + server-streaming)
 - Output of all types supported by protocol buffers
+- Input of all protocol buffer types
 
 Some notable things which are not yet working:
 
-- Input: OneOf fields
 - Input: Client streaming RPCs
-- Input: Escaping of control characters (":@.(,")
+- Input: Escaping of control characters (":@.(, ")
 - Completion: Support for shells other than BASH (e.g. zsh, fish)
 - Security: Authentication / Encryption of channels
 - Performance: Caching of reflection queries
@@ -145,7 +145,7 @@ Some notable things which are not yet working:
 
 All development and testing is done on ubuntu linux (mostly 16.04). We expect no bigger problems
 with building and running this software on different linux distributions.
-    
+
 ## Reporting issues
 
 Please use the GitGub [issues tab](https://github.com/ibm/gWhisper/issues).
