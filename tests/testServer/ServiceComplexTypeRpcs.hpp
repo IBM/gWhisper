@@ -18,5 +18,45 @@
 
 class ServiceComplexTypeRpcs final : public examples::ComplexTypeRpcs::Service
 {
+    virtual  ::grpc::Status echoColorEnum(
+            ::grpc::ServerContext* context,
+            const ::examples::ColorEnum* request,
+            ::examples::ColorEnum* response
+            ) override;
 
+    virtual  ::grpc::Status getNumberOrStringOneOf(
+            ::grpc::ServerContext* context,
+            const ::examples::NumberOrStringChoice* request,
+            ::examples::NumberOrStringOneOf* response
+            ) override;
+
+    virtual  ::grpc::Status sendNumberOrStringOneOf(
+            ::grpc::ServerContext* context,
+            const ::examples::NumberOrStringOneOf* request,
+            ::examples::NumberOrStringChoice* response
+            ) override;
+
+    virtual  ::grpc::Status addAllNumbers(
+            ::grpc::ServerContext* context,
+            const ::examples::RepeatedNumbers* request,
+            ::examples::Uint32* response
+            ) override;
+
+    virtual  ::grpc::Status getLastColor(
+            ::grpc::ServerContext* context,
+            const ::examples::RepeatedColors* request,
+            ::examples::ColorEnum* response
+            ) override;
+
+    virtual  ::grpc::Status echoNumberAndStrings(
+            ::grpc::ServerContext* context,
+            const ::examples::RepeatedNumberAndString* request,
+            ::examples::RepeatedNumberAndString* response
+            ) override;
+
+    virtual  ::grpc::Status mapNumbersToString(
+            ::grpc::ServerContext* context,
+            const ::examples::RepeatedNumbers* request,
+            ::examples::NumberMap* response
+            ) override;
 };

@@ -35,7 +35,7 @@ service ScalarTypeRpcs
 
 service ComplexTypeRpcs
 {
-    // TODO: Any, Map
+    // TODO: Any
 
     // Enums:
 
@@ -60,6 +60,13 @@ service ComplexTypeRpcs
 
     // A repeated message with string and numbers is echoed.
     rpc echoNumberAndStrings (RepeatedNumberAndString) returns (RepeatedNumberAndString);
+
+    // Map:
+
+    // return a map mapping all given numbers to their string represenation
+    rpc mapNumbersToString (RepeatedNumbers) returns (NumberMap);
+
+    // TODO: map in request
 }
 
 service NestedTypeRpcs
@@ -75,7 +82,7 @@ service StreamingRpcs
     // Returns a stream of <number> messages of type Empty, then closes the stream.
     rpc replyStreamEmpty (Uint32) returns (stream google.protobuf.Empty);
 
-    // Returns continuous stream of messages containing a timestamp with a frequency of about 10Hz.
+    // Returns a stream of <number> messages containing a timestamp with a frequency of about 10Hz.
     rpc replyStreamTimestamp10Hz (Uint32) returns (stream google.protobuf.Timestamp);
 
     // The following RPCs are not supported in the current version of gWhisper.
@@ -119,6 +126,11 @@ message RepeatedNumbers
     repeated uint32 numbers = 1;
 }
 
+message NumberMap
+{
+    map<uint32, string> number_to_string = 1;
+}
+
 message RepeatedColors
 {
     repeated Colors colors = 1;
@@ -133,8 +145,8 @@ message NumberOrStringChoice
 {
     enum Choice
     {
-        getNumber = 0;
-        getString = 1;
+        number = 0;
+        str = 1;
         both      = 2;
     }
 

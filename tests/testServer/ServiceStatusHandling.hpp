@@ -16,29 +16,18 @@
 
 #include "examples.grpc.pb.h"
 
-class ServiceScalarTypeRpcs final : public examples::ScalarTypeRpcs::Service
+class ServiceScalarTypeRpcs final : public examples::StatusHandling::Service
 {
-    virtual  ::grpc::Status incrementNumbers(
+    virtual  ::grpc::Status neverEndingRpc(
             ::grpc::ServerContext* context,
-            const ::examples::Numbers* request,
-            ::examples::Numbers* response
+            const ::google::protobuf::Empty* request,
+            ::google::protobuf::Empty* response
             ) override;
 
-    virtual  ::grpc::Status negateBool(
+    virtual  ::grpc::Status giveStatusAborted(
             ::grpc::ServerContext* context,
-            const ::examples::Bool* request,
-            ::examples::Bool* response
-            ) override;
-
-    virtual  ::grpc::Status capitalizeString(
-            ::grpc::ServerContext* context,
-            const ::examples::String* request,
-            ::examples::String* response
-            ) override;
-
-    virtual  ::grpc::Status bitwiseInvertBytes(
-            ::grpc::ServerContext* context,
-            const ::examples::Bytes* request,
-            ::examples::Bytes* response
+            const ::google::protobuf::Empty* request,
+            ::google::protobuf::Empty* response
             ) override;
 };
+

@@ -13,4 +13,82 @@
 // limitations under the License.
 
 #include "ServiceStreamingRpcs.hpp"
+#include <unistd.h>
 
+::grpc::Status ServiceStreamingRpcs::replyStreamEmpty(
+        ::grpc::ServerContext* context,
+        const ::examples::Uint32* request,
+        ::grpc::ServerWriter< ::google::protobuf::Empty>* writer
+        )
+{
+    bool ok = true;
+    uint32_t count = 0;
+    while((count < request->number()) and ok)
+    {
+        ::google::protobuf::Empty empty;
+        ok = writer->Write(empty);
+        count++;
+    }
+    return grpc::Status();
+}
+
+::grpc::Status ServiceStreamingRpcs::replyStreamTimestamp10Hz(
+        ::grpc::ServerContext* context,
+        const ::examples::Uint32* request,
+        ::grpc::ServerWriter< ::google::protobuf::Timestamp>* writer
+        )
+{
+
+    bool ok = true;
+    uint32_t count = 0;
+    while((count < request->number()) and ok)
+    {
+        ::google::protobuf::Timestamp timestamp;
+        std::time_t t = std::time(0) ;
+        struct tm zero = {0};
+
+        zero.tm_hour    = 0;
+        zero.tm_min     = 0;
+        zero.tm_sec     = 0;
+        zero.tm_year    = 0;
+        zero.tm_mon     = 0;
+        zero.tm_mday    = 0;
+
+        double seconds = difftime(t, mktime(&zero));
+
+        timestamp.set_seconds(seconds);
+        timestamp.set_nanos((seconds- static_cast<uint64_t>(seconds))*1000000000);
+
+        ok = writer->Write(timestamp);
+        usleep(100000);
+        count++;
+    }
+    return grpc::Status();
+}
+
+::grpc::Status ServiceStreamingRpcs::requestStreamAddAllNumbers(
+        ::grpc::ServerContext* context,
+        ::grpc::ServerReader< ::examples::Uint32>* reader,
+        ::examples::Uint32* response
+        )
+{
+    return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "This RPC is not yet implemented.");
+}
+
+::grpc::Status ServiceStreamingRpcs::requestStreamCountMessages(
+        ::grpc::ServerContext* context,
+        ::grpc::ServerReader< ::google::protobuf::Empty>* reader,
+        ::examples::Uint32* response
+        )
+{
+    return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "This RPC is not yet implemented.");
+}
+
+::grpc::Status ServiceStreamingRpcs::bidirectionalStreamNegateNumbers(
+        ::grpc::ServerContext* context,
+        ::grpc::ServerReaderWriter< ::examples::Int32,
+        ::examples::Int32>* stream
+        )
+{
+    return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "This RPC is not yet implemented.");
+}

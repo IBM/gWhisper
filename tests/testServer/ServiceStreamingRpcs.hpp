@@ -18,5 +18,33 @@
 
 class ServiceStreamingRpcs final : public examples::StreamingRpcs::Service
 {
+    virtual  ::grpc::Status replyStreamEmpty(
+            ::grpc::ServerContext* context,
+            const ::examples::Uint32* request,
+            ::grpc::ServerWriter< ::google::protobuf::Empty>* writer
+            ) override;
 
+    virtual  ::grpc::Status replyStreamTimestamp10Hz(
+            ::grpc::ServerContext* context,
+            const ::examples::Uint32* request,
+            ::grpc::ServerWriter< ::google::protobuf::Timestamp>* writer
+            ) override;
+
+    virtual  ::grpc::Status requestStreamAddAllNumbers(
+            ::grpc::ServerContext* context,
+            ::grpc::ServerReader< ::examples::Uint32>* reader,
+            ::examples::Uint32* response
+            ) override;
+
+    virtual  ::grpc::Status requestStreamCountMessages(
+            ::grpc::ServerContext* context,
+            ::grpc::ServerReader< ::google::protobuf::Empty>* reader,
+            ::examples::Uint32* response
+            ) override;
+
+    virtual  ::grpc::Status bidirectionalStreamNegateNumbers(
+            ::grpc::ServerContext* context,
+            ::grpc::ServerReaderWriter< ::examples::Int32,
+            ::examples::Int32>* stream
+            ) override;
 };

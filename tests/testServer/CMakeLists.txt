@@ -19,6 +19,7 @@ set(TARGET_SRC
     testServer.cpp
     ServiceScalarTypeRpcs.cpp
     ServiceNestedTypeRpcs.cpp
+    ServiceStatusHandling.cpp
     ServiceStreamingRpcs.cpp
     ServiceComplexTypeRpcs.cpp
     )

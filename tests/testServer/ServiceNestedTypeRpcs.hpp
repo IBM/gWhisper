@@ -18,5 +18,24 @@
 
 class ServiceNestedTypeRpcs final : public examples::NestedTypeRpcs::Service
 {
-
+    virtual  ::grpc::Status duplicateEverything1d(
+            ::grpc::ServerContext* context,
+            const ::examples::NestedMessage1d* request,
+            ::examples::NestedMessage1d* response
+            ) override;
+    virtual  ::grpc::Status duplicateEverything2d(
+            ::grpc::ServerContext* context,
+            const ::examples::NestedMessage2d* request,
+            ::examples::NestedMessage2d* response
+            ) override;
+    virtual  ::grpc::Status nestedEmpty(
+            ::grpc::ServerContext* context,
+            const ::examples::NestedEmpty* request,
+            ::google::protobuf::Empty* response
+            ) override;
+    virtual  ::grpc::Status getTime(
+            ::grpc::ServerContext* context,
+            const ::google::protobuf::Empty* request,
+            ::google::protobuf::Timestamp* response
+            ) override;
 };
