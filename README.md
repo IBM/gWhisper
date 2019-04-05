@@ -28,7 +28,6 @@ Execute `gwhisper --help` or click [here](doc/Usage.txt) to get detailed informa
 __IMPORTANT:__ Do not forget to source or install the `complete.bash` file. Otherwise tab-completion will not work. See [build](#build) or [install](#install) for details.
 
 Quick links:
-<<<<<<< HEAD
 - [Examples and Test-Server](#examples-and-test-server)
 - [Manual](doc/Usage.txt)
 - [Download](#download)
