@@ -48,7 +48,7 @@ Simple example of an unary RPC with only one field in the request message:
 
 Nested arguments (the config field contains a sub-message):
 
-    gwhisper exampledomain.org bakery orderCookies config=:chocolate=true smarties=false : amount=5
+    gwhisper exampledomain.org bakery orderCookies config=:chocolate=true smarties=false: amount=5
 
 IPv6 address and explicit TCP port with an enum typed field:
 
@@ -68,8 +68,6 @@ To be able to build and run tests, initialize third-party submodules (this will 
 
     cd gWhisper
     git submodule update --init
-
-NOTE: If you retrieved gWhisper from GitHub as an archive (zip or tar.gz), submodules are not included, as GitHub currently does not fully support submodules.
 
 ## Prerequisites
 
@@ -98,10 +96,10 @@ Source the bash completion file (for tab completion)
 
     . ./complete.bash
 
-Optionally run the unit-tests:
+Optionally run the tests:
 
     cd build
-    ctest
+    ctest --verbose
 
 Executables are now available in the `build` folder.
 

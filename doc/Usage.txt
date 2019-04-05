@@ -1,4 +1,6 @@
 gWhisper - A gRPC command-line client
+https://github.com/IBM/gWhisper
+
 This command allows to call gRPC RPCs on any gRPC server with reflection enabled.
 You may use TAB completion for all arguments (currently only supported in BASH).
 
@@ -45,7 +47,7 @@ OPTIONS:
        Instead of printing the reply message using the default human readable
        format, a custom format as specified in OUTPUT_FORMAT is used.
        See OUTPUT_FORMAT section for a description of the OUTPUT_FORMAT language.
-       Note that this is an experimental feature and will be documented in detail,
+       Note: This is an experimental feature and will be documented in detail,
        once finished.
 
  Debug options:
@@ -85,9 +87,8 @@ FIELD_VALUE:
       true, false, 1, 0
       Bool values are tab-completed
   - nested types:
-      The nested type fields enclosed in colons. E.g. target=:field1=1 field2=2 :
+      The nested type fields enclosed in colons. E.g. target=:field1=1 field2=2:
       Nested types are tab-completed
-      NOTE: currently after each field value a space is required
   - repeated fields:
       A list of field values enclosed in colons, separated with a comma and a whitespace.
       E.g. values=:2, 4, 16, 32:
@@ -119,7 +120,7 @@ EXAMPLES:
       A request message will be passed to the RPC call with the 'amount' field
       set to 5. Other fields, which might be present, are left at default values.
 
-  gwhisper [2001:db8::2:1]:50059 bakery orderCookies config=:chocolate=true smarties=false : amount=5
+  gwhisper [2001:db8::2:1]:50059 bakery orderCookies config=:chocolate=true smarties=false: amount=5
       Uses IPv6 address and nested types in the request message.
 
   gwhisper 192.168.0.43 bakery orderCookies amount=0xa
