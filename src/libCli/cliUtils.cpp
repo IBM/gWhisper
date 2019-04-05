@@ -21,4 +21,38 @@ namespace cli
         }
         return connectTimeoutMs;
     }
+
+    std::string getGrpcStatusCodeAsString(grpc::StatusCode f_statusCode)
+    {
+
+        static const std::map<grpc::StatusCode, const char*> codeMap{
+            {grpc::OK, "OK"}, 	
+            {grpc::CANCELLED, "CANCELLED"}, 	
+            {grpc::UNKNOWN, "UNKNOWN"}, 	
+            {grpc::INVALID_ARGUMENT, "INVALID_ARGUMENT"}, 	
+            {grpc::DEADLINE_EXCEEDED, "DEADLINE_EXCEEDED"}, 	
+            {grpc::NOT_FOUND, "NOT_FOUND"}, 	
+            {grpc::PERMISSION_DENIED, "PERMISSION_DENIED"}, 	
+            {grpc::UNAUTHENTICATED, "UNAUTHENTICATED"}, 	
+            {grpc::RESOURCE_EXHAUSTED, "RESOURCE_EXHAUSTED"}, 	
+            {grpc::FAILED_PRECONDITION, "FAILED_PRECONDITION"}, 	
+            {grpc::ABORTED, "ABORTED"}, 	
+            {grpc::OUT_OF_RANGE, "OUT_OF_RANGE"}, 	
+            {grpc::UNIMPLEMENTED, "UNIMPLEMENTED"}, 	
+            {grpc::INTERNAL, "INTERNAL"}, 	
+            {grpc::UNAVAILABLE, "UNAVAILABLE"}, 	
+            {grpc::DATA_LOSS, "DATA_LOSS"}, 	
+            {grpc::DO_NOT_USE, "DO_NOT_USE"}, 	
+        };
+
+        auto searchResult = codeMap.find(f_statusCode);
+        if(searchResult != codeMap.end())
+        {
+            return searchResult->second;
+        }
+        else
+        {
+            return "";
+        }
+    }
 }
