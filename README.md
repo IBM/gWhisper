@@ -28,7 +28,7 @@ Execute `gwhisper --help` or click [here](doc/Usage.txt) to get detailed informa
 __IMPORTANT:__ Do not forget to source or install the `complete.bash` file. Otherwise tab-completion will not work. See [build](#build) or [install](#install) for details.
 
 Quick links:
-- [Examples](#examples)
+- [Examples and Test-Server](#examples)
 - [Manual](doc/Usage.txt)
 - [Download](#download)
 - [Prerequisites](#prerequisites)
@@ -38,7 +38,7 @@ Quick links:
 - [Project scope](PROJECT_SCOPE.md)
 - [Contributing](CONTRIBUTING.md)
 
-## Examples
+## Examples and Test-Server
 Every element except the hostname in the following example CLI invocations can be tab-completed in the bash shell.
 
 
@@ -53,6 +53,11 @@ Nested arguments (the config field contains a sub-message):
 IPv6 address and explicit TCP port with an enum typed field:
     
     gwhisper [2001:db8::2:1]:50059 bakery orderCookies type=ChunkyStyle amount=0x7
+
+
+Feel free to use the _Test-Server_ shipped with gWhisper and try out gWhisper on your own.
+It is located in `build/testServer` and implements example RPCs which cover almost the
+complete gRPC and protocol buffers function set.
 
 ## Download
 
