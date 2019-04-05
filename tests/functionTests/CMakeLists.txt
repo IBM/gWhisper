@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright 2019 IBM Corporation
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,4 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# no function tests currently exist
+cmake_minimum_required (VERSION 2.8)
+
+add_test(NAME CompletionFunctionTests COMMAND ${PROJECT_SOURCE_DIR}/tests/functionTests/runCompletionTests.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests.txt)

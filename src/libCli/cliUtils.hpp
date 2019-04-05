@@ -28,4 +28,10 @@ namespace cli
     /// @param f_default default value returned, if parse-tree did not contain the option.
     /// @returns the value as an integer
     uint32_t getConnectTimeoutMs(ArgParse::ParsedElement * f_parseTree, uint32_t f_default = 500);
+
+    /// Convert a gRPC status code into a string.
+    /// @param f_statusCode The status code to convert.
+    /// @returns a string representation if one was found. Empty string otherwise.
+    std::string getGrpcStatusCodeAsString(grpc::StatusCode f_statusCode);
+
 }

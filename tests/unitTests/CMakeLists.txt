@@ -14,6 +14,28 @@
 
 cmake_minimum_required (VERSION 2.8)
 
-add_subdirectory(unitTests)
-add_subdirectory(functionTests)
-add_subdirectory(testServer)
+include_directories("${PROJECT_BINARY_DIR}")
+
+set(TARGET_NAME "gwhisper_tests")
+set(TARGET_SRC
+    FixedStringTest.cpp
+    ConcatenationTest.cpp
+    AlternationTest.cpp
+    RepetitionTest.cpp
+    GrammarComboTests.cpp
+    testmain.cpp
+    )
+
+add_executable(${TARGET_NAME} ${TARGET_SRC})
+
+target_link_libraries (${TARGET_NAME}
+    reflection
+    gtest
+    )
+if(BUILD_CONFIG_USE_BOOST_REGEX)
+    target_link_libraries (${TARGET_NAME}
+        boost_regex
+    )
+endif()
+
+add_test(NAME UnitTests COMMAND ${TARGET_NAME})

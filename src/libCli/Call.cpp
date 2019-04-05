@@ -296,7 +296,7 @@ int call(ParsedElement & parseTree)
 
     if(not status.ok())
     {
-        std::cerr << "RPC failed ;( Status code: " << std::to_string(status.error_code()) << ", error message: " << status.error_message() << std::endl;
+        std::cerr << "RPC failed ;( Status code: " << std::to_string(status.error_code()) << " " << cli::getGrpcStatusCodeAsString(status.error_code())  << ", error message: " << status.error_message() << std::endl;
         return -1;
     }
 
