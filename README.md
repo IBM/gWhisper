@@ -9,11 +9,10 @@ in a human readable format.
 The main design goals are:
 
 - Reflection support (no proto files required)
-- Tab completion for
+- Tab completion (currently only in bash) for
     - services
     - methods
-    - method arguments (currently only supported in Bash)
-      including nested types
+    - method arguments, including nested types
 - Usable directly in the shell
 - Designed with usability in mind
 
@@ -80,8 +79,8 @@ To be able to build and/or run gWhisper, you need to at least have the following
 
 - cmake
 - A C++ compiler
-- gRPC [link](https://github.com/grpc/grpc)
-    including the protoc plugin, which is packaged separately in some linux distributions
+- gRPC [link](https://github.com/grpc/grpc)  
+  including the protoc plugin, which is packaged separately in some linux distributions
 - protocolBuffers [link](https://github.com/protocolbuffers/protobuf)
 
 On Fedora you can install the prerequisites with:
@@ -126,7 +125,7 @@ Alternatively just copy the following files to the appropriate locations:
 
 ## Current development status
 
-This is in a pre-release state. Basic functionality is implemented, but you may experience bugs.
+Basic functionality is implemented, but you may experience bugs.
 Feel free to try it out and provide feedback/contributions.
 
 What is working:

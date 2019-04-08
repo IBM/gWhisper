@@ -51,7 +51,6 @@ OPTIONS:
        once finished.
 
  Debug options:
- The following options are useful for debugging gwhisper.
 
    --dot
        Prints a graphviz digraph, representing the current grammar of the parser.
