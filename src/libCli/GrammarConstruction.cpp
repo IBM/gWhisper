@@ -413,19 +413,38 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     formatOutputSpecifierAlternation->addChild(f_grammarPool.createElement<RegEx>("[^:/]+", "OutputFixedString")); // a real string
     GrammarElement * fieldReference = f_grammarPool.createElement<Concatenation>();
     fieldReference->addChild(f_grammarPool.createElement<FixedString>("/"));
-    fieldReference->addChild(f_grammarPool.createElement<RegEx>("[^/,]*", "OutputFieldReference")); // field reference
-    GrammarElement * modifiers = f_grammarPool.createElement<Repetition>("OutputFormatModifiers");
-    GrammarElement * modifierConcat = f_grammarPool.createElement<Concatenation>();
-    modifierConcat->addChild(f_grammarPool.createElement<FixedString>(","));
-    GrammarElement * modifierAlternation = f_grammarPool.createElement<Alternation>("Modifier");
-    modifierAlternation->addChild(f_grammarPool.createElement<FixedString>("hex"));
-    modifierAlternation->addChild(f_grammarPool.createElement<FixedString>("dec"));
-    modifierAlternation->addChild(f_grammarPool.createElement<FixedString>("zeroPadding"));
-    modifierAlternation->addChild(f_grammarPool.createElement<FixedString>("spacePadding"));
-    modifierAlternation->addChild(f_grammarPool.createElement<FixedString>("noPadding"));
-    modifiers->addChild(modifierConcat);
-    modifierConcat->addChild(modifierAlternation);
-    fieldReference->addChild(modifiers);
+    fieldReference->addChild(f_grammarPool.createElement<RegEx>("[^/,%=]+", "OutputFieldReference")); // field reference
+
+
+    // Modifier = { % <ModifierType> [, <ModifierPaddingAlt> = [0-9]+ ] }
+    GrammarElement * modifier = f_grammarPool.createElement<Optional>("Modifier");                   // contains
+    GrammarElement * modifierConcat = f_grammarPool.createElement<Concatenation>("ModifierConcat");  // contains
+    GrammarElement * modifierType = f_grammarPool.createElement<Alternation>("ModifierType");
+
+    modifierType->addChild(f_grammarPool.createElement<FixedString>("default"));
+    modifierType->addChild(f_grammarPool.createElement<FixedString>("bin"));
+    modifierType->addChild(f_grammarPool.createElement<FixedString>("dec"));
+    modifierType->addChild(f_grammarPool.createElement<FixedString>("hex"));
+
+    modifierConcat->addChild(f_grammarPool.createElement<FixedString>("%"));
+    modifierConcat->addChild(modifierType);
+
+//    GrammarElement * modifierPaddingOpt = f_grammarPool.createElement<Optional>("ModifierPadding");
+//    GrammarElement * modifierPaddingConcat = f_grammarPool.createElement<Concatenation>("ModifierPaddingConcat");
+//    GrammarElement * modifierPaddingAlt = f_grammarPool.createElement<Alternation>("ModifierPaddingType");
+//    modifierPaddingAlt->addChild(f_grammarPool.createElement<FixedString>("zeroPaddingChars"));
+//    modifierPaddingAlt->addChild(f_grammarPool.createElement<FixedString>("spacePaddingChars"));
+//
+//    modifierPaddingConcat->addChild(f_grammarPool.createElement<FixedString>(","));
+//    modifierPaddingConcat->addChild(modifierPaddingAlt);
+//    modifierPaddingConcat->addChild(f_grammarPool.createElement<FixedString>("="));
+//    modifierPaddingConcat->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "NumPaddingCharacters"));
+//
+//    modifierPaddingOpt->addChild(modifierPaddingConcat);
+//    modifierConcat->addChild(modifierPaddingOpt);
+
+    modifier->addChild(modifierConcat);
+    fieldReference->addChild(modifier);
     fieldReference->addChild(f_grammarPool.createElement<FixedString>("/"));
     formatOutputSpecifierAlternation->addChild(fieldReference);
     formatOutputSpecifier->addChild(formatOutputSpecifierAlternation);
