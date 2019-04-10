@@ -13,8 +13,12 @@
 // limitations under the License.
 
 #include <libCli/MessageParsing.hpp>
+#include <fstream>
 
 using namespace ArgParse;
+
+static int parseBytesFieldFromFile(std::string &f_resultString, const std::string &f_valueString, const std::string &f_fieldName);
+static int parseBytesFieldFromHexStr(std::string &f_resultString, const std::string &f_valueString, const std::string &f_fieldName);
 
 namespace cli
 {
@@ -161,23 +165,25 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
             // we could have a string or a bytes input here
             if(f_fieldDescriptor->type() == google::protobuf::FieldDescriptor::Type::TYPE_BYTES)
             {
+                int rc = 0;
                 std::string resultString;
-                // if we have a bytes field, we parse a hex string:
-                if(valueString.substr(0,2) != "0x")
+                // if we have a bytes field, we parse a hex string or file input:
+                if(valueString.substr(0,2) == "0x")
                 {
-                    std::cerr << "Error parsing bytes field '" << f_fieldDescriptor->name() << "': Given value does not start with '0x'. Expected a hex string" << std::endl;
+                    rc = parseBytesFieldFromHexStr(resultString, valueString, f_fieldDescriptor->name());
+                    if(rc) return rc;
+                }
+                else if(valueString.substr(0,7) == "file://")
+                {
+                    rc = parseBytesFieldFromFile(resultString, valueString, f_fieldDescriptor->name());
+                    if(rc) return rc;
+                }
+                else
+                {
+                    std::cerr << "Error parsing bytes field '" << f_fieldDescriptor->name() << "': Given value does not start with '0x' nor with 'file://'." << std::endl;
                     return -1;
                 }
-                if(valueString.size()%2 != 0)
-                {
-                    std::cerr << "Error parsing bytes field '" << f_fieldDescriptor->name() << "': Given value is not a multiple of 8 bits long" << std::endl;
-                    return -1;
-                }
-                for(size_t pos = 2; pos+1<valueString.size(); pos+=2)
-                {
-                    uint8_t byteVal = std::stoul(valueString.substr(pos,2), 0, 16);
-                    resultString.append(1,byteVal);
-                }
+
                 if(f_isRepeated)
                 {
                     reflection->AddString(f_message, f_fieldDescriptor, resultString);
@@ -293,4 +299,54 @@ std::unique_ptr<google::protobuf::Message> parseMessage(ParsedElement & f_parseT
     return std::move(message);
 }
 
+}
+
+static int parseBytesFieldFromFile(std::string &f_resultString, const std::string &f_valueString, const std::string &f_fieldName)
+{
+    if(f_valueString.substr(0,7) != "file://")
+    {
+        return -1;
+    }
+
+    std::string filename = f_valueString.substr(7, std::string::npos);
+    std::ifstream instream;
+    instream.open(filename.c_str(), std::ifstream::binary);
+
+    if(!instream)
+    {
+        std::cout << "Error parsing bytes field '" << f_fieldName << "': Input file '" << filename << "' could not be opened." << std::endl;
+        return -1;
+    }
+
+    std::stringstream outstream;
+    std::copy(std::istreambuf_iterator<char>(instream),
+              std::istreambuf_iterator<char>(),
+              std::ostreambuf_iterator<char>(outstream));
+    f_resultString = outstream.str();
+
+    return 0;
+}
+
+static int parseBytesFieldFromHexStr(std::string &f_resultString, const std::string &f_valueString, const std::string &f_fieldName)
+{
+    int rc = 0;
+
+    if(f_valueString.substr(0,2) != "0x")
+    {
+        return -1;
+    }
+
+    if(f_valueString.size()%2 != 0)
+    {
+        std::cerr << "Error parsing bytes field '" << f_fieldName << "': Given value is not a multiple of 8 bits long" << std::endl;
+        return -1;
+    }
+
+    for(size_t pos = 2; pos+1<f_valueString.size(); pos+=2)
+    {
+        uint8_t byteVal = std::stoul(f_valueString.substr(pos,2), 0, 16);
+        f_resultString.append(1,byteVal);
+    }
+
+    return rc;
 }
