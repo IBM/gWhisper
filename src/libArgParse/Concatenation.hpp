@@ -155,7 +155,7 @@ class Concatenation : public GrammarElement
                 }
             }
 
-                //std::cout << "Concat "<< std::to_string(m_instanceId) <<  " returning rc=" << rc.toString() << std::endl;
+            //std::cout << "Concat "<< std::to_string(m_instanceId) <<  " returning rc=" << rc.toString() << std::endl;
 
             return rc;
         }

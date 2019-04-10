@@ -498,8 +498,16 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     cmain->addChild(f_grammarPool.createElement<GrammarInjectorServices>(f_grammarPool, "Service"));
     cmain->addChild(f_grammarPool.createElement<WhiteSpace>());
     cmain->addChild(f_grammarPool.createElement<GrammarInjectorMethods>(f_grammarPool, "Method"));
-    cmain->addChild(f_grammarPool.createElement<WhiteSpace>());
-    cmain->addChild(f_grammarPool.createElement<GrammarInjectorMethodArgs>(f_grammarPool, "MethodArgs"));
+
+    GrammarElement * optionalArgs = f_grammarPool.createElement<Optional>();
+
+    GrammarElement * args = f_grammarPool.createElement<Concatenation>();
+    args->addChild(f_grammarPool.createElement<WhiteSpace>());
+    args->addChild(f_grammarPool.createElement<GrammarInjectorMethodArgs>(f_grammarPool, "MethodArgs"));
+
+    optionalArgs->addChild(args);
+
+    cmain->addChild(optionalArgs);
 
     return cmain;
 }

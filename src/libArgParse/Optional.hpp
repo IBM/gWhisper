@@ -59,7 +59,8 @@ class Optional : public GrammarElement
                 rc.lenParsed += childRc.lenParsed;
                 f_out_ParsedElement.addChild(newParsedElement);
             }
-            if((not childRc.isGood()) && (childRc.errorType != ParseRc::ErrorType::unexpectedText))
+            //if((not childRc.isGood()) && (childRc.errorType != ParseRc::ErrorType::unexpectedText))
+            if(childRc.errorType != ParseRc::ErrorType::unexpectedText)
             {
                 // add all candidates resulting from the child:
                 for(auto candidate : childRc.candidates)

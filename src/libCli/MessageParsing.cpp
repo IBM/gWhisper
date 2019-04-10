@@ -240,7 +240,7 @@ std::unique_ptr<google::protobuf::Message> parseMessage(ParsedElement & f_parseT
     int rc = 0;
     std::vector<ArgParse::ParsedElement*> fields;
     f_parseTree.findAllSubTrees("Field", fields, true, 2);
-    if(fields.size() == 0)
+    if((fields.size() == 0) and (f_messageDescriptor->field_count() > 0) )
     {
         std::cerr << "Warning: no Fields found in parseTree for message '" << f_messageDescriptor->name() << "'" << std::endl;
     }

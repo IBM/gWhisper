@@ -52,7 +52,7 @@ class Repetition : public GrammarElement
             {
                 if(childRc.isGood() && (f_string[rc.lenParsedSuccessfully] == '\0'))
                 {
-                    // we parsed successfullt and exactly aligned with the end :)
+                    // we parsed successfully and exactly aligned with the end :)
                     // we continue parsing once more, to get possible further candidates
                     // then we end
                     // we set this flag here, to remember to switch the RC to success
@@ -106,7 +106,9 @@ class Repetition : public GrammarElement
                 else
                 {
                     // otherwise we still have missing text
+                    // FIXME: this makes repeated element not optional in some cases 
                     rc.errorType = ParseRc::ErrorType::missingText;
+                    //rc.errorType = ParseRc::ErrorType::success;
                 }
             }
             else
