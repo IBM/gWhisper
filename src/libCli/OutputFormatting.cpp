@@ -377,79 +377,87 @@ std::string OutputFormatter::messageToString(const grpc::protobuf::Message & f_m
 std::string OutputFormatter::stringFromBytes(const std::string & f_value, const CustomStringModifier & f_modifier, const std::string & f_prefix)
 {
     std::string result;
-    // a simple hexdump:
-    const std::string & prefix = f_prefix;
-    result += "hex[" + std::to_string(f_value.size()) + "]";
 
-    std::string stringRepresentation = "";
-    size_t maxAddrTextSize = std::to_string(f_value.size()-1).size();
-    for(size_t i = 0; i<f_value.size(); )
+    if(f_modifier == CustomStringModifier::Raw)
     {
-        // first decide on linebreaks, prefix etc:
-        if(i%8 == 0)
+        return f_value;
+    }
+    else // Default, Hex, Dec
+    {
+        // a simple hexdump:
+        const std::string & prefix = f_prefix;
+        result += "hex[" + std::to_string(f_value.size()) + "]";
+
+        std::string stringRepresentation = "";
+        size_t maxAddrTextSize = std::to_string(f_value.size()-1).size();
+        for(size_t i = 0; i<f_value.size(); )
         {
-            if(f_value.size() > 8)
+            // first decide on linebreaks, prefix etc:
+            if(i%8 == 0)
             {
-                result += "\n" + prefix;
-                std::stringstream streamAddr;
-                streamAddr << std::setfill (' ') << std::setw(maxAddrTextSize);
-                // TODO: should place address as hex also...
-                streamAddr << i;
-                result += streamAddr.str();
-                result += ": ";
+                if(f_value.size() > 8)
+                {
+                    result += "\n" + prefix;
+                    std::stringstream streamAddr;
+                    streamAddr << std::setfill (' ') << std::setw(maxAddrTextSize);
+                    // TODO: should place address as hex also...
+                    streamAddr << i;
+                    result += streamAddr.str();
+                    result += ": ";
+                }
+                else
+                {
+                    result += " = ";
+                }
+            }
+            else if(i%4 == 0)
+            {
+                result += "  ";
             }
             else
             {
-                result += " = ";
+                result += " ";
             }
-        }
-        else if(i%4 == 0)
-        {
-            result += "  ";
-        }
-        else
-        {
-            result += " ";
-        }
 
-        // now do the actual hexdump:
-        // cast to uint16_t necessary, otherwise stream interprets the value as a char.
-        uint16_t byteVal = f_value[i] & 0xff;
-        std::stringstream stream;
-        stream << std::setfill ('0') << std::setw(2) << std::hex;
-        stream << byteVal;
-        result += stream.str();
+            // now do the actual hexdump:
+            // cast to uint16_t necessary, otherwise stream interprets the value as a char.
+            uint16_t byteVal = f_value[i] & 0xff;
+            std::stringstream stream;
+            stream << std::setfill ('0') << std::setw(2) << std::hex;
+            stream << byteVal;
+            result += stream.str();
 
-        // create string representation:
-        if( (f_value[i] >= 32) and (f_value[i] <= 126) )
-        {
-            // string representable character range:
-            stringRepresentation += f_value[i];
-        }
-        else
-        {
-            // special characters
-            stringRepresentation += ".";
-        }
-
-        i++;
-
-        // Place string representation, when appropriate:
-        if( (i%8 == 0) or (i>=f_value.size()) )
-        {
-            size_t padding = (8 - i%8)%8;
-            if(padding>3)
+            // create string representation:
+            if( (f_value[i] >= 32) and (f_value[i] <= 126) )
             {
-                padding *=3;
-                padding += 1;
+                // string representable character range:
+                stringRepresentation += f_value[i];
             }
             else
             {
-                padding *=3;
+                // special characters
+                stringRepresentation += ".";
             }
-            result += std::string(padding, ' ');
-            result += " |" + stringRepresentation + "|";
-            stringRepresentation = "";
+
+            i++;
+
+            // Place string representation, when appropriate:
+            if( (i%8 == 0) or (i>=f_value.size()) )
+            {
+                size_t padding = (8 - i%8)%8;
+                if(padding>3)
+                {
+                    padding *=3;
+                    padding += 1;
+                }
+                else
+                {
+                    padding *=3;
+                }
+                result += std::string(padding, ' ');
+                result += " |" + stringRepresentation + "|";
+                stringRepresentation = "";
+            }
         }
     }
     return result;

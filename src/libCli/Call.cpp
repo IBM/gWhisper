@@ -30,6 +30,8 @@
 
 using namespace ArgParse;
 
+static cli::OutputFormatter::CustomStringModifier getModifier(ArgParse::ParsedElement &f_optionalModifier);
+
 namespace cli
 {
 
@@ -111,11 +113,12 @@ std::string customMessageFormat(const grpc::protobuf::Message & f_message, const
     }
     for(auto outputStatement : formatString.getChildren())
     {
-
         bool foundFieldReference = false;
         auto fieldReference = outputStatement->findFirstSubTree("OutputFieldReference", foundFieldReference);
         if(foundFieldReference)
         {
+            OutputFormatter::CustomStringModifier modifier = getModifier(*outputStatement);
+
             //std::cout << "  have field ref " <<  fieldReference.getMatchedString() << "\n";
             // need to lookup the field:
             const google::protobuf::FieldDescriptor * fieldRef = f_messageDescriptor->FindFieldByName(fieldReference.getMatchedString());
@@ -125,7 +128,7 @@ std::string customMessageFormat(const grpc::protobuf::Message & f_message, const
             }
             else
             {
-                result += myOutputFormatter.fieldValueToString(f_message, fieldRef, "", "", OutputFormatter::CustomStringModifier::Raw);
+                result += myOutputFormatter.fieldValueToString(f_message, fieldRef, "", "", modifier);
             }
         }
         else
@@ -251,8 +254,8 @@ int call(ParsedElement & parseTree)
         replyMessage->ParseFromString(serializedResponse);
 
         // print date/time of message reception:
-        std::cout << getTimeString();
-        std::cout << ": Received message:\n";
+        std::cerr << getTimeString();
+        std::cerr << ": Received message:\n";
 
         // print out string representation of the message:
         std::string msgString;
@@ -280,15 +283,16 @@ int call(ParsedElement & parseTree)
             }
 
             msgString = messageFormatter.messageToString(*replyMessage, method->output_type(), "| ", "| " );
+            std::cout << msgString << std::endl;
         }
         else
         {
-            //std::cout << "using custom OutputFormatting\n";
             //std::cout << customFormatParseTree.getDebugString();
             // use user provided output format string
             msgString = customMessageFormat(*replyMessage, method->output_type(), customFormatParseTree);
+            std::cout << msgString; // Omit endline here. This is an unwanted char when binary data is directed into a file.
+            std::cerr << std::endl; // ... but put and endline into stderr to keep the console output nice again.
         }
-        std::cout  << msgString << std::endl;
     }
 
     // reply stream finished -> finish the RPC:
@@ -300,10 +304,43 @@ int call(ParsedElement & parseTree)
         return -1;
     }
 
-    std::cout << "RPC succeeded :D" << std::endl;
+    std::cerr << "RPC succeeded :D" << std::endl;
 
 
     return 0;
 }
 
+}
+
+/// getModifier()
+///
+/// @param f_optionalModifier A single child of "OutputFormatString"
+/// @return                   Returns the appropriate modifier or 'Default' if non-existent
+static cli::OutputFormatter::CustomStringModifier getModifier(ArgParse::ParsedElement &f_optionalModifier)
+{
+    cli::OutputFormatter::CustomStringModifier modifier = cli::OutputFormatter::CustomStringModifier::Default;
+    bool foundModifier = false;
+
+    auto modifierNode = f_optionalModifier.findFirstSubTree("ModifierType", foundModifier);
+    if(foundModifier)
+    {
+        if(modifierNode.getMatchedString() == "raw")
+        {
+            modifier = cli::OutputFormatter::CustomStringModifier::Raw;
+        }
+        else if(modifierNode.getMatchedString() == "dec")
+        {
+            modifier = cli::OutputFormatter::CustomStringModifier::Dec;
+        }
+        else if(modifierNode.getMatchedString() == "default")
+        {
+            modifier = cli::OutputFormatter::CustomStringModifier::Default;
+        }
+        else if(modifierNode.getMatchedString() == "hex")
+        {
+            modifier = cli::OutputFormatter::CustomStringModifier::Hex;
+        }
+    }
+
+    return modifier;
 }

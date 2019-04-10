@@ -17,6 +17,9 @@
 
 #include <sstream>
 #include <iomanip>
+#include <type_traits>
+
+template <typename T> static void dumpBinaryIntoString(std::string &f_destination, const T& f_source);
 
 namespace cli
 {
@@ -49,8 +52,10 @@ namespace cli
             /// Possible modifiers, which may be used to control how the formatter converts certain types into string.
             enum class CustomStringModifier
             {
-                None, // does not change behavior
-                Raw   // Prints integers in hex and without colorization. TODO: better name
+                Default, // The best human readable display format depending on type
+                Hex,
+                Dec,
+                Raw,
             };
 
             /// Formats a protobuf message into a human readable string.
@@ -74,11 +79,11 @@ namespace cli
 
             /// Formats a field value as string.
             /// NOTE: required for custom output format
-            std::string fieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, CustomStringModifier f_modifier = CustomStringModifier::None);
+            std::string fieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, CustomStringModifier f_modifier = CustomStringModifier::Default);
 
             /// Formats a repeated field value as string.
             /// NOTE: required for custom output format
-            std::string repeatedFieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, int f_fieldIndex, CustomStringModifier f_modifier = CustomStringModifier::None);
+            std::string repeatedFieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, int f_fieldIndex, CustomStringModifier f_modifier = CustomStringModifier::Default);
 
         private:
             std::map<ColorClass, std::string> m_colorMap;
@@ -93,13 +98,19 @@ namespace cli
                 std::string stringFromInt(T f_value, const CustomStringModifier & f_modifier)
                 {
                     std::string result;
-                    if(f_modifier == CustomStringModifier::Raw)
+                    switch(f_modifier)
                     {
+                    case CustomStringModifier::Hex:
                         result += intToHexString(f_value);
-                    }
-                    else
-                    {
+                        break;
+                    case CustomStringModifier::Raw:
+                        dumpBinaryIntoString(result, f_value); // TODO: on a little endian client machine, this will be dumped out as LE. This is not wrong,
+                        break;                                 //       but if the host is BE it might not be the expected behavior. What do we choose?
+                    case CustomStringModifier::Dec:
+                    case CustomStringModifier::Default:
+                    default:
                         result += colorize(ColorClass::DecimalValue, std::to_string(f_value));
+                        break;
                     }
                     return result;
                 }
@@ -108,17 +119,25 @@ namespace cli
                 std::string stringFromUInt(T f_value, const CustomStringModifier & f_modifier)
                 {
                     std::string result;
-                    if(f_modifier == CustomStringModifier::Raw)
+                    switch(f_modifier)
                     {
+                    case CustomStringModifier::Hex:
                         result += intToHexString(f_value);
-                    }
-                    else
-                    {
+                        break;
+                    case CustomStringModifier::Raw:
+                        dumpBinaryIntoString(result, f_value); // TODO: on a little endian client machine, this will be dumped out as LE. This is not wrong,
+                        break;                                //        but if the host is BE it might not be the expected behavior. What do we choose?
+                    case CustomStringModifier::Dec:
+                        result += colorize(ColorClass::DecimalValue, std::to_string(f_value));
+                        break;
+                    case CustomStringModifier::Default:
+                    default:
                         std::stringstream stream;
                         stream << colorize(ColorClass::DecimalValue, std::to_string(f_value))
                             << " (" << intToHexString(f_value) << ")"
                             << getColor(ColorClass::Normal);
                         result += stream.str();
+                        break;
                     }
                     return result;
                 }
@@ -147,4 +166,10 @@ namespace cli
             std::string stringFromBytes(const std::string & f_value, const CustomStringModifier & f_modifier, const std::string & f_prefix);
 
     };
+}
+
+template <typename T> static void dumpBinaryIntoString(std::string &f_destination, const T& f_source)
+{
+    f_destination.resize(sizeof(T));
+    std::memcpy(&(f_destination[0]), &f_source, sizeof(T));
 }
