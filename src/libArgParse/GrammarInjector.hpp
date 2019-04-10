@@ -65,7 +65,7 @@ class GrammarInjector : public GrammarElement
 class GrammarInjectorTest : public GrammarInjector
 {
     public:
-        GrammarInjectorTest(Grammar & f_grammar) :
+        explicit GrammarInjectorTest(Grammar & f_grammar) :
             GrammarInjector("Test"),
             m_grammar(f_grammar)
         {
