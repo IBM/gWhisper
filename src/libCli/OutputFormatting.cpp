@@ -378,7 +378,7 @@ std::string OutputFormatter::stringFromBytes(const std::string & f_value, const 
 {
     std::string result;
 
-    if(f_modifier == CustomStringModifier::Bin)
+    if(f_modifier == CustomStringModifier::Raw)
     {
         return f_value;
     }

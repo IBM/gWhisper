@@ -422,7 +422,7 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     GrammarElement * modifierType = f_grammarPool.createElement<Alternation>("ModifierType");
 
     modifierType->addChild(f_grammarPool.createElement<FixedString>("default"));
-    modifierType->addChild(f_grammarPool.createElement<FixedString>("bin"));
+    modifierType->addChild(f_grammarPool.createElement<FixedString>("raw"));
     modifierType->addChild(f_grammarPool.createElement<FixedString>("dec"));
     modifierType->addChild(f_grammarPool.createElement<FixedString>("hex"));
 

@@ -55,7 +55,7 @@ namespace cli
                 Default, // The best human readable display format depending on type
                 Hex,
                 Dec,
-                Bin,
+                Raw,
             };
 
             /// Formats a protobuf message into a human readable string.
@@ -103,7 +103,7 @@ namespace cli
                     case CustomStringModifier::Hex:
                         result += intToHexString(f_value);
                         break;
-                    case CustomStringModifier::Bin:
+                    case CustomStringModifier::Raw:
                         dumpBinaryIntoString(result, f_value); // TODO: on a little endian client machine, this will be dumped out as LE. This is not wrong,
                         break;                                 //       but if the host is BE it might not be the expected behavior. What do we choose?
                     case CustomStringModifier::Dec:
@@ -124,7 +124,7 @@ namespace cli
                     case CustomStringModifier::Hex:
                         result += intToHexString(f_value);
                         break;
-                    case CustomStringModifier::Bin:
+                    case CustomStringModifier::Raw:
                         dumpBinaryIntoString(result, f_value); // TODO: on a little endian client machine, this will be dumped out as LE. This is not wrong,
                         break;                                //        but if the host is BE it might not be the expected behavior. What do we choose?
                     case CustomStringModifier::Dec:

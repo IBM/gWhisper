@@ -324,9 +324,9 @@ static cli::OutputFormatter::CustomStringModifier getModifier(ArgParse::ParsedEl
     auto modifierNode = f_optionalModifier.findFirstSubTree("ModifierType", foundModifier);
     if(foundModifier)
     {
-        if(modifierNode.getMatchedString() == "bin")
+        if(modifierNode.getMatchedString() == "raw")
         {
-            modifier = cli::OutputFormatter::CustomStringModifier::Bin;
+            modifier = cli::OutputFormatter::CustomStringModifier::Raw;
         }
         else if(modifierNode.getMatchedString() == "dec")
         {
