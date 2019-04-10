@@ -85,9 +85,9 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
             do
                 if [ ${expectedLine:0:1} = "/" ]; then
                     expectedLine=${expectedLine:1}
-                    if [[ ! "${received[$idx]}" =~ $expectedLine ]]; then
+                    if ! [[ ${received[$idx]} =~ $expectedLine ]]; then
                         fail=true
-                        failtext="line $(((idx+1))) received text does not match expected regex."
+                        failtext="line $(((idx+1))) received text '${received[$idx]}' does not match expected regex '$expectedLine'."
                         break
                     fi
                 else
@@ -116,7 +116,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     if [[ $state = "PARSE_CMD" ]]; then
         cmd=${line/@@CMD@@/$gwhisper}
         echo " execute cmd '$cmd'"
-        out=$(eval $cmd) # use eval here to correctly split args into arg array
+        out=$(eval "$cmd 2>&1") # use eval here to correctly split args into arg array
         IFS=$'\n' received=($out)
         state="PARSE_RESULT"
         expected=()

@@ -195,3 +195,34 @@ asd:
 :
 #END_TEST
 
+#START_TEST Custom Output format modifiers
+@@CMD@@ --complete --customOutput @.data:lala/data%
+lala/data%default
+lala/data%raw
+lala/data%dec
+lala/data%hex
+#END_TEST
+
+
+####### these tests are actually not completion tests but functional RPC call tests TODO: move to separate file!
+
+#START_TEST Empty request message
+@@CMD@@ 127.0.0.1 examples.NestedTypeRpcs getTime
+/.* Received message:
+/\| seconds = .*
+/\| nanos.. = .*
+RPC succeeded :D
+#END_TEST
+
+#START_TEST Empty request message
+@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs incrementNumbers
+Warning: no Fields found in parseTree for message 'Numbers'
+/.*Received message:
+/ m_double = 1.000000
+/ m_float. = 1.000000
+/ m_int32. = 1
+/ m_int64. = 1
+/ m_uint32 = 1
+/ m_uint64 = 1
+RPC succeeded :D
+#END_TEST

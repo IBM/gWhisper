@@ -65,7 +65,7 @@ class Optional : public GrammarElement
                 // add all candidates resulting from the child:
                 for(auto candidate : childRc.candidates)
                 {
-                //printf("add optional candidate : '%s'\n", candidate->getMatchedString().c_str());
+                    //printf("add optional candidate : '%s'\n", candidate->getMatchedString().c_str());
                     auto realCandidate = std::make_shared<ParsedElement>(f_out_ParsedElement.getParent());
                     realCandidate->setGrammarElement(this);
                     realCandidate->setStops();
@@ -74,8 +74,21 @@ class Optional : public GrammarElement
                 }
             }
 
-            rc.errorType = ParseRc::ErrorType::success;
+            // create rc code:
+            if((childRc.errorType == ParseRc::ErrorType::missingText) and (childRc.lenParsed >= 1))
+            {
+                // In this case we reached the end of the text.
+                // but we found out, that the option is actuallt selected as we matched at least one char
+                rc.lenParsed += childRc.lenParsed;
+                rc.errorType = ParseRc::ErrorType::missingText;
+            }
+            else
+            {
+                rc.errorType = ParseRc::ErrorType::success;
+            }
 
+
+            //std::cout << "Optional "<< std::to_string(m_instanceId) <<  " returning rc=" << rc.toString() << " with " << std::to_string(rc.candidates.size()) << " candidates" << std::endl;
             return rc;
         }
 };
