@@ -18,7 +18,7 @@ before_install:
 
 script:
     - ./build.sh
-    - cppcheck --enable=warning,style,performance,portability,unusedFunction --std=c++11 -DGOOGLE_PROTOBUF_VERSION=3006001 --project=compile_commands.json --suppress='*:*third_party*' --suppress='*:*/build/*' --quiet
+    - cppcheck --enable=warning,style,performance,portability,unusedFunction --std=c++11 -DGOOGLE_PROTOBUF_VERSION=3006001 --project=compile_commands.json --suppress='*:*third_party*' --suppress='*:*gWhisper/build/*' --quiet
     - cd build
     - ctest --verbose
     - sudo make install
