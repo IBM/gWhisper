@@ -219,7 +219,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         {
             ArgParse::GrammarFactory grammarFactory(m_grammar);
             auto fieldsAlt = m_grammar.createElement<Alternation>();
-            auto  prepostfix = m_grammar.createElement<FixedString>(":");
+            //auto  prepostfix = m_grammar.createElement<FixedString>(":");
             GrammarElement * message = grammarFactory.createList(
                     f_rootElementName,
                     fieldsAlt,

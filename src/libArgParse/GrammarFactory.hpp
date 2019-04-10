@@ -19,7 +19,7 @@ namespace ArgParse
     class GrammarFactory
     {
         public:
-            GrammarFactory(Grammar & f_grammarPool) :
+            explicit GrammarFactory(Grammar & f_grammarPool) :
                 m_grammarPool(f_grammarPool)
             {
             }
