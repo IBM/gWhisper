@@ -165,17 +165,16 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
             // we could have a string or a bytes input here
             if(f_fieldDescriptor->type() == google::protobuf::FieldDescriptor::Type::TYPE_BYTES)
             {
-                int rc = 0;
                 std::string resultString;
                 // if we have a bytes field, we parse a hex string or file input:
                 if(valueString.substr(0,2) == "0x")
                 {
-                    rc = parseBytesFieldFromHexStr(resultString, valueString, f_fieldDescriptor->name());
+                    int rc = parseBytesFieldFromHexStr(resultString, valueString, f_fieldDescriptor->name());
                     if(rc) return rc;
                 }
                 else if(valueString.substr(0,7) == "file://")
                 {
-                    rc = parseBytesFieldFromFile(resultString, valueString, f_fieldDescriptor->name());
+                    int rc = parseBytesFieldFromFile(resultString, valueString, f_fieldDescriptor->name());
                     if(rc) return rc;
                 }
                 else
