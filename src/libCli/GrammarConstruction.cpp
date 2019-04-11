@@ -145,9 +145,19 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_STRING:
                     if(f_field->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_BYTES)
                     {
-                        auto bytesContainer = m_grammar.createElement<Concatenation>("FieldValue");
-                        bytesContainer->addChild(m_grammar.createElement<FixedString>("0x"));
-                        bytesContainer->addChild(m_grammar.createElement<RegEx>("[0-9a-fA-F]*", ""));
+                        auto bytesContainer = m_grammar.createElement<Alternation>("FieldValue");
+
+                        auto bytesContainerHexString = m_grammar.createElement<Concatenation>("FieldValueHexString");
+                        bytesContainerHexString->addChild(m_grammar.createElement<FixedString>("0x"));
+                        bytesContainerHexString->addChild(m_grammar.createElement<RegEx>("[0-9a-fA-F]*", ""));
+
+                        auto bytesContainerFileInput = m_grammar.createElement<Concatenation>("FieldValueFileInput");
+                        bytesContainerFileInput->addChild(m_grammar.createElement<FixedString>("file://"));
+                        bytesContainerFileInput->addChild(m_grammar.createElement<RegEx>("[^:, ]*", ""));
+
+                        bytesContainer->addChild(bytesContainerHexString);
+                        bytesContainer->addChild(bytesContainerFileInput);
+
                         f_fieldGrammar->addChild(bytesContainer);
                     }
                     else

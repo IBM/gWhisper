@@ -57,6 +57,7 @@ incrementNumbers m_uint64=
 #START_TEST l1 bytes field
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes
 bitwiseInvertBytes data=0x
+bitwiseInvertBytes data=file://
 #END_TEST
 
 #START_TEST l1 bytes field
@@ -226,3 +227,17 @@ Warning: no Fields found in parseTree for message 'Numbers'
 / m_uint64 = 1
 RPC succeeded :D
 #END_TEST
+
+#START_TEST Byte field from input file
+@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes data=file://${testResources}/data.bin
+/.*Received message:
+/| data = hex[3] = aa 55 a5.*
+RPC succeeded :D
+#END_TEST
+
+#START_TEST Byte field from input file with invalid filename
+@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes data=file://thisFilenameDoesNotExist.iHope
+/Error.*
+Error: Error parsing method arguments -> aborting the call :-(
+#END_TEST
+

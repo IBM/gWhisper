@@ -33,6 +33,7 @@
 build=$1
 gwhisper=$build/gwhisper
 testFile=$2
+testResources=$build/tests/functionTests/resources
 
 # colors
 RED='\033[0;31m'
