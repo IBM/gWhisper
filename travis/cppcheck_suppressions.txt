@@ -1,0 +1,6 @@
+// suppress any third party component and generated source files of gRPC
+*:*gWhisper/third_party/*
+*:*gWhisper/build/*
+
+// these make sense in some cases but are unwanted noise in most other cases
+useStlAlgorithm
