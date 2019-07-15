@@ -87,7 +87,7 @@ namespace cli
 
             /// Check if this message type is kv pair
             bool is_pair_simple(const grpc::protobuf::Descriptor* f_messageDescriptor);
-            
+
         private:
             std::map<ColorClass, std::string> m_colorMap;
             std::string generateHorizontalGuide(size_t f_currentSize, size_t f_targetSize);

@@ -349,7 +349,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                 }
                 return result;
             }
-        }       
+        }
         for(int i = 0; i < numberOfRepetitions; i++)
         {
             if(i!=0)
