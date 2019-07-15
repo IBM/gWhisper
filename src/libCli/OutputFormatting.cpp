@@ -322,6 +322,34 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
             result += generateHorizontalGuide(nameSize, maxFieldNameSize);
             result += " = " + colorize(ColorClass::MessageTypeName, "{}");
         }
+        if(f_fieldDescriptor->is_map())
+        {
+            //check if the type of the Key-Value simple or not
+            if(is_pair_simple(f_fieldDescriptor->message_type()))
+            {
+                std::map<std::string, std::string>kv_map;
+                for(int i=0; i< numberOfRepetitions; i++)
+                {
+                    std::pair<std::string, std::string> kv_pair;
+                    if(f_fieldDescriptor->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE)
+                    {
+                        //using this method to get repeated message from field
+                        const google::protobuf::Message & subMessage = reflection->GetRepeatedMessage(f_message, f_fieldDescriptor, i);
+                        const google::protobuf::FieldDescriptor * k_fieldDescriptor = f_fieldDescriptor->message_type()->field(0);
+                        const google::protobuf::FieldDescriptor * v_fieldDescriptor = f_fieldDescriptor->message_type()->field(1);
+                        kv_pair.first = fieldValueToString(subMessage, k_fieldDescriptor, f_initPrefix, f_currentPrefix+f_initPrefix);
+                        kv_pair.second = fieldValueToString(subMessage, v_fieldDescriptor, f_initPrefix, f_currentPrefix+f_initPrefix);
+                    }
+                    kv_map.insert(kv_pair);
+                }
+
+                for(auto& p: kv_map)
+                {
+                    result += colorize(ColorClass::RepeatedFieldName, p.first) + " => " + colorize(ColorClass::StringValue, p.second) += "\n";
+                }
+                return result;
+            }
+        }       
         for(int i = 0; i < numberOfRepetitions; i++)
         {
             if(i!=0)
