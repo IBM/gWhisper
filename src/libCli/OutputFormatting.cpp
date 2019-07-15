@@ -179,6 +179,22 @@ std::string OutputFormatter::repeatedFieldValueToString(const grpc::protobuf::Me
     return result;
 }
 
+bool OutputFormatter::is_pair_simple(const grpc::protobuf::Descriptor* f_messageDescriptor)
+{
+    if(f_messageDescriptor->field_count() == 2)
+    {
+        if(f_messageDescriptor->field(0)->name() == "key" && f_messageDescriptor->field(1)->name() == "value")
+        {
+            if(f_messageDescriptor->field(0)->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE || f_messageDescriptor->field(1)->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE)
+            {
+                return false;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 std::string OutputFormatter::fieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, CustomStringModifier f_modifier)
 {
     const google::protobuf::Reflection * reflection = f_message.GetReflection();
