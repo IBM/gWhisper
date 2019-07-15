@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc
+git clone -b v1.19.0 https://github.com/grpc/grpc
 cd grpc
 git submodule update --init
 make CC=ccache\ gcc CXX=ccache\ g++ -j `nproc --all`

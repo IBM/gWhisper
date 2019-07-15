@@ -96,7 +96,7 @@ FIELD_VALUE:
       Repeated fields are tab-completed
   - map fields:
       As a repeated field with nested key, value pairs (protobuf representation of maps).
-      E.g. my_map=::key=5 value=testval :, :key=40 value=anotherValue::
+      E.g. my_map=::key=5 value=testval:, :key=40 value=anotherValue::
       Map fields are tab-completed
 
 OUTPUT_FORMAT:
