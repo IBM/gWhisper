@@ -325,7 +325,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
         if(f_fieldDescriptor->is_map())
         {
             //check if the type of the Key-Value simple or not
-            if(is_pair_simple(f_fieldDescriptor->message_type()))
+            if(isMapEntryPrimitive(f_fieldDescriptor->message_type()))
             {
                 std::map<std::string, std::string>kv_map;
                 for(int i=0; i< numberOfRepetitions; i++)

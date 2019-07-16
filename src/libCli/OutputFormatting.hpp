@@ -85,9 +85,6 @@ namespace cli
             /// NOTE: required for custom output format
             std::string repeatedFieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, int f_fieldIndex, CustomStringModifier f_modifier = CustomStringModifier::Default);
 
-            /// Check if this message type is kv pair
-            bool isMapEntryPrimitive(const grpc::protobuf::Descriptor* f_messageDescriptor);
-
         private:
             std::map<ColorClass, std::string> m_colorMap;
             std::string generateHorizontalGuide(size_t f_currentSize, size_t f_targetSize);
@@ -168,6 +165,8 @@ namespace cli
 
             std::string stringFromBytes(const std::string & f_value, const CustomStringModifier & f_modifier, const std::string & f_prefix);
 
+            /// Check if this message type is kv pair
+            static bool isMapEntryPrimitive(const grpc::protobuf::Descriptor* f_messageDescriptor);
     };
 }
 
