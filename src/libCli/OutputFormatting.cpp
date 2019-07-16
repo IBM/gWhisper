@@ -328,7 +328,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
             if(isMapEntryPrimitive(f_fieldDescriptor->message_type()))
             {
                 std::map<std::int64_t, const google::protobuf::Message*> int64_map;
-                std::map<std::int64_t, const google::protobuf::Message*> uint64_map;
+                std::map<std::uint64_t, const google::protobuf::Message*> uint64_map;
                 std::map<std::string, const google::protobuf::Message*> string_map;
                 for(int i=0; i< numberOfRepetitions; i++)
                 {
@@ -346,10 +346,8 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                             case grpc::protobuf::FieldDescriptor::Type::TYPE_INT32:
                             case grpc::protobuf::FieldDescriptor::Type::TYPE_FIXED32:
                                 {
-                                    std::pair<std::int64_t, const google::protobuf::Message*> int64_pair;
-                                    int64_pair.first = static_cast<uint64_t>(reflection->GetInt32(subMessage, k_fieldDescriptor));
-                                    int64_pair.second = &subMessage;
-                                    int64_map.insert(int64_pair);                                   
+                                    std::int64_t key = static_cast<int64_t>(reflection->GetInt32(subMessage, k_fieldDescriptor));
+                                    int64_map.insert(std::make_pair(key, &subMessage));
                                 }
                                 break;
                             case grpc::protobuf::FieldDescriptor::Type::TYPE_SFIXED64:
@@ -357,35 +355,27 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                             case grpc::protobuf::FieldDescriptor::Type::TYPE_INT64:
                             case grpc::protobuf::FieldDescriptor::Type::TYPE_FIXED64:
                                 {
-                                    std::pair<std::int64_t, const google::protobuf::Message*> int64_pair;
-                                    int64_pair.first = reflection->GetInt64(subMessage, k_fieldDescriptor);
-                                    int64_pair.second = &subMessage;
-                                    int64_map.insert(int64_pair);
+                                    std::int64_t key = reflection->GetInt64(subMessage, k_fieldDescriptor);
+                                    int64_map.insert(std::make_pair(key, &subMessage));
                                 }
                                 break;
                             case grpc::protobuf::FieldDescriptor::Type::TYPE_UINT32:
                                 {
-                                    std::pair<std::uint64_t, const google::protobuf::Message*> uint64_pair;
-                                    uint64_pair.first = static_cast<uint64_t>(reflection->GetUInt32(subMessage, k_fieldDescriptor));
-                                    uint64_pair.second = &subMessage;
-                                    uint64_map.insert(uint64_pair);
+                                    std::uint64_t key = static_cast<uint64_t>(reflection->GetUInt32(subMessage, k_fieldDescriptor));
+                                    uint64_map.insert(std::make_pair(key, &subMessage));
                                 }
                                 break;
                             case grpc::protobuf::FieldDescriptor::Type::TYPE_UINT64:
                                 {
-                                    std::pair<std::uint64_t, const google::protobuf::Message*> uint64_pair;
-                                    uint64_pair.first = reflection->GetUInt64(subMessage, k_fieldDescriptor);
-                                    uint64_pair.second = &subMessage;
-                                    uint64_map.insert(uint64_pair);
+                                    std::uint64_t key = reflection->GetUInt64(subMessage, k_fieldDescriptor);
+                                    uint64_map.insert(std::make_pair(key, &subMessage));
                                 }
                                 break;
                             case grpc::protobuf::FieldDescriptor::Type::TYPE_STRING:
                             case grpc::protobuf::FieldDescriptor::Type::TYPE_BYTES:
                                 {
-                                    std::pair<std::string, const google::protobuf::Message*> string_pair;
-                                    string_pair.first = reflection->GetString(subMessage, k_fieldDescriptor);
-                                    string_pair.second = &subMessage;
-                                    string_map.insert(string_pair);
+                                    std::string key = reflection->GetString(subMessage, k_fieldDescriptor);
+                                    string_map.insert(std::make_pair(key, &subMessage));
                                 }
                                 break;
                             default:
