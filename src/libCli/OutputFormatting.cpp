@@ -179,7 +179,7 @@ std::string OutputFormatter::repeatedFieldValueToString(const grpc::protobuf::Me
     return result;
 }
 
-bool OutputFormatter::is_pair_simple(const grpc::protobuf::Descriptor* f_messageDescriptor)
+bool OutputFormatter::isMapEntryPrimitive(const grpc::protobuf::Descriptor* f_messageDescriptor)
 {
     if(f_messageDescriptor->field_count() == 2)
     {

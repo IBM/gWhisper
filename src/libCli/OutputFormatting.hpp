@@ -86,7 +86,7 @@ namespace cli
             std::string repeatedFieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, int f_fieldIndex, CustomStringModifier f_modifier = CustomStringModifier::Default);
 
             /// Check if this message type is kv pair
-            bool is_pair_simple(const grpc::protobuf::Descriptor* f_messageDescriptor);
+            bool isMapEntryPrimitive(const grpc::protobuf::Descriptor* f_messageDescriptor);
 
         private:
             std::map<ColorClass, std::string> m_colorMap;
