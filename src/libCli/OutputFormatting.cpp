@@ -384,12 +384,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                     }
                 }
 
-                for(auto& p: uint64_map)
-                {
-                    //result += colorize(ColorClass::RepeatedFieldName, std::to_string(p.first)) + " => " + colorize(ColorClass::StringValue, p.second) += "\n";
-                    result += colorize(ColorClass::RepeatedFieldName, std::to_string(p.first)) + "\n";
-
-                }
+                result += printMap(uint64_map);
                 return result;
             }
         }

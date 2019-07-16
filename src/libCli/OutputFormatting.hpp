@@ -148,6 +148,16 @@ namespace cli
                     return colorize(ColorClass::DecimalValue, std::to_string(f_value));
                 }
 
+            template<typename T>
+                std::string printMap(const std::map<T, const google::protobuf::Message*>& map)
+                {
+                    std::string result;
+                    for(auto& p: map)
+                    {
+                        result += std::to_string(p.first) + " => \n";
+                    }
+                    return result;
+                }
             std::string stringFromBool(bool f_value, const CustomStringModifier & f_modifier)
             {
                 return (f_value ? colorize(ColorClass::BoolTrue,"true") : colorize(ColorClass::BoolFalse,"false"));
