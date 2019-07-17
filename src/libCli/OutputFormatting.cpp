@@ -322,71 +322,85 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
             result += generateHorizontalGuide(nameSize, maxFieldNameSize);
             result += " = " + colorize(ColorClass::MessageTypeName, "{}");
         }
-        if(f_fieldDescriptor->is_map())
+        if(f_fieldDescriptor->is_map() and isMapEntryPrimitive(f_fieldDescriptor->message_type()))
         {
-            //check if the type of the Key-Value simple or not
-            if(isMapEntryPrimitive(f_fieldDescriptor->message_type()))
+            std::map<std::int64_t, const google::protobuf::Message*> int64_map;
+            std::map<std::uint64_t, const google::protobuf::Message*> uint64_map;
+            std::map<std::string, const google::protobuf::Message*> string_map;
+            for(int i=0; i< numberOfRepetitions; i++)
             {
-                std::map<std::int64_t, const google::protobuf::Message*> int64_map;
-                std::map<std::uint64_t, const google::protobuf::Message*> uint64_map;
-                std::map<std::string, const google::protobuf::Message*> string_map;
-                for(int i=0; i< numberOfRepetitions; i++)
+                if(f_fieldDescriptor->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE)
                 {
-                    if(f_fieldDescriptor->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE)
+                    //using this method to get repeated message from field
+                    const google::protobuf::Message & subMessage = reflection->GetRepeatedMessage(f_message, f_fieldDescriptor, i);
+                    const google::protobuf::FieldDescriptor * k_fieldDescriptor = f_fieldDescriptor->message_type()->field(0);
+                    const google::protobuf::FieldDescriptor * v_fieldDescriptor = f_fieldDescriptor->message_type()->field(1);
+                    const google::protobuf::Reflection * reflection = subMessage.GetReflection();
+                    switch(k_fieldDescriptor->type())
                     {
-                        //using this method to get repeated message from field
-                        const google::protobuf::Message & subMessage = reflection->GetRepeatedMessage(f_message, f_fieldDescriptor, i);
-                        const google::protobuf::FieldDescriptor * k_fieldDescriptor = f_fieldDescriptor->message_type()->field(0);
-                        const google::protobuf::FieldDescriptor * v_fieldDescriptor = f_fieldDescriptor->message_type()->field(1);
-                        const google::protobuf::Reflection * reflection = subMessage.GetReflection();
-                        switch(k_fieldDescriptor->type())
-                        {
-                            case grpc::protobuf::FieldDescriptor::Type::TYPE_SFIXED32:
-                            case grpc::protobuf::FieldDescriptor::Type::TYPE_SINT32:
-                            case grpc::protobuf::FieldDescriptor::Type::TYPE_INT32:
-                            case grpc::protobuf::FieldDescriptor::Type::TYPE_FIXED32:
-                                {
-                                    std::int64_t key = static_cast<int64_t>(reflection->GetInt32(subMessage, k_fieldDescriptor));
-                                    int64_map.insert(std::make_pair(key, &subMessage));
-                                }
-                                break;
-                            case grpc::protobuf::FieldDescriptor::Type::TYPE_SFIXED64:
-                            case grpc::protobuf::FieldDescriptor::Type::TYPE_SINT64:
-                            case grpc::protobuf::FieldDescriptor::Type::TYPE_INT64:
-                            case grpc::protobuf::FieldDescriptor::Type::TYPE_FIXED64:
-                                {
-                                    std::int64_t key = reflection->GetInt64(subMessage, k_fieldDescriptor);
-                                    int64_map.insert(std::make_pair(key, &subMessage));
-                                }
-                                break;
-                            case grpc::protobuf::FieldDescriptor::Type::TYPE_UINT32:
-                                {
-                                    std::uint64_t key = static_cast<uint64_t>(reflection->GetUInt32(subMessage, k_fieldDescriptor));
-                                    uint64_map.insert(std::make_pair(key, &subMessage));
-                                }
-                                break;
-                            case grpc::protobuf::FieldDescriptor::Type::TYPE_UINT64:
-                                {
-                                    std::uint64_t key = reflection->GetUInt64(subMessage, k_fieldDescriptor);
-                                    uint64_map.insert(std::make_pair(key, &subMessage));
-                                }
-                                break;
-                            case grpc::protobuf::FieldDescriptor::Type::TYPE_STRING:
-                            case grpc::protobuf::FieldDescriptor::Type::TYPE_BYTES:
-                                {
-                                    std::string key = reflection->GetString(subMessage, k_fieldDescriptor);
-                                    string_map.insert(std::make_pair(key, &subMessage));
-                                }
-                                break;
-                            default:
-                                break;
-                        }
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_SFIXED32:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_SINT32:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_INT32:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_FIXED32:
+                            {
+                                std::int64_t key = static_cast<int64_t>(reflection->GetInt32(subMessage, k_fieldDescriptor));
+                                int64_map.insert(std::make_pair(key, &subMessage));
+                            }
+                            break;
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_SFIXED64:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_SINT64:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_INT64:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_FIXED64:
+                            {
+                                std::int64_t key = reflection->GetInt64(subMessage, k_fieldDescriptor);
+                                int64_map.insert(std::make_pair(key, &subMessage));
+                            }
+                            break;
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_UINT32:
+                            {
+                                std::uint64_t key = static_cast<uint64_t>(reflection->GetUInt32(subMessage, k_fieldDescriptor));
+                                uint64_map.insert(std::make_pair(key, &subMessage));
+                            }
+                            break;
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_UINT64:
+                            {
+                                std::uint64_t key = reflection->GetUInt64(subMessage, k_fieldDescriptor);
+                                uint64_map.insert(std::make_pair(key, &subMessage));
+                            }
+                            break;
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_STRING:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_BYTES:
+                            {
+                                std::string key = reflection->GetString(subMessage, k_fieldDescriptor);
+                                string_map.insert(std::make_pair(key, &subMessage));
+                            }
+                            break;
+                        default:
+                            break;
                     }
                 }
-
-                result += printMap(uint64_map);
-                return result;
             }
+
+            if(!int64_map.empty())
+            {
+                for(auto& p: int64_map)
+                {
+                    result += std::to_string(p.first) + " => \n";
+                }
+            } else if (!uint64_map.empty())
+            {
+                for(auto& p: uint64_map)
+                {
+                    result += std::to_string(p.first) + " => \n";
+                }
+            } else if (!string_map.empty())
+            {
+                for(auto& p: string_map)
+                {
+                    result += p.first + " => \n";
+                }
+            }
+            return result;
         }
         for(int i = 0; i < numberOfRepetitions; i++)
         {
