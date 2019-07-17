@@ -306,7 +306,8 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
 {
     std::string result;
     const google::protobuf::Reflection * reflection = f_message.GetReflection();
-
+    const google::protobuf::FieldDescriptor * k_fieldDescriptor = f_fieldDescriptor->message_type()->field(0);
+    const google::protobuf::FieldDescriptor * v_fieldDescriptor = f_fieldDescriptor->message_type()->field(1);
     if(f_fieldDescriptor->is_repeated())
     {
         int numberOfRepetitions = reflection->FieldSize(f_message, f_fieldDescriptor);
@@ -327,14 +328,13 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
             std::map<std::int64_t, const google::protobuf::Message*> int64_map;
             std::map<std::uint64_t, const google::protobuf::Message*> uint64_map;
             std::map<std::string, const google::protobuf::Message*> string_map;
+
             for(int i=0; i< numberOfRepetitions; i++)
             {
                 if(f_fieldDescriptor->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE)
                 {
                     //using this method to get repeated message from field
                     const google::protobuf::Message & subMessage = reflection->GetRepeatedMessage(f_message, f_fieldDescriptor, i);
-                    const google::protobuf::FieldDescriptor * k_fieldDescriptor = f_fieldDescriptor->message_type()->field(0);
-                    const google::protobuf::FieldDescriptor * v_fieldDescriptor = f_fieldDescriptor->message_type()->field(1);
                     const google::protobuf::Reflection * reflection = subMessage.GetReflection();
                     switch(k_fieldDescriptor->type())
                     {
@@ -380,24 +380,33 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                     }
                 }
             }
-
             if(!int64_map.empty())
             {
                 for(auto& p: int64_map)
                 {
-                    result += std::to_string(p.first) + " => \n";
+                    result += "\n";
+                    result += std::to_string(p.first); 
+                    result += " => ";
+                    result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix+f_initPrefix);
                 }
             } else if (!uint64_map.empty())
             {
                 for(auto& p: uint64_map)
                 {
-                    result += std::to_string(p.first) + " => \n";
+                    result += "\n";
+                    result += std::to_string(p.first);
+                    result += " => ";
+                    result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix+f_initPrefix);
+
                 }
             } else if (!string_map.empty())
             {
                 for(auto& p: string_map)
                 {
-                    result += p.first + " => \n";
+                    result += "\n";
+                    result += p.first;
+                    result += " => ";
+                    result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix+f_initPrefix);
                 }
             }
             return result;
