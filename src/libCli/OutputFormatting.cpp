@@ -325,9 +325,9 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
         }
         if(f_fieldDescriptor->is_map() and isMapEntryPrimitive(f_fieldDescriptor->message_type()))
         {
-            std::map<std::int64_t, const google::protobuf::Message*> int64_map;
-            std::map<std::uint64_t, const google::protobuf::Message*> uint64_map;
-            std::map<std::string, const google::protobuf::Message*> string_map;
+            std::map<std::int64_t, const google::protobuf::Message*> int64Map;
+            std::map<std::uint64_t, const google::protobuf::Message*> uint64Map;
+            std::map<std::string, const google::protobuf::Message*> stringMap;
 
             for(int i=0; i< numberOfRepetitions; i++)
             {
@@ -344,7 +344,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                         case grpc::protobuf::FieldDescriptor::Type::TYPE_FIXED32:
                             {
                                 std::int64_t key = static_cast<int64_t>(reflection->GetInt32(subMessage, k_fieldDescriptor));
-                                int64_map.insert(std::make_pair(key, &subMessage));
+                                int64Map.insert(std::make_pair(key, &subMessage));
                             }
                             break;
                         case grpc::protobuf::FieldDescriptor::Type::TYPE_SFIXED64:
@@ -353,26 +353,25 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                         case grpc::protobuf::FieldDescriptor::Type::TYPE_FIXED64:
                             {
                                 std::int64_t key = reflection->GetInt64(subMessage, k_fieldDescriptor);
-                                int64_map.insert(std::make_pair(key, &subMessage));
+                                int64Map.insert(std::make_pair(key, &subMessage));
                             }
                             break;
                         case grpc::protobuf::FieldDescriptor::Type::TYPE_UINT32:
                             {
                                 std::uint64_t key = static_cast<uint64_t>(reflection->GetUInt32(subMessage, k_fieldDescriptor));
-                                uint64_map.insert(std::make_pair(key, &subMessage));
+                                uint64Map.insert(std::make_pair(key, &subMessage));
                             }
                             break;
                         case grpc::protobuf::FieldDescriptor::Type::TYPE_UINT64:
                             {
                                 std::uint64_t key = reflection->GetUInt64(subMessage, k_fieldDescriptor);
-                                uint64_map.insert(std::make_pair(key, &subMessage));
+                                uint64Map.insert(std::make_pair(key, &subMessage));
                             }
                             break;
                         case grpc::protobuf::FieldDescriptor::Type::TYPE_STRING:
-                        case grpc::protobuf::FieldDescriptor::Type::TYPE_BYTES:
                             {
                                 std::string key = reflection->GetString(subMessage, k_fieldDescriptor);
-                                string_map.insert(std::make_pair(key, &subMessage));
+                                stringMap.insert(std::make_pair(key, &subMessage));
                             }
                             break;
                         default:
@@ -380,33 +379,49 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                     }
                 }
             }
-            if(!int64_map.empty())
+            // first determine which map is not empty, and then output it.
+            std::string repName;
+            repName += colorize(ColorClass::VerticalGuides, f_currentPrefix);
+            repName += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);                   
+            result += repName;
+            size_t nameSize = repName.size();
+            if(!int64Map.empty())
             {
-                for(auto& p: int64_map)
+                int count = 0;
+                for(auto& p: int64Map)
                 {
                     result += "\n";
                     result += std::to_string(p.first); 
+                    result += generateHorizontalGuide(nameSize, maxFieldNameSize);
                     result += " => ";
                     result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix+f_initPrefix);
+                    result += getColor(ColorClass::RepeatedCount) + " [" + std::to_string(++count) + "/" + std::to_string(int64Map.size()) + "]" + getColor(ColorClass::Normal);
                 }
-            } else if (!uint64_map.empty())
+            } 
+            if(!uint64Map.empty())
             {
-                for(auto& p: uint64_map)
+                int count = 0;
+                for(auto& p: uint64Map)
                 {
                     result += "\n";
+                    result += generateHorizontalGuide(nameSize, maxFieldNameSize);
                     result += std::to_string(p.first);
                     result += " => ";
                     result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix+f_initPrefix);
-
+                    result += getColor(ColorClass::RepeatedCount) + " [" + std::to_string(++count) + "/" + std::to_string(uint64Map.size()) + "]" + getColor(ColorClass::Normal);
                 }
-            } else if (!string_map.empty())
+            } 
+            if(!stringMap.empty())
             {
-                for(auto& p: string_map)
+                int count = 0;
+                for(auto& p: stringMap)
                 {
                     result += "\n";
+                    result += generateHorizontalGuide(nameSize, maxFieldNameSize);
                     result += p.first;
                     result += " => ";
                     result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix+f_initPrefix);
+                    result += getColor(ColorClass::RepeatedCount) + " [" + std::to_string(++count) + "/" + std::to_string(stringMap.size()) + "]" + getColor(ColorClass::Normal);
                 }
             }
             return result;

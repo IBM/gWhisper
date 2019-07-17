@@ -146,18 +146,6 @@ namespace cli
                 {
                     return colorize(ColorClass::DecimalValue, std::to_string(f_value));
                 }
-
-            template<typename T>
-                std::map<std::string, const google::protobuf::Message*> convertToStringMap(const std::map<T, const google::protobuf::Message*>& f_map)
-                {
-                    std::map<std::string, const google::protobuf::Message*> string_map;
-
-                    for(auto& p: f_map)
-                    {
-                        string_map.insert(std::make_pair(std::to_string(p.first), p.second));
-                    }
-                    return string_map;
-                }
                 
             std::string stringFromBool(bool f_value, const CustomStringModifier & f_modifier)
             {
@@ -176,7 +164,7 @@ namespace cli
 
             std::string stringFromBytes(const std::string & f_value, const CustomStringModifier & f_modifier, const std::string & f_prefix);
 
-            /// Check if this message type is kv pair
+            /// Check if the types of key and value of the map in the message are primivtive
             static bool isMapEntryPrimitive(const grpc::protobuf::Descriptor* f_messageDescriptor);
     };
 }
