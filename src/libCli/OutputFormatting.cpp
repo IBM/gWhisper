@@ -306,6 +306,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
 {
     std::string result;
     const google::protobuf::Reflection * reflection = f_message.GetReflection();
+
     if(f_fieldDescriptor->is_repeated())
     {
         int numberOfRepetitions = reflection->FieldSize(f_message, f_fieldDescriptor);
@@ -380,7 +381,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
             // first determine which map is not empty, and then output it.
             std::string repName;
             repName += colorize(ColorClass::VerticalGuides, f_currentPrefix);
-            repName += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);                   
+            repName += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);
             result += repName;
             size_t nameSize = repName.size();
             if(!int64Map.empty())
@@ -390,13 +391,13 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                 for(auto& p: int64Map)
                 {
                     result += "\n";
-                    result += std::to_string(p.first); 
+                    result += std::to_string(p.first);
                     result += generateHorizontalGuide(nameSize, maxFieldNameSize);
                     result += " => ";
                     result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix+f_initPrefix);
                     result += getColor(ColorClass::RepeatedCount) + " [" + std::to_string(++count) + "/" + std::to_string(int64Map.size()) + "]" + getColor(ColorClass::Normal);
                 }
-            } 
+            }
             if(!uint64Map.empty())
             {
                 int count = 0;
@@ -410,7 +411,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                     result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix+f_initPrefix);
                     result += getColor(ColorClass::RepeatedCount) + " [" + std::to_string(++count) + "/" + std::to_string(uint64Map.size()) + "]" + getColor(ColorClass::Normal);
                 }
-            } 
+            }
             if(!stringMap.empty())
             {
                 int count = 0;

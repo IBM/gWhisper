@@ -84,6 +84,7 @@ namespace cli
             /// Formats a repeated field value as string.
             /// NOTE: required for custom output format
             std::string repeatedFieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, int f_fieldIndex, CustomStringModifier f_modifier = CustomStringModifier::Default);
+
         private:
             std::map<ColorClass, std::string> m_colorMap;
             std::string generateHorizontalGuide(size_t f_currentSize, size_t f_targetSize);
@@ -91,6 +92,7 @@ namespace cli
             std::string colorize(ColorClass f_colorClass, const std::string & f_string);
             std::string fieldToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, size_t maxFieldNameSize);
             template <typename T> std::string intToHexString(T f_value);
+
             // string formatting methods for various types:
             template<typename T>
                 std::string stringFromInt(T f_value, const CustomStringModifier & f_modifier)
@@ -145,7 +147,7 @@ namespace cli
                 {
                     return colorize(ColorClass::DecimalValue, std::to_string(f_value));
                 }
-                
+
             std::string stringFromBool(bool f_value, const CustomStringModifier & f_modifier)
             {
                 return (f_value ? colorize(ColorClass::BoolTrue,"true") : colorize(ColorClass::BoolFalse,"false"));
