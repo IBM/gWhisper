@@ -91,7 +91,6 @@ namespace cli
             std::string colorize(ColorClass f_colorClass, const std::string & f_string);
             std::string fieldToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, size_t maxFieldNameSize);
             template <typename T> std::string intToHexString(T f_value);
-            template<typename T> std::string printMap(const std::map<T, const google::protobuf::Message*>& f_map);
             // string formatting methods for various types:
             template<typename T>
                 std::string stringFromInt(T f_value, const CustomStringModifier & f_modifier)
@@ -164,7 +163,7 @@ namespace cli
 
             std::string stringFromBytes(const std::string & f_value, const CustomStringModifier & f_modifier, const std::string & f_prefix);
 
-            /// Check if the types of key and value of the map in the message are primivtive
+            /// Check if the Key-Value pair is composed of primitive types or not.
             static bool isMapEntryPrimitive(const grpc::protobuf::Descriptor* f_messageDescriptor);
     };
 }
