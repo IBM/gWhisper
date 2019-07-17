@@ -306,8 +306,6 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
 {
     std::string result;
     const google::protobuf::Reflection * reflection = f_message.GetReflection();
-    const google::protobuf::FieldDescriptor * k_fieldDescriptor = f_fieldDescriptor->message_type()->field(0);
-    const google::protobuf::FieldDescriptor * v_fieldDescriptor = f_fieldDescriptor->message_type()->field(1);
     if(f_fieldDescriptor->is_repeated())
     {
         int numberOfRepetitions = reflection->FieldSize(f_message, f_fieldDescriptor);
@@ -325,10 +323,13 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
         }
         if(f_fieldDescriptor->is_map() and isMapEntryPrimitive(f_fieldDescriptor->message_type()))
         {
+
             std::map<std::int64_t, const google::protobuf::Message*> int64Map;
             std::map<std::uint64_t, const google::protobuf::Message*> uint64Map;
             std::map<std::string, const google::protobuf::Message*> stringMap;
 
+            const google::protobuf::FieldDescriptor * k_fieldDescriptor = f_fieldDescriptor->message_type()->field(0);
+            const google::protobuf::FieldDescriptor * v_fieldDescriptor = f_fieldDescriptor->message_type()->field(1);
             for(int i=0; i< numberOfRepetitions; i++)
             {
                 if(f_fieldDescriptor->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE)
