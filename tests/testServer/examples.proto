@@ -75,6 +75,8 @@ service NestedTypeRpcs
     rpc duplicateEverything2d (NestedMessage2d) returns (NestedMessage2d);
     rpc nestedEmpty (NestedEmpty) returns (google.protobuf.Empty);
     rpc getTime (google.protobuf.Empty) returns (google.protobuf.Timestamp);
+    rpc echoRecursiveMaps (RecursiveMaps) returns (RecursiveMaps);
+    rpc echoNestedMaps (NestedMaps) returns (NestedMaps);
 }
 
 service StreamingRpcs
@@ -223,6 +225,28 @@ message NestedMessage2d
     NestedMessage1d sub_tree = 1;
     NumberAndString number_and_string = 2;
     string str = 3;
+}
+
+message NestedMaps
+{
+    message SubMessage
+    {
+        map<uint32, uint32> simple_map_int = 1;
+        map<string, uint32> simple_map_string = 2;
+    }
+    NumberAndString number_and_string = 1;
+    SubMessage sub_message = 2;
+    map<uint32, uint32> simple_map_int = 3;
+    map<string, uint32> simple_map_string = 4;
+
+}
+
+message RecursiveMaps
+{
+    NumberAndString number_and_string = 1;
+    map<uint32, RecursiveMaps> complex_map = 2;
+    map<uint32, uint32> simple_map_int = 3;
+    map<string, uint32> simple_map_string = 4;
 }
 
 message NestedEmpty
