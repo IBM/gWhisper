@@ -38,4 +38,14 @@ class ServiceNestedTypeRpcs final : public examples::NestedTypeRpcs::Service
             const ::google::protobuf::Empty* request,
             ::google::protobuf::Timestamp* response
             ) override;
+    virtual  ::grpc::Status echoRecursiveMaps(
+            ::grpc::ServerContext* context,
+            const ::examples::RecursiveMaps* request,
+            ::examples::RecursiveMaps* response
+            ) override;
+    virtual  ::grpc::Status echoNestedMaps(
+            ::grpc::ServerContext* context,
+            const ::examples::NestedMaps* request,
+            ::examples::NestedMaps* response
+            ) override;
 };

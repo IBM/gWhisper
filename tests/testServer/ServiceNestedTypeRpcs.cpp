@@ -76,3 +76,27 @@
     response->set_nanos((seconds- static_cast<uint64_t>(seconds))*1000000000);
     return grpc::Status();
 }
+
+::grpc::Status ServiceNestedTypeRpcs::echoNestedMaps(
+        ::grpc::ServerContext* context,
+        const ::examples::NestedMaps* request,
+        ::examples::NestedMaps* response
+        )
+{
+
+    *response = *request;
+
+    return grpc::Status();
+}
+
+::grpc::Status ServiceNestedTypeRpcs::echoRecursiveMaps(
+        ::grpc::ServerContext* context,
+        const ::examples::RecursiveMaps* request,
+        ::examples::RecursiveMaps* response
+        )
+{
+
+    *response = *request;
+
+    return grpc::Status();
+}
