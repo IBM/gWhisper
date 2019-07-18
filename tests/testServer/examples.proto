@@ -244,7 +244,7 @@ message NestedMaps
 message RecursiveMaps
 {
     NumberAndString number_and_string = 1;
-    map<uint32, NestedMaps> complex_map = 2;
+    map<uint32, RecursiveMaps> complex_map = 2;
     map<uint32, uint32> simple_map_int = 3;
     map<string, uint32> simple_map_string = 4;
 }
