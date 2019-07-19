@@ -56,8 +56,7 @@ namespace cli
                 Hex,
                 Dec,
                 Raw,
-                MapKey,
-                MapValue
+                DecWithHex,
             };
 
             /// Formats a protobuf message into a human readable string.
@@ -111,13 +110,12 @@ namespace cli
                         break;                                 //       but if the host is BE it might not be the expected behavior. What do we choose?
                     case CustomStringModifier::Dec:
                         break;
-                    case CustomStringModifier::MapKey:
+                    case CustomStringModifier::DecWithHex:
                         stream << colorize(ColorClass::DecimalValue, std::to_string(f_value))
                             << " (" << colorize(ColorClass::HexValue, intToHexString(f_value)) << ")"
                             << getColor(ColorClass::Normal);
                         result += stream.str();
                         break;
-                    case CustomStringModifier::MapValue:
                     case CustomStringModifier::Default:
                     default:
                         result += colorize(ColorClass::DecimalValue, std::to_string(f_value));
@@ -139,11 +137,9 @@ namespace cli
                     case CustomStringModifier::Raw:
                         dumpBinaryIntoString(result, f_value); // TODO: on a little endian client machine, this will be dumped out as LE. This is not wrong,
                         break;                                //        but if the host is BE it might not be the expected behavior. What do we choose?
-                    case CustomStringModifier::MapValue:
                     case CustomStringModifier::Dec:
                         result += colorize(ColorClass::DecimalValue, std::to_string(f_value));
                         break;
-                    case CustomStringModifier::MapKey:
                     case CustomStringModifier::Default:
                     default:
                         stream << colorize(ColorClass::DecimalValue, std::to_string(f_value))

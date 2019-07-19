@@ -386,12 +386,13 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                 result += colorize(ColorClass::VerticalGuides, f_currentPrefix);
                 result += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);
                 result += getColor(ColorClass::RepeatedCount) + "[" + std::to_string(int64Map.size()) + "]" + getColor(ColorClass::Normal);
+                result += " = " + colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
                 for(auto& p: int64Map)
                 {
                     result += colorize(ColorClass::VerticalGuides, f_currentPrefix+f_initPrefix);
-                    result += stringFromInt(p.first, CustomStringModifier::MapKey);
+                    result += stringFromInt(p.first, CustomStringModifier::DecWithHex);
                     result += " => ";
-                    result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix, CustomStringModifier::MapValue);
+                    result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix, CustomStringModifier::Default);
                 }
             }
             if(!uint64Map.empty())
@@ -399,13 +400,14 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                 result += colorize(ColorClass::VerticalGuides, f_currentPrefix);
                 result += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);
                 result += getColor(ColorClass::RepeatedCount) + "[" + std::to_string(uint64Map.size()) + "]" + getColor(ColorClass::Normal);
+                result += " = " + colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
                 for(auto& p: uint64Map)
                 {
                     result += "\n";
                     result += colorize(ColorClass::VerticalGuides, f_currentPrefix+f_initPrefix);
-                    result += stringFromUInt(p.first, CustomStringModifier::MapKey);
+                    result += stringFromUInt(p.first, CustomStringModifier::Default);
                     result += " => ";
-                    result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix, CustomStringModifier::MapValue);
+                    result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix, CustomStringModifier::Dec);
                 }
             }
             if(!stringMap.empty())
@@ -413,13 +415,14 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                 result += colorize(ColorClass::VerticalGuides, f_currentPrefix);
                 result += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);
                 result += getColor(ColorClass::RepeatedCount) + "[" + std::to_string(stringMap.size()) + "]" + getColor(ColorClass::Normal);
+                result += " = " + colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
                 for(auto& p: stringMap)
                 {
                     result += "\n";
                     result += colorize(ColorClass::VerticalGuides, f_currentPrefix+f_initPrefix);
-                    result += stringFromString(p.first, CustomStringModifier::MapKey);
+                    result += stringFromString(p.first, CustomStringModifier::Default);
                     result += " => ";
-                    result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix, CustomStringModifier::MapValue);
+                    result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix, CustomStringModifier::Default);
                 }
             }
             return result;
