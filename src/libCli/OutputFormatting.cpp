@@ -385,8 +385,9 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                 result += outputMapTitle(int64Map, f_fieldDescriptor, f_currentPrefix);
                 for(auto& p: int64Map)
                 {
+                    result += "\n";
                     result += colorize(ColorClass::VerticalGuides, f_currentPrefix+f_initPrefix);
-                    result += stringFromInt(p.first, CustomStringModifier::DecWithHex);
+                    result += stringFromInt(p.first, CustomStringModifier::DecAndHex);
                     result += " => ";
                     result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix, CustomStringModifier::Default);
                 }
@@ -398,7 +399,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                 {
                     result += "\n";
                     result += colorize(ColorClass::VerticalGuides, f_currentPrefix+f_initPrefix);
-                    result += stringFromUInt(p.first, CustomStringModifier::DecWithHex);
+                    result += stringFromUInt(p.first, CustomStringModifier::DecAndHex);
                     result += " => ";
                     result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix, CustomStringModifier::Dec);
                 }

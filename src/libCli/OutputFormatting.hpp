@@ -56,7 +56,7 @@ namespace cli
                 Hex,
                 Dec,
                 Raw,
-                DecWithHex,
+                DecAndHex,
             };
 
             /// Formats a protobuf message into a human readable string.
@@ -109,7 +109,7 @@ namespace cli
                         break;                                 //       but if the host is BE it might not be the expected behavior. What do we choose?
                     case CustomStringModifier::Dec:
                         break;
-                    case CustomStringModifier::DecWithHex:
+                    case CustomStringModifier::DecAndHex:
                         stream << colorize(ColorClass::DecimalValue, std::to_string(f_value))
                             << " (" << colorize(ColorClass::HexValue, intToHexString(f_value)) << ")"
                             << getColor(ColorClass::Normal);
@@ -139,7 +139,7 @@ namespace cli
                     case CustomStringModifier::Dec:
                         result += colorize(ColorClass::DecimalValue, std::to_string(f_value));
                         break;
-                    case CustomStringModifier::DecWithHex:
+                    case CustomStringModifier::DecAndHex:
                     case CustomStringModifier::Default:
                     default:
                         stream << colorize(ColorClass::DecimalValue, std::to_string(f_value))
