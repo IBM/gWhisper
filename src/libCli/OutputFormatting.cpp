@@ -398,7 +398,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
                 {
                     result += "\n";
                     result += colorize(ColorClass::VerticalGuides, f_currentPrefix+f_initPrefix);
-                    result += stringFromUInt(p.first, CustomStringModifier::Default);
+                    result += stringFromUInt(p.first, CustomStringModifier::DecWithHex);
                     result += " => ";
                     result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix, CustomStringModifier::Dec);
                 }

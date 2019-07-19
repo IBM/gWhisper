@@ -139,6 +139,7 @@ namespace cli
                     case CustomStringModifier::Dec:
                         result += colorize(ColorClass::DecimalValue, std::to_string(f_value));
                         break;
+                    case CustomStringModifier::DecWithHex:
                     case CustomStringModifier::Default:
                     default:
                         stream << colorize(ColorClass::DecimalValue, std::to_string(f_value))
