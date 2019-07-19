@@ -174,7 +174,7 @@ namespace cli
             std::string stringFromBytes(const std::string & f_value, const CustomStringModifier & f_modifier, const std::string & f_prefix);
 
             template <typename T>
-                std::string stringFromMap(std::map<T, const google::protobuf::Message*> f_map, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_currentPrefix)
+                std::string outputMapTitle(std::map<T, const google::protobuf::Message*> f_map, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_currentPrefix)
                 {
                     std::string result;
                     if(!f_map.empty())
