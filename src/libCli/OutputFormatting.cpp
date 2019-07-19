@@ -382,11 +382,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
             const google::protobuf::FieldDescriptor * v_fieldDescriptor = f_fieldDescriptor->message_type()->field(1);
             if(!int64Map.empty())
             {
-                result += "\n";
-                result += colorize(ColorClass::VerticalGuides, f_currentPrefix);
-                result += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);
-                result += getColor(ColorClass::RepeatedCount) + "[" + std::to_string(int64Map.size()) + "]" + getColor(ColorClass::Normal);
-                result += " = " + colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
+                result += stringFromMap(int64Map, f_fieldDescriptor, f_currentPrefix);
                 for(auto& p: int64Map)
                 {
                     result += colorize(ColorClass::VerticalGuides, f_currentPrefix+f_initPrefix);
@@ -397,10 +393,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
             }
             if(!uint64Map.empty())
             {
-                result += colorize(ColorClass::VerticalGuides, f_currentPrefix);
-                result += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);
-                result += getColor(ColorClass::RepeatedCount) + "[" + std::to_string(uint64Map.size()) + "]" + getColor(ColorClass::Normal);
-                result += " = " + colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
+                result += stringFromMap(uint64Map, f_fieldDescriptor, f_currentPrefix);
                 for(auto& p: uint64Map)
                 {
                     result += "\n";
@@ -412,10 +405,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
             }
             if(!stringMap.empty())
             {
-                result += colorize(ColorClass::VerticalGuides, f_currentPrefix);
-                result += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);
-                result += getColor(ColorClass::RepeatedCount) + "[" + std::to_string(stringMap.size()) + "]" + getColor(ColorClass::Normal);
-                result += " = " + colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
+                result += stringFromMap(stringMap, f_fieldDescriptor, f_currentPrefix);
                 for(auto& p: stringMap)
                 {
                     result += "\n";

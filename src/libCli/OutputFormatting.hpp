@@ -93,7 +93,6 @@ namespace cli
             std::string colorize(ColorClass f_colorClass, const std::string & f_string);
             std::string fieldToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, size_t maxFieldNameSize);
             template <typename T> std::string intToHexString(T f_value);
-
             // string formatting methods for various types:
             template<typename T>
                 std::string stringFromInt(T f_value, const CustomStringModifier & f_modifier)
@@ -173,6 +172,20 @@ namespace cli
             }
 
             std::string stringFromBytes(const std::string & f_value, const CustomStringModifier & f_modifier, const std::string & f_prefix);
+
+            template <typename T>
+                std::string stringFromMap(std::map<T, const google::protobuf::Message*> f_map, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_currentPrefix)
+                {
+                    std::string result;
+                    if(!f_map.empty())
+                    {
+                        result += colorize(ColorClass::VerticalGuides, f_currentPrefix);
+                        result += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);
+                        result += getColor(ColorClass::RepeatedCount) + "[" + std::to_string(f_map.size()) + "]" + getColor(ColorClass::Normal);
+                        result += " = " + colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
+                    }
+                    return result;
+                }
 
             /// Check if the Key-Value pair is composed of primitive types or not.
             static bool isMapEntryPrimitive(const grpc::protobuf::Descriptor* f_messageDescriptor);
