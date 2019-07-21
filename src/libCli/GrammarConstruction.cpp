@@ -222,11 +222,22 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             }
         }
 
+
+        std::map<const grpc::protobuf::Descriptor*, std::pair<std::string, GrammarElement*> > g_availableMessageGrammar;
+
         // FIXME: we do want to generate a list via factory here not an alternation.
         // This makes life much easier and avoids duplicate code as all messages have
         // same parse structure.
         GrammarElement * getMessageGrammar(const std::string & f_rootElementName, const grpc::protobuf::Descriptor* f_messageDescriptor, GrammarElement * f_wrappingElement = nullptr)
         {
+            std::cout << "getMessageGrammar " << f_rootElementName << " " << f_messageDescriptor->name() << std::endl;
+            // first look if we already have grammar for this type:
+            auto grammarIt = g_availableMessageGrammar.find(f_messageDescriptor);
+            if(grammarIt != g_availableMessageGrammar.end() and grammarIt->second.first == f_rootElementName)
+            {
+                return grammarIt->second.second;
+            }
+
             ArgParse::GrammarFactory grammarFactory(m_grammar);
             auto fieldsAlt = m_grammar.createElement<Alternation>();
             //auto  prepostfix = m_grammar.createElement<FixedString>(":");
@@ -238,6 +249,9 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                     f_wrappingElement,
                     f_wrappingElement
                     );
+
+            g_availableMessageGrammar[f_messageDescriptor] = std::pair<std::string, GrammarElement*>(f_rootElementName, message);
+
 
             // iterate over fields:
             for(int i = 0; i< f_messageDescriptor->field_count(); i++)
