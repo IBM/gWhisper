@@ -56,6 +56,7 @@ namespace cli
                 Hex,
                 Dec,
                 Raw,
+                DecAndHex,
             };
 
             /// Formats a protobuf message into a human readable string.
@@ -92,12 +93,12 @@ namespace cli
             std::string colorize(ColorClass f_colorClass, const std::string & f_string);
             std::string fieldToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, size_t maxFieldNameSize);
             template <typename T> std::string intToHexString(T f_value);
-
             // string formatting methods for various types:
             template<typename T>
                 std::string stringFromInt(T f_value, const CustomStringModifier & f_modifier)
                 {
                     std::string result;
+                    std::stringstream stream;
                     switch(f_modifier)
                     {
                     case CustomStringModifier::Hex:
@@ -107,6 +108,13 @@ namespace cli
                         dumpBinaryIntoString(result, f_value); // TODO: on a little endian client machine, this will be dumped out as LE. This is not wrong,
                         break;                                 //       but if the host is BE it might not be the expected behavior. What do we choose?
                     case CustomStringModifier::Dec:
+                        break;
+                    case CustomStringModifier::DecAndHex:
+                        stream << colorize(ColorClass::DecimalValue, std::to_string(f_value))
+                            << " (" << colorize(ColorClass::HexValue, intToHexString(f_value)) << ")"
+                            << getColor(ColorClass::Normal);
+                        result += stream.str();
+                        break;
                     case CustomStringModifier::Default:
                     default:
                         result += colorize(ColorClass::DecimalValue, std::to_string(f_value));
@@ -119,6 +127,7 @@ namespace cli
                 std::string stringFromUInt(T f_value, const CustomStringModifier & f_modifier)
                 {
                     std::string result;
+                    std::stringstream stream;
                     switch(f_modifier)
                     {
                     case CustomStringModifier::Hex:
@@ -130,11 +139,11 @@ namespace cli
                     case CustomStringModifier::Dec:
                         result += colorize(ColorClass::DecimalValue, std::to_string(f_value));
                         break;
+                    case CustomStringModifier::DecAndHex:
                     case CustomStringModifier::Default:
                     default:
-                        std::stringstream stream;
                         stream << colorize(ColorClass::DecimalValue, std::to_string(f_value))
-                            << " (" << intToHexString(f_value) << ")"
+                            << " (" << colorize(ColorClass::HexValue, intToHexString(f_value)) << ")"
                             << getColor(ColorClass::Normal);
                         result += stream.str();
                         break;
@@ -165,6 +174,22 @@ namespace cli
 
             std::string stringFromBytes(const std::string & f_value, const CustomStringModifier & f_modifier, const std::string & f_prefix);
 
+            template <typename T>
+                std::string outputMapTitle(std::map<T, const google::protobuf::Message*> f_map, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_currentPrefix)
+                {
+                    std::string result;
+                    if(!f_map.empty())
+                    {
+                        result += colorize(ColorClass::VerticalGuides, f_currentPrefix);
+                        result += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);
+                        result += getColor(ColorClass::RepeatedCount) + "[" + std::to_string(f_map.size()) + "]" + getColor(ColorClass::Normal);
+                        result += " = " + colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
+                    }
+                    return result;
+                }
+
+            /// Check if the Key-Value pair is composed of primitive types or not.
+            static bool isMapEntryPrimitive(const grpc::protobuf::Descriptor* f_messageDescriptor);
     };
 }
 
