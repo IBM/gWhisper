@@ -32,6 +32,7 @@ namespace cli
     }
 
     OutputFormatter::OutputFormatter() :
+        m_isSimpleMapOutput(true),
         m_colorMap{
             {ColorClass::Normal, "\e[0m\e[39m"},
             {ColorClass::VerticalGuides, "\e[2m\e[37m"},
@@ -55,6 +56,11 @@ namespace cli
     {
         m_colorMap.clear();
     }
+
+	void OutputFormatter::disableSimpleMapOutput()
+	{
+	    m_isSimpleMapOutput = false;
+	}
 
     std::string OutputFormatter::getColor(OutputFormatter::ColorClass f_colorClass)
     {
@@ -322,7 +328,7 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
             result += generateHorizontalGuide(nameSize, maxFieldNameSize);
             result += " = " + colorize(ColorClass::MessageTypeName, "{}");
         }
-        if(f_fieldDescriptor->is_map() and isMapEntryPrimitive(f_fieldDescriptor->message_type()))
+        if(m_isSimpleMapOutput and f_fieldDescriptor->is_map() and isMapEntryPrimitive(f_fieldDescriptor->message_type()))
         {
             std::map<std::int64_t, const google::protobuf::Message*> int64Map;
             std::map<std::uint64_t, const google::protobuf::Message*> uint64Map;

@@ -481,6 +481,7 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--color", "Color"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--version", "Version"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--printParsedMessage", "PrintParsedMessage"));
+    optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSimpleMapOutput", "NoSimpleMapOutput"));
     GrammarElement * timeoutOption = f_grammarPool.createElement<Concatenation>();
     timeoutOption->addChild(f_grammarPool.createElement<FixedString>("--connectTimeoutMilliseconds="));
     timeoutOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "connectTimeout"));
