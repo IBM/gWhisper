@@ -76,7 +76,7 @@ namespace cli
             void clearColorMap();
 
             ///Formats outputted map as key => value
-			void disableSimpleMapOutput();
+            void disableSimpleMapOutput();
 
             // TODO: provide the option to provide custom color map
             //       e.g. via config file or cli args
@@ -90,7 +90,7 @@ namespace cli
             std::string repeatedFieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, int f_fieldIndex, CustomStringModifier f_modifier = CustomStringModifier::Default);
 
         private:
-			bool m_isSimpleMapOutput;
+            bool m_isSimpleMapOutput;
             std::map<ColorClass, std::string> m_colorMap;
             std::string generateHorizontalGuide(size_t f_currentSize, size_t f_targetSize);
             std::string getColor(ColorClass f_colorClass);

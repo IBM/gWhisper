@@ -57,10 +57,10 @@ namespace cli
         m_colorMap.clear();
     }
 
-	void OutputFormatter::disableSimpleMapOutput()
-	{
-	    m_isSimpleMapOutput = false;
-	}
+    void OutputFormatter::disableSimpleMapOutput()
+    {
+        m_isSimpleMapOutput = false;
+    }
 
     std::string OutputFormatter::getColor(OutputFormatter::ColorClass f_colorClass)
     {
