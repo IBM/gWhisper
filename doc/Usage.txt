@@ -43,6 +43,9 @@ OPTIONS:
    --color
        Enables colors also in pipes.
 
+   --noSimpleMapOutput
+       Disable the map outputted as "key => value" of gRPC replies.
+
    --customOutput OUTPUT_FORMAT
        Instead of printing the reply message using the default human readable
        format, a custom format as specified in OUTPUT_FORMAT is used.

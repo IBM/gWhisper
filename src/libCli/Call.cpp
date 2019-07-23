@@ -274,6 +274,12 @@ int call(ParsedElement & parseTree)
                 messageFormatter.clearColorMap();
             }
 
+            // disable map output as key => value if explicitly specified:
+            if(parseTree.findFirstChild("NoSimpleMapOutput") != "")
+            {
+                messageFormatter.disableSimpleMapOutput();
+            }
+
             // automatically disable colored output, when outputting to something
             // else than a terminal (pipes, files, etc.), except we explicitly
             // request color mode:

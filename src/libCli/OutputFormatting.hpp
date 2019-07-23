@@ -75,6 +75,9 @@ namespace cli
             /// Causes all output to be generated with default font (no terminal control characters).
             void clearColorMap();
 
+            ///Formats outputted map as key => value
+            void disableSimpleMapOutput();
+
             // TODO: provide the option to provide custom color map
             //       e.g. via config file or cli args
 
@@ -87,6 +90,7 @@ namespace cli
             std::string repeatedFieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, int f_fieldIndex, CustomStringModifier f_modifier = CustomStringModifier::Default);
 
         private:
+            bool m_isSimpleMapOutput;
             std::map<ColorClass, std::string> m_colorMap;
             std::string generateHorizontalGuide(size_t f_currentSize, size_t f_targetSize);
             std::string getColor(ColorClass f_colorClass);
