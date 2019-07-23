@@ -79,11 +79,21 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
             if(method->client_streaming())
             {
-                std::cerr << "Error: Client streaming RPCs not supported." << std::endl;
-                return nullptr;
-            }
+                ArgParse::GrammarFactory grammarFactory(m_grammar);
 
-            return getMessageGrammar("Message", method->input_type());
+                return grammarFactory.createList(
+                    "RequestStream",
+                    getMessageGrammar("Message", method->input_type(), m_grammar.createElement<FixedString>(":")),
+                    m_grammar.createElement<WhiteSpace>(),
+                    false,
+                    nullptr,
+                    nullptr
+                    );
+            }
+            else
+            {
+                return getMessageGrammar("Message", method->input_type());
+            }
             //auto concat = m_grammar.createElement<Concatenation>();
 
             //auto separation = m_grammar.createElement<WhiteSpace>();
