@@ -77,6 +77,7 @@ namespace cli
 
             ///Formats outputted map as key => value
 			void disableSimpleMapOutput();
+
             // TODO: provide the option to provide custom color map
             //       e.g. via config file or cli args
 
