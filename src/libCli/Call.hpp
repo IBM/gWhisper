@@ -35,9 +35,9 @@ namespace cli
         public:
             static void registerChannel(std::string f_serverAddress, std::shared_ptr<grpc::Channel> f_channel)
             {
-                if(channelMap.find(f_serverAddress) == channelMap.end())
+                if(channels.find(f_serverAddress) == channels.end())
                 {
-                    channelMap.insert(std::make_pair(f_serverAddress, f_channel));
+                    channels.insert(std::make_pair(f_serverAddress, f_channel));
                 }
             };
 
@@ -58,10 +58,10 @@ namespace cli
                 }
 
                 ChannelManager::registerChannel(serverAddress, channel);
-                return channelMap[serverAddress];
+                return channels[serverAddress];
             };
 
         private:
-            static std::map<std::string, std::shared_ptr<grpc::Channel>> channelMap;
+            static std::unordered_map<std::string, std::shared_ptr<grpc::Channel>> channels;
     };
 }

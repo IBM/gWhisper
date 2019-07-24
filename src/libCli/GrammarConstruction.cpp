@@ -23,7 +23,7 @@ using namespace ArgParse;
 namespace cli
 {
 
-std::map<std::string, std::shared_ptr<grpc::Channel>> ChannelManager::channelMap;
+std::unordered_map<std::string, std::shared_ptr<grpc::Channel>> ChannelManager::channels;
 
 class GrammarInjectorMethodArgs : public GrammarInjector
 {
