@@ -16,6 +16,7 @@
 #include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
 
 #include <libCli/cliUtils.hpp>
+#include <libCli/Call.hpp>
 
 using namespace ArgParse;
 
@@ -46,14 +47,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
-            if(serverPort == "")
-            {
-                serverPort = "50051";
-            }
-            serverAddress += ":" + serverPort;
-            //std::cout << "Server addr: " << serverAddress << std::endl;
-            std::shared_ptr<grpc::Channel> channel =
-                grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
+            std::shared_ptr<grpc::Channel> channel = ChannelManager::getChannel(serverAddress, serverPort);
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
@@ -310,15 +304,7 @@ class GrammarInjectorMethods : public GrammarInjector
 
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << std::endl;
-            if(serverPort == "")
-            {
-                serverPort = "50051";
-            }
-            serverAddress += ":" + serverPort;
-            //std::cout << "Server addr: " << serverAddress << std::endl;
-            std::shared_ptr<grpc::Channel> channel =
-                grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-
+            std::shared_ptr<grpc::Channel> channel = ChannelManager::getChannel(serverAddress, serverPort);
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
@@ -367,15 +353,7 @@ class GrammarInjectorServices : public GrammarInjector
         {
             std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
             std::string serverPort = f_parseTree->findFirstChild("ServerPort");
-            if(serverPort == "")
-            {
-                serverPort = "50051";
-            }
-            serverAddress += ":" + serverPort;
-            //std::cout << "Server addr: " << serverAddress << std::endl;
-            std::shared_ptr<grpc::Channel> channel =
-                grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-
+            std::shared_ptr<grpc::Channel> channel = ChannelManager::getChannel(serverAddress, serverPort);
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {

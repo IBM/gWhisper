@@ -14,7 +14,6 @@
 
 #include <libCli/Call.hpp>
 #include <third_party/gRPC_utils/cli_call.h>
-#include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
 #include <google/protobuf/dynamic_message.h>
 #include <libCli/OutputFormatting.hpp>
 #include <libCli/MessageParsing.hpp>
@@ -166,9 +165,7 @@ int call(ParsedElement & parseTree)
     bool argsExist;
     ParsedElement & methodArgs = parseTree.findFirstSubTree("MethodArgs", argsExist);
 
-    std::shared_ptr<grpc::Channel> channel =
-        grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-
+    std::shared_ptr<grpc::Channel> channel = ChannelManager::getChannel(serverAddress, serverPort);
 
     if(not waitForChannelConnected(channel, getConnectTimeoutMs(&parseTree)))
     {
