@@ -24,10 +24,13 @@ namespace cli
     /// @returns 0 if RPC succeeded, -1 otherwise (including parse errors from parse tree and gRPC bad return code)
     int call(ArgParse::ParsedElement & f_parseTree);
 
+    /// Only us a single channel instances
     class ChannelManager
     {
         public:
             ChannelManager() = delete;
+            ChannelManager(const ChannelManager & ) = delete;
+            ChannelManager& operator=(const ChannelManager & ) = delete;
         public:
             static std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress, std::string f_serverPort)
             {
