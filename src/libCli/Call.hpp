@@ -28,24 +28,40 @@ namespace cli
     class ChannelManager
     {
         public:
-            ChannelManager() = delete;
+            ChannelManager();
             ChannelManager(const ChannelManager & ) = delete;
             ChannelManager& operator=(const ChannelManager & ) = delete;
+
         public:
+            static void registerChannel(std::string f_serverAddress, std::shared_ptr<grpc::Channel> f_channel)
+            {
+                if(channelMap.find(f_serverAddress) == channelMap.end())
+                {
+                    channelMap.insert(std::make_pair(f_serverAddress, f_channel));
+                }
+            };
+
             static std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress, std::string f_serverPort)
             {
-                static std::shared_ptr<grpc::Channel> m_channel;
+                static std::shared_ptr<grpc::Channel> channel;
+
                 if(f_serverPort == "")
                 {
                     f_serverPort = "50051";
                 }
-                f_serverAddress += ":" + f_serverPort;
 
-                if(m_channel == nullptr)
+				std::string serverAddress = f_serverAddress + ":" + f_serverPort;
+
+                if(channel == nullptr)
                 {
-                    m_channel = grpc::CreateChannel(f_serverAddress, grpc::InsecureChannelCredentials());
+                    channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
                 }
-                return m_channel;
+
+                ChannelManager::registerChannel(serverAddress, channel);
+                return channelMap[serverAddress];
             };
+
+        private:
+            static std::map<std::string, std::shared_ptr<grpc::Channel>> channelMap;
     };
 }

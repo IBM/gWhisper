@@ -23,6 +23,8 @@ using namespace ArgParse;
 namespace cli
 {
 
+std::map<std::string, std::shared_ptr<grpc::Channel>> ChannelManager::channelMap;
+
 class GrammarInjectorMethodArgs : public GrammarInjector
 {
     public:

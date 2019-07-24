@@ -154,12 +154,6 @@ int call(ParsedElement & parseTree)
 {
     std::string serverAddress = parseTree.findFirstChild("ServerAddress");
     std::string serverPort = parseTree.findFirstChild("ServerPort");
-    if(serverPort == "")
-    {
-        serverPort = "50051";
-    }
-    serverAddress += ":" + serverPort;
-
     std::string serviceName = parseTree.findFirstChild("Service");
     std::string methodName = parseTree.findFirstChild("Method");
     bool argsExist;
