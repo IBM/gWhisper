@@ -28,12 +28,18 @@ namespace cli
     class ChannelManager
     {
         public:
-            ChannelManager();
             ChannelManager(const ChannelManager & ) = delete;
             ChannelManager& operator=(const ChannelManager & ) = delete;
-
+        private:
+            ChannelManager(){};
         public:
-            static void registerChannel(std::string f_serverAddress, std::shared_ptr<grpc::Channel> f_channel)
+			static ChannelManager & getInstance(){
+
+                static ChannelManager channelManager;
+				return channelManager;
+			}
+
+            void registerChannel(std::string f_serverAddress, std::shared_ptr<grpc::Channel> f_channel)
             {
                 if(channels.find(f_serverAddress) == channels.end())
                 {
@@ -41,27 +47,34 @@ namespace cli
                 }
             };
 
-            static std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress, std::string f_serverPort)
+            std::shared_ptr<grpc::Channel> findChannelByAddress(std::string f_address)
+			{
+                return channels[f_address];
+			}
+
+            std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress, std::string f_serverPort)
             {
-                static std::shared_ptr<grpc::Channel> channel;
 
                 if(f_serverPort == "")
                 {
                     f_serverPort = "50051";
                 }
-
 				std::string serverAddress = f_serverAddress + ":" + f_serverPort;
 
-                if(channel == nullptr)
-                {
-                    channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-                }
+                std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
 
-                ChannelManager::registerChannel(serverAddress, channel);
-                return channels[serverAddress];
+                registerChannel(serverAddress, channel);
+
+                return findChannelByAddress(serverAddress);
             };
 
+            grpc::protobuf::DescriptorPool & createDescPool(std::shared_ptr<grpc::Channel> f_channel)
+            {
+				static grpc::ProtoReflectionDescriptorDatabase descDb(f_channel);
+                static grpc::protobuf::DescriptorPool descPool(&descDb);
+                return descPool;
+            }
         private:
-            static std::unordered_map<std::string, std::shared_ptr<grpc::Channel>> channels;
+            std::unordered_map<std::string, std::shared_ptr<grpc::Channel>> channels;
     };
 }
