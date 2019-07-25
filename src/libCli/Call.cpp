@@ -170,7 +170,7 @@ int call(ParsedElement & parseTree)
     //grpc::ProtoReflectionDescriptorDatabase descDb(channel);
     //grpc::protobuf::DescriptorPool descPool(&descDb);
 
-    const grpc::protobuf::ServiceDescriptor* service = ChannelManager::getDescPool(channel).FindServiceByName(serviceName);
+    const grpc::protobuf::ServiceDescriptor* service = ChannelManager::getInstance().getDescPool(channel).FindServiceByName(serviceName);
     if(service == nullptr)
     {
         std::cerr << "Error: Service '" << serviceName << "' not found" << std::endl;
