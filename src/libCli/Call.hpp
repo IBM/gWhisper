@@ -68,9 +68,15 @@ namespace cli
                 return findChannelByAddress(serverAddress);
             };
 
-            grpc::protobuf::DescriptorPool & createDescPool(std::shared_ptr<grpc::Channel> f_channel)
+            static grpc::ProtoReflectionDescriptorDatabase & getDescDb(std::shared_ptr<grpc::Channel> f_channel)
             {
-				static grpc::ProtoReflectionDescriptorDatabase descDb(f_channel);
+                static grpc::ProtoReflectionDescriptorDatabase descDb(f_channel);
+                return descDb;
+            }
+
+            static grpc::protobuf::DescriptorPool & getDescPool(std::shared_ptr<grpc::Channel> f_channel)
+            {
+                grpc::ProtoReflectionDescriptorDatabase & descDb = ChannelManager::getDescDb(f_channel);
                 static grpc::protobuf::DescriptorPool descPool(&descDb);
                 return descPool;
             }
