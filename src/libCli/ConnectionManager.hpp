@@ -5,7 +5,7 @@
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,8 +25,8 @@ namespace cli
             ConnectionManager(const ConnectionManager & ) = delete;
             ConnectionManager& operator=(const ConnectionManager & ) = delete;
         private:
-            ConnectionManager(){};
-            ~ConnectionManager(){};
+            ConnectionManager(){}
+            ~ConnectionManager(){}
         public:
 			static ConnectionManager & getInstance(){
 
@@ -34,26 +34,26 @@ namespace cli
 				return connectionManager;
 			}
 
-            std::shared_ptr<grpc::Channel> findChannelByAddress(std::string f_address)
+            bool findChannelByAddress(std::string f_address)
 			{
-                return channels[f_address];
+                return channels.find(f_address) != channels.end() ? true : false;
 			}
 
             std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress, std::string f_serverPort)
             {
-
                 if(f_serverPort == "")
                 {
                     f_serverPort = "50051";
                 }
 				std::string serverAddress = f_serverAddress + ":" + f_serverPort;
 
-                std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-
-                registerChannel(serverAddress, channel);
-
-                return findChannelByAddress(serverAddress);
-            };
+                if(!findChannelByAddress(serverAddress))
+                {
+                    std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
+                    registerChannel(serverAddress, channel);
+                }
+                return channels[serverAddress];
+            }
 
             grpc::ProtoReflectionDescriptorDatabase & getDescDb(std::shared_ptr<grpc::Channel> f_channel)
             {
@@ -75,6 +75,6 @@ namespace cli
                 {
                     channels.insert(std::make_pair(f_serverAddress, f_channel));
                 }
-            };
+            }
     };
 }
