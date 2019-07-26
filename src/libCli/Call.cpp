@@ -193,19 +193,14 @@ int call(ParsedElement & parseTree)
         return -1;
     }
 
-    //if(method->client_streaming())
-    //{
-    //    std::cerr << "Error: Client streaming RPCs not supported." << std::endl;
-    //    return -1;
-    //}
-
     const grpc::protobuf::Descriptor* inputType = method->input_type();
 
     // now we have to construct a protobuf from the parsed argument, which corresponds to the inputType
     google::protobuf::DynamicMessageFactory dynamicFactory;
 
     std::vector<ArgParse::ParsedElement*> requestMessages;
-    parseTree.findAllSubTrees("Message", requestMessages, true, 2);
+    // search all passed messages: (true flag prevents searching sub-messages)
+    parseTree.findAllSubTrees("Message", requestMessages, true);
 
     if(not method->client_streaming() and requestMessages.size() == 0)
     {

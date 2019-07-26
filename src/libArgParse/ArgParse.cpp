@@ -63,7 +63,7 @@ void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName,
 
     for(auto child : m_children)
     {
-        child->findAllSubTrees(f_elementName, f_out_result, f_depth - 1);
+        child->findAllSubTrees(f_elementName, f_out_result, f_doNotSearchChildsOfMatchingElements, f_depth - 1);
     }
 }
 

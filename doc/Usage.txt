@@ -134,10 +134,8 @@ EXAMPLES:
   gwhisper 127.0.0.1 examples.StreamingRpcs requestStreamCountMessages :: ::
       Issues a client-streaming RPC against the example server, streaming two empty messages.
 
-  gwhisper 127.0.0.1 examples.StreamingRpcs bidirectionalStreamNegateNumbers :number=5 number=3: :number=7:
+  gwhisper 127.0.0.1 examples.StreamingRpcs bidirectionalStreamNegateNumbers :number=3: :number=7:
       Issues a bi-directional streaming RPC against the example server.
       Result will be:
         number = -3
         number = -7
-      because in the first request message of the stream, the second _number_
-      instance overwrites the first one.
