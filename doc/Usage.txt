@@ -7,6 +7,9 @@ You may use TAB completion for all arguments (currently only supported in BASH).
 SYNOPSIS:
 gwhisper [OPTIONS] <hostname>[:port] <service> <method> [<fieldName>=FIELD_VALUE ]...
 
+client-streaming RPCs:
+gwhisper [OPTIONS] <hostname>[:port] <service> <method> [:[<fieldName>=FIELD_VALUE ]...:]...
+
 The default TCP port used to connect to a gRPC server is 50051.
 
 OPTIONS:
@@ -130,3 +133,12 @@ EXAMPLES:
 
   gwhisper 192.168.0.43 bakery orderCookies amount=0xa
       Uses IPv4 address, default TCP port of 50051 and field value as hex.
+
+  gwhisper 127.0.0.1 examples.StreamingRpcs requestStreamCountMessages :: ::
+      Issues a client-streaming RPC against the example server, streaming two empty messages.
+
+  gwhisper 127.0.0.1 examples.StreamingRpcs bidirectionalStreamNegateNumbers :number=3: :number=7:
+      Issues a bi-directional streaming RPC against the example server.
+      Result will be:
+        number = -3
+        number = -7

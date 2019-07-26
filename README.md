@@ -131,17 +131,16 @@ Feel free to try it out and provide feedback/contributions.
 What is working:
 
 - Tab Completion (bash only)
-- Calling RPCs (unary + server-streaming)
-- Output of all types supported by protocol buffers
-- Input of all protocol buffer types
+- Calling RPCs (unary + streaming)
+- Input and output of all protocol buffer types
 
 Some notable things which are not yet working:
 
-- Input: Client streaming RPCs
 - Input: Escaping of control characters (":@.(, ")
 - Completion: Support for shells other than BASH (e.g. zsh, fish)
 - Security: Authentication / Encryption of channels
 - Performance: Caching of reflection queries
+- Using Proto files instead of Reflection API (currently gWhisper only works with servers which have reflection enabled)
 
 ## Supported platforms
 

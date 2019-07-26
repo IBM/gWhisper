@@ -193,46 +193,23 @@ int call(ParsedElement & parseTree)
         return -1;
     }
 
-    if(method->client_streaming())
-    {
-        std::cerr << "Error: Client streaming RPCs not supported." << std::endl;
-        return -1;
-    }
-
     const grpc::protobuf::Descriptor* inputType = method->input_type();
 
     // now we have to construct a protobuf from the parsed argument, which corresponds to the inputType
     google::protobuf::DynamicMessageFactory dynamicFactory;
 
-    // read data from the parse tree into the protobuf message:
-    std::unique_ptr<grpc::protobuf::Message> message = cli::parseMessage(parseTree, dynamicFactory, inputType);
+    std::vector<ArgParse::ParsedElement*> requestMessages;
+    // search all passed messages: (true flag prevents searching sub-messages)
+    parseTree.findAllSubTrees("Message", requestMessages, true);
 
-
-
-    if(parseTree.findFirstChild("PrintParsedMessage") != "")
+    if(not method->client_streaming() and requestMessages.size() == 0)
     {
-        // use built-in human readable output format
-        cli::OutputFormatter imessageFormatter;
-        std::cout << "Request message:" << std::endl <<  imessageFormatter.messageToString(*message, method->input_type(), "| ", "| " ) << std::endl;
+        // User did not give any message arguments for non-streaming RPC
+        // In this case we just add the parseTree, which causes a default message to be cunstructed:
+        requestMessages.push_back(&parseTree);
     }
 
-
-    if(not message)
-    {
-        std::cerr << "Error: Error parsing method arguments -> aborting the call :-(" << std::endl;
-        return -1;
-    }
-
-    // now we serialize the message:
-    grpc::string serializedRequest;
-    bool success = message->SerializeToString(&serializedRequest);
-    if(not success)
-    {
-        std::cerr << "Error: Failed to serialize method arguments" << std::endl;
-        return -1;
-    }
-
-    // now we do the actual RPC call:
+    // Prepare the RPC call:
     std::multimap<grpc::string, grpc::string> clientMetadata;
     grpc::string serializedResponse;
     std::multimap<grpc::string_ref, grpc::string_ref> serverMetadataA;
@@ -240,7 +217,39 @@ int call(ParsedElement & parseTree)
 
     std::string methodStr =  "/" + serviceName + "/" + methodName;
     grpc::testing::CliCall call(channel, methodStr, clientMetadata);
-    call.Write(serializedRequest);
+
+    // Write all request messages (multiple in case of request stream)
+    for(ArgParse::ParsedElement * messageParseTree : requestMessages)
+    {
+        // read data from the parse tree into the protobuf message:
+        std::unique_ptr<grpc::protobuf::Message> message = cli::parseMessage(*messageParseTree, dynamicFactory, inputType);
+
+        if(parseTree.findFirstChild("PrintParsedMessage") != "")
+        {
+            // use built-in human readable output format
+            cli::OutputFormatter imessageFormatter;
+            std::cout << "Request message:" << std::endl <<  imessageFormatter.messageToString(*message, method->input_type(), "| ", "| " ) << std::endl;
+        }
+
+        if(not message)
+        {
+            std::cerr << "Error: Error parsing method arguments -> aborting the call :-(" << std::endl;
+            return -1;
+        }
+
+        // now we serialize the message:
+        grpc::string serializedRequest;
+        bool success = message->SerializeToString(&serializedRequest);
+        if(not success)
+        {
+            std::cerr << "Error: Failed to serialize method arguments" << std::endl;
+            return -1;
+        }
+
+        call.Write(serializedRequest);
+    }
+
+    // End the request stream. (This is a limitation of gWhisper streaming support, as we sequentially stream all request messages, then end the stream and then handle the reply stream.) No async streaming is possible via this CLI at the moment.
     call.WritesDone();
 
     // In a loop we read reply data from the reply stream:

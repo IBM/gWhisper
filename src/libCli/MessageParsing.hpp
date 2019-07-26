@@ -22,7 +22,7 @@ namespace cli
     /// Constructs a gRPC message from a given parseTree.
     /// From a given parse tree, this function constructs a protobuf message and fills
     /// it with all data available from the parse tree.
-    /// @param f_parseTree The parse tree containing al information which should be "parsed" into the protobuf message.
+    /// @param f_parseTree The parse tree containing all information which should be "parsed" into the protobuf message.
     /// @param f_factory Required to construct messages.
     /// @param f_messageDescriptor Message descriptor describing the type of the messache whoch should be constructed.
     /// @returns unique_ptr pointing to a newly created message if parse succedded,

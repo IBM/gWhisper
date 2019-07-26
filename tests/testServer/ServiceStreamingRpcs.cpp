@@ -68,27 +68,38 @@
 
 ::grpc::Status ServiceStreamingRpcs::requestStreamAddAllNumbers(
         ::grpc::ServerContext* context,
-        ::grpc::ServerReader< ::examples::Uint32>* reader,
-        ::examples::Uint32* response
+        ::grpc::ServerReader< ::examples::Uint32>* reader, ::examples::Uint32* response
         )
 {
-    return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "This RPC is not yet implemented.");
+    ::examples::Uint32 message;
+    while (reader->Read(&message)) {
+        response->set_number(response->number() + message.number());
+    }
+    return grpc::Status();
 }
 
 ::grpc::Status ServiceStreamingRpcs::requestStreamCountMessages(
         ::grpc::ServerContext* context,
-        ::grpc::ServerReader< ::google::protobuf::Empty>* reader,
-        ::examples::Uint32* response
+        ::grpc::ServerReader< ::google::protobuf::Empty>* reader, ::examples::Uint32* response
         )
 {
-    return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "This RPC is not yet implemented.");
+    ::google::protobuf::Empty message;
+    while (reader->Read(&message)) {
+        response->set_number(response->number() + 1);
+    }
+    return grpc::Status();
 }
 
 ::grpc::Status ServiceStreamingRpcs::bidirectionalStreamNegateNumbers(
         ::grpc::ServerContext* context,
-        ::grpc::ServerReaderWriter< ::examples::Int32,
-        ::examples::Int32>* stream
+        ::grpc::ServerReaderWriter< ::examples::Int32, ::examples::Int32>* stream
         )
 {
-    return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "This RPC is not yet implemented.");
+    ::examples::Int32 message;
+    while (stream->Read(&message)) {
+        ::examples::Int32 reply;
+        reply.set_number(-message.number());
+        stream->Write(reply);
+    }
+    return grpc::Status();
 }
