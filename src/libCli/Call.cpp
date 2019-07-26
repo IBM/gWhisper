@@ -16,6 +16,7 @@
 #include <third_party/gRPC_utils/cli_call.h>
 #include <google/protobuf/dynamic_message.h>
 #include <libCli/OutputFormatting.hpp>
+#include <libCli/ConnectionManager.hpp>
 #include <libCli/MessageParsing.hpp>
 #include <chrono>
 #include <ctime>
@@ -159,7 +160,7 @@ int call(ParsedElement & parseTree)
     bool argsExist;
     ParsedElement & methodArgs = parseTree.findFirstSubTree("MethodArgs", argsExist);
 
-    std::shared_ptr<grpc::Channel> channel = ChannelManager::getInstance().getChannel(serverAddress, serverPort);
+    std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, serverPort);
 
     if(not waitForChannelConnected(channel, getConnectTimeoutMs(&parseTree)))
     {
@@ -170,7 +171,7 @@ int call(ParsedElement & parseTree)
     //grpc::ProtoReflectionDescriptorDatabase descDb(channel);
     //grpc::protobuf::DescriptorPool descPool(&descDb);
 
-    const grpc::protobuf::ServiceDescriptor* service = ChannelManager::getInstance().getDescPool(channel).FindServiceByName(serviceName);
+    const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(channel).FindServiceByName(serviceName);
     if(service == nullptr)
     {
         std::cerr << "Error: Service '" << serviceName << "' not found" << std::endl;
