@@ -69,7 +69,14 @@ int main(int argc, char **argv)
     if(parseTree.findFirstChild("Complete") != "")
     {
         bool completeDebug = (parseTree.findFirstChild("CompleteDebug") != "");
-        cli::printBashCompletions(rc.candidates, parseTree, args, completeDebug);
+        if(parseTree.findFirstChild("fish") != "")
+        {
+          cli::printFishCompletions(rc.candidates, parseTree, args, completeDebug);
+        }
+        else
+        {
+          cli::printBashCompletions(rc.candidates, parseTree, args, completeDebug);
+        }
         return 0;
     }
 

@@ -32,4 +32,12 @@ namespace cli
             const std::string & f_args,
             bool f_debug
             );
+
+    // TODO: only one function with enum dialect argument
+    void printFishCompletions(
+            std::vector<std::shared_ptr<ArgParse::ParsedElement> > & f_candidates,
+            ArgParse::ParsedElement & f_parseTree,
+            const std::string & f_args,
+            bool f_debug
+            );
 }
