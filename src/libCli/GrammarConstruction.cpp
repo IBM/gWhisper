@@ -484,7 +484,22 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     GrammarElement * optionsalt = f_grammarPool.createElement<Alternation>();
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("-h", "Help"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--help", "Help"));
-    optionsalt->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
+
+    GrammarElement * completeOption = f_grammarPool.createElement<Concatenation>();
+    completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
+    GrammarElement * completeDialectOption = f_grammarPool.createElement<Optional>();
+    completeOption->addChild(completeDialectOption);
+    GrammarElement * completeDialectConcat = f_grammarPool.createElement<Concatenation>();
+    completeDialectOption->addChild(completeDialectConcat);
+    completeDialectConcat->addChild(f_grammarPool.createElement<FixedString>("="));
+    GrammarElement * completeDialectChoice = f_grammarPool.createElement<Alternation>("CompleteDialect");
+    completeDialectConcat->addChild(completeDialectChoice);
+    completeDialectChoice->addChild(f_grammarPool.createElement<FixedString>("bash", "bash"));
+    completeDialectChoice->addChild(f_grammarPool.createElement<FixedString>("fish", "fish"));
+    optionsalt->addChild(completeOption);
+
+
+    //completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--debugComplete", "CompleteDebug"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--dot", "DotExport"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noColor", "NoColor"));
