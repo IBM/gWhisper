@@ -25,15 +25,9 @@ OPTIONS:
 
  Behavioral options:
 
-   --complete[=DIALECT]
+   --complete
        Shows possible next arguments and exits.
-       DIALECT selects how suggections are formatted. Usually dialects customize
-       the printed suggestions to be compatible with the completion API of a
-       given shell.
-       Currently two dialects are supported:
-         fish: compatible putput for the fish 'complete' command
-         bash: compatible output for the bash 'complete' command
-       If no DIALECT is specified 'bash' is used as a default.
+       The output is formatted to be usable as input for bash-completion.
 
    --connectTimeoutMilliseconds=TIMEOUT_VALUE
        Default: 500
@@ -73,7 +67,8 @@ OPTIONS:
 
    --debugComplete
        Prints debug information about completion (might only be useful if
-       --complete is also present).
+       --complete is also present). The kind of information displayed is not
+       fixed yet.
 
 FIELD_VALUE:
   Field values in the request message may be specified as follows

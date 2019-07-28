@@ -24,7 +24,12 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
     // completion requested :)
     if(f_debug)
     {
-        std::cerr << "Input string \"" << f_args << std::endl;
+        std::cerr << "Input string \"" << f_args << "\"\nCandidates:\n" << std::endl;
+        for(auto candidate : f_candidates)
+        {
+            std::string candidateStr =candidate->getMatchedString();
+            printf("pre: '%s'\n", candidateStr.c_str());
+        }
     }
 
     //size_t n = parseTree.getMatchedString().size();
@@ -35,31 +40,51 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         std::string suggestion;
         size_t start = n;
         size_t end;
-
         if(f_debug)
         {
-            printf("pre: '%s'\n", candidateStr.c_str());
             printf("candidateStr[n=%zu] = '%c'\n", n, candidateStr[n]);
         }
-
-        start = candidateStr.find_last_of(" ", n)+1;
-        if(start == std::string::npos)
-        {
-          start = 0;
-        }
-        end = candidateStr.find_first_of(" ", n)-1;
-
-        if(f_debug)
-        {
-          printf("nospace! cand='%s', n=%zu, start=%zu, end = %zu\n",candidateStr.c_str(), n, start, end);
-        }
-
+        //if(
+        //        (candidateStr[n] != ' ')
+        //        //&&
+        //        //(candidateStr[n] != '=')
+        //        //&&
+        //        //(candidateStr[n] != ',')
+        //        //&&
+        //        //(candidateStr[n] != ':')
+        //)
+        //{
+            //start = candidateStr.find_last_of(" =:,", n)+1;
+            start = candidateStr.find_last_of(" ", n)+1;
+            if(start == std::string::npos)
+            {
+                start = 0;
+            }
+            end = candidateStr.find_first_of(" ", n)-1;
+            if(f_debug)
+            {
+              printf("nospace! cand='%s', n=%zu, start=%zu, end = %zu\n",candidateStr.c_str(), n, start, end);
+            }
+        //}
+        //else
+        //{
+        //    start = candidateStr.find_last_of(" ", n-1)+1;
+        //    //start = candidateStr.find_last_of(" =:", n-1)+1;
+        //    end = n;
+        //    if(f_debug)
+        //    {
+        //      printf("space! cand='%s', n=%zu, start=%zu, end = %zu\n",candidateStr.c_str(), n, start, end);
+        //    }
+        //}
+        //printf("start=%zu, end=%zu\n", start, end);
+        //suggestion = candidateStr.substr(n, std::string::npos);
         suggestion = candidateStr.substr(start, std::string::npos);
-        size_t trimEnd = suggestion.find_last_not_of(' ');
+        auto trimEnd = suggestion.find_last_not_of(' ');
         suggestion = suggestion.substr(0, trimEnd+1);
         //suggestion = candidateStr.substr(start, end-start+1);
         if(f_debug)
         {
+
             printf("post: '%s'\n", suggestion.c_str());
         }
         // NOTE: be careful when adding description (tab-delimiter) here, as
