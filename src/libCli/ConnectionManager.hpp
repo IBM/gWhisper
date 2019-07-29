@@ -39,42 +39,46 @@ namespace cli
 
         public:
             /// Only use a single connection instance
-			static ConnectionManager & getInstance(){
-
+			static ConnectionManager & getInstance()
+            {
                 static ConnectionManager connectionManager;
 				return connectionManager;
 			}
 
             bool findChannelByAddress(std::string f_address)
-			{
+            {
                 if(connections.find(f_address) != connections.end())
                 {
-                    if(connections[f_address].channel != nullptr){
+                    if(connections[f_address].channel != nullptr)
+                    {
                         return true;
                     }
                 }
                 return false;
-			}
+            }
             bool findDescDbByAddress(std::string f_address)
-			{
+            {
                 if(connections.find(f_address) != connections.end())
                 {
-                    if(connections[f_address].descDb != nullptr){
+                    if(connections[f_address].descDb != nullptr)
+                    {
                         return true;
                     }
                 }
                 return false;
-			}
+            }
             bool findDescPoolByAddress(std::string f_address)
-			{
+            {
                 if(connections.find(f_address) != connections.end())
                 {
-                    if(connections[f_address].descPool != nullptr){
+                    if(connections[f_address].descPool != nullptr)
+                    {
                         return true;
                     }
                 }
                 return false;
-			}
+            }
+
             // create a channel according to the server address if the chache map doesn't contain it
             std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress, std::string f_serverPort)
             {
@@ -82,7 +86,7 @@ namespace cli
                 {
                     f_serverPort = "50051";
                 }
-				std::string serverAddress = f_serverAddress + ":" + f_serverPort;
+                std::string serverAddress = f_serverAddress + ":" + f_serverPort;
 
                 if(!findChannelByAddress(serverAddress))
                 {
@@ -98,19 +102,19 @@ namespace cli
                 {
                     f_serverPort = "50051";
                 }
-				std::string serverAddress = f_serverAddress + ":" + f_serverPort;
+                std::string serverAddress = f_serverAddress + ":" + f_serverPort;
 
                 if(!findDescDbByAddress(serverAddress))
                 {
-                   if(connections[serverAddress].channel)
-                   {
-                         connections[serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[serverAddress].channel);
-                         connections[serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[serverAddress].descDb.get());
-                     }
-                     else
-                     {
-                         registerConnection(serverAddress);
-                     }
+                    if(connections[serverAddress].channel)
+                    {
+                        connections[serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[serverAddress].channel);
+                        connections[serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[serverAddress].descDb.get());
+                    }
+                    else
+                    {
+                        registerConnection(serverAddress);
+                    }
                 }
                 return connections[serverAddress].descDb;
             }
@@ -119,9 +123,9 @@ namespace cli
             {
                 if(f_serverPort == "")
                 {
-                     f_serverPort = "50051";
+                    f_serverPort = "50051";
                 }
-				std::string serverAddress = f_serverAddress + ":" + f_serverPort;
+                std::string serverAddress = f_serverAddress + ":" + f_serverPort;
                 if(!findDescPoolByAddress(serverAddress))
                 {
                     if(connections[serverAddress].channel)
