@@ -161,7 +161,6 @@ int call(ParsedElement & parseTree)
     ParsedElement & methodArgs = parseTree.findFirstSubTree("MethodArgs", argsExist);
 
     std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, serverPort);
-    std::cout << "1111111111111111111";
 
     if(not waitForChannelConnected(channel, getConnectTimeoutMs(&parseTree)))
     {

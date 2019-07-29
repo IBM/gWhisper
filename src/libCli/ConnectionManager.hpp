@@ -35,6 +35,7 @@ namespace cli
         private:
             ConnectionManager(){}
             ~ConnectionManager(){}
+            
         public:
 			static ConnectionManager & getInstance(){
 
