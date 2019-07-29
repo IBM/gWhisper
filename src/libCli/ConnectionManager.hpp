@@ -18,6 +18,14 @@
 
 namespace cli
 {
+    typedef struct Connlist
+    {
+       std::shared_ptr<grpc::Channel> channel = nullptr;
+       grpc::ProtoReflectionDescriptorDatabase * descDb = nullptr;
+       std::unique_ptr<grpc::protobuf::DescriptorPool> descPool = nullptr;
+
+    } Connlist;
+
     /// Only us a single channel instances
     class ConnectionManager
     {
@@ -36,7 +44,13 @@ namespace cli
 
             bool findChannelByAddress(std::string f_address)
 			{
-                return channels.find(f_address) != channels.end() ? true : false;
+                if(connections.find(f_address) != connections.end())
+                {
+                    if(connections[f_address]->channel != nullptr){
+                        return true;
+                    }
+                }
+                return false;
 			}
 
             std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress, std::string f_serverPort)
@@ -52,7 +66,7 @@ namespace cli
                     std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
                     registerChannel(serverAddress, channel);
                 }
-                return channels[serverAddress];
+                return connections[serverAddress]->channel;
             }
 
             grpc::ProtoReflectionDescriptorDatabase & getDescDb(std::shared_ptr<grpc::Channel> f_channel)
@@ -68,12 +82,17 @@ namespace cli
                 return descPool;
             }
         private:
-            std::unordered_map<std::string, std::shared_ptr<grpc::Channel>> channels;
+            std::unordered_map<std::string, cli::Connlist *> connections;
             void registerChannel(std::string f_serverAddress, std::shared_ptr<grpc::Channel> f_channel)
             {
-                if(channels.find(f_serverAddress) == channels.end())
+                if(connections.find(f_serverAddress) == connections.end())
                 {
-                    channels.insert(std::make_pair(f_serverAddress, f_channel));
+                    Connlist * connection;
+                    connection->channel = f_channel;
+                    connection->descDb = new grpc::ProtoReflectionDescriptorDatabase(f_channel);
+                    std::unique_ptr<grpc::protobuf::DescriptorPool> unique_descPool(new grpc::protobuf::DescriptorPool(connection->descDb));
+                    connection->descPool = std::move(unique_descPool);
+                    connections.insert(std::make_pair(f_serverAddress, connection));
                 }
             }
     };
