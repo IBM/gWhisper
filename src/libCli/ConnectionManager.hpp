@@ -39,11 +39,11 @@ namespace cli
 
         public:
             /// Only use a single connection instance
-			static ConnectionManager & getInstance()
+            static ConnectionManager & getInstance()
             {
                 static ConnectionManager connectionManager;
-				return connectionManager;
-			}
+                return connectionManager;
+            }
 
             bool findChannelByAddress(std::string f_address)
             {
