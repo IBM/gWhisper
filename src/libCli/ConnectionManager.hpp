@@ -46,7 +46,7 @@ namespace cli
 			{
                 if(connections.find(f_address) != connections.end())
                 {
-                    if(connections[f_address]->channel != nullptr){
+                    if(connections[f_address].channel != nullptr){
                         return true;
                     }
                 }
@@ -56,7 +56,7 @@ namespace cli
 			{
                 if(connections.find(f_address) != connections.end())
                 {
-                    if(connections[f_address]->descDb != nullptr){
+                    if(connections[f_address].descDb != nullptr){
                         return true;
                     }
                 }
@@ -66,7 +66,7 @@ namespace cli
 			{
                 if(connections.find(f_address) != connections.end())
                 {
-                    if(connections[f_address]->descPool != nullptr){
+                    if(connections[f_address].descPool != nullptr){
                         return true;
                     }
                 }
@@ -85,75 +85,63 @@ namespace cli
                     std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
                     registerConnection(serverAddress, channel);
                 }
-                return connections[serverAddress]->channel;
+                return connections[serverAddress].channel;
             }
 
-            grpc::ProtoReflectionDescriptorDatabase & getDescDb(std::string f_serverAddress, std::string f_serverPort)
+            std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> getDescDb(std::string f_serverAddress, std::string f_serverPort)
             {
                 if(f_serverPort == "")
                 {
                     f_serverPort = "50051";
                 }
 				std::string serverAddress = f_serverAddress + ":" + f_serverPort;
-                std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-                static grpc::ProtoReflectionDescriptorDatabase descDb(channel);
-                return descDb;
 
-                // if(f_serverPort == "")
-                // {
-                //     f_serverPort = "50051";
-                // }
-				// std::string serverAddress = f_serverAddress + ":" + f_serverPort;
-
-                // if(!findDescDbByAddress(serverAddress))
-                // {
-                //     if(connections[serverAddress]->channel)
-                //     {
-                //         connections[serverAddress]->descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[serverAddress]->channel);    
-                //         connections[serverAddress]->descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[serverAddress]->descDb.get());
-                //     }
-                //     else 
-                //     {
-                //         std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-                //         registerConnection(serverAddress,channel);
-                //     }
-                // }
-                //return connections[serverAddress]->descDb;
+                if(!findDescDbByAddress(serverAddress))
+                {
+                   if(connections[serverAddress].channel)
+                   {
+                         connections[serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[serverAddress].channel);    
+                         connections[serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[serverAddress].descDb.get());
+                     }
+                     else
+                     {
+                         std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
+                         registerConnection(serverAddress,channel);
+                     }
+                }
+                return connections[serverAddress].descDb;
             }
 
-            grpc::protobuf::DescriptorPool & getDescPool(std::string f_serverAddress, std::string f_serverPort)
+            std::shared_ptr<grpc::protobuf::DescriptorPool> getDescPool(std::string f_serverAddress, std::string f_serverPort)
             {
-                // if(f_serverPort == "")
-                // {
-                //     f_serverPort = "50051";
-                // }
-				// std::string serverAddress = f_serverAddress + ":" + f_serverPort;
-                grpc::ProtoReflectionDescriptorDatabase & descDb = getDescDb(f_serverAddress, f_serverPort);
-                static grpc::protobuf::DescriptorPool descPool(&descDb);
-                // if(!findDescPoolByAddress(serverAddress))
-                // {
-                //     if(connections[serverAddress]->channel)
-                //     {
-                //         connections[serverAddress]->descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[serverAddress]->channel);    
-                //         connections[serverAddress]->descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[serverAddress]->descDb.get());
-                //     }
-                //     else 
-                //     {
-                //         std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-                //         registerConnection(serverAddress,channel);
-                //     }
-                // }
-                // return connections[serverAddress]->descPool;
-                return descPool;
+                if(f_serverPort == "")
+                {
+                     f_serverPort = "50051";
+                }
+				std::string serverAddress = f_serverAddress + ":" + f_serverPort;
+                if(!findDescPoolByAddress(serverAddress))
+                {
+                    if(connections[serverAddress].channel)
+                    {
+                        connections[serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[serverAddress].channel);    
+                        connections[serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[serverAddress].descDb.get());
+                    }
+                    else
+                    {
+                        std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
+                        registerConnection(serverAddress,channel);
+                    }
+                }
+                return connections[serverAddress].descPool;
             }
         private:
-            std::unordered_map<std::string, std::shared_ptr<Connlist>> connections;
+            std::unordered_map<std::string, Connlist> connections;
             void registerConnection(std::string f_serverAddress, std::shared_ptr<grpc::Channel> f_channel)
             {
-                std::shared_ptr<Connlist> connection;
-                connection->channel = f_channel;
-                //connection->descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection->channel);
-                //connection->descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection->descDb.get());
+                Connlist connection;
+                connection.channel = f_channel;
+                connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
+                connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDb.get());
                     
                 if(connections.find(f_serverAddress) == connections.end())
                 {
