@@ -18,15 +18,16 @@
 
 namespace cli
 {
-    typedef struct Connlist
+    /// List of connection infomation
+    typedef struct ConnList
     {
        std::shared_ptr<grpc::Channel> channel = nullptr;
        std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> descDb = nullptr;
        std::shared_ptr<grpc::protobuf::DescriptorPool> descPool = nullptr;
 
-    } Connlist;
+    } ConnList;
 
-    /// Only us a single channel instances
+    /// Class to manage and resuse connection information, singleton pattern.
     class ConnectionManager
     {
         public:
@@ -35,8 +36,9 @@ namespace cli
         private:
             ConnectionManager(){}
             ~ConnectionManager(){}
-            
+
         public:
+            /// Only use a single connection instance
 			static ConnectionManager & getInstance(){
 
                 static ConnectionManager connectionManager;
@@ -73,6 +75,7 @@ namespace cli
                 }
                 return false;
 			}
+            // create a channel according to the server address if the chache map doesn't contain it
             std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress, std::string f_serverPort)
             {
                 if(f_serverPort == "")
@@ -88,6 +91,7 @@ namespace cli
                 return connections[serverAddress].channel;
             }
 
+            // re-use the Descriptor Database for the corresponding channel
             std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> getDescDb(std::string f_serverAddress, std::string f_serverPort)
             {
                 if(f_serverPort == "")
@@ -100,7 +104,7 @@ namespace cli
                 {
                    if(connections[serverAddress].channel)
                    {
-                         connections[serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[serverAddress].channel);    
+                         connections[serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[serverAddress].channel);
                          connections[serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[serverAddress].descDb.get());
                      }
                      else
@@ -122,7 +126,7 @@ namespace cli
                 {
                     if(connections[serverAddress].channel)
                     {
-                        connections[serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[serverAddress].channel);    
+                        connections[serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[serverAddress].channel);
                         connections[serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[serverAddress].descDb.get());
                     }
                     else
@@ -133,14 +137,15 @@ namespace cli
                 return connections[serverAddress].descPool;
             }
         private:
-            std::unordered_map<std::string, Connlist> connections;
+            // connection cache for resuing the channel, corresponding descriptor Database and DatabasePool
+            std::unordered_map<std::string, ConnList> connections;
             void registerConnection(std::string f_serverAddress)
             {
-                Connlist connection;
+                ConnList connection;
                 connection.channel = grpc::CreateChannel(f_serverAddress, grpc::InsecureChannelCredentials());
                 connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
                 connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDb.get());
-                    
+
                 if(connections.find(f_serverAddress) == connections.end())
                 {
                     connections.insert(std::make_pair(f_serverAddress, connection));
