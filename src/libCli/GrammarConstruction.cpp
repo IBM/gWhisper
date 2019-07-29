@@ -54,7 +54,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 return nullptr;
             }
 
-            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(channel).FindServiceByName(serviceName);
+            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress, serverPort).FindServiceByName(serviceName);
 
             if(service == nullptr)
             {
@@ -309,7 +309,7 @@ class GrammarInjectorMethods : public GrammarInjector
                 return nullptr;
             }
 
-            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(channel).FindServiceByName(serviceName);
+            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress, serverPort).FindServiceByName(serviceName);
             auto result = m_grammar.createElement<Alternation>();
             if(service != nullptr)
             {
@@ -355,7 +355,7 @@ class GrammarInjectorServices : public GrammarInjector
             }
 
             std::vector<grpc::string> serviceList;
-            if(not ConnectionManager::getInstance().getDescDb(channel).GetServices(&serviceList))
+            if(not ConnectionManager::getInstance().getDescDb(serverAddress, serverPort).GetServices(&serviceList))
             {
                 printf("error retrieving service list\n");
                 return nullptr;

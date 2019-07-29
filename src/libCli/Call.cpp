@@ -161,6 +161,7 @@ int call(ParsedElement & parseTree)
     ParsedElement & methodArgs = parseTree.findFirstSubTree("MethodArgs", argsExist);
 
     std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, serverPort);
+    std::cout << "1111111111111111111";
 
     if(not waitForChannelConnected(channel, getConnectTimeoutMs(&parseTree)))
     {
@@ -171,7 +172,7 @@ int call(ParsedElement & parseTree)
     //grpc::ProtoReflectionDescriptorDatabase descDb(channel);
     //grpc::protobuf::DescriptorPool descPool(&descDb);
 
-    const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(channel).FindServiceByName(serviceName);
+    const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress, serverPort).FindServiceByName(serviceName);
     if(service == nullptr)
     {
         std::cerr << "Error: Service '" << serviceName << "' not found" << std::endl;
