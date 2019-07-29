@@ -82,8 +82,7 @@ namespace cli
 
                 if(!findChannelByAddress(serverAddress))
                 {
-                    std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-                    registerConnection(serverAddress, channel);
+                    registerConnection(serverAddress);
                 }
                 return connections[serverAddress].channel;
             }
@@ -105,8 +104,7 @@ namespace cli
                      }
                      else
                      {
-                         std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-                         registerConnection(serverAddress,channel);
+                         registerConnection(serverAddress);
                      }
                 }
                 return connections[serverAddress].descDb;
@@ -128,18 +126,17 @@ namespace cli
                     }
                     else
                     {
-                        std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-                        registerConnection(serverAddress,channel);
+                        registerConnection(serverAddress);
                     }
                 }
                 return connections[serverAddress].descPool;
             }
         private:
             std::unordered_map<std::string, Connlist> connections;
-            void registerConnection(std::string f_serverAddress, std::shared_ptr<grpc::Channel> f_channel)
+            void registerConnection(std::string f_serverAddress)
             {
                 Connlist connection;
-                connection.channel = f_channel;
+                connection.channel = grpc::CreateChannel(f_serverAddress, grpc::InsecureChannelCredentials());
                 connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
                 connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDb.get());
                     
