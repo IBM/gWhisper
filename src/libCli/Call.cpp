@@ -160,6 +160,12 @@ int call(ParsedElement & parseTree)
     bool argsExist;
     ParsedElement & methodArgs = parseTree.findFirstSubTree("MethodArgs", argsExist);
 
+    if(serverPort == "")
+    {
+        serverPort = "50051";
+    }
+    serverAddress = serverAddress + ":" + serverPort;
+
     std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, serverPort);
 
     if(not waitForChannelConnected(channel, getConnectTimeoutMs(&parseTree)))
@@ -167,9 +173,6 @@ int call(ParsedElement & parseTree)
         std::cerr << "Error: channel connection attempt timed out" << std::endl;
         return -1;
     }
-
-    //grpc::ProtoReflectionDescriptorDatabase descDb(channel);
-    //grpc::protobuf::DescriptorPool descPool(&descDb);
 
     const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress, serverPort)->FindServiceByName(serviceName);
     if(service == nullptr)

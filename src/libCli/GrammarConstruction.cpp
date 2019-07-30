@@ -44,6 +44,11 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             std::string serverPort = f_parseTree->findFirstChild("ServerPort");
             std::string serviceName = f_parseTree->findFirstChild("Service");
             std::string methodName = f_parseTree->findFirstChild("Method");
+            if(serverPort == "")
+            {
+                serverPort = "50051";
+            }
+            serverAddress = serverAddress + ":" + serverPort;
 
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
@@ -299,7 +304,11 @@ class GrammarInjectorMethods : public GrammarInjector
             std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
             std::string serverPort = f_parseTree->findFirstChild("ServerPort");
             std::string serviceName = f_parseTree->findFirstChild("Service");
-
+            if(serverPort == "")
+            {
+                serverPort = "50051";
+            }
+            serverAddress = serverAddress + ":" + serverPort;
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << std::endl;
             std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, serverPort);
@@ -347,6 +356,12 @@ class GrammarInjectorServices : public GrammarInjector
         {
             std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
             std::string serverPort = f_parseTree->findFirstChild("ServerPort");
+            if(serverPort == "")
+            {
+                serverPort = "50051";
+            }
+            serverAddress = serverAddress + ":" + serverPort;
+
             std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, serverPort);
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
