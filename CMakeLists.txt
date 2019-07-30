@@ -65,3 +65,4 @@ endif()
 add_subdirectory(third_party)
 
 install(FILES complete.bash DESTINATION /usr/share/bash-completion/completions/ RENAME gwhisper)
+install(FILES complete.fish DESTINATION /usr/share/fish/vendor_completions.d/ RENAME gwhisper.fish)
