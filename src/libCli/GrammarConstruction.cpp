@@ -52,14 +52,14 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
-            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, serverPort);
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
                 return nullptr;
             }
 
-            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress, serverPort)->FindServiceByName(serviceName);
+            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
 
             if(service == nullptr)
             {
@@ -311,14 +311,14 @@ class GrammarInjectorMethods : public GrammarInjector
             serverAddress = serverAddress + ":" + serverPort;
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << std::endl;
-            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, serverPort);
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
                 return nullptr;
             }
 
-            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress, serverPort)->FindServiceByName(serviceName);
+            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
             auto result = m_grammar.createElement<Alternation>();
             if(service != nullptr)
             {
@@ -362,7 +362,7 @@ class GrammarInjectorServices : public GrammarInjector
             }
             serverAddress = serverAddress + ":" + serverPort;
 
-            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, serverPort);
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
@@ -370,7 +370,7 @@ class GrammarInjectorServices : public GrammarInjector
             }
 
             std::vector<grpc::string> serviceList;
-            if(not ConnectionManager::getInstance().getDescDb(serverAddress, serverPort)->GetServices(&serviceList))
+            if(not ConnectionManager::getInstance().getDescDb(serverAddress)->GetServices(&serviceList))
             {
                 printf("error retrieving service list\n");
                 return nullptr;

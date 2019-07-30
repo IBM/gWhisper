@@ -166,7 +166,7 @@ int call(ParsedElement & parseTree)
     }
     serverAddress = serverAddress + ":" + serverPort;
 
-    std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, serverPort);
+    std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
     if(not waitForChannelConnected(channel, getConnectTimeoutMs(&parseTree)))
     {
@@ -174,7 +174,7 @@ int call(ParsedElement & parseTree)
         return -1;
     }
 
-    const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress, serverPort)->FindServiceByName(serviceName);
+    const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
     if(service == nullptr)
     {
         std::cerr << "Error: Service '" << serviceName << "' not found" << std::endl;

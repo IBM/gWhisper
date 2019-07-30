@@ -18,7 +18,7 @@
 
 namespace cli
 {
-    /// List of connection infomation
+    /// List of gRpc connection infomation
     typedef struct ConnList
     {
        std::shared_ptr<grpc::Channel> channel = nullptr;
@@ -45,8 +45,10 @@ namespace cli
                 return connectionManager;
             }
 
-            // create a channel according to the server address if the chache map doesn't contain it
-            std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress, std::string f_serverPort)
+            /// To get the channel according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
+            /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
+            /// @returns the channel of the corresponding server address.
+            std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress)
             {
                 if(!findChannelByAddress(f_serverAddress))
                 {
@@ -55,8 +57,10 @@ namespace cli
                 return connections[f_serverAddress].channel;
             }
 
-            // re-use the Descriptor Database for the corresponding channel
-            std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> getDescDb(std::string f_serverAddress, std::string f_serverPort)
+            /// To get the gRpc DescriptorDatabase according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
+            /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
+            /// @returns the gRpc DescriptorDatabase of the corresponding server address.
+            std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> getDescDb(std::string f_serverAddress)
             {
                 if(!findDescDbByAddress(f_serverAddress))
                 {
@@ -72,8 +76,10 @@ namespace cli
                 }
                 return connections[f_serverAddress].descDb;
             }
-
-            std::shared_ptr<grpc::protobuf::DescriptorPool> getDescPool(std::string f_serverAddress, std::string f_serverPort)
+            /// To get the gRpc DescriptorPool according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
+            /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
+            /// @returns the gRpc DescriptorPool of the corresponding server address.
+            std::shared_ptr<grpc::protobuf::DescriptorPool> getDescPool(std::string f_serverAddress)
             {
 
                 if(!findDescPoolByAddress(f_serverAddress))
@@ -91,8 +97,9 @@ namespace cli
                 return connections[f_serverAddress].descPool;
             }
         private:
-            // connection cache for resuing the channel, corresponding descriptor Database and DatabasePool
+            // Cached map of the gRpc connection information for resuing the channel, descriptor Database and DatabasePool
             std::unordered_map<std::string, ConnList> connections;
+            // Check if the cached map contains the channel of the given server address or not.
             bool findChannelByAddress(std::string f_serverAddress)
             {
                 if(connections.find(f_serverAddress) != connections.end())
@@ -104,6 +111,7 @@ namespace cli
                 }
                 return false;
             }
+            // Check if the cached map contains the gRpc DescriptorDatabase of given the server address or not.
             bool findDescDbByAddress(std::string f_serverAddress)
             {
                 if(connections.find(f_serverAddress) != connections.end())
@@ -115,6 +123,7 @@ namespace cli
                 }
                 return false;
             }
+            // Check if the cached map contains the gRpc DescriptorPool of the given server address or not.
             bool findDescPoolByAddress(std::string f_serverAddress)
             {
                 if(connections.find(f_serverAddress) != connections.end())
@@ -126,6 +135,9 @@ namespace cli
                 }
                 return false;
             }
+            /// To register the gRpc connection information of a given server address.
+            /// Connection List contains: Channel, DescriptorDatabase and DescriptorPool as value.
+            /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port" as key of the cached map.
             void registerConnection(std::string f_serverAddress)
             {
                 ConnList connection;
