@@ -14,9 +14,9 @@
 
 #include <libCli/Call.hpp>
 #include <third_party/gRPC_utils/cli_call.h>
-#include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
 #include <google/protobuf/dynamic_message.h>
 #include <libCli/OutputFormatting.hpp>
+#include <libCli/ConnectionManager.hpp>
 #include <libCli/MessageParsing.hpp>
 #include <chrono>
 #include <ctime>
@@ -155,20 +155,18 @@ int call(ParsedElement & parseTree)
 {
     std::string serverAddress = parseTree.findFirstChild("ServerAddress");
     std::string serverPort = parseTree.findFirstChild("ServerPort");
-    if(serverPort == "")
-    {
-        serverPort = "50051";
-    }
-    serverAddress += ":" + serverPort;
-
     std::string serviceName = parseTree.findFirstChild("Service");
     std::string methodName = parseTree.findFirstChild("Method");
     bool argsExist;
     ParsedElement & methodArgs = parseTree.findFirstSubTree("MethodArgs", argsExist);
 
-    std::shared_ptr<grpc::Channel> channel =
-        grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
+    if(serverPort == "")
+    {
+        serverPort = "50051";
+    }
+    serverAddress = serverAddress + ":" + serverPort;
 
+    std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
     if(not waitForChannelConnected(channel, getConnectTimeoutMs(&parseTree)))
     {
@@ -176,10 +174,7 @@ int call(ParsedElement & parseTree)
         return -1;
     }
 
-    grpc::ProtoReflectionDescriptorDatabase descDb(channel);
-    grpc::protobuf::DescriptorPool descPool(&descDb);
-
-    const grpc::protobuf::ServiceDescriptor* service = descPool.FindServiceByName(serviceName);
+    const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
     if(service == nullptr)
     {
         std::cerr << "Error: Service '" << serviceName << "' not found" << std::endl;
