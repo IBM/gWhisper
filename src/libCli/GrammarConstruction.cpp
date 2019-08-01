@@ -385,9 +385,6 @@ class GrammarInjectorServices : public GrammarInjector
                 return nullptr;
             }
 
-            std::string serviceName = f_parseTree->findFirstChild("Service");
-            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
-
             std::vector<grpc::string> serviceList;
             if(not ConnectionManager::getInstance().getDescDb(serverAddress)->GetServices(&serviceList))
             {
