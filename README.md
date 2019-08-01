@@ -79,7 +79,7 @@ To be able to build and/or run gWhisper, you need to at least have the following
 
 - __cmake__
 - A C++ compiler
-- gRPC__ [link](https://github.com/grpc/grpc)  
+- __gRPC__ [link](https://github.com/grpc/grpc)  
   including the protoc plugin, which is packaged separately in some linux distributions
 - __protocolBuffers__ [link](https://github.com/protocolbuffers/protobuf)
 - Either __bash__ or __fish__(>=v2.6) shell
