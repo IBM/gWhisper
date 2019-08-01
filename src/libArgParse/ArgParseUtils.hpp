@@ -27,6 +27,9 @@ struct ParseRc
         success,
         missingText,
         unexpectedText,
+        unexpectedService,
+        unexpectedMethod,
+        unconnectedServer,
     };
 
     ErrorType errorType = ErrorType::success;
@@ -47,6 +50,15 @@ struct ParseRc
                 break;
             case ErrorType::unexpectedText:
                 return "unexpectedText";
+                break;
+            case ErrorType::unexpectedService:
+                return "unexpectedService";
+                break;
+            case ErrorType::unexpectedMethod:
+                return "unexpectedMethod";
+                break;
+            case ErrorType::unconnectedServer:
+                return "unconnectedServer";
                 break;
             default:
                 return "???";

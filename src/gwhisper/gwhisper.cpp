@@ -92,15 +92,16 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if(rc.isBad() && rc.candidates.size() == 0)
-    {
-        std::cout << "Could not connect the server." << std::endl;
-        std::cout << "The grammar could not be fetched from the server address: "<< parseTree.getMatchedString() << std::endl;
-    }
-    else if(rc.isGood() && (rc.lenParsedSuccessfully == args.length()))
+    if(rc.isGood() && (rc.lenParsedSuccessfully == args.length()))
     {
         //std::cout << parseTree.getDebugString() << "\n";
         return cli::call(parseTree);
+    }
+
+    if(rc.isBad() && rc.errorType == ParseRc::ErrorType::unconnectedServer)
+    {
+        std::cout << "Could not connect the server, ";
+        std::cout << "the grammar could not be fetched from the server address: "<< parseTree.getMatchedString() << std::endl;
     }
     else
     {
@@ -108,7 +109,8 @@ int main(int argc, char **argv)
         std::cout << "Parsed until: '" << parseTree.getMatchedString() << "'" << std::endl;
     }
 
-    if( (rc. candidates.size() > 0) and (rc.errorType == ParseRc::ErrorType::missingText) )
+    if( (rc. candidates.size() > 0) and (rc.errorType == ParseRc::ErrorType::missingText) || (rc.errorType == ParseRc::ErrorType::unexpectedService) ||
+        (rc.errorType == ParseRc::ErrorType::unexpectedMethod) )
     {
         std::cout << "Possible Candidates:";
         for(auto candidate : rc.candidates)

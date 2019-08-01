@@ -36,7 +36,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         {
         }
 
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree) override
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, ParseRc & f_rc) override
         {
             // FIXME: we are already completing this without a service parsed.
             //  this works in most cases, as it will just fail. however this is not really a nice thing.
@@ -56,6 +56,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
+                f_rc.errorType = ParseRc::ErrorType::unconnectedServer;
                 return nullptr;
             }
 
@@ -64,6 +65,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             if(service == nullptr)
             {
                 //std::cerr << "Error: Service not found" << std::endl;
+                f_rc.errorType = ParseRc::ErrorType::unconnectedServer;
                 return nullptr;
             }
 
@@ -71,6 +73,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             if(method == nullptr)
             {
                 //std::cerr << "Error: Method not found" << std::endl;
+                f_rc.errorType = ParseRc::ErrorType::unexpectedMethod;
                 return nullptr;
             }
 
@@ -307,7 +310,7 @@ class GrammarInjectorMethods : public GrammarInjector
         {
         }
 
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree) override
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, ParseRc & f_rc) override
         {
             // FIXME: we are already completing this without a service parsed.
             //  this works in most cases, as it will just fail. however this is not really a nice thing.
@@ -325,6 +328,7 @@ class GrammarInjectorMethods : public GrammarInjector
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
+                f_rc.errorType = ParseRc::ErrorType::unconnectedServer;
                 return nullptr;
             }
 
@@ -339,6 +343,7 @@ class GrammarInjectorMethods : public GrammarInjector
             }
             else
             {
+                f_rc.errorType = ParseRc::ErrorType::unexpectedService;
                 return nullptr;
             }
             return result;
@@ -362,7 +367,7 @@ class GrammarInjectorServices : public GrammarInjector
         {
         }
 
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree) override
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, ParseRc & f_rc) override
         {
             std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
             std::string serverPort = f_parseTree->findFirstChild("ServerPort");
@@ -376,20 +381,25 @@ class GrammarInjectorServices : public GrammarInjector
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
+                f_rc.errorType = ParseRc::ErrorType::unconnectedServer;
                 return nullptr;
             }
+
+            std::string serviceName = f_parseTree->findFirstChild("Service");
+            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
 
             std::vector<grpc::string> serviceList;
             if(not ConnectionManager::getInstance().getDescDb(serverAddress)->GetServices(&serviceList))
             {
+                f_rc.errorType = ParseRc::ErrorType::unexpectedService;
                 printf("error retrieving service list\n");
                 return nullptr;
             }
 
             auto result = m_grammar.createElement<Alternation>();
+            //std::cout << "grammar: " << m_grammar.getDotGraph() << std::endl;
             for(auto service : serviceList)
             {
-
                 result->addChild(m_grammar.createElement<FixedString>(service));
             }
             return result;
