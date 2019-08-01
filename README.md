@@ -124,8 +124,7 @@ Alternatively just copy the following files to the appropriate locations:
 
     cp build/gwhisper /usr/local/bin/
     cp complete.bash /usr/share/bash-completion/completions/gwhisper
-
-TODO: install rules for fish completions do not yet exist
+    cp complete.fish /usr/share/fish/vendor_completions.d/gwhisper.fish
 
 ## Current development status
 
