@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 
     if(rc.isGood() && (rc.lenParsedSuccessfully == args.length()))
     {
-        //std::cout << parseTree.getDebugString() << "\n";
+        // std::cout << parseTree.getDebugString() << "\n";
         return cli::call(parseTree);
     }
 
