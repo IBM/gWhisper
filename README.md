@@ -77,11 +77,12 @@ To be able to build and run tests, initialize third-party submodules (this will 
 
 To be able to build and/or run gWhisper, you need to at least have the following dependencies installed on your system:
 
-- cmake
+- __cmake__
 - A C++ compiler
-- gRPC [link](https://github.com/grpc/grpc)  
+- gRPC__ [link](https://github.com/grpc/grpc)  
   including the protoc plugin, which is packaged separately in some linux distributions
-- protocolBuffers [link](https://github.com/protocolbuffers/protobuf)
+- __protocolBuffers__ [link](https://github.com/protocolbuffers/protobuf)
+- Either __bash__ or __fish__(>=v2.6) shell
 
 On Fedora you can install the prerequisites with:
 
