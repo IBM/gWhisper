@@ -92,14 +92,21 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if(rc.isGood() && (rc.lenParsedSuccessfully == args.length()))
+    if(rc.isBad() && rc.candidates.size() == 0)
     {
-        // std::cout << parseTree.getDebugString() << "\n";
+        std::cout << "Parse failds, until: " << parseTree.getMatchedString() << std::endl;
+        std::cout << "Could not connect the server and the grammar could not be fetched." << std::endl;
+    }
+    else if(rc.isGood() && (rc.lenParsedSuccessfully == args.length()))
+    {
+        //std::cout << parseTree.getDebugString() << "\n";
         return cli::call(parseTree);
     }
-
-    std::cout << "Parse failed. ";
-    std::cout << "Parsed until: '" << parseTree.getMatchedString() << "'" << std::endl; 
+    else
+    {
+        std::cout << "Parse faileds. ";
+        std::cout << "Parsed until: '" << parseTree.getMatchedString() << "'" << std::endl;
+    }
 
     if( (rc. candidates.size() > 0) and (rc.errorType == ParseRc::ErrorType::missingText) )
     {
