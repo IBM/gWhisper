@@ -94,8 +94,8 @@ int main(int argc, char **argv)
 
     if(rc.isBad() && rc.candidates.size() == 0)
     {
-        std::cout << "Parse failds, until: " << parseTree.getMatchedString() << std::endl;
-        std::cout << "Could not connect the server and the grammar could not be fetched." << std::endl;
+        std::cout << "Could not connect the server." << std::endl;
+        std::cout << "The grammar could not be fetched from the server address: "<< parseTree.getMatchedString() << std::endl;
     }
     else if(rc.isGood() && (rc.lenParsedSuccessfully == args.length()))
     {
