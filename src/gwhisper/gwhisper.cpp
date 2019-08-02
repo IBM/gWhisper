@@ -56,8 +56,6 @@ int main(int argc, char **argv)
     ParsedElement parseTree;
     ParseRc rc = grammarRoot->parse(args.c_str(), parseTree);
     std::cout << "4 " << rc.ErrorMessage << std::endl;
-    std::cout << "count " << rc.ErrorCount << std::endl;
-    std::cout << "toString " << rc.toString() << std::endl;
     // TODO: add option to print parse tree after parsing:
     // // Now we act according to the parse tree:
     //std::cout << parseTree.getDebugString() << "\n";

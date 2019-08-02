@@ -56,7 +56,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
-                 f_rc.ErrorMessage = "Error: Could not connect the Server.";
+                f_rc.ErrorMessage = "Error: Could not connect the Server.";
                 return nullptr;
             }
 
