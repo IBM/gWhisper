@@ -55,7 +55,9 @@ int main(int argc, char **argv)
     std::string args = getArgsAsString(argc, argv);
     ParsedElement parseTree;
     ParseRc rc = grammarRoot->parse(args.c_str(), parseTree);
-
+    std::cout << "4 " << rc.ErrorMessage << std::endl;
+    std::cout << "count " << rc.ErrorCount << std::endl;
+    std::cout << "toString " << rc.toString() << std::endl;
     // TODO: add option to print parse tree after parsing:
     // // Now we act according to the parse tree:
     //std::cout << parseTree.getDebugString() << "\n";
@@ -98,9 +100,11 @@ int main(int argc, char **argv)
         return cli::call(parseTree);
     }
 
-    if(rc.isBad() && rc.errorType == ParseRc::ErrorType::unconnectedServer)
+
+    std::cout << "2, " << "is bad: "<< rc.isBad() << " " << rc.ErrorMessage << std::endl;
+    if(rc.isBad() && rc.ErrorMessage.size()!= 0)
     {
-        std::cout << "Could not connect the server, ";
+        std::cout << "3: " << rc.ErrorMessage << std::endl;
         std::cout << "the grammar could not be fetched from the server address: "<< parseTree.getMatchedString() << std::endl;
     }
     else
@@ -109,8 +113,7 @@ int main(int argc, char **argv)
         std::cout << "Parsed until: '" << parseTree.getMatchedString() << "'" << std::endl;
     }
 
-    if( (rc. candidates.size() > 0) and (rc.errorType == ParseRc::ErrorType::missingText) || (rc.errorType == ParseRc::ErrorType::unexpectedService) ||
-        (rc.errorType == ParseRc::ErrorType::unexpectedMethod) )
+    if( (rc. candidates.size() > 0) and (rc.errorType == ParseRc::ErrorType::missingText))
     {
         std::cout << "Possible Candidates:";
         for(auto candidate : rc.candidates)

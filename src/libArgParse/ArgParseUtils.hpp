@@ -27,12 +27,11 @@ struct ParseRc
         success,
         missingText,
         unexpectedText,
-        unexpectedService,
-        unexpectedMethod,
-        unconnectedServer,
     };
 
     ErrorType errorType = ErrorType::success;
+    std::string ErrorMessage = "a";
+    int ErrorCount = 0;
 
     // TODO: define what those two lengths actually mean
     size_t lenParsedSuccessfully = 0;
@@ -51,21 +50,12 @@ struct ParseRc
             case ErrorType::unexpectedText:
                 return "unexpectedText";
                 break;
-            case ErrorType::unexpectedService:
-                return "unexpectedService";
-                break;
-            case ErrorType::unexpectedMethod:
-                return "unexpectedMethod";
-                break;
-            case ErrorType::unconnectedServer:
-                return "unconnectedServer";
-                break;
             default:
                 return "???";
             break;
         }
     }
-
+         
     bool isGood() const
     {
         return errorType == ErrorType::success;

@@ -28,11 +28,17 @@ class GrammarInjector : public GrammarElement
         }
         virtual ParseRc parse(const char * f_string, ParsedElement & f_out_ParsedElement, size_t candidateDepth = 1, size_t startChild = 0) override final
         {
-            ParseRc rc;
             if(m_children.size() == 0)
             {
+                ParseRc rc;
                 // we first need to inject new grammar:
                 GrammarElement * newGrammar = getGrammar(f_out_ParsedElement.getRoot(), rc);
+                // if(rc.ErrorMessage.size() != 0)
+                // {                
+                //     std::cout << "1: " << rc.ErrorMessage << std::endl;
+                //     std::cout << "count: " << rc.ErrorCount << std::endl;
+                //     return rc;
+                // }
                 if(newGrammar != nullptr)
                 {
                     // retrieving grammar succeeded :-)
@@ -40,9 +46,11 @@ class GrammarInjector : public GrammarElement
                 }
                 else
                 {
+                    ParseRc rc;
                     // retrieving grammar failed :-(
                     // -> we need to cause parse to fail due to missing grammar.
-                    //rc.errorType = ParseRc::ErrorType::unexpectedText;
+                    rc.ErrorCount = 5;
+                    rc.errorType = ParseRc::ErrorType::unexpectedText;
                     return rc;
                 }
             }
