@@ -43,7 +43,10 @@ class GrammarInjector : public GrammarElement
                 {
                     // retrieving grammar failed :-(
                     // -> we need to cause parse to fail due to missing grammar.
-                    //rc.errorType = ParseRc::ErrorType::unexpectedText;
+                    if(rc.errorType != ParseRc::ErrorType::retrievingGrammarFailed)
+                    {
+                        rc.errorType = ParseRc::ErrorType::unexpectedText;
+                    }
                     return rc;
                 }
             }

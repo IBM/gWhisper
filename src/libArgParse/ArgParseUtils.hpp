@@ -58,7 +58,7 @@ struct ParseRc
             break;
         }
     }
-         
+
     bool isGood() const
     {
         return errorType == ErrorType::success;
