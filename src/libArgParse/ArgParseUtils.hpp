@@ -27,11 +27,11 @@ struct ParseRc
         success,
         missingText,
         unexpectedText,
+        retrievingGrammarFailed,
     };
 
     ErrorType errorType = ErrorType::success;
-    std::string ErrorMessage = "a";
-    int ErrorCount = 0;
+    std::string ErrorMessage = "";
 
     // TODO: define what those two lengths actually mean
     size_t lenParsedSuccessfully = 0;
@@ -49,6 +49,9 @@ struct ParseRc
                 break;
             case ErrorType::unexpectedText:
                 return "unexpectedText";
+                break;
+            case ErrorType::retrievingGrammarFailed:
+                return "retrievingGrammarFailed";
                 break;
             default:
                 return "???";

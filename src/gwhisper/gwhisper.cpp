@@ -55,7 +55,6 @@ int main(int argc, char **argv)
     std::string args = getArgsAsString(argc, argv);
     ParsedElement parseTree;
     ParseRc rc = grammarRoot->parse(args.c_str(), parseTree);
-    std::cout << "4 " << rc.ErrorMessage << std::endl;
     // TODO: add option to print parse tree after parsing:
     // // Now we act according to the parse tree:
     //std::cout << parseTree.getDebugString() << "\n";
@@ -99,11 +98,10 @@ int main(int argc, char **argv)
     }
 
 
-    std::cout << "2, " << "is bad: "<< rc.isBad() << " " << rc.ErrorMessage << std::endl;
-    if(rc.isBad() && rc.ErrorMessage.size()!= 0)
+    if(rc.isBad() && rc.errorType == ParseRc::ErrorType::retrievingGrammarFailed && rc.ErrorMessage.size()!= 0)
     {
-        std::cout << "3: " << rc.ErrorMessage << std::endl;
-        std::cout << "the grammar could not be fetched from the server address: "<< parseTree.getMatchedString() << std::endl;
+        std::cout << rc.ErrorMessage << std::endl;
+        std::cout << "Grammar could not be fetched from the server address: "<< parseTree.getMatchedString() << std::endl;
     }
     else
     {

@@ -56,6 +56,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
+                f_rc.errorType = ArgParse::ParseRc::ErrorType::retrievingGrammarFailed;
                 f_rc.ErrorMessage = "Error: Could not connect the Server.";
                 return nullptr;
             }
@@ -64,6 +65,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
             if(service == nullptr)
             {
+                f_rc.errorType = ArgParse::ParseRc::ErrorType::retrievingGrammarFailed;
                 f_rc.ErrorMessage = "Error: Service not found.";
                 return nullptr;
             }
@@ -71,6 +73,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             auto method = service->FindMethodByName(methodName);
             if(method == nullptr)
             {
+                f_rc.errorType = ArgParse::ParseRc::ErrorType::retrievingGrammarFailed;
                 f_rc.ErrorMessage = "Error: Method not found.";
                 return nullptr;
             }
@@ -326,6 +329,7 @@ class GrammarInjectorMethods : public GrammarInjector
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
+                f_rc.errorType = ArgParse::ParseRc::ErrorType::retrievingGrammarFailed;
                 f_rc.ErrorMessage = "Error: Could not connect the Server.";
                 return nullptr;
             }
@@ -341,6 +345,7 @@ class GrammarInjectorMethods : public GrammarInjector
             }
             else
             {
+                f_rc.errorType = ArgParse::ParseRc::ErrorType::retrievingGrammarFailed;
                 f_rc.ErrorMessage = "Error: Service not found.";
                 return nullptr;
             }
@@ -380,13 +385,14 @@ class GrammarInjectorServices : public GrammarInjector
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
                 f_rc.ErrorMessage = "Error: Server not found.";
-                f_rc.ErrorCount += 1;
+                f_rc.errorType = ArgParse::ParseRc::ErrorType::retrievingGrammarFailed;
                 return nullptr;
             }
 
             std::vector<grpc::string> serviceList;
             if(not ConnectionManager::getInstance().getDescDb(serverAddress)->GetServices(&serviceList))
             {
+                f_rc.errorType = ArgParse::ParseRc::ErrorType::retrievingGrammarFailed;
                 f_rc.ErrorMessage = "Error: Could not retrieve service list.";
                 return nullptr;
             }

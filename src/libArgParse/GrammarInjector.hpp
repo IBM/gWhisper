@@ -33,11 +33,7 @@ class GrammarInjector : public GrammarElement
                 ParseRc rc;
                 // we first need to inject new grammar:
                 GrammarElement * newGrammar = getGrammar(f_out_ParsedElement.getRoot(), rc);
-                if(rc.ErrorMessage.size() != 0)
-                {                
-                    std::cout << "1: " << rc.ErrorMessage << std::endl;
-                    std::cout << "count: " << rc.ErrorCount << std::endl;
-                }
+
                 if(newGrammar != nullptr)
                 {
                     // retrieving grammar succeeded :-)
@@ -45,12 +41,9 @@ class GrammarInjector : public GrammarElement
                 }
                 else
                 {
-                    ParseRc rc;
                     // retrieving grammar failed :-(
                     // -> we need to cause parse to fail due to missing grammar.
-                    rc.ErrorCount = 5;
-                    rc.errorType = ParseRc::ErrorType::unexpectedText;
-                    rc.ErrorMessage = "XXXXXXXXXXXXXXXXXX";
+                    //rc.errorType = ParseRc::ErrorType::unexpectedText;
                     return rc;
                 }
             }
