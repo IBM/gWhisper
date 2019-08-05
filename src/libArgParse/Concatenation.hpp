@@ -72,7 +72,7 @@ class Concatenation : public GrammarElement
                 rc.lenParsedSuccessfully += childRc.lenParsedSuccessfully;
                 if(childRc.isBad() && childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
                 {
-                    rc.ErrorMessage = rc.ErrorMessage + childRc.ErrorMessage + " ";
+                    rc.ErrorMessage = childRc.ErrorMessage;
                 }
 
                 // merge RCs

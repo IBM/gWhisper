@@ -32,7 +32,7 @@ class GrammarInjector : public GrammarElement
             {
                 ParseRc rc;
                 // we first need to inject new grammar:
-                GrammarElement * newGrammar = getGrammar(f_out_ParsedElement.getRoot(), rc);
+                GrammarElement * newGrammar = getGrammar(f_out_ParsedElement.getRoot(), rc.ErrorMessage);
 
                 if(newGrammar != nullptr)
                 {
@@ -43,7 +43,11 @@ class GrammarInjector : public GrammarElement
                 {
                     // retrieving grammar failed :-(
                     // -> we need to cause parse to fail due to missing grammar.
-                    if(rc.errorType != ParseRc::ErrorType::retrievingGrammarFailed)
+                    if(rc.ErrorMessage.size() != 0)
+                    {
+                        rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
+                    }
+                    else
                     {
                         rc.errorType = ParseRc::ErrorType::unexpectedText;
                     }
@@ -62,7 +66,7 @@ class GrammarInjector : public GrammarElement
             return childRc;
         }
 
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, ParseRc & f_rc) = 0;
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) = 0;
 };
 
 
@@ -75,7 +79,7 @@ class GrammarInjectorTest : public GrammarInjector
         {
         }
 
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, ParseRc & f_rc) override
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
         {
             auto result = m_grammar.createElement<Alternation>();
             result->addChild(m_grammar.createElement<FixedString>("inject1"));
