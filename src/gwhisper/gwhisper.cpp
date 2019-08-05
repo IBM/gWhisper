@@ -55,6 +55,7 @@ int main(int argc, char **argv)
     std::string args = getArgsAsString(argc, argv);
     ParsedElement parseTree;
     ParseRc rc = grammarRoot->parse(args.c_str(), parseTree);
+
     // TODO: add option to print parse tree after parsing:
     // // Now we act according to the parse tree:
     //std::cout << parseTree.getDebugString() << "\n";

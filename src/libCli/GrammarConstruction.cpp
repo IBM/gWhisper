@@ -398,7 +398,6 @@ class GrammarInjectorServices : public GrammarInjector
             }
 
             auto result = m_grammar.createElement<Alternation>();
-            //std::cout << "grammar: " << m_grammar.getDotGraph() << std::endl;
             for(auto service : serviceList)
             {
                 result->addChild(m_grammar.createElement<FixedString>(service));
