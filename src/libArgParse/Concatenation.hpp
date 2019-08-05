@@ -70,7 +70,7 @@ class Concatenation : public GrammarElement
                 //std::cout << " Concat "<< std::to_string(m_instanceId) <<  " parsed child" << std::to_string(i) << " rc=" << childRc.toString() << " #candidates: " << std::to_string(childRc.candidates.size()) << std::endl;
                 rc.lenParsed += childRc.lenParsed;
                 rc.lenParsedSuccessfully += childRc.lenParsedSuccessfully;
-                if(childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
+                if(childRc.isBad() && childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
                 {
                     rc.ErrorMessage = rc.ErrorMessage + childRc.ErrorMessage + " ";
                 }
