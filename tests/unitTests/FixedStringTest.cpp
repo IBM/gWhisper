@@ -100,29 +100,3 @@ TEST(FixedStringTest, NonMatchingString) {
     EXPECT_EQ(0, rc.lenParsedSuccessfully);
     EXPECT_EQ(0, rc.candidates.size());
 }
-
-// Not yet support
-// TEST(FixedStringTest, GrammarInjectorWrongServer) {
-//     FixedString myFixedString("127.0.0.1:");
-//     ParsedElement parent;
-//     ParsedElement parsedElement(&parent);
-
-//     Grammar grammarPool;
-//     GrammarInjectorMockServicesError inject1(grammarPool);
-//     FixedString.addChild(&inject1);
-//     ParseRc rc = myAlternation.parse("129.0.0.1 examples", parsedElement);
-
-//     // rc:
-//     ASSERT_NE(0, rc.ErrorMessage.size());
-//     EXPECT_EQ(ParseRc::ErrorType::retrievingGrammarFailed, rc.errorType);
-//     EXPECT_EQ(0, rc.lenParsedSuccessfully);
-
-//     // candidates:
-//     ASSERT_EQ(0, rc.candidates.size());
-
-//     // parsedElement
-//     ASSERT_EQ(0, parsedElement.getChildren().size());
-//     EXPECT_EQ(&parent, parsedElement.getParent());
-//     EXPECT_EQ(false, parsedElement.isStopped());
-//     EXPECT_EQ(&myAlternation, parsedElement.getGrammarElement());
-// }
