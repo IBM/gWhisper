@@ -69,7 +69,6 @@ class GrammarInjector : public GrammarElement
         virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) = 0;
 };
 
-
 class GrammarInjectorTest : public GrammarInjector
 {
     public:
@@ -89,7 +88,6 @@ class GrammarInjectorTest : public GrammarInjector
 
     private:
         Grammar & m_grammar;
-
 };
 
 class GrammarInjectorMockServicesError : public GrammarInjector
@@ -114,6 +112,32 @@ class GrammarInjectorMockServicesError : public GrammarInjector
 
     private:
         Grammar & m_grammar;
+};
 
+class GrammarInjectorMockServicesSuccess : public GrammarInjector
+{
+    public:
+        GrammarInjectorMockServicesSuccess(Grammar & f_grammar, const std::string & f_elementName = "") :
+            GrammarInjector("Service", f_elementName),
+            m_grammar(f_grammar)
+        {
+        }
+
+        virtual ~GrammarInjectorMockServicesSuccess()
+        {
+        }
+
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
+        {
+
+            f_ErrorMessage = "";
+            std::string service = "127.0.0.1:50051";
+            auto result = m_grammar.createElement<Alternation>();\
+            result->addChild(m_grammar.createElement<FixedString>(service));
+            return result;
+        };
+
+    private:
+        Grammar & m_grammar;
 };
 }
