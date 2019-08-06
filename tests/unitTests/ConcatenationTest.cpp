@@ -20,6 +20,79 @@ using namespace ArgParse;
 //          Concatenation
 // -----------------------------------------------------------------------------
 
+//mock instances inherited from GrammarInjector
+class GrammarInjectorTest : public GrammarInjector
+{
+    public:
+        explicit GrammarInjectorTest(Grammar & f_grammar) :
+            GrammarInjector("Test"),
+            m_grammar(f_grammar)
+        {
+        }
+
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
+        {
+            auto result = m_grammar.createElement<Alternation>();
+            result->addChild(m_grammar.createElement<FixedString>("inject1"));
+            result->addChild(m_grammar.createElement<FixedString>("inject2"));
+            return result;
+        };
+
+    private:
+        Grammar & m_grammar;
+};
+
+class GrammarInjectorMockServicesError : public GrammarInjector
+{
+    public:
+        GrammarInjectorMockServicesError(Grammar & f_grammar, const std::string & f_elementName = "") :
+            GrammarInjector("Service", f_elementName),
+            m_grammar(f_grammar)
+        {
+        }
+
+        virtual ~GrammarInjectorMockServicesError()
+        {
+        }
+
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
+        {
+
+            f_ErrorMessage = "Error: Server not found.";
+            return nullptr;
+        };
+
+    private:
+        Grammar & m_grammar;
+};
+
+class GrammarInjectorMockServicesSuccess : public GrammarInjector
+{
+    public:
+        GrammarInjectorMockServicesSuccess(Grammar & f_grammar, const std::string & f_elementName = "") :
+            GrammarInjector("Service", f_elementName),
+            m_grammar(f_grammar)
+        {
+        }
+
+        virtual ~GrammarInjectorMockServicesSuccess()
+        {
+        }
+
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
+        {
+
+            f_ErrorMessage = "";
+            std::string service = "127.0.0.1:50051";
+            auto result = m_grammar.createElement<Alternation>();
+            result->addChild(m_grammar.createElement<FixedString>(service));
+            return result;
+        };
+
+    private:
+        Grammar & m_grammar;
+};
+
 TEST(ConcatenationTest, NoChildEmptyString) {
     EXPECT_EQ(true, true);
 
@@ -325,6 +398,127 @@ TEST(ConcatenationTest, GrammarInjectorWrongServer) {
     // rc:
     ASSERT_NE(0, rc.ErrorMessage.size());
     EXPECT_EQ(ParseRc::ErrorType::retrievingGrammarFailed, rc.errorType);
+    EXPECT_EQ(0, rc.lenParsedSuccessfully);
+
+    // candidates:
+    ASSERT_EQ(0, rc.candidates.size());
+
+    // parsedElement
+    ASSERT_EQ(0, parsedElement.getChildren().size());
+    EXPECT_EQ(&parent, parsedElement.getParent());
+    EXPECT_EQ(false, parsedElement.isStopped());
+    EXPECT_EQ(&myConcatenation, parsedElement.getGrammarElement());
+}
+
+TEST(ConcatenationTest, GrammarInjectorBeforeFixStringWrongServer) {
+    Concatenation myConcatenation;
+    ParsedElement parent;
+    ParsedElement parsedElement(&parent);
+
+    FixedString child1("child1");
+
+    Grammar grammarPool;
+    GrammarInjectorMockServicesError inject1(grammarPool);
+
+    myConcatenation.addChild(&inject1);
+    myConcatenation.addChild(&child1);
+
+    ParseRc rc = myConcatenation.parse("129.0.0.1 examples", parsedElement);
+
+    // rc:
+    ASSERT_NE(0, rc.ErrorMessage.size());
+    EXPECT_EQ(ParseRc::ErrorType::retrievingGrammarFailed, rc.errorType);
+    EXPECT_EQ(0, rc.lenParsedSuccessfully);
+
+    // candidates:
+    ASSERT_EQ(0, rc.candidates.size());
+
+    // parsedElement
+    ASSERT_EQ(0, parsedElement.getChildren().size());
+    EXPECT_EQ(&parent, parsedElement.getParent());
+    EXPECT_EQ(false, parsedElement.isStopped());
+    EXPECT_EQ(&myConcatenation, parsedElement.getGrammarElement());
+}
+
+TEST(ConcatenationTest, GrammarInjectorAfterFixStringWrongServer) {
+    Concatenation myConcatenation;
+    ParsedElement parent;
+    ParsedElement parsedElement(&parent);
+
+    FixedString child1("child1");
+
+    Grammar grammarPool;
+    GrammarInjectorMockServicesError inject1(grammarPool);
+
+    myConcatenation.addChild(&child1);
+    myConcatenation.addChild(&inject1);
+
+    ParseRc rc = myConcatenation.parse("129.0.0.1 examples", parsedElement);
+
+    // rc:
+    EXPECT_EQ(0, rc.ErrorMessage.size());
+    EXPECT_EQ(ParseRc::ErrorType::unexpectedText, rc.errorType);
+    EXPECT_EQ(0, rc.lenParsedSuccessfully);
+
+    // candidates:
+    ASSERT_EQ(0, rc.candidates.size());
+
+    // parsedElement
+    ASSERT_EQ(0, parsedElement.getChildren().size());
+    EXPECT_EQ(&parent, parsedElement.getParent());
+    EXPECT_EQ(false, parsedElement.isStopped());
+    EXPECT_EQ(&myConcatenation, parsedElement.getGrammarElement());
+}
+
+TEST(ConcatenationTest, GrammarInjectorWithTwoFixStringWrongServer) {
+    Concatenation myConcatenation;
+    ParsedElement parent;
+    ParsedElement parsedElement(&parent);
+
+    FixedString child1("child1");
+    FixedString child2("child2");
+
+    Grammar grammarPool;
+    GrammarInjectorMockServicesError inject1(grammarPool);
+
+    myConcatenation.addChild(&child1);
+    myConcatenation.addChild(&inject1);
+    myConcatenation.addChild(&child2);
+
+    ParseRc rc = myConcatenation.parse("129.0.0.1 examples", parsedElement);
+
+    // rc:
+    EXPECT_EQ(0, rc.ErrorMessage.size());
+    EXPECT_EQ(ParseRc::ErrorType::unexpectedText, rc.errorType);
+    EXPECT_EQ(0, rc.lenParsedSuccessfully);
+
+    // candidates:
+    ASSERT_EQ(0, rc.candidates.size());
+
+    // parsedElement
+    ASSERT_EQ(0, parsedElement.getChildren().size());
+    EXPECT_EQ(&parent, parsedElement.getParent());
+    EXPECT_EQ(false, parsedElement.isStopped());
+    EXPECT_EQ(&myConcatenation, parsedElement.getGrammarElement());
+}
+
+TEST(ConcatenationTest, GrammarInjectorBeforeFixStringRightServer) {
+    Concatenation myConcatenation;
+    ParsedElement parent;
+    ParsedElement parsedElement(&parent);
+
+    FixedString child1("child1");
+
+    Grammar grammarPool;
+    GrammarInjectorMockServicesSuccess inject1(grammarPool);
+    myConcatenation.addChild(&inject1);
+    myConcatenation.addChild(&child1);
+
+    ParseRc rc = myConcatenation.parse("127.0.0.1 examples", parsedElement);
+
+    // rc:
+    ASSERT_EQ(0, rc.ErrorMessage.size());
+    EXPECT_EQ(ParseRc::ErrorType::unexpectedText, rc.errorType);
     EXPECT_EQ(0, rc.lenParsedSuccessfully);
 
     // candidates:
