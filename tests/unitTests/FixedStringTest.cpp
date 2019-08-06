@@ -100,3 +100,4 @@ TEST(FixedStringTest, NonMatchingString) {
     EXPECT_EQ(0, rc.lenParsedSuccessfully);
     EXPECT_EQ(0, rc.candidates.size());
 }
+
