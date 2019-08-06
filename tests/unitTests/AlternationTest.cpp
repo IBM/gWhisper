@@ -274,6 +274,32 @@ TEST(AlternationTest, TwoChildCorrectStringForBoth) {
     EXPECT_EQ(&myAlternation, parsedElement.getGrammarElement());
 }
 
+// Not yet support
+// TEST(AlternationTest, GrammarInjectorWrongServer) {
+//     Alternation myAlternation;
+//     ParsedElement parent;
+//     ParsedElement parsedElement(&parent);
+
+//     Grammar grammarPool;
+//     GrammarInjectorMockServicesError inject1(grammarPool);
+//     myAlternation.addChild(&inject1);
+//     ParseRc rc = myAlternation.parse("129.0.0.1 examples", parsedElement);
+
+//     // rc:
+//     ASSERT_NE(0, rc.ErrorMessage.size());
+//     EXPECT_EQ(ParseRc::ErrorType::retrievingGrammarFailed, rc.errorType);
+//     EXPECT_EQ(0, rc.lenParsedSuccessfully);
+
+//     // candidates:
+//     ASSERT_EQ(0, rc.candidates.size());
+
+//     // parsedElement
+//     ASSERT_EQ(0, parsedElement.getChildren().size());
+//     EXPECT_EQ(&parent, parsedElement.getParent());
+//     EXPECT_EQ(false, parsedElement.isStopped());
+//     EXPECT_EQ(&myAlternation, parsedElement.getGrammarElement());
+// }
+
 // Not yet supported
 //TEST(AlternationTest, OptionalChild) {
 //    FixedString child1("child1");

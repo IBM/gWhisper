@@ -14,7 +14,6 @@
 
 #include <gtest/gtest.h>
 #include <libArgParse/ArgParse.hpp>
-
 using namespace ArgParse;
 
 // -----------------------------------------------------------------------------
@@ -314,8 +313,6 @@ TEST(ConcatenationTest, SingleAlternationNoFork) {
 }
 
 TEST(ConcatenationTest, GrammarInjectorWrongServer) {
-    EXPECT_EQ(true, true);
-
     Concatenation myConcatenation;
     ParsedElement parent;
     ParsedElement parsedElement(&parent);

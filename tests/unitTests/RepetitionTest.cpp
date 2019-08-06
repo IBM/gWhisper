@@ -183,3 +183,30 @@ TEST(RepetitionTest, PartialMatch) {
     EXPECT_EQ(&r1, parsedElement.getGrammarElement());
 }
 
+// Not yet support
+// TEST(RepetitionTest, GrammarInjectorWrongServer) {
+//     FixedString c1("127.0.0.1");
+//     Repetition r1;
+//     r1.addChild(&c1);
+//     ParsedElement parent;
+//     ParsedElement parsedElement(&parent);
+
+//     Grammar grammarPool;
+//     GrammarInjectorMockServicesError inject1(grammarPool);
+//     r1.addChild(&inject1);
+//     ParseRc rc = r1.parse("129.0.0.1 examples", parsedElement);
+
+//     // rc:
+//     ASSERT_NE(0, rc.ErrorMessage.size());
+//     EXPECT_EQ(ParseRc::ErrorType::retrievingGrammarFailed, rc.errorType);
+//     EXPECT_EQ(0, rc.lenParsedSuccessfully);
+
+//     // candidates:
+//     ASSERT_EQ(0, rc.candidates.size());
+
+//     // parsedElement
+//     ASSERT_EQ(0, parsedElement.getChildren().size());
+//     EXPECT_EQ(&parent, parsedElement.getParent());
+//     EXPECT_EQ(false, parsedElement.isStopped());
+//     EXPECT_EQ(&r1, parsedElement.getGrammarElement());
+// }
