@@ -21,6 +21,7 @@ set(TARGET_SRC
     FixedStringTest.cpp
     ConcatenationTest.cpp
     AlternationTest.cpp
+    OptionalTest.cpp
     RepetitionTest.cpp
     GrammarComboTests.cpp
     testmain.cpp
