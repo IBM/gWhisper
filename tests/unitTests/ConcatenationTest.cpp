@@ -14,6 +14,7 @@
 
 #include <gtest/gtest.h>
 #include <libArgParse/ArgParse.hpp>
+
 using namespace ArgParse;
 
 // -----------------------------------------------------------------------------
@@ -307,6 +308,33 @@ TEST(ConcatenationTest, SingleAlternationNoFork) {
     ASSERT_EQ(1, parsedElement.getChildren().size());
     EXPECT_EQ(&child1, parsedElement.getChildren()[0]->getGrammarElement());
     EXPECT_EQ("", parsedElement.getChildren()[0]->getMatchedString());
+    EXPECT_EQ(&parent, parsedElement.getParent());
+    EXPECT_EQ(false, parsedElement.isStopped());
+    EXPECT_EQ(&myConcatenation, parsedElement.getGrammarElement());
+}
+
+TEST(ConcatenationTest, GrammarInjectorWrongServer) {
+    EXPECT_EQ(true, true);
+
+    Concatenation myConcatenation;
+    ParsedElement parent;
+    ParsedElement parsedElement(&parent);
+
+    Grammar grammarPool;
+    GrammarInjectorMockServicesError inject1(grammarPool);
+    myConcatenation.addChild(&inject1);
+    ParseRc rc = myConcatenation.parse("129.0.0.1 examples", parsedElement);
+
+    // rc:
+    ASSERT_NE(0, rc.ErrorMessage.size());
+    EXPECT_EQ(ParseRc::ErrorType::retrievingGrammarFailed, rc.errorType);
+    EXPECT_EQ(0, rc.lenParsedSuccessfully);
+
+    // candidates:
+    ASSERT_EQ(0, rc.candidates.size());
+
+    // parsedElement
+    ASSERT_EQ(0, parsedElement.getChildren().size());
     EXPECT_EQ(&parent, parsedElement.getParent());
     EXPECT_EQ(false, parsedElement.isStopped());
     EXPECT_EQ(&myConcatenation, parsedElement.getGrammarElement());

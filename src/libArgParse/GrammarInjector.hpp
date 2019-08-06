@@ -92,4 +92,28 @@ class GrammarInjectorTest : public GrammarInjector
 
 };
 
+class GrammarInjectorMockServicesError : public GrammarInjector
+{
+    public:
+        GrammarInjectorMockServicesError(Grammar & f_grammar, const std::string & f_elementName = "") :
+            GrammarInjector("Service", f_elementName),
+            m_grammar(f_grammar)
+        {
+        }
+
+        virtual ~GrammarInjectorMockServicesError()
+        {
+        }
+
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
+        {
+
+            f_ErrorMessage = "Error: Server not found.";
+            return nullptr;
+        };
+
+    private:
+        Grammar & m_grammar;
+
+};
 }
