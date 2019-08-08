@@ -75,23 +75,22 @@ class Optional : public GrammarElement
             }
 
             // create rc code:
-            if((childRc.errorType == ParseRc::ErrorType::missingText) and (childRc.lenParsed >= 1))
+            if((childRc.errorType == ParseRc::ErrorType::missingText) && (childRc.lenParsed >= 1))
             {
                 // In this case we reached the end of the text.
                 // but we found out, that the option is actuallt selected as we matched at least one char
                 rc.lenParsed += childRc.lenParsed;
                 rc.errorType = ParseRc::ErrorType::missingText;
             }
-            else if(childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
+            else if(childRc.isBad() && childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
             {
                 rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
+                rc.ErrorMessage = childRc.ErrorMessage;
             }
             else
             {
                 rc.errorType = ParseRc::ErrorType::success;
             }
-
-            rc.ErrorMessage = childRc.ErrorMessage;
 
             //std::cout << "Optional "<< std::to_string(m_instanceId) <<  " returning rc=" << rc.toString() << " with " << std::to_string(rc.candidates.size()) << " candidates" << std::endl;
             return rc;

@@ -110,7 +110,7 @@ int main(int argc, char **argv)
         std::cout << "Parsed until: '" << parseTree.getMatchedString() << "'" << std::endl;
     }
 
-    if( (rc. candidates.size() > 0) and (rc.errorType == ParseRc::ErrorType::missingText))
+    if( (rc. candidates.size() > 0) && (rc.errorType == ParseRc::ErrorType::missingText))
     {
         std::cout << "Possible Candidates:";
         for(auto candidate : rc.candidates)
