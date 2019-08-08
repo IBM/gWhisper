@@ -324,8 +324,7 @@ TEST(AlternationTest, TwoChildCorrectStringForBoth) {
     EXPECT_EQ(&myAlternation, parsedElement.getGrammarElement());
 }
 
-// Not yet support
- TEST(AlternationTest, GrammarInjectorWrongServer) {
+TEST(AlternationTest, GrammarInjectorWrongServer) {
      Alternation myAlternation;
      ParsedElement parent;
      ParsedElement parsedElement(&parent);

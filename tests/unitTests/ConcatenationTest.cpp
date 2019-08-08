@@ -470,6 +470,36 @@ TEST(ConcatenationTest, GrammarInjectorAfterFixStringWrongServer) {
     EXPECT_EQ(&myConcatenation, parsedElement.getGrammarElement());
 }
 
+TEST(ConcatenationTest, GrammarInjectorAfterAlternationWrongServer) {
+    Concatenation myConcatenation;
+    ParsedElement parent;
+    ParsedElement parsedElement(&parent);
+
+    Alternation acl1("acl1");
+
+    Grammar grammarPool;
+    GrammarInjectorMockServicesError inject1(grammarPool);
+
+    myConcatenation.addChild(&acl1);
+    myConcatenation.addChild(&inject1);
+
+    ParseRc rc = myConcatenation.parse("129.0.0.1 examples", parsedElement);
+
+    // rc:
+    EXPECT_NE(0, rc.ErrorMessage.size());
+    EXPECT_EQ(ParseRc::ErrorType::retrievingGrammarFailed, rc.errorType);
+    EXPECT_EQ(0, rc.lenParsedSuccessfully);
+
+    // candidates:
+    ASSERT_EQ(0, rc.candidates.size());
+
+    // parsedElement
+    ASSERT_EQ(1, parsedElement.getChildren().size());
+    EXPECT_EQ(&parent, parsedElement.getParent());
+    EXPECT_EQ(false, parsedElement.isStopped());
+    EXPECT_EQ(&myConcatenation, parsedElement.getGrammarElement());
+}
+
 TEST(ConcatenationTest, GrammarInjectorWithTwoFixStringWrongServer) {
     Concatenation myConcatenation;
     ParsedElement parent;
@@ -556,39 +586,32 @@ TEST(ConcatenationTest, GrammarInjectorRightServer) {
     EXPECT_EQ(&myConcatenation, parsedElement.getGrammarElement());
 }
 
-// Not yet supported
-//TEST(ConcatenationTest, OptionalChild) {
-//    FixedString child1("child1");
-//    Optional child2;
-//    FixedString childOpt("child2");
-//    child2.addChild(&childOpt);
-//
-//    Concatenation myConcatenation;
-//    myConcatenation.addChild(&child1);
-//    myConcatenation.addChild(&child2);
-//
-//    ParsedElement parent;
-//    ParsedElement parsedElement(&parent);
-//
-//    ParseRc rc = myConcatenation.parse("", parsedElement);
-//
-//    // rc:
-//    EXPECT_EQ(ParseRc::ErrorType::success, rc.errorType);
-//    EXPECT_EQ(0, rc.lenParsedSuccessfully);
-//
-//    // candidates:
-//    ASSERT_EQ(2, rc.candidates.size());
-//    EXPECT_EQ("child1", rc.candidates[0]->getMatchedString());
-//    EXPECT_EQ(&myConcatenation, rc.candidates[0]->getGrammarElement());
-//    EXPECT_EQ(&parent, rc.candidates[0]->getParent());
-//
-//    EXPECT_EQ("child2", rc.candidates[1]->getMatchedString());
-//    EXPECT_EQ(&myConcatenation, rc.candidates[1]->getGrammarElement());
-//    EXPECT_EQ(&parent, rc.candidates[1]->getParent());
-//
-//    // parsedElement
-//    ASSERT_EQ(0, parsedElement.getChildren().size());
-//    EXPECT_EQ(&parent, parsedElement.getParent());
-//    EXPECT_EQ(false, parsedElement.isStopped());
-//    EXPECT_EQ(&myConcatenation, parsedElement.getGrammarElement());
-//}
+TEST(ConcatenationTest, OptionalChild) {
+   FixedString child1("child1");
+   Optional childOpt("childOpt");
+   child1.addChild(&childOpt);
+
+   Concatenation myConcatenation;
+   myConcatenation.addChild(&child1);
+
+   ParsedElement parent;
+   ParsedElement parsedElement(&parent);
+
+   ParseRc rc = myConcatenation.parse("", parsedElement);
+
+   // rc:
+   EXPECT_EQ(ParseRc::ErrorType::missingText, rc.errorType);
+   EXPECT_EQ(0, rc.lenParsedSuccessfully);
+
+   // candidates:
+   ASSERT_EQ(1, rc.candidates.size());
+   EXPECT_EQ("child1", rc.candidates[0]->getMatchedString());
+   EXPECT_EQ(&myConcatenation, rc.candidates[0]->getGrammarElement());
+   EXPECT_EQ(&parent, rc.candidates[0]->getParent());
+
+   // parsedElement
+   ASSERT_EQ(1, parsedElement.getChildren().size());
+   EXPECT_EQ(&parent, parsedElement.getParent());
+   EXPECT_EQ(false, parsedElement.isStopped());
+   EXPECT_EQ(&myConcatenation, parsedElement.getGrammarElement());
+}

@@ -82,11 +82,16 @@ class Optional : public GrammarElement
                 rc.lenParsed += childRc.lenParsed;
                 rc.errorType = ParseRc::ErrorType::missingText;
             }
+            else if(childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
+            {
+                rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
+            }
             else
             {
                 rc.errorType = ParseRc::ErrorType::success;
             }
 
+            rc.ErrorMessage = childRc.ErrorMessage;
 
             //std::cout << "Optional "<< std::to_string(m_instanceId) <<  " returning rc=" << rc.toString() << " with " << std::to_string(rc.candidates.size()) << " candidates" << std::endl;
             return rc;
