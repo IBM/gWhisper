@@ -14,6 +14,8 @@
 
 #include <gtest/gtest.h>
 #include <libArgParse/ArgParse.hpp>
+#include <tests/unitTests/GrammarInjectorTest.cpp>
+
 using namespace ArgParse;
 
 TEST(RepetitionTest, NoChildEmptyString) {
@@ -183,30 +185,30 @@ TEST(RepetitionTest, PartialMatch) {
     EXPECT_EQ(&r1, parsedElement.getGrammarElement());
 }
 
-// Not yet support
-// TEST(RepetitionTest, GrammarInjectorWrongServer) {
-//     FixedString c1("127.0.0.1");
-//     Repetition r1;
-//     r1.addChild(&c1);
-//     ParsedElement parent;
-//     ParsedElement parsedElement(&parent);
+TEST(RepetitionTest, GrammarInjectorWrongServer) {
+    FixedString c1("127.0.0.1");
+    Repetition r1;
 
-//     Grammar grammarPool;
-//     GrammarInjectorMockServicesError inject1(grammarPool);
-//     r1.addChild(&inject1);
-//     ParseRc rc = r1.parse("129.0.0.1 examples", parsedElement);
+    ParsedElement parent;
+    ParsedElement parsedElement(&parent);
 
-//     // rc:
-//     ASSERT_NE(0, rc.ErrorMessage.size());
-//     EXPECT_EQ(ParseRc::ErrorType::retrievingGrammarFailed, rc.errorType);
-//     EXPECT_EQ(0, rc.lenParsedSuccessfully);
+    Grammar grammarPool;
+    GrammarInjectorMockServicesError inject1(grammarPool);
+    r1.addChild(&inject1);
+    r1.addChild(&c1);
+    ParseRc rc = r1.parse("129.0.0.1 examples", parsedElement);
 
-//     // candidates:
-//     ASSERT_EQ(0, rc.candidates.size());
+    // rc:
+    ASSERT_NE(0, rc.ErrorMessage.size());
+    EXPECT_EQ(ParseRc::ErrorType::retrievingGrammarFailed, rc.errorType);
+    EXPECT_EQ(0, rc.lenParsedSuccessfully);
 
-//     // parsedElement
-//     ASSERT_EQ(0, parsedElement.getChildren().size());
-//     EXPECT_EQ(&parent, parsedElement.getParent());
-//     EXPECT_EQ(false, parsedElement.isStopped());
-//     EXPECT_EQ(&r1, parsedElement.getGrammarElement());
-// }
+    // candidates:
+    ASSERT_EQ(0, rc.candidates.size());
+
+    // parsedElement
+    ASSERT_EQ(0, parsedElement.getChildren().size());
+    EXPECT_EQ(&parent, parsedElement.getParent());
+    EXPECT_EQ(false, parsedElement.isStopped());
+    EXPECT_EQ(&r1, parsedElement.getGrammarElement());
+}
