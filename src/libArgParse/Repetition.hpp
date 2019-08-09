@@ -103,6 +103,10 @@ class Repetition : public GrammarElement
                     // -> why??
                     rc.errorType = ParseRc::ErrorType::success;
                 }
+                else if(childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
+                {
+                    rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
+                }
                 else
                 {
                     // otherwise we still have missing text
@@ -110,6 +114,8 @@ class Repetition : public GrammarElement
                     rc.errorType = ParseRc::ErrorType::missingText;
                     //rc.errorType = ParseRc::ErrorType::success;
                 }
+
+                rc.ErrorMessage = childRc.ErrorMessage;
             }
             else
             {

@@ -87,8 +87,6 @@ class Alternation : public GrammarElement
                         rc.lenParsedSuccessfully = childRc.lenParsedSuccessfully;
                         rc.lenParsed = childRc.lenParsed;
                         winner = newParsedElement;
-                        rc.errorType = childRc.errorType;
-                        rc.ErrorMessage = childRc.ErrorMessage;
                     }
                 }
                 if((not childRc.isGood()) && (childRc.errorType != ParseRc::ErrorType::unexpectedText))
@@ -104,6 +102,16 @@ class Alternation : public GrammarElement
                         //std::cout << "  Alternation"<< std::to_string(m_instanceId) << ": have possible candidate: '" << candidate->getMatchedString() << "'" << std::endl;
                         candidateList.push_back(candidate);
                     }
+
+                    if(childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
+                    {
+                        rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
+                    }
+                }
+
+                if(childRc.isBad())
+                {
+                    rc.ErrorMessage = childRc.ErrorMessage;
                 }
             }
 
@@ -124,14 +132,12 @@ class Alternation : public GrammarElement
                     ParsedElement unused;
                     ParseRc childRc = maybeWinnerGE->parse(f_string, unused, candidateDepth);
                     candidateList = childRc.candidates;
-                    rc.errorType = childRc.errorType;
-                    rc.ErrorMessage = childRc.ErrorMessage;
                     //std::cout << " Alternation pass2 "<< std::to_string(m_instanceId) <<  " parsed child ? rc=" << childRc.toString() << " #candidates: " << std::to_string(childRc.candidates.size()) << std::endl;
                 }
 
-                // merge RCs
-                if(rc.ErrorMessage.size() == 0)
+                if(rc.errorType != ParseRc::ErrorType::retrievingGrammarFailed)
                 {
+                    // merge RCs
                     if(m_children.size() == 0)
                     {
                         rc.errorType = ParseRc::ErrorType::success;
