@@ -75,6 +75,11 @@ class Optional : public GrammarElement
             }
 
             // create rc code:
+            if(childRc.isBad())
+            {
+                rc.ErrorMessage = childRc.ErrorMessage;
+            }
+
             if((childRc.errorType == ParseRc::ErrorType::missingText) && (childRc.lenParsed >= 1))
             {
                 // In this case we reached the end of the text.
@@ -85,7 +90,6 @@ class Optional : public GrammarElement
             else if(childRc.isBad() && childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
             {
                 rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
-                rc.ErrorMessage = childRc.ErrorMessage;
             }
             else
             {
