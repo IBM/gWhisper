@@ -89,7 +89,7 @@ class Alternation : public GrammarElement
                         winner = newParsedElement;
                     }
                 }
-                if((not childRc.isGood()) && (childRc.errorType != ParseRc::ErrorType::unexpectedText))
+                if(childRc.isBad() && (childRc.errorType == ParseRc::ErrorType::missingText))
                 {
                     maybeWinner = newParsedElement;
                     maybeWinnerGE = child;
@@ -102,16 +102,11 @@ class Alternation : public GrammarElement
                         //std::cout << "  Alternation"<< std::to_string(m_instanceId) << ": have possible candidate: '" << candidate->getMatchedString() << "'" << std::endl;
                         candidateList.push_back(candidate);
                     }
-
-                    if(childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
-                    {
-                        rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
-                    }
                 }
-
-                if(childRc.isBad())
+                else if(childRc.isBad() && (childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed))
                 {
                     rc.ErrorMessage = childRc.ErrorMessage;
+                    rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
                 }
             }
 

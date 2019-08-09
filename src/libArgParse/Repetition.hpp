@@ -86,48 +86,44 @@ class Repetition : public GrammarElement
                 }
             }
             // FIXME: maybe we have to move this in the loop and also process good rcs here with candidates (from optional/repetition/etc.) similarly to concat
-            if(childRc.isBad())
+            if (childRc.isBad() && (childRc.errorType != ParseRc::ErrorType::unexpectedText))
             {
-                if(childRc.errorType != ParseRc::ErrorType::unexpectedText)
+                // add all candidates resulting from the child:
+                for (auto candidate : childRc.candidates)
                 {
-                    // add all candidates resulting from the child:
-                    for(auto candidate : childRc.candidates)
+                    //std::cout << "Rep " << std::to_string(m_instanceId) << " handling candidate '" << candidate->getMatchedString() << "'" << std::endl;
+                    //printf("add optional candidate : '%s'\n", candidate->getMatchedString().c_str());
+                    auto realCandidate = std::make_shared<ParsedElement>(f_out_ParsedElement.getParent());
+                    realCandidate->setGrammarElement(this);
+                    realCandidate->setStops(); // think about this is this required for repetition?
+                    // add all previous childs (similar to concatenation):
+                    for (auto previousChild : successfullyParsedChilds)
                     {
-                        //std::cout << "Rep " << std::to_string(m_instanceId) << " handling candidate '" << candidate->getMatchedString() << "'" << std::endl;
-                        //printf("add optional candidate : '%s'\n", candidate->getMatchedString().c_str());
-                        auto realCandidate = std::make_shared<ParsedElement>(f_out_ParsedElement.getParent());
-                        realCandidate->setGrammarElement(this);
-                        realCandidate->setStops(); // think about this is this required for repetition?
-                        // add all previous childs (similar to concatenation):
-                        for(auto previousChild : successfullyParsedChilds)
-                        {
-                            realCandidate->addChild(previousChild);
-                        }
-                        realCandidate->addChild(candidate);
-                        //std::cout << " Rep "<< std::to_string(m_instanceId) <<  " add candidate '" << realCandidate->getMatchedString() << "'" << std::endl;
-                        rc.candidates.push_back(realCandidate);
+                        realCandidate->addChild(previousChild);
                     }
-                    if(overParsed)
+                    realCandidate->addChild(candidate);
+                    //std::cout << " Rep "<< std::to_string(m_instanceId) <<  " add candidate '" << realCandidate->getMatchedString() << "'" << std::endl;
+                    rc.candidates.push_back(realCandidate);
+                }
+                if(overParsed)
+                {
+                    // if we are at the end of the string we return no error
+                    // -> why??
+                    rc.errorType = ParseRc::ErrorType::success;
+                }
+                else
+                {
+                    if (childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
                     {
-                        // if we are at the end of the string we return no error
-                        // -> why??
-                        rc.errorType = ParseRc::ErrorType::success;
+                        rc.ErrorMessage = childRc.ErrorMessage;
+                        rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
                     }
                     else
                     {
-                        rc.ErrorMessage = childRc.ErrorMessage;
-
-                        if (childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
-                        {
-                            rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
-                        }
-                        else
-                        {
-                            // otherwise we still have missing text
-                            // FIXME: this makes repeated element not optional in some cases
-                            rc.errorType = ParseRc::ErrorType::missingText;
-                            //rc.errorType = ParseRc::ErrorType::success;
-                        }
+                        // otherwise we still have missing text
+                        // FIXME: this makes repeated element not optional in some cases
+                        rc.errorType = ParseRc::ErrorType::missingText;
+                        //rc.errorType = ParseRc::ErrorType::success;
                     }
                 }
             }

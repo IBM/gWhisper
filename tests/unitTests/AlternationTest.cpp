@@ -295,7 +295,7 @@ TEST(AlternationTest, GrammarInjectorWrongServer) {
     ASSERT_EQ(0, rc.candidates.size());
 
     // parsedElement
-    ASSERT_EQ(1, parsedElement.getChildren().size());
+    ASSERT_EQ(0, parsedElement.getChildren().size());
     EXPECT_EQ(&parent, parsedElement.getParent());
     EXPECT_EQ(false, parsedElement.isStopped());
     EXPECT_EQ(&myAlternation, parsedElement.getGrammarElement());
