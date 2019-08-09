@@ -14,61 +14,13 @@
 
 #include <gtest/gtest.h>
 #include <libArgParse/ArgParse.hpp>
+#include <tests/unitTests/GrammarInjectorTest.cpp>
+
 using namespace ArgParse;
 
 // -----------------------------------------------------------------------------
 //          Optional
 // -----------------------------------------------------------------------------
-class GrammarInjectorMockServicesError : public GrammarInjector
-{
-    public:
-        GrammarInjectorMockServicesError(Grammar & f_grammar, const std::string & f_elementName = "") :
-            GrammarInjector("Service", f_elementName),
-            m_grammar(f_grammar)
-        {
-        }
-
-        virtual ~GrammarInjectorMockServicesError()
-        {
-        }
-
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
-        {
-
-            f_ErrorMessage = "Error: Server not found.";
-            return nullptr;
-        };
-
-    private:
-        Grammar & m_grammar;
-};
-
-class GrammarInjectorMockServicesSuccess : public GrammarInjector
-{
-    public:
-        GrammarInjectorMockServicesSuccess(Grammar & f_grammar, const std::string & f_elementName = "") :
-            GrammarInjector("Service", f_elementName),
-            m_grammar(f_grammar)
-        {
-        }
-
-        virtual ~GrammarInjectorMockServicesSuccess()
-        {
-        }
-
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
-        {
-
-            f_ErrorMessage = "";
-            std::string service = "127.0.0.1:50051";
-            auto result = m_grammar.createElement<Alternation>();
-            result->addChild(m_grammar.createElement<FixedString>(service));
-            return result;
-        };
-
-    private:
-        Grammar & m_grammar;
-};
 
 TEST(OptionalTest, OneChildEmptyString) {
     EXPECT_EQ(true, true);
