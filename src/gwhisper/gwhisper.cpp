@@ -98,10 +98,19 @@ int main(int argc, char **argv)
         return cli::call(parseTree);
     }
 
-    std::cout << "Parse failed. ";
-    std::cout << "Parsed until: '" << parseTree.getMatchedString() << "'" << std::endl; 
 
-    if( (rc. candidates.size() > 0) and (rc.errorType == ParseRc::ErrorType::missingText) )
+    if(rc.isBad() && rc.errorType == ParseRc::ErrorType::retrievingGrammarFailed && rc.ErrorMessage.size()!= 0)
+    {
+        std::cout << rc.ErrorMessage << std::endl;
+        std::cout << "Grammar could not be fetched from the server address: "<< parseTree.getMatchedString() << std::endl;
+    }
+    else
+    {
+        std::cout << "Parse failed.";
+        std::cout << "Parsed until: '" << parseTree.getMatchedString() << "'" << std::endl;
+    }
+
+    if( (rc. candidates.size() > 0) && (rc.errorType == ParseRc::ErrorType::missingText))
     {
         std::cout << "Possible Candidates:";
         for(auto candidate : rc.candidates)

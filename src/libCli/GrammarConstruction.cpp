@@ -36,7 +36,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         {
         }
 
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree) override
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
         {
             // FIXME: we are already completing this without a service parsed.
             //  this works in most cases, as it will just fail. however this is not really a nice thing.
@@ -56,6 +56,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
+                f_ErrorMessage = "Error: Could not connect the Server.";
                 return nullptr;
             }
 
@@ -63,14 +64,14 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
             if(service == nullptr)
             {
-                //std::cerr << "Error: Service not found" << std::endl;
+                f_ErrorMessage = "Error: Service not found.";
                 return nullptr;
             }
 
             auto method = service->FindMethodByName(methodName);
             if(method == nullptr)
             {
-                //std::cerr << "Error: Method not found" << std::endl;
+                f_ErrorMessage = "Error: Method not found.";
                 return nullptr;
             }
 
@@ -307,7 +308,7 @@ class GrammarInjectorMethods : public GrammarInjector
         {
         }
 
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree) override
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
         {
             // FIXME: we are already completing this without a service parsed.
             //  this works in most cases, as it will just fail. however this is not really a nice thing.
@@ -325,6 +326,7 @@ class GrammarInjectorMethods : public GrammarInjector
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
+                f_ErrorMessage = "Error: Could not connect the Server.";
                 return nullptr;
             }
 
@@ -339,6 +341,7 @@ class GrammarInjectorMethods : public GrammarInjector
             }
             else
             {
+                f_ErrorMessage = "Error: Service not found.";
                 return nullptr;
             }
             return result;
@@ -362,7 +365,7 @@ class GrammarInjectorServices : public GrammarInjector
         {
         }
 
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree) override
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
         {
             std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
             std::string serverPort = f_parseTree->findFirstChild("ServerPort");
@@ -376,20 +379,20 @@ class GrammarInjectorServices : public GrammarInjector
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
+                f_ErrorMessage = "Error: Server not found.";
                 return nullptr;
             }
 
             std::vector<grpc::string> serviceList;
             if(not ConnectionManager::getInstance().getDescDb(serverAddress)->GetServices(&serviceList))
             {
-                printf("error retrieving service list\n");
+                f_ErrorMessage = "Error: Could not retrieve service list.";
                 return nullptr;
             }
 
             auto result = m_grammar.createElement<Alternation>();
             for(auto service : serviceList)
             {
-
                 result->addChild(m_grammar.createElement<FixedString>(service));
             }
             return result;

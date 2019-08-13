@@ -14,6 +14,8 @@
 
 #include <gtest/gtest.h>
 #include <libArgParse/ArgParse.hpp>
+#include <tests/unitTests/GrammarInjectorTest.cpp>
+
 using namespace ArgParse;
 
 // -----------------------------------------------------------------------------
@@ -274,39 +276,105 @@ TEST(AlternationTest, TwoChildCorrectStringForBoth) {
     EXPECT_EQ(&myAlternation, parsedElement.getGrammarElement());
 }
 
-// Not yet supported
-//TEST(AlternationTest, OptionalChild) {
-//    FixedString child1("child1");
-//    Optional child2;
-//    FixedString childOpt("child2");
-//    child2.addChild(&childOpt);
-//
-//    Alternation myAlternation;
-//    myAlternation.addChild(&child1);
-//    myAlternation.addChild(&child2);
-//
-//    ParsedElement parent;
-//    ParsedElement parsedElement(&parent);
-//
-//    ParseRc rc = myAlternation.parse("", parsedElement);
-//
-//    // rc:
-//    EXPECT_EQ(ParseRc::ErrorType::success, rc.errorType);
-//    EXPECT_EQ(0, rc.lenParsedSuccessfully);
-//
-//    // candidates:
-//    ASSERT_EQ(2, rc.candidates.size());
-//    EXPECT_EQ("child1", rc.candidates[0]->getMatchedString());
-//    EXPECT_EQ(&myAlternation, rc.candidates[0]->getGrammarElement());
-//    EXPECT_EQ(&parent, rc.candidates[0]->getParent());
-//
-//    EXPECT_EQ("child2", rc.candidates[1]->getMatchedString());
-//    EXPECT_EQ(&myAlternation, rc.candidates[1]->getGrammarElement());
-//    EXPECT_EQ(&parent, rc.candidates[1]->getParent());
-//
-//    // parsedElement
-//    ASSERT_EQ(0, parsedElement.getChildren().size());
-//    EXPECT_EQ(&parent, parsedElement.getParent());
-//    EXPECT_EQ(false, parsedElement.isStopped());
-//    EXPECT_EQ(nullptr, parsedElement.getGrammarElement());
-//}
+TEST(AlternationTest, GrammarInjectorWrongServer) {
+    Alternation myAlternation;
+    ParsedElement parent;
+    ParsedElement parsedElement(&parent);
+
+    Grammar grammarPool;
+    GrammarInjectorMockServicesError inject1(grammarPool);
+    myAlternation.addChild(&inject1);
+    ParseRc rc = myAlternation.parse("129.0.0.1 examples", parsedElement);
+
+    // rc:
+    ASSERT_NE(0, rc.ErrorMessage.size());
+    EXPECT_EQ(ParseRc::ErrorType::retrievingGrammarFailed, rc.errorType);
+    EXPECT_EQ(0, rc.lenParsedSuccessfully);
+
+    // candidates:
+    ASSERT_EQ(0, rc.candidates.size());
+
+    // parsedElement
+    ASSERT_EQ(0, parsedElement.getChildren().size());
+    EXPECT_EQ(&parent, parsedElement.getParent());
+    EXPECT_EQ(false, parsedElement.isStopped());
+    EXPECT_EQ(&myAlternation, parsedElement.getGrammarElement());
+}
+
+TEST(AlternationTest, FixStringAndConcatinationChild) {
+
+    Alternation myAlternation;
+
+    FixedString childFix("childFix");
+    Concatenation childCon("childCon");
+
+    myAlternation.addChild(&childFix);
+    myAlternation.addChild(&childCon);
+
+    ParsedElement parent;
+    ParsedElement parsedElement(&parent);
+
+    ParseRc rc = myAlternation.parse("childFix", parsedElement);
+
+    // rc:
+    EXPECT_EQ(ParseRc::ErrorType::success, rc.errorType);
+    EXPECT_EQ(8, rc.lenParsedSuccessfully);
+
+    // candidates:
+    ASSERT_EQ(0, rc.candidates.size());
+
+    // parsedElement
+    ASSERT_EQ(1, parsedElement.getChildren().size());
+    EXPECT_EQ(&parent, parsedElement.getParent());
+    EXPECT_EQ(false, parsedElement.isStopped());
+    EXPECT_NE(nullptr, parsedElement.getGrammarElement());
+}
+
+TEST(AlternationTest, FixStringAndConcatinationAndOptionalChild) {
+
+    Alternation myAlternation;
+
+    FixedString childFix("childFix");
+    Concatenation childCon("childCon");
+    Concatenation childCon2("childCon2");
+
+    Optional childOpt("childOpt");
+    childOpt.addChild(&childCon2);
+    childCon.addChild(&childOpt);
+    myAlternation.addChild(&childFix);
+    myAlternation.addChild(&childCon);
+
+    ParsedElement parent;
+    ParsedElement parsedElement(&parent);
+
+    ParseRc rc = myAlternation.parse("childFix", parsedElement);
+
+    // rc:
+    EXPECT_EQ(ParseRc::ErrorType::success, rc.errorType);
+    EXPECT_EQ(8, rc.lenParsedSuccessfully);
+
+    // candidates:
+    ASSERT_EQ(0, rc.candidates.size());
+
+    // parsedElement
+    ASSERT_EQ(1, parsedElement.getChildren().size());
+    EXPECT_EQ(&parent, parsedElement.getParent());
+    EXPECT_EQ(false, parsedElement.isStopped());
+    EXPECT_NE(nullptr, parsedElement.getGrammarElement());
+
+    rc = myAlternation.parse("child", parsedElement);
+
+    // rc:
+    EXPECT_EQ(ParseRc::ErrorType::success, rc.errorType);
+    EXPECT_EQ(0, rc.lenParsedSuccessfully);
+
+    // candidates:
+    ASSERT_EQ(1, rc.candidates.size());
+
+    // parsedElement
+    ASSERT_EQ(2, parsedElement.getChildren().size());
+    EXPECT_EQ(&parent, parsedElement.getParent());
+    EXPECT_EQ(false, parsedElement.isStopped());
+    EXPECT_NE(nullptr, parsedElement.getGrammarElement());
+
+}

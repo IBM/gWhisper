@@ -89,7 +89,7 @@ class Alternation : public GrammarElement
                         winner = newParsedElement;
                     }
                 }
-                if((not childRc.isGood()) && (childRc.errorType != ParseRc::ErrorType::unexpectedText))
+                if(childRc.isBad() && (childRc.errorType == ParseRc::ErrorType::missingText))
                 {
                     maybeWinner = newParsedElement;
                     maybeWinnerGE = child;
@@ -102,6 +102,11 @@ class Alternation : public GrammarElement
                         //std::cout << "  Alternation"<< std::to_string(m_instanceId) << ": have possible candidate: '" << candidate->getMatchedString() << "'" << std::endl;
                         candidateList.push_back(candidate);
                     }
+                }
+                else if(childRc.isBad() && (childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed))
+                {
+                    rc.ErrorMessage = rc.ErrorMessage + childRc.ErrorMessage + " ";
+                    rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
                 }
             }
 
@@ -125,19 +130,22 @@ class Alternation : public GrammarElement
                     //std::cout << " Alternation pass2 "<< std::to_string(m_instanceId) <<  " parsed child ? rc=" << childRc.toString() << " #candidates: " << std::to_string(childRc.candidates.size()) << std::endl;
                 }
 
-                // merge RCs
-                if(m_children.size() == 0)
+                if(rc.errorType != ParseRc::ErrorType::retrievingGrammarFailed)
                 {
-                    rc.errorType = ParseRc::ErrorType::success;
-                }
-                else if(candidateList.size() == 0)
-                {
-                    rc.errorType = ParseRc::ErrorType::unexpectedText;
-                }
-                else
-                {
-                    rc.errorType = ParseRc::ErrorType::missingText;
-                    rc.lenParsed = strlen(f_string);
+                    // merge RCs
+                    if(m_children.size() == 0)
+                    {
+                        rc.errorType = ParseRc::ErrorType::success;
+                    }
+                    else if(candidateList.size() == 0)
+                    {
+                        rc.errorType = ParseRc::ErrorType::unexpectedText;
+                    }
+                    else
+                    {
+                        rc.errorType = ParseRc::ErrorType::missingText;
+                        rc.lenParsed = strlen(f_string);
+                    }
                 }
             }
 

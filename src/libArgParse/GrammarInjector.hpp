@@ -30,8 +30,10 @@ class GrammarInjector : public GrammarElement
         {
             if(m_children.size() == 0)
             {
+                ParseRc rc;
                 // we first need to inject new grammar:
-                GrammarElement * newGrammar = getGrammar(f_out_ParsedElement.getRoot());
+                GrammarElement * newGrammar = getGrammar(f_out_ParsedElement.getRoot(), rc.ErrorMessage);
+
                 if(newGrammar != nullptr)
                 {
                     // retrieving grammar succeeded :-)
@@ -41,8 +43,14 @@ class GrammarInjector : public GrammarElement
                 {
                     // retrieving grammar failed :-(
                     // -> we need to cause parse to fail due to missing grammar.
-                    ParseRc rc;
-                    rc.errorType = ParseRc::ErrorType::unexpectedText;
+                    if(rc.ErrorMessage.size() != 0)
+                    {
+                        rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
+                    }
+                    else
+                    {
+                        rc.errorType = ParseRc::ErrorType::unexpectedText;
+                    }
                     return rc;
                 }
             }
@@ -58,30 +66,6 @@ class GrammarInjector : public GrammarElement
             return childRc;
         }
 
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree) = 0;
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) = 0;
 };
-
-
-class GrammarInjectorTest : public GrammarInjector
-{
-    public:
-        explicit GrammarInjectorTest(Grammar & f_grammar) :
-            GrammarInjector("Test"),
-            m_grammar(f_grammar)
-        {
-        }
-
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree) override
-        {
-            auto result = m_grammar.createElement<Alternation>();
-            result->addChild(m_grammar.createElement<FixedString>("inject1"));
-            result->addChild(m_grammar.createElement<FixedString>("inject2"));
-            return result;
-        };
-
-    private:
-        Grammar & m_grammar;
-
-};
-
 }
