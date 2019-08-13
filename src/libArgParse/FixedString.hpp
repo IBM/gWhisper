@@ -59,6 +59,9 @@ class FixedString : public GrammarElement
                     auto candidate = std::make_shared<ParsedElement>(&f_out_ParsedElement);
                     candidate->setGrammarElement(this);
                     candidate->setMatchedString(m_string);
+                    candidate->setMatchedStringDoc("test_fixstring doc");
+                    std::cout << "candidate matched String: " << candidate->getMatchedString()<< std::endl;
+                    std::cout << "candidate matched Documentation: " << candidate->getMatchedStringDoc() << std::endl;
                     rc.candidates.push_back(candidate);
 
                     // set rc

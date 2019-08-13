@@ -77,6 +77,18 @@ class ParsedElement
             return result;
         }
 
+        ///
+        void setMatchedStringDoc(const std::string & f_document)
+        {
+            m_matchedStringDoc = f_document;
+        }
+
+        ///
+        std::string getMatchedStringDoc() const
+        {
+            return m_matchedStringDoc;
+        }
+
         /// prints out the complete parse tree.
         std::string getDebugString(const std::string & f_prefix = "");
 
@@ -196,6 +208,7 @@ class ParsedElement
         std::vector< std::shared_ptr<ParsedElement> > m_children;
         bool m_stops = false;
         std::string m_matchedString;
+        std::string m_matchedStringDoc = "default value";
         bool m_incompleteParse = false;
 };
 

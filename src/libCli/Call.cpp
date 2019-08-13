@@ -21,14 +21,20 @@
 #include <chrono>
 #include <ctime>
 #include <iomanip>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+#include <google/protobuf/arena.h>
 
 // for detecting if we are writing stdout to terminal or to pipe/file
 #include <stdio.h>
 #include <unistd.h>
 
+#include <fstream>
+#include <iostream>
 #include <libCli/cliUtils.hpp>
+#include <google/protobuf/descriptor.pb.h>
 
 using namespace ArgParse;
+using namespace google::protobuf::io;
 
 static cli::OutputFormatter::CustomStringModifier getModifier(ArgParse::ParsedElement &f_optionalModifier);
 
@@ -263,9 +269,16 @@ int call(ParsedElement & parseTree)
 
         // print out string representation of the message:
         std::string msgString;
-
         // decide on message formatting method to use:
         bool customOutputFormatRequested = false;
+
+        //test reflection for completion documentation
+        const google::protobuf::Descriptor * replyMessage_descriptor = replyMessage->GetDescriptor();
+        std::string doc = replyMessage_descriptor->FindFieldByName("simple_map_int")->options().DebugString();
+        parseTree.findFirstSubTree("simple_map_int", customOutputFormatRequested).setMatchedStringDoc(OutputFormatter::getOptionString(doc));
+        std::cout << "field \"simple_map_int\" doc: " << parseTree.findFirstSubTree("simple_map_int", customOutputFormatRequested).getMatchedStringDoc() << std::endl;
+
+        // decide on message formatting method to use:
         ParsedElement customFormatParseTree = parseTree.findFirstSubTree("CustomOutputFormat", customOutputFormatRequested);
         if(not customOutputFormatRequested)
         {
