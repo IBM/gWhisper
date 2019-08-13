@@ -31,7 +31,8 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
     size_t n = f_args.size();
     for(auto candidate : f_candidates)
     {
-        std::string candidateStr =candidate->getMatchedString();
+        std::string candidateStr = candidate->getMatchedString();
+        std::string suggestionDoc = candidate->getMatchedStringDoc();
         std::string suggestion;
         size_t start = n;
         size_t end;
@@ -62,6 +63,7 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         {
             printf("post: '%s'\n", suggestion.c_str());
         }
+        suggestion = suggestion + "\t" + suggestionDoc + "\n";
         // NOTE: be careful when adding description (tab-delimiter) here, as
         // fish summarizes all options with same description
         printf("%s\n", suggestion.c_str());

@@ -15,8 +15,18 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/descriptor.proto";
 
 package examples;
+
+extend google.protobuf.MessageOptions {
+    string my_message = 51234;
+}
+
+extend google.protobuf.FieldOptions {
+    string doc = 51000;
+}
+
 
 service ScalarTypeRpcs
 {
@@ -229,16 +239,16 @@ message NestedMessage2d
 
 message NestedMaps
 {
+    option (my_message) = "This is NestedMaps";
     message SubMessage
     {
-        map<uint32, uint32> simple_map_int = 1;
-        map<string, uint32> simple_map_string = 2;
+        map<uint32, uint32> simple_map_int = 1 [ (doc) = "It's simple_map_int of sub_message"];
+        map<string, uint32> simple_map_string = 2 [ (doc) = "It's simple_map_string of sub_message"];
     }
-    NumberAndString number_and_string = 1;
-    SubMessage sub_message = 2;
-    map<uint32, uint32> simple_map_int = 3;
-    map<string, uint32> simple_map_string = 4;
-
+    NumberAndString number_and_string = 1 [ (doc) = "it's number and string, input integer"];
+    SubMessage sub_message = 2 [ (doc) = "it's sub message"];
+    map<uint32, uint32> simple_map_int = 3 [ (doc) = "it's simple map integer"];
+    map<string, uint32> simple_map_string = 4 [ (doc) = "it's simple map string"];
 }
 
 message RecursiveMaps

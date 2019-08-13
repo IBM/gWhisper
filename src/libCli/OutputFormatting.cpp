@@ -201,6 +201,18 @@ bool OutputFormatter::isMapEntryPrimitive(const grpc::protobuf::Descriptor* f_me
     return false;
 }
 
+std::string OutputFormatter::getOptionString(std::string f_optString)
+{
+    std::string::size_type pos_eq = f_optString.find_first_of(':');
+    std::string output;
+    if (pos_eq != std::string::npos)
+    {
+        output = f_optString.substr(pos_eq+1);
+    }
+    output.erase(remove(output.begin(), output.end(), '"' ), output.end());
+    return output;
+}
+
 std::string OutputFormatter::fieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, CustomStringModifier f_modifier)
 {
     const google::protobuf::Reflection * reflection = f_message.GetReflection();
