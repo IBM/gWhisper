@@ -105,7 +105,7 @@ class Alternation : public GrammarElement
                 }
                 else if(childRc.isBad() && (childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed))
                 {
-                    rc.ErrorMessage = childRc.ErrorMessage;
+                    rc.ErrorMessage = rc.ErrorMessage + childRc.ErrorMessage + " ";
                     rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
                 }
             }

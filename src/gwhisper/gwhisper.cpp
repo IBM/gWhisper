@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        std::cout << "Parse faileds. ";
+        std::cout << "Parse failed.";
         std::cout << "Parsed until: '" << parseTree.getMatchedString() << "'" << std::endl;
     }
 
