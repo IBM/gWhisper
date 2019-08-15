@@ -21,9 +21,6 @@
 
 namespace ArgParse
 {
-// a Graph
-class GrammarElement;
-
 class GrammarElement
 {
     public:

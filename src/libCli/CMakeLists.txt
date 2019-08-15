@@ -13,7 +13,7 @@
 # limitations under the License.
 
 cmake_minimum_required (VERSION 2.8)
-
+find_package(Threads REQUIRED)
 set(TARGET_NAME "cli")
 set(TARGET_SRC
     ./MessageParsing.cpp
@@ -27,6 +27,7 @@ add_library(${TARGET_NAME} ${TARGET_SRC})
 target_link_libraries ( ${TARGET_NAME}
     reflection
     ArgParse
+    ${CMAKE_THREAD_LIBS_INIT}
     )
 
 if(BUILD_CONFIG_USE_BOOST_REGEX)

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <libCli/GrammarConstruction.hpp>
-#include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
 
 #include <libCli/cliUtils.hpp>
 #include <libCli/ConnectionManager.hpp>
@@ -23,94 +22,7 @@ using namespace ArgParse;
 namespace cli
 {
 
-class GrammarInjectorMethodArgs : public GrammarInjector
-{
-    public:
-        GrammarInjectorMethodArgs(Grammar & f_grammar, const std::string & f_elementName = "") :
-            GrammarInjector("MethodArgs", f_elementName),
-            m_grammar(f_grammar)
-        {
-        }
-
-        virtual ~GrammarInjectorMethodArgs()
-        {
-        }
-
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
-        {
-            // FIXME: we are already completing this without a service parsed.
-            //  this works in most cases, as it will just fail. however this is not really a nice thing.
-            std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
-            std::string serverPort = f_parseTree->findFirstChild("ServerPort");
-            std::string serviceName = f_parseTree->findFirstChild("Service");
-            std::string methodName = f_parseTree->findFirstChild("Method");
-            if(serverPort == "")
-            {
-                serverPort = "50051";
-            }
-            serverAddress = serverAddress + ":" + serverPort;
-
-            //std::cout << f_parseTree->getDebugString() << std::endl;
-            //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
-            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
-
-            if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
-            {
-                f_ErrorMessage = "Error: Could not connect the Server.";
-                return nullptr;
-            }
-
-            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
-
-            if(service == nullptr)
-            {
-                f_ErrorMessage = "Error: Service not found.";
-                return nullptr;
-            }
-
-            auto method = service->FindMethodByName(methodName);
-            if(method == nullptr)
-            {
-                f_ErrorMessage = "Error: Method not found.";
-                return nullptr;
-            }
-
-            if(method->client_streaming())
-            {
-                ArgParse::GrammarFactory grammarFactory(m_grammar);
-
-                return grammarFactory.createList(
-                    "RequestStream",
-                    getMessageGrammar("Message", method->input_type(), m_grammar.createElement<FixedString>(":")),
-                    m_grammar.createElement<WhiteSpace>(),
-                    false,
-                    nullptr,
-                    nullptr
-                    );
-            }
-            else
-            {
-                return getMessageGrammar("Message", method->input_type());
-            }
-            //auto concat = m_grammar.createElement<Concatenation>();
-
-            //auto separation = m_grammar.createElement<WhiteSpace>();
-            ////auto separation = m_grammar.createElement<Alternation>();
-            ////separation->addChild(m_grammar.createElement<WhiteSpace>());
-            ////separation->addChild(m_grammar.createElement<FixedString>(","));
-            //concat->addChild(separation);
-
-            //concat->addChild(fields);
-
-            //auto result = m_grammar.createElement<Repetition>("Fields");
-            //result->addChild(concat);
-
-            //return result;
-        };
-
-    private:
-
-        void addFieldValueGrammar(GrammarElement * f_fieldGrammar, const grpc::protobuf::FieldDescriptor * f_field)
+        void MessageGrammarFactory::addFieldValueGrammar(GrammarElement * f_fieldGrammar, const grpc::protobuf::FieldDescriptor * f_field)
         {
             switch(f_field->cpp_type())
             {
@@ -233,7 +145,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         // FIXME: we do want to generate a list via factory here not an alternation.
         // This makes life much easier and avoids duplicate code as all messages have
         // same parse structure.
-        GrammarElement * getMessageGrammar(const std::string & f_rootElementName, const grpc::protobuf::Descriptor* f_messageDescriptor, GrammarElement * f_wrappingElement = nullptr)
+        GrammarElement * MessageGrammarFactory::getMessageGrammar(const std::string & f_rootElementName, const grpc::protobuf::Descriptor* f_messageDescriptor, GrammarElement * f_wrappingElement)
         {
             ArgParse::GrammarFactory grammarFactory(m_grammar);
             auto fieldsAlt = m_grammar.createElement<Alternation>();
@@ -294,6 +206,94 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         }
 
 
+
+class GrammarInjectorMethodArgs : public GrammarInjector
+{
+    public:
+        GrammarInjectorMethodArgs(Grammar & f_grammar, const std::string & f_elementName = "") :
+            GrammarInjector("MethodArgs", f_elementName),
+            m_grammar(f_grammar)
+        {
+        }
+
+        virtual ~GrammarInjectorMethodArgs()
+        {
+        }
+
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
+        {
+            // FIXME: we are already completing this without a service parsed.
+            //  this works in most cases, as it will just fail. however this is not really a nice thing.
+            std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
+            std::string serverPort = f_parseTree->findFirstChild("ServerPort");
+            std::string serviceName = f_parseTree->findFirstChild("Service");
+            std::string methodName = f_parseTree->findFirstChild("Method");
+            if(serverPort == "")
+            {
+                serverPort = "50051";
+            }
+            serverAddress = serverAddress + ":" + serverPort;
+
+            //std::cout << f_parseTree->getDebugString() << std::endl;
+            //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
+
+            if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
+            {
+                f_ErrorMessage = "Error: Could not connect the Server.";
+                return nullptr;
+            }
+
+            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
+
+            if(service == nullptr)
+            {
+                f_ErrorMessage = "Error: Service not found.";
+                return nullptr;
+            }
+
+            auto method = service->FindMethodByName(methodName);
+            if(method == nullptr)
+            {
+                f_ErrorMessage = "Error: Method not found.";
+                return nullptr;
+            }
+
+            MessageGrammarFactory messageFactory(m_grammar);
+            if(method->client_streaming())
+            {
+                ArgParse::GrammarFactory grammarFactory(m_grammar);
+
+                return grammarFactory.createList(
+                    "RequestStream",
+                    messageFactory.getMessageGrammar("Message", method->input_type(), m_grammar.createElement<FixedString>(":")),
+                    m_grammar.createElement<WhiteSpace>(),
+                    false,
+                    nullptr,
+                    nullptr
+                    );
+            }
+            else
+            {
+                return messageFactory.getMessageGrammar("Message", method->input_type());
+            }
+            //auto concat = m_grammar.createElement<Concatenation>();
+
+            //auto separation = m_grammar.createElement<WhiteSpace>();
+            ////auto separation = m_grammar.createElement<Alternation>();
+            ////separation->addChild(m_grammar.createElement<WhiteSpace>());
+            ////separation->addChild(m_grammar.createElement<FixedString>(","));
+            //concat->addChild(separation);
+
+            //concat->addChild(fields);
+
+            //auto result = m_grammar.createElement<Repetition>("Fields");
+            //result->addChild(concat);
+
+            //return result;
+        };
+
+    private:
 
         Grammar & m_grammar;
 
@@ -499,6 +499,8 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     timeoutOption->addChild(f_grammarPool.createElement<FixedString>("--connectTimeoutMilliseconds="));
     timeoutOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "connectTimeout"));
     optionsalt->addChild(timeoutOption);
+    optionsalt->addChild(f_grammarPool.createElement<FixedString>("-k", "KeepStreamAlive"));
+    optionsalt->addChild(f_grammarPool.createElement<FixedString>("--keepStreamAlive", "KeepStreamAlive"));
     optionsalt->addChild(customOutputFormat);
     // FIXME FIXME FIXME: we cannot distinguish between --complete and --completeDebug.. this is a problem for arguments too, as we cannot guarantee, that we do not have an argument starting with the name of an other argument.
     // -> could solve by makeing FixedString greedy
