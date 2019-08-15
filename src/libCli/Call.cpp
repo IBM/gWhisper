@@ -338,7 +338,6 @@ int call(ParsedElement & parseTree)
             std::cout << msgString; // Omit endline here. This is an unwanted char when binary data is directed into a file.
             std::cerr << std::endl; // ... but put and endline into stderr to keep the console output nice again.
         }
-        std::cout << "test her" << std::endl;
     }
 
     // reply stream finished -> finish the RPC:
