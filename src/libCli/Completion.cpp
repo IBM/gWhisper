@@ -59,12 +59,12 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         size_t trimEnd = suggestion.find_last_not_of(' ');
         suggestion = suggestion.substr(0, trimEnd+1);
         //suggestion = candidateStr.substr(start, end-start+1);
+        suggestion = suggestion + "\t" + suggestionDoc + "'\n";
         if(f_debug)
         {
             printf("post: '%s'\n", suggestion.c_str());
         }
-        suggestion = suggestion + "\t" + suggestionDoc + "\n";
-        // NOTE: be careful when adding description (tab-delimiter) here, as
+       // NOTE: be careful when adding description (tab-delimiter) here, as
         // fish summarizes all options with same description
         printf("%s\n", suggestion.c_str());
     }
