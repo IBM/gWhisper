@@ -1,7 +1,8 @@
 Files in this directory were taken from the official gRPC repository (https://github.com/grpc/grpc).
+gRPC git hash: 0fd05f477a0097e3965d3933bf666084e979771e
 
 They include the RPC reflection interface description, as well as
 very useful gRPC RPC call and reflection abtractions.
 
 Some minor modifications were made to those files to allow building them
-in this projects (include paths). Those modifications are clearly marked.
+in this projects. Those modifications are clearly marked.

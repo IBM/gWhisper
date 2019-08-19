@@ -27,9 +27,13 @@
 #include <grpcpp/support/status.h>
 #include <grpcpp/support/string_ref.h>
 
+// MODIFIED by IBM (Rainer Schoenberger)
+//namespace grpc_impl {
+//
+//class ClientContext;
+//}  // namespace grpc_impl
+// END MODIFIED
 namespace grpc {
-
-class ClientContext;
 
 namespace testing {
 
@@ -42,7 +46,8 @@ class CliCall final {
   typedef std::multimap<grpc::string_ref, grpc::string_ref>
       IncomingMetadataContainer;
 
-  CliCall(std::shared_ptr<grpc::Channel> channel, const grpc::string& method,
+  CliCall(const std::shared_ptr<grpc::Channel>& channel,
+          const grpc::string& method,
           const OutgoingMetadataContainer& metadata);
   ~CliCall();
 
@@ -84,7 +89,10 @@ class CliCall final {
 
  private:
   std::unique_ptr<grpc::GenericStub> stub_;
+  // MODIFIED by IBM (Rainer Schoenberger)
+  // original: grpc_impl::ClientContext ctx_;
   grpc::ClientContext ctx_;
+  // END MODIFIED
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
   grpc::CompletionQueue cq_;
   gpr_mu write_mu_;
