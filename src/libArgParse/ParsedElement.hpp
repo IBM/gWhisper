@@ -52,6 +52,7 @@ class ParsedElement
         void setGrammarElement(GrammarElement * f_grammarElement)
         {
             m_grammarElement = f_grammarElement;
+            m_matchedStringDoc = "set test doc when set grammer element";
         }
 
         ParsedElement & addChild(std::shared_ptr<ParsedElement> f_element)
@@ -64,6 +65,7 @@ class ParsedElement
         void setMatchedString(const std::string & f_string)
         {
             m_matchedString = f_string;
+            m_matchedStringDoc = "et test doc when set Matched String"; //not work
         }
 
         /// prints the "flattened parse tree" i.e. the complete matched string.
