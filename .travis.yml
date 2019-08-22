@@ -7,9 +7,9 @@ dist: xenial
 
 cache: ccache
 
-addons:
-    snaps:
-        - cppcheck
+#addons:
+#    snaps:
+#        - cppcheck
 
 before_install:
     - sudo apt-get update
