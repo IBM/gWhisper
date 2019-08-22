@@ -14,7 +14,7 @@
 
 #include <libCli/GrammarConstruction.hpp>
 #include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
-
+#include <libCli/OutputFormatting.hpp>
 #include <libCli/cliUtils.hpp>
 #include <libCli/ConnectionManager.hpp>
 
@@ -112,6 +112,9 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
         void addFieldValueGrammar(GrammarElement * f_fieldGrammar, const grpc::protobuf::FieldDescriptor * f_field)
         {
+            //parseTree.findFirstSubTree("simple_map_int", customOutputFormatRequested).setMatchedStringDoc(OutputFormatter::getOptionString(doc));
+            //std::cout << "addFieldValueGramma \"simple_map_int\" doc: " << parseTree.findFirstSubTree("simple_map_int", customOutputFormatRequested).getMatchedStringDoc() << std::endl;
+
             switch(f_field->cpp_type())
             {
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_FLOAT:
@@ -184,10 +187,15 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
                         // Using this as a workaround until parser gets better regex support
                         f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[^:, ]*", "FieldValue"));
+                        
                     }
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE:
                     {
+                        std::string doc = f_field->options().DebugString();
+                        f_fieldGrammar->setDocument(OutputFormatter::getOptionString(doc));
+                        std::cout << "f_fieldGrammar message: "<< f_fieldGrammar->toString() << std::endl;
+                        std::cout << "f_fieldGrammar message doc: "<< f_fieldGrammar->getDocument() << std::endl;
                         ArgParse::GrammarFactory grammarFactory(m_grammar);
 
                         //auto fieldsAlt = getMessageGrammar(f_field->message_type());
@@ -255,7 +263,8 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 //std::cerr << "Iterating field " << std::to_string(i) << " of message " << f_messageDescriptor->name() << "with name: '" << field->name() <<"'"<< std::endl;
 
                 // now we add grammar to the fieldsAlt alternation:
-                auto fieldGrammar = m_grammar.createElement<Concatenation>("Field");
+                auto fieldGrammar = m_grammar.createElement<Concatenation>("Field"); //concatenation 
+                //fieldGrammar->addChild(m_grammar.createElement<FixedString>(field->options().DebugString(), "Document"));
                 fieldGrammar->addChild(m_grammar.createElement<FixedString>(field->name(), "FieldName"));
                 fieldGrammar->addChild(m_grammar.createElement<FixedString>("="));
                 fieldsAlt->addChild(fieldGrammar);
@@ -286,7 +295,16 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 {
                     // the simple case:
                     addFieldValueGrammar(fieldGrammar, field);
+                    //std::cout << "outer fieldGrammar: "<< fieldGrammar->toString() << std::endl;
+                    //std::cout << "outer fieldGrammar doc: "<< fieldGrammar->getDocument() << std::endl;
                 }
+
+                for(auto child : message->getChildren())
+                {
+                    std::cout << "message child: "<< child->toString() << std::endl;
+                    std::cout << "message child document: "<< child->getDocument() << std::endl;
+                }
+
             }
 
             //std::cout << "Grammar generated:\n" << fieldsAlt->toString() << std::endl;
@@ -337,6 +355,7 @@ class GrammarInjectorMethods : public GrammarInjector
                 for (int i = 0; i < service->method_count(); ++i)
                 {
                     result->addChild(m_grammar.createElement<FixedString>(service->method(i)->name()));
+                    std::cout << "method " << i << ": " << service->method(i)->name() << std::endl;
                 }
             }
             else

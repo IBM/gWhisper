@@ -14,6 +14,9 @@
 
 #include <cstdio>
 #include <libArgParse/ArgParse.hpp>
+#include <google/protobuf/dynamic_message.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+#include <google/protobuf/arena.h>
 
 #include <libCli/GrammarConstruction.hpp>
 #include <libCli/Call.hpp>
@@ -56,6 +59,16 @@ int main(int argc, char **argv)
     ParsedElement parseTree;
     ParseRc rc = grammarRoot->parse(args.c_str(), parseTree);
 
+    //debug output
+    for(auto candidate: rc.candidates)
+    {
+        std::cout << "rc.candidate: " << candidate->getMatchedString() << std::endl;
+        for(auto child: candidate->getChildren())
+        {
+            std::cout << "rc.candidate.child: " << child->getMatchedString() << std::endl;
+        }
+    }
+    
     // TODO: add option to print parse tree after parsing:
     // // Now we act according to the parse tree:
     //std::cout << parseTree.getDebugString() << "\n";

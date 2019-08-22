@@ -33,11 +33,12 @@ class GrammarInjector : public GrammarElement
                 ParseRc rc;
                 // we first need to inject new grammar:
                 GrammarElement * newGrammar = getGrammar(f_out_ParsedElement.getRoot(), rc.ErrorMessage);
-
+    
                 if(newGrammar != nullptr)
                 {
                     // retrieving grammar succeeded :-)
                     addChild(newGrammar);
+                    std::cout << "new Grammar document: " << newGrammar->getDocument() << std::endl;;
                 }
                 else
                 {

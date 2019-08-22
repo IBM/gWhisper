@@ -52,7 +52,7 @@ class ParsedElement
         void setGrammarElement(GrammarElement * f_grammarElement)
         {
             m_grammarElement = f_grammarElement;
-            m_matchedStringDoc = "set test doc when set grammer element";
+            //m_matchedStringDoc = "set test doc when set grammer element";
         }
 
         ParsedElement & addChild(std::shared_ptr<ParsedElement> f_element)
@@ -65,7 +65,6 @@ class ParsedElement
         void setMatchedString(const std::string & f_string)
         {
             m_matchedString = f_string;
-            m_matchedStringDoc = "et test doc when set Matched String"; //not work
         }
 
         /// prints the "flattened parse tree" i.e. the complete matched string.
@@ -77,18 +76,6 @@ class ParsedElement
                 result += child->getMatchedString();
             }
             return result;
-        }
-
-        ///
-        void setMatchedStringDoc(const std::string & f_document)
-        {
-            m_matchedStringDoc = f_document;
-        }
-
-        ///
-        std::string getMatchedStringDoc() const
-        {
-            return m_matchedStringDoc;
         }
 
         /// prints out the complete parse tree.
@@ -210,7 +197,6 @@ class ParsedElement
         std::vector< std::shared_ptr<ParsedElement> > m_children;
         bool m_stops = false;
         std::string m_matchedString;
-        std::string m_matchedStringDoc = "default value";
         bool m_incompleteParse = false;
 };
 

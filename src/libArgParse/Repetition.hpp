@@ -28,10 +28,15 @@ class Repetition : public GrammarElement
         virtual std::string toString() override
         {
             std::string result;
-            result += "(";
+            //result += "(";
             result += m_children[0]->toString();
-            result += ")*";
+            //result += ")*";
             return result;
+        }
+
+        virtual std::string getName() override
+        {
+            return m_children[0]->toString();
         }
 
         virtual ParseRc parse(const char * f_string, ParsedElement & f_out_ParsedElement, size_t candidateDepth = 1, size_t startChild = 0) override

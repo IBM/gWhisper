@@ -31,6 +31,7 @@ class GrammarElement
             m_parent(this),
             m_typeName(f_typeName),
             m_elementName(f_elementName),
+            m_document(""),
             m_instanceId(getAndIncrementInstanceCounter())
         {
         }
@@ -74,14 +75,20 @@ class GrammarElement
         virtual std::string toString()
         {
             std::string result;
-            result = m_typeName + "(" + m_elementName + ":" + std::to_string(m_instanceId) + ")" + "{";
+            //result = m_typeName + "(" + m_elementName + ":" + std::to_string(m_instanceId) + ")" + "{";
             for(auto child: m_children)
             {
                 result += child->toString();
-                result += ", ";
+                //result += "\n";
+                //result += ", ";
             }
-            result += "}";
+            //result += "}";
             return result;
+        }
+
+        virtual std::string getName()
+        {
+            return "";
         }
 
         // TODO: maybe we should return a pointer to the newly added child here.
@@ -114,6 +121,20 @@ class GrammarElement
         {
             return m_elementName;
         }
+        
+        std::string getDocument() const
+        {
+            return m_document;
+        }
+
+        void setDocument(std::string f_document)
+        {
+            m_document = f_document;
+        }
+        std::vector< GrammarElement * > getChildren()
+        {
+            return m_children;
+        }
 
         virtual ~GrammarElement()
         {
@@ -126,7 +147,7 @@ class GrammarElement
             result += "n" + std::to_string(m_instanceId) + "[label=\"" + std::to_string(m_instanceId) + " " + m_typeName + " " + m_elementName + " " + m_tag + "\"];\n";
             for(auto child : m_children)
             {
-                result += " n" + std::to_string(m_instanceId) + " -> n" + std::to_string(child->m_instanceId) + ";\n";
+                result += " n" + std::to_string(m_instanceId) + m_elementName + " -> n" + std::to_string(child->m_instanceId) + child->m_elementName + ";\n";
             }
             //std::cout << " got dot string: " << result;
             return result;
@@ -139,6 +160,7 @@ class GrammarElement
         const std::string m_typeName;
         const std::string m_elementName;
         const uint32_t m_instanceId;
+        std::string m_document;
     private:
         static uint32_t getAndIncrementInstanceCounter()
         {

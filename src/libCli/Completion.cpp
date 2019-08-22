@@ -32,7 +32,20 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
     for(auto candidate : f_candidates)
     {
         std::string candidateStr = candidate->getMatchedString();
-        std::string suggestionDoc = candidate->getMatchedStringDoc();
+
+        while(candidate->getGrammarElement()->getDocument() == "")
+        {
+            if(candidate->getParent())
+            {
+                candidate = std::shared_ptr<ParsedElement>(candidate->getParent());
+            } 
+            else
+            {
+                break;
+            }
+        }
+        
+        std::string suggestionDoc = candidate->getGrammarElement()->getDocument();
         std::string suggestion;
         size_t start = n;
         size_t end;
