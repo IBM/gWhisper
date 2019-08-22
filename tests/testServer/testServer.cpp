@@ -19,6 +19,7 @@
 #include "ServiceStreamingRpcs.hpp"
 #include "ServiceComplexTypeRpcs.hpp"
 #include "ServiceNestedTypeRpcs.hpp"
+#include "ServiceStatusHandling.hpp"
 
 
 int main(int argc, char **argv)
@@ -59,6 +60,9 @@ int main(int argc, char **argv)
 
     ServiceStreamingRpcs streamingRpcs;
     builder.RegisterService(&streamingRpcs);
+
+    ServiceStatusHandling statusHandling;
+    builder.RegisterService(&statusHandling);
 
 
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());

@@ -15,7 +15,7 @@
 #include "ServiceStatusHandling.hpp"
 #include <unistd.h>
 
-::grpc::Status neverEndingRpc(
+::grpc::Status ServiceStatusHandling::neverEndingRpc(
         ::grpc::ServerContext* context,
         const ::google::protobuf::Empty* request,
         ::google::protobuf::Empty* response
@@ -31,7 +31,7 @@
     return grpc::Status();
 }
 
-::grpc::Status giveStatusAborted(
+::grpc::Status ServiceStatusHandling::giveStatusAborted(
         ::grpc::ServerContext* context,
         const ::google::protobuf::Empty* request,
         ::google::protobuf::Empty* response

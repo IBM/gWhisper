@@ -29,6 +29,7 @@
 127.0.0.1 examples.NestedTypeRpcs 
 127.0.0.1 examples.ComplexTypeRpcs 
 127.0.0.1 examples.StreamingRpcs 
+127.0.0.1 examples.StatusHandling 
 /^127.0.0.1 grpc.reflection.*$
 #END_TEST
 
