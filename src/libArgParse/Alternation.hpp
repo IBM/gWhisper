@@ -28,27 +28,27 @@ class Alternation : public GrammarElement
         virtual std::string toString() override
         {
             std::string result;
-            if(m_children.size()>1)
-            {
-                result += "(";
-            }
-            bool first = true;
+            // if(m_children.size()>1)
+            // {
+            //     result += "(";
+            // }
+            // bool first = true;
             for(auto child: m_children)
             {
-                if(!first)
-                {
-                    result += "||";
-                }
-                else
-                {
-                    first = false;
-                }
+                // if(!first)
+                // {
+                //     result += "||";
+                // }
+                // else
+                // {
+                //     first = false;
+                // }
                 result += child->toString();
             }
-            if(m_children.size()>1)
-            {
-                result += ")";
-            }
+            // if(m_children.size()>1)
+            // {
+            //     result += ")";
+            // }
             return result;
         }
 

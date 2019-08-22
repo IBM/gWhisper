@@ -14,6 +14,7 @@
 
 #pragma once
 #include <libArgParse/GrammarElement.hpp>
+#include <typeinfo>
 
 namespace ArgParse
 {
@@ -36,7 +37,6 @@ class FixedString : public GrammarElement
             ParseRc rc;
             ParseRc childRc;
             f_out_ParsedElement.setGrammarElement(this);
-
             //std::cout << " FixedString"<< std::to_string(m_instanceId) <<  "parsing '" << std::string(f_string) << "'" << std::endl;
             //printf("comparing: '%s' == '%s'\n", f_string, m_string.c_str());
             if(strncmp(m_string.c_str(), f_string, m_string.size()) == 0)
@@ -56,15 +56,17 @@ class FixedString : public GrammarElement
                     // have a candidate for completion :)
                     //printf(" -> completion possible\n");
                     // create a candidate:
-                    auto candidate = std::make_shared<ParsedElement>(&f_out_ParsedElement);
+                    auto candidate = std::make_shared<ParsedElement>(&f_out_ParsedElement); //son!
+                    ///TODO Find correct documentation from f_out_ParsedElement
                     candidate->setGrammarElement(this);
                     candidate->setMatchedString(m_string);
-                    //candidate->setMatchedStringDoc("set doc");
+                    std::cout << "-------------------------------------------------------------------------------------------------------------------" << std::endl;
                     std::cout << "candidate matched String: " << candidate->getMatchedString()<< std::endl;
-                    std::cout << "candidate matched Documentation: " << candidate->getMatchedStringDoc() << std::endl;
+                    std::cout << "candidate matched Documentation: " << candidate->getParent()->getParent()->getGrammarElement()->getDocument() << std::endl;
+                    std::cout << "candidate(f_out_ParsedElement) matched Documentation: " << f_out_ParsedElement.getParent()->getGrammarElement()->getDocument() << std::endl;
+                    std::cout << "-------------------------------------------------------------------------------------------------------------------" << std::endl;
                     rc.candidates.push_back(candidate);
-
-                    // set rc
+ 
                     rc.errorType = ParseRc::ErrorType::missingText;
                 }
                 else
