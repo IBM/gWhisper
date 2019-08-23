@@ -14,7 +14,6 @@
 
 #pragma once
 #include <libArgParse/GrammarElement.hpp>
-#include <typeinfo>
 
 namespace ArgParse
 {
@@ -56,17 +55,17 @@ class FixedString : public GrammarElement
                     // have a candidate for completion :)
                     //printf(" -> completion possible\n");
                     // create a candidate:
-                    auto candidate = std::make_shared<ParsedElement>(&f_out_ParsedElement); //son!
-                    ///TODO Find correct documentation from f_out_ParsedElement
+                    auto candidate = std::make_shared<ParsedElement>(&f_out_ParsedElement);
                     candidate->setGrammarElement(this);
                     candidate->setMatchedString(m_string);
-                    std::cout << "-------------------------------------------------------------------------------------------------------------------" << std::endl;
-                    std::cout << "candidate matched String: " << candidate->getMatchedString()<< std::endl;
-                    std::cout << "candidate matched Documentation: " << candidate->getParent()->getParent()->getGrammarElement()->getDocument() << std::endl;
-                    std::cout << "candidate(f_out_ParsedElement) matched Documentation: " << f_out_ParsedElement.getParent()->getGrammarElement()->getDocument() << std::endl;
-                    std::cout << "-------------------------------------------------------------------------------------------------------------------" << std::endl;
+                    // std::cout << "-------------------------------------------------------------------------------------------------------------------" << std::endl;
+                    // std::cout << "candidate matched String: " << candidate->getMatchedString()<< std::endl;
+                    // std::cout << "candidate matched Documentation: " << candidate->getParent()->getParent()->getGrammarElement()->getDocument() << std::endl;
+                    // std::cout << "candidate(f_out_ParsedElement) matched Documentation: " << f_out_ParsedElement.getParent()->getGrammarElement()->getDocument() << std::endl;
+                    // std::cout << "-------------------------------------------------------------------------------------------------------------------" << std::endl;
                     rc.candidates.push_back(candidate);
- 
+
+                    // set rc
                     rc.errorType = ParseRc::ErrorType::missingText;
                 }
                 else

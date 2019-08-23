@@ -187,15 +187,14 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
                         // Using this as a workaround until parser gets better regex support
                         f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[^:, ]*", "FieldValue"));
-                        
                     }
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE:
                     {
                         std::string doc = f_field->options().DebugString();
                         f_fieldGrammar->setDocument(OutputFormatter::getOptionString(doc));
-                        std::cout << "f_fieldGrammar message: "<< f_fieldGrammar->toString() << std::endl;
-                        std::cout << "f_fieldGrammar message doc: "<< f_fieldGrammar->getDocument() << std::endl;
+                        //std::cout << "f_fieldGrammar message: "<< f_fieldGrammar->toString() << std::endl;
+                        //std::cout << "f_fieldGrammar message doc: "<< f_fieldGrammar->getDocument() << std::endl;
                         ArgParse::GrammarFactory grammarFactory(m_grammar);
 
                         //auto fieldsAlt = getMessageGrammar(f_field->message_type());
@@ -263,8 +262,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 //std::cerr << "Iterating field " << std::to_string(i) << " of message " << f_messageDescriptor->name() << "with name: '" << field->name() <<"'"<< std::endl;
 
                 // now we add grammar to the fieldsAlt alternation:
-                auto fieldGrammar = m_grammar.createElement<Concatenation>("Field"); //concatenation 
-                //fieldGrammar->addChild(m_grammar.createElement<FixedString>(field->options().DebugString(), "Document"));
+                auto fieldGrammar = m_grammar.createElement<Concatenation>("Field"); //concatenation
                 fieldGrammar->addChild(m_grammar.createElement<FixedString>(field->name(), "FieldName"));
                 fieldGrammar->addChild(m_grammar.createElement<FixedString>("="));
                 fieldsAlt->addChild(fieldGrammar);
@@ -299,11 +297,11 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                     //std::cout << "outer fieldGrammar doc: "<< fieldGrammar->getDocument() << std::endl;
                 }
 
-                for(auto child : message->getChildren())
-                {
-                    std::cout << "message child: "<< child->toString() << std::endl;
-                    std::cout << "message child document: "<< child->getDocument() << std::endl;
-                }
+                // for(auto child : message->getChildren())
+                // {
+                //     std::cout << "message child: "<< child->toString() << std::endl;
+                //     std::cout << "message child document: "<< child->getDocument() << std::endl;
+                // }
 
             }
 
@@ -355,7 +353,7 @@ class GrammarInjectorMethods : public GrammarInjector
                 for (int i = 0; i < service->method_count(); ++i)
                 {
                     result->addChild(m_grammar.createElement<FixedString>(service->method(i)->name()));
-                    std::cout << "method " << i << ": " << service->method(i)->name() << std::endl;
+                    //std::cout << "method " << i << ": " << service->method(i)->name() << std::endl;
                 }
             }
             else

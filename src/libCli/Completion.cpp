@@ -33,25 +33,64 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
     {
         std::string candidateStr = candidate->getMatchedString();
 
-        while(candidate->getGrammarElement()->getDocument() == "")
+        // if(f_debug)
+        // {
+        //     std::cout << "------------------------------------------------" << std::endl;
+        //     std::cout << "candiate string: " << candidateStr << std::endl;
+        //     std::cout << "candiate's debug string: " << std::endl;
+        //     std::cout << candidate->getDebugString() << std::endl;
+        //     std::cout << "------------------------------------------------" << std::endl;
+        // }
+
+        ParsedElement * rightMost = candidate.get();
+        while(rightMost->getChildren().size()!=0)
         {
-            if(candidate->getParent())
+            rightMost = rightMost->getChildren().back().get();
+        };
+
+        std::string suggestionDoc = rightMost->getGrammarElement()->getDocument();
+        ParsedElement * parent = rightMost->getParent();
+        while(suggestionDoc == "")
+        {
+            if(parent->getGrammarElement()->getDocument() != "")
             {
-                candidate = std::shared_ptr<ParsedElement>(candidate->getParent());
-            } 
+                suggestionDoc = parent->getGrammarElement()->getDocument();
+            }
+            else
+            {
+                auto children = parent->getChildren();
+                if(children.size() > 1)
+                {
+                    auto child_iter = children.end()-1;
+                    while (child_iter != children.begin())
+                    {
+                        if((*child_iter)->getGrammarElement()->getDocument() != "")
+                        {
+                            suggestionDoc = (*child_iter)->getGrammarElement()->getDocument();
+                            break;
+                        }
+                        --child_iter;
+                    }
+                }
+            }
+
+            if(parent != parent->getParent())
+            {
+                parent = parent->getParent();
+            }
             else
             {
                 break;
             }
         }
-        
-        std::string suggestionDoc = candidate->getGrammarElement()->getDocument();
+
         std::string suggestion;
         size_t start = n;
         size_t end;
 
         if(f_debug)
         {
+            std::cout << "suggestionDoc: " << suggestionDoc << std::endl;
             printf("pre: '%s'\n", candidateStr.c_str());
             printf("candidateStr[n=%zu] = '%c'\n", n, candidateStr[n]);
         }
@@ -72,12 +111,17 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         size_t trimEnd = suggestion.find_last_not_of(' ');
         suggestion = suggestion.substr(0, trimEnd+1);
         //suggestion = candidateStr.substr(start, end-start+1);
-        suggestion = suggestion + "\t" + suggestionDoc + "'\n";
+
+        if(suggestionDoc != "")
+        {
+            suggestion = suggestion + "\t" + suggestionDoc;
+        }
+
         if(f_debug)
         {
             printf("post: '%s'\n", suggestion.c_str());
         }
-       // NOTE: be careful when adding description (tab-delimiter) here, as
+        // NOTE: be careful when adding description (tab-delimiter) here, as
         // fish summarizes all options with same description
         printf("%s\n", suggestion.c_str());
     }

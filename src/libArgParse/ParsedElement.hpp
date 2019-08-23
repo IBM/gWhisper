@@ -52,7 +52,6 @@ class ParsedElement
         void setGrammarElement(GrammarElement * f_grammarElement)
         {
             m_grammarElement = f_grammarElement;
-            //m_matchedStringDoc = "set test doc when set grammer element";
         }
 
         ParsedElement & addChild(std::shared_ptr<ParsedElement> f_element)
@@ -151,7 +150,6 @@ class ParsedElement
 
             return result;
         }
-
         void setStops()
         {
             if(m_children.size() == 0)

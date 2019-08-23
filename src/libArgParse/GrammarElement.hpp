@@ -75,20 +75,14 @@ class GrammarElement
         virtual std::string toString()
         {
             std::string result;
-            //result = m_typeName + "(" + m_elementName + ":" + std::to_string(m_instanceId) + ")" + "{";
+            result = m_typeName + "(" + m_elementName + ":" + std::to_string(m_instanceId) + ")" + "{";
             for(auto child: m_children)
             {
                 result += child->toString();
-                //result += "\n";
-                //result += ", ";
+                result += ", ";
             }
-            //result += "}";
+            result += "}";
             return result;
-        }
-
-        virtual std::string getName()
-        {
-            return "";
         }
 
         // TODO: maybe we should return a pointer to the newly added child here.
@@ -121,19 +115,15 @@ class GrammarElement
         {
             return m_elementName;
         }
-        
+
         std::string getDocument() const
         {
             return m_document;
         }
 
-        void setDocument(std::string f_document)
+        void setDocument(const std::string & f_document)
         {
             m_document = f_document;
-        }
-        std::vector< GrammarElement * > getChildren()
-        {
-            return m_children;
         }
 
         virtual ~GrammarElement()
