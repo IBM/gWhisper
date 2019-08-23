@@ -53,22 +53,22 @@ class RegEx : public GrammarElement
 
         virtual std::string toString() override
         {
-            std::string result = "";
-            // if(m_elementName != "")
-            // {
-            //     result = "/" + m_elementName + ":" + std::to_string(m_instanceId) + "/";
-            // }
-            // else if(m_regExString != "")
-            // {
-            //     result += "/";
-            //     result += m_regExString;
-            //     result += "/";
+            std::string result;
+            if(m_elementName != "")
+            {
+                result = "/" + m_elementName + ":" + std::to_string(m_instanceId) + "/";
+            }
+            else if(m_regExString != "")
+            {
+                result += "/";
+                result += m_regExString;
+                result += "/";
 
-            // }
-            // else
-            // {
-            //     result = m_typeName + "(UnnamedRegex:" + std::to_string(m_instanceId) + ")";
-            // }
+            }
+            else
+            {
+                result = m_typeName + "(UnnamedRegex:" + std::to_string(m_instanceId) + ")";
+            }
             return result;
         }
 

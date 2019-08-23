@@ -23,7 +23,7 @@ std::string ArgParse::ParsedElement::getDebugString(const std::string & f_prefix
     {
         return "!!Uninitialized Element!!";
     }
-    result += f_prefix + m_grammarElement->getTypeName() + "(" + m_grammarElement->getElementName() + "): \"" + getMatchedString() + "\" (" + std::string(m_stops ? "stopped" : "alive") + ")\n";
+    result += f_prefix + m_grammarElement->getTypeName() + "(" + m_grammarElement->getElementName() + "): \"" + " document: " + m_grammarElement->getDocument() + " matched string: " +getMatchedString() + "\" (" + std::string(m_stops ? "stopped" : "alive") + ")\n";
     for(auto child : m_children)
     {
         result += child->getDebugString(f_prefix + "  ");

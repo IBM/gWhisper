@@ -242,13 +242,13 @@ message NestedMaps
     option (my_message) = "This is NestedMaps";
     message SubMessage
     {
-        map<uint32, uint32> simple_map_int = 1 [ (doc) = "It's simple_map_int of sub_message"];
-        map<string, uint32> simple_map_string = 2 [ (doc) = "It's simple_map_string of sub_message"];
+        map<uint32, uint32> simple_map_int = 1 [ (doc) = "It is simple_map_int of sub_message"];
+        map<string, uint32> simple_map_string = 2 [ (doc) = "It is simple_map_string of sub_message"];
     }
-    NumberAndString number_and_string = 1 [ (doc) = "it's number and string, input integer"];
-    SubMessage sub_message = 2 [ (doc) = "it's sub message"];
-    map<uint32, uint32> simple_map_int = 3 [ (doc) = "it's simple map integer"];
-    map<string, uint32> simple_map_string = 4 [ (doc) = "it's simple map string"];
+    NumberAndString number_and_string = 1 [ (doc) = "It is number and string"];
+    SubMessage sub_message = 2 [ (doc) = "It is sub message"];
+    map<uint32, uint32> simple_map_int = 3 [ (doc) = "It is simple map integer"];
+    map<string, uint32> simple_map_string = 4 [ (doc) = "It is simple map string"];
 }
 
 message RecursiveMaps

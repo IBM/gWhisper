@@ -27,10 +27,10 @@ class Concatenation : public GrammarElement
         virtual std::string toString() override
         {
             std::string result;
-            // if(m_children.size()>1)
-            // {
-            //     result += "(";
-            // }
+            if(m_children.size()>1)
+            {
+                result += "(";
+            }
             //bool first = true;
             for(auto child: m_children)
             {
@@ -44,10 +44,10 @@ class Concatenation : public GrammarElement
                 //}
                 result += child->toString();
             }
-            // if(m_children.size()>1)
-            // {
-            //     result += ")";
-            // }
+            if(m_children.size()>1)
+            {
+                result += ")";
+            }
             return result;
         }
 
@@ -67,7 +67,7 @@ class Concatenation : public GrammarElement
 
                 auto newParsedElement = std::make_shared<ParsedElement>(&f_out_ParsedElement);
                 childRc = child->parse(&f_string[rc.lenParsed], *newParsedElement);
-                //std::cout << " Concat "<< std::to_string(m_instanceId) <<  " parsed child: " << std::to_string(i) << "child value: " << child->getElementName() << "type name: " << child->getTypeName() << " rc=" << childRc.toString() << " #candidates: " << std::to_string(childRc.candidates.size()) << std::endl;
+                //std::cout << " Concat "<< std::to_string(m_instanceId) <<  " parsed child" << std::to_string(i) << " rc=" << childRc.toString() << " #candidates: " << std::to_string(childRc.candidates.size()) << std::endl;
                 rc.lenParsed += childRc.lenParsed;
                 rc.lenParsedSuccessfully += childRc.lenParsedSuccessfully;
                 if(childRc.isBad() && childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
@@ -86,13 +86,7 @@ class Concatenation : public GrammarElement
                         // we create a new candidate (same tree level as f_out_ParsedElement)
                         auto candidateRoot = std::make_shared<ParsedElement>(f_out_ParsedElement.getParent());
                         candidateRoot->setGrammarElement(this);
-                       // std::cout << "candidate: " << candidate->getMatchedString() << std::endl;
-                        if (candidate->getMatchedString().find(candidate->getMatchedString()) != std::string::npos)
-                        {
-                           // std::cout << "find out!!!!!" << std::endl;
-                           // candidate->setMatchedStringDoc(candidate->getMatchedStringDoc());
-                        }
-                        // std::cout << "candidate document: " << candidate->getMatchedStringDoc() << std::endl;
+
                         // first add all previous childs to the new root (from concatenation before the failing element):
                         for(auto oldChild : f_out_ParsedElement.getChildren())
                         {
@@ -132,7 +126,7 @@ class Concatenation : public GrammarElement
                             else if(candidateRc.candidates.size() == 1)
                             {
                                 rc.candidates.push_back(candidateRc.candidates[0]);
-                               // std::cout << "Concat " << std::to_string(m_instanceId) << " 1push candidate '" << candidateRc.candidates[0]->getMatchedString() << "string Doc: "<< candidateRc.candidates[0]->getMatchedStringDoc() << "'" << std::endl; 
+                                //std::cout << "Concat " << std::to_string(m_instanceId) << " 1push candidate '" << candidateRc.candidates[0]->getMatchedString() << "'" << std::endl; 
                             }
                             else
                             {
@@ -141,7 +135,7 @@ class Concatenation : public GrammarElement
                                 for(auto cnd : candidateRc.candidates)
                                 {
                                     rc.candidates.push_back(cnd);
-                                    //std::cout << "Concat " << std::to_string(m_instanceId) << " cnd Mpush candidate '" << cnd->getMatchedString() << "'" << std::endl; 
+                                    //std::cout << "Concat " << std::to_string(m_instanceId) << " Mpush candidate '" << candidateRc.candidates[0]->getMatchedString() << "'" << std::endl;
                                 }
                             }
                         }

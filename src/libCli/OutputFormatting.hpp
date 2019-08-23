@@ -204,4 +204,3 @@ template <typename T> static void dumpBinaryIntoString(std::string &f_destinatio
     f_destination.resize(sizeof(T));
     std::memcpy(&(f_destination[0]), &f_source, sizeof(T));
 }
-
