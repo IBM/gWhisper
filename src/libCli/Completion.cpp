@@ -19,6 +19,79 @@ using namespace ArgParse;
 namespace cli
 {
 
+void searchChilden(ArgParse::ParsedElement * f_parseElememt, std::string & f_out_document)
+{
+    std::string childDoc = f_parseElememt->getGrammarElement()->getDocument();
+    if(childDoc != "" )
+    {
+        size_t trimStart = childDoc.find_first_not_of('\n');
+        size_t trimEnd = childDoc.find_last_not_of(' ');
+        childDoc = childDoc.substr(trimStart);
+        childDoc = childDoc.substr(0, trimEnd+1);
+        f_out_document += childDoc;
+    }
+
+    auto& childen = f_parseElememt->getChildren();
+
+    if(childen.size() > 0)
+    {
+        for(auto& child: childen)
+        {
+            searchChilden(child.get(), f_out_document);
+        }
+    }
+}
+
+ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElememt)
+{
+    ParsedElement * rightMost = f_parseElememt;
+    while(rightMost->getChildren().size()!=0)
+    {
+        rightMost = rightMost->getChildren().back().get();
+    };
+
+    return rightMost;
+}
+
+void searchParent(ArgParse::ParsedElement * f_parseElememt, std::string & f_out_document)
+{
+    ParsedElement * rightMost = findRightMost(f_parseElememt);
+    f_out_document = rightMost->getGrammarElement()->getDocument();
+    ParsedElement * parent = rightMost->getParent();
+    while(f_out_document == "")
+    {
+        if(parent->getGrammarElement()->getDocument() != "")
+        {
+            f_out_document = parent->getGrammarElement()->getDocument();
+        }
+        else
+        {
+            auto children = parent->getChildren();
+            if(children.size() > 0)
+            {
+                auto child_iter = children.end()-1;
+                while (child_iter != children.begin())
+                {
+                    if((*child_iter)->getGrammarElement()->getDocument() != "")
+                    {
+                        f_out_document = (*child_iter)->getGrammarElement()->getDocument();
+                        break;
+                    }
+                    --child_iter;
+                }
+            }
+        }
+        if(parent != parent->getParent())
+        {
+            parent = parent->getParent();
+        }
+        else
+        {
+            break;
+        }
+    }
+}
+
 void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_candidates, ParsedElement & f_parseTree, const std::string & f_args, bool f_debug)
 {
     // completion requested :)
@@ -33,60 +106,28 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
     {
         std::string candidateStr = candidate->getMatchedString();
 
-        // if(f_debug)
-        // {
-        //     std::cout << "------------------------------------------------" << std::endl;
-        //     std::cout << "candiate string: " << candidateStr << std::endl;
-        //     std::cout << "candiate's debug string: " << std::endl;
-        //     std::cout << candidate->getDebugString() << std::endl;
-        //     std::cout << "------------------------------------------------" << std::endl;
-        // }
-
-        ParsedElement * rightMost = candidate.get();
-        while(rightMost->getChildren().size()!=0)
+        if(f_debug)
         {
-            rightMost = rightMost->getChildren().back().get();
-        };
-
-        std::string suggestionDoc = rightMost->getGrammarElement()->getDocument();
-        ParsedElement * parent = rightMost->getParent();
-        while(suggestionDoc == "")
-        {
-            if(parent->getGrammarElement()->getDocument() != "")
-            {
-                suggestionDoc = parent->getGrammarElement()->getDocument();
-            }
-            else
-            {
-                auto children = parent->getChildren();
-                if(children.size() > 1)
-                {
-                    auto child_iter = children.end()-1;
-                    while (child_iter != children.begin())
-                    {
-                        if((*child_iter)->getGrammarElement()->getDocument() != "")
-                        {
-                            suggestionDoc = (*child_iter)->getGrammarElement()->getDocument();
-                            break;
-                        }
-                        --child_iter;
-                    }
-                }
-            }
-
-            if(parent != parent->getParent())
-            {
-                parent = parent->getParent();
-            }
-            else
-            {
-                break;
-            }
+            std::cout << "------------------------------------------------" << std::endl;
+            std::cout << "candiate string: " << candidateStr << std::endl;
+            std::cout << "candiate's debug string: " << std::endl;
+            std::cout << candidate->getDebugString() << std::endl;
+            std::cout << "------------------------------------------------" << std::endl;
         }
 
         std::string suggestion;
         size_t start = n;
         size_t end;
+
+        std::string suggestionDoc;
+        std::string fieldDoc;
+        searchChilden(candidate.get(), suggestionDoc);
+        searchParent(candidate.get(), fieldDoc);
+        if(suggestionDoc != "" && fieldDoc != "" && suggestionDoc.find(fieldDoc) != std::string::npos)
+        {
+             suggestionDoc = fieldDoc;
+        }
+
 
         if(f_debug)
         {

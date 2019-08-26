@@ -130,22 +130,26 @@ enum Colors
 
 message RepeatedNumberAndString
 {
-    repeated NumberAndString number_and_strings = 1;
+    option (my_message) = "This is RepeatedNumberAndString";
+    repeated NumberAndString number_and_strings = 1 [ (doc) = "It is repeated NumberAndString"];
 }
 
 message RepeatedNumbers
 {
-    repeated uint32 numbers = 1;
+    option (my_message) = "This is RepeatedNumbers";
+    repeated uint32 numbers = 1 [ (doc) = "It is numbers"];
 }
 
 message NumberMap
 {
-    map<uint32, string> number_to_string = 1;
+    option (my_message) = "This is NumberMap";
+    map<uint32, string> number_to_string = 1 [ (doc) = "It is number to string"];
 }
 
 message RepeatedColors
 {
-    repeated Colors colors = 1;
+    option (my_message) = "This is RepeatedColors";
+    repeated Colors colors = 1 [ (doc) = "It is repeated colors"];
 }
 
 message ColorEnum
@@ -225,6 +229,7 @@ message NumberAndString
 
 message NestedMessage1d
 {
+    option (my_message) = "This is NestedMessage1d";
     Numbers some_numbers = 1;
     NumberAndString number_and_string = 2;
     string str = 3;
@@ -232,6 +237,7 @@ message NestedMessage1d
 
 message NestedMessage2d
 {
+    option (my_message) = "This is NestedMessage2d";
     NestedMessage1d sub_tree = 1;
     NumberAndString number_and_string = 2;
     string str = 3;
@@ -253,6 +259,7 @@ message NestedMaps
 
 message RecursiveMaps
 {
+    option (my_message) = "This is RecursiveMaps";
     NumberAndString number_and_string = 1;
     map<uint32, RecursiveMaps> complex_map = 2;
     map<uint32, uint32> simple_map_int = 3;
@@ -261,5 +268,6 @@ message RecursiveMaps
 
 message NestedEmpty
 {
+    option (my_message) = "This is NestedEmpty";
     google.protobuf.Empty emptyChild = 1;
 }

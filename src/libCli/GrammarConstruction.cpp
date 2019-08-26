@@ -193,8 +193,6 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                     {
                         std::string doc = f_field->options().DebugString();
                         f_fieldGrammar->setDocument(OutputFormatter::getOptionString(doc));
-                        //std::cout << "f_fieldGrammar message: "<< f_fieldGrammar->toString() << std::endl;
-                        //std::cout << "f_fieldGrammar message doc: "<< f_fieldGrammar->getDocument() << std::endl;
                         ArgParse::GrammarFactory grammarFactory(m_grammar);
 
                         //auto fieldsAlt = getMessageGrammar(f_field->message_type());
@@ -352,8 +350,14 @@ class GrammarInjectorMethods : public GrammarInjector
             {
                 for (int i = 0; i < service->method_count(); ++i)
                 {
-                    result->addChild(m_grammar.createElement<FixedString>(service->method(i)->name()));
-                    //std::cout << "method " << i << ": " << service->method(i)->name() << std::endl;
+                    auto childAlt = m_grammar.createElement<FixedString>(service->method(i)->name());
+                    std::string doc = service->method(i)->input_type()->options().DebugString();
+                    childAlt->setDocument(OutputFormatter::getOptionString(doc));
+                    result->addChild(childAlt);
+                    // if(doc != "")
+                    // {
+                    //     result->setDocument(OutputFormatter::getOptionString(doc));
+                    // }
                 }
             }
             else
