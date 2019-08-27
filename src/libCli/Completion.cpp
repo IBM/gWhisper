@@ -19,9 +19,9 @@ using namespace ArgParse;
 namespace cli
 {
 
-void searchChilden(ArgParse::ParsedElement * f_parseElememt, std::string & f_out_document)
+void searchChilden(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document)
 {
-    std::string childDoc = f_parseElememt->getGrammarElement()->getDocument();
+    std::string childDoc = f_parseElement->getGrammarElement()->getDocument();
     if(childDoc != "" )
     {
         size_t trimStart = childDoc.find_first_not_of('\n');
@@ -31,7 +31,7 @@ void searchChilden(ArgParse::ParsedElement * f_parseElememt, std::string & f_out
         f_out_document += childDoc;
     }
 
-    auto& childen = f_parseElememt->getChildren();
+    auto& childen = f_parseElement->getChildren();
 
     if(childen.size() > 0)
     {
@@ -42,9 +42,9 @@ void searchChilden(ArgParse::ParsedElement * f_parseElememt, std::string & f_out
     }
 }
 
-ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElememt)
+ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement)
 {
-    ParsedElement * rightMost = f_parseElememt;
+    ParsedElement * rightMost = f_parseElement;
     while(rightMost->getChildren().size()!=0)
     {
         rightMost = rightMost->getChildren().back().get();
@@ -53,9 +53,9 @@ ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElememt
     return rightMost;
 }
 
-void searchParent(ArgParse::ParsedElement * f_parseElememt, std::string & f_out_document)
+void searchParent(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document)
 {
-    ParsedElement * rightMost = findRightMost(f_parseElememt);
+    ParsedElement * rightMost = findRightMost(f_parseElement);
     f_out_document = rightMost->getGrammarElement()->getDocument();
     ParsedElement * parent = rightMost->getParent();
     while(f_out_document == "")

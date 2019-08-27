@@ -19,11 +19,11 @@
 
 namespace cli
 {
-    void searchChilden(ArgParse::ParsedElement * f_parseElememt, std::string & f_out_document);
+    void searchChilden(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document);
 
-    void searchParent(ArgParse::ParsedElement * f_parseElememt, std::string & f_out_document);
+    void searchParent(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document);
 
-    ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElememt);
+    ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement);
 
     /// Function which prints bash completions to stdout for given list of parseTrees.
     /// NOTE: this is not calculationg completions, it merely formats existing completion results
