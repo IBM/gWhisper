@@ -354,10 +354,6 @@ class GrammarInjectorMethods : public GrammarInjector
                     std::string doc = service->method(i)->input_type()->options().DebugString();
                     childAlt->setDocument(OutputFormatter::getOptionString(doc));
                     result->addChild(childAlt);
-                    // if(doc != "")
-                    // {
-                    //     result->setDocument(OutputFormatter::getOptionString(doc));
-                    // }
                 }
             }
             else
@@ -414,7 +410,11 @@ class GrammarInjectorServices : public GrammarInjector
             auto result = m_grammar.createElement<Alternation>();
             for(auto service : serviceList)
             {
-                result->addChild(m_grammar.createElement<FixedString>(service));
+                auto childAlt = m_grammar.createElement<FixedString>(service);
+                const grpc::protobuf::ServiceDescriptor* m_service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(service);
+                std::string doc = m_service->options().DebugString();
+                childAlt->setDocument(OutputFormatter::getOptionString(doc));
+                result->addChild(childAlt);
             }
             return result;
         };

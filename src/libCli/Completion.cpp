@@ -19,29 +19,7 @@ using namespace ArgParse;
 namespace cli
 {
 
-void searchChilden(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document)
-{
-    std::string childDoc = f_parseElement->getGrammarElement()->getDocument();
-    if(childDoc != "" )
-    {
-        size_t trimStart = childDoc.find_first_not_of('\n');
-        size_t trimEnd = childDoc.find_last_not_of(' ');
-        childDoc = childDoc.substr(trimStart);
-        childDoc = childDoc.substr(0, trimEnd+1);
-        f_out_document += childDoc;
-    }
-
-    auto& childen = f_parseElement->getChildren();
-
-    if(childen.size() > 0)
-    {
-        for(auto& child: childen)
-        {
-            searchChilden(child.get(), f_out_document);
-        }
-    }
-}
-
+//not uesd
 ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement)
 {
     ParsedElement * rightMost = f_parseElement;
@@ -53,6 +31,7 @@ ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement
     return rightMost;
 }
 
+// not used
 void searchParent(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document)
 {
     ParsedElement * rightMost = findRightMost(f_parseElement);
@@ -92,6 +71,45 @@ void searchParent(ArgParse::ParsedElement * f_parseElement, std::string & f_out_
     }
 }
 
+std::string searchDocument(ArgParse::ParsedElement * f_parseElement)
+{
+    std::string service_document;
+    std::string method_document;
+    std::string field_document;
+
+    bool service_found;
+    bool method_found;
+    bool message_found;
+
+    auto service_tree = f_parseElement->findFirstSubTree("Service", service_found);
+    auto method_tree = f_parseElement->findFirstSubTree("Method", method_found);
+    auto message_tree = f_parseElement->findFirstSubTree("Message", message_found);
+
+    // std::string service_document = f_parseElement->findDocumentIncomplete("Service");
+    // std::string method_document = f_parseElement->findDocumentIncomplete("Method");
+    // std::string message_document = f_parseElement->findDocumentIncomplete("Message");
+
+    if(&service_tree and &method_tree and &message_tree)
+    {
+        searchChilden(&service_tree, service_document);
+        searchChilden(&method_tree, method_document, service_document);
+        searchChilden(&message_tree, field_document, service_document, method_document);
+        // std::cout << "service_document: " << service_document << std::endl;
+        // std::cout << "method_document: " << method_document << std::endl;
+        // std::cout << "field_document: " << field_document << std::endl;
+
+        if(!field_document.empty()){
+            return field_document;
+        }
+        else if(!method_document.empty())
+        {
+            return method_document;
+        }
+        return service_document;
+    }
+}
+
+
 void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_candidates, ParsedElement & f_parseTree, const std::string & f_args, bool f_debug)
 {
     // completion requested :)
@@ -119,15 +137,7 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         size_t start = n;
         size_t end;
 
-        std::string suggestionDoc;
-        std::string fieldDoc;
-        searchChilden(candidate.get(), suggestionDoc);
-        searchParent(candidate.get(), fieldDoc);
-        if(suggestionDoc != "" && fieldDoc != "" && suggestionDoc.find(fieldDoc) != std::string::npos)
-        {
-             suggestionDoc = fieldDoc;
-        }
-
+        std::string suggestionDoc = searchDocumentComplex(candidate.get());
 
         if(f_debug)
         {

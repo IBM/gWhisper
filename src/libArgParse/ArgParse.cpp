@@ -45,6 +45,45 @@ std::string ArgParse::ParsedElement::findFirstChild(const std::string & f_elemen
     }
 }
 
+std::string ArgParse::ParsedElement::findChildDocument(ArgParse::ParsedElement * f_parseElement, uint32_t f_depth)
+{
+    std::string document = f_parseElement->getGrammarElement()->getDocument();
+    if(!document.empty())
+    {
+        size_t trimStart = document.find_first_not_of('\n');
+        size_t trimEnd = document.find_last_not_of(' ');
+        document = document.substr(trimStart);
+        document = document.substr(0, trimEnd+1);
+    }
+    else
+    {
+        auto& childen = f_parseElement->getChildren();
+
+        if(childen.size() > 0)
+        {
+            for(auto& child: childen)
+            {
+                document = findChildDocument(child.get());
+            }
+        }
+    }
+    return document;
+}
+
+std::string ArgParse::ParsedElement::findDocumentIncomplete(const std::string & f_elementName, uint32_t f_depth)
+{
+    bool found = false;
+    ArgParse::ParsedElement & sub_tree = findFirstSubTree(f_elementName, found, f_depth);
+    if(found)
+    {
+       return findChildDocument(&sub_tree, f_depth);
+    }
+    else
+    {
+        return "";
+    }
+}
+
 void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements, uint32_t f_depth)
 {
     if(m_grammarElement->getElementName() == f_elementName)

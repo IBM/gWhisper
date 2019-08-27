@@ -86,6 +86,10 @@ class ParsedElement
             return m_children;
         }
 
+        std::string findChildDocument(ArgParse::ParsedElement * f_parseElement, uint32_t f_depth = std::numeric_limits<uint32_t>::max());
+
+        std::string findDocumentIncomplete(const std::string & f_elementName, uint32_t f_depth = std::numeric_limits<uint32_t>::max());
+
         /// depth first search for a single element, directly returning the matched string.
         /// @param f_elementName element name to search for (inherited from grammar element)
         /// @param f_depth The maximum depth which should still be searched.

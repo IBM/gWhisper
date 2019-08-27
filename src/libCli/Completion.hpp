@@ -19,11 +19,49 @@
 
 namespace cli
 {
-    void searchChilden(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document);
+    template<typename... Args>
+    void searchChilden(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document, Args...f_compared_string)
+    {
+        std::string childDoc = f_parseElement->getGrammarElement()->getDocument();
+        if(!childDoc.empty())
+        {
+            std::string delims = " \n\t";
+            size_t trimStart = childDoc.find_first_not_of(delims);
+            childDoc = childDoc.substr(trimStart);
+            size_t trimEnd = childDoc.find_last_not_of(delims);
+            childDoc = childDoc.substr(0, trimEnd+1);
+
+            std::vector<std::string> list = {f_compared_string...};
+            for(auto& compared : list)
+            {
+                if(compared.find(childDoc) != std::string::npos)
+                {
+                    return;
+                }
+                else
+                {
+                    f_out_document = childDoc;
+                }
+            }
+        }
+        else
+        {
+            auto& childen = f_parseElement->getChildren();
+            if(childen.size() > 0)
+            {
+                for(auto& child: childen)
+                {
+                    searchChilden(child.get(), f_out_document, std::forward<Args>(f_compared_string)...);
+                }
+            }
+        }
+    }
 
     void searchParent(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document);
 
     ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement);
+
+    std::string searchDocument(ArgParse::ParsedElement * f_parseElement);
 
     /// Function which prints bash completions to stdout for given list of parseTrees.
     /// NOTE: this is not calculationg completions, it merely formats existing completion results
