@@ -19,12 +19,36 @@ using namespace ArgParse;
 namespace cli
 {
 
+void abstractDocTree(ArgParse::ParsedElement * f_parseElement, std::vector<document_info> & f_out_documents, std::vector<coordinate> f_path, uint32_t f_depth, uint32_t f_numberOfNode)
+{
+    if(f_parseElement == nullptr) return;
+    ArgParse::ParsedElement * cursor = f_parseElement;
+    document_info docInfo;
+    coordinate node = {f_depth, f_numberOfNode};
+    f_path.push_back(node);
+    docInfo.document = cursor->getGrammarElement()->getDocument();
+
+    if(!docInfo.document.empty())
+    {
+        docInfo.path = f_path;
+        f_out_documents.push_back(docInfo);
+    }
+
+    auto children = cursor->getChildren();
+
+    for(int i = 0; i < children.size(); ++i)
+    {
+        abstractDocTree(children[i].get(), f_out_documents, f_path, f_depth+1, i);
+    }
+}
+
 //not uesd
-ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement)
+ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement, uint32_t &  f_depth)
 {
     ParsedElement * rightMost = f_parseElement;
     while(rightMost->getChildren().size()!=0)
     {
+        f_depth++;
         rightMost = rightMost->getChildren().back().get();
     };
 
@@ -34,7 +58,8 @@ ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement
 // not used
 void searchParent(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document)
 {
-    ParsedElement * rightMost = findRightMost(f_parseElement);
+    uint32_t depth = 0;
+    ParsedElement * rightMost = findRightMost(f_parseElement, depth);
     f_out_document = rightMost->getGrammarElement()->getDocument();
     ParsedElement * parent = rightMost->getParent();
     while(f_out_document == "")
@@ -77,36 +102,53 @@ std::string searchDocument(ArgParse::ParsedElement * f_parseElement)
     std::string method_document;
     std::string field_document;
 
-    bool service_found;
-    bool method_found;
-    bool message_found;
+    // bool service_found;
+    // bool method_found;
+    // bool message_found;
 
-    auto service_tree = f_parseElement->findFirstSubTree("Service", service_found);
-    auto method_tree = f_parseElement->findFirstSubTree("Method", method_found);
-    auto message_tree = f_parseElement->findFirstSubTree("Message", message_found);
+    // auto service_tree = f_parseElement->findFirstSubTree("Service", service_found);
+    // auto method_tree = f_parseElement->findFirstSubTree("Method", method_found);
+    // auto message_tree = f_parseElement->findFirstSubTree("Message", message_found);
 
     // std::string service_document = f_parseElement->findDocumentIncomplete("Service");
     // std::string method_document = f_parseElement->findDocumentIncomplete("Method");
     // std::string message_document = f_parseElement->findDocumentIncomplete("Message");
 
-    if(&service_tree and &method_tree and &message_tree)
-    {
-        searchChilden(&service_tree, service_document);
-        searchChilden(&method_tree, method_document, service_document);
-        searchChilden(&message_tree, field_document, service_document, method_document);
-        // std::cout << "service_document: " << service_document << std::endl;
-        // std::cout << "method_document: " << method_document << std::endl;
-        // std::cout << "field_document: " << field_document << std::endl;
+    // std::map<std::pair<uint32_t, uint32_t>, std::string> documents = {{std::make_pair(0, 0), ""}};
+    std::vector<document_info> documents;
+    std::vector<coordinate> paths;
 
-        if(!field_document.empty()){
-            return field_document;
-        }
-        else if(!method_document.empty())
+    abstractDocTree(f_parseElement, documents, paths, 0, 0);
+    for(auto& document_info : documents)
+    {
+        for(auto& node: document_info.path)
         {
-            return method_document;
+            std::cout << "(" << node.level << ", " << node.order << ")->";
         }
-        return service_document;
+        std::cout << document_info.document << std::endl;
     }
+
+    // if(&service_tree and &method_tree and &message_tree)
+    // {
+    //     searchChilden(&service_tree, service_document);
+    //     searchChilden(&method_tree, method_document, service_document);
+    //     searchChilden(&message_tree, field_document, service_document, method_document);
+    //     // std::cout << "service_document: " << service_document << std::endl;
+    //     // std::cout << "method_document: " << method_document << std::endl;
+    //     // std::cout << "field_document: " << field_document << std::endl;
+
+    //     if(!field_document.empty()){
+    //         return field_document;
+    //     }
+    //     else if(!method_document.empty())
+    //     {
+    //         return method_document;
+    //     }
+    //     return service_document;
+    // }
+
+    std::string document = "well";
+    return document;
 }
 
 
@@ -137,7 +179,7 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         size_t start = n;
         size_t end;
 
-        std::string suggestionDoc = searchDocumentComplex(candidate.get());
+        std::string suggestionDoc = searchDocument(candidate.get());
 
         if(f_debug)
         {

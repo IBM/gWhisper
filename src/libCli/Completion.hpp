@@ -19,17 +19,27 @@
 
 namespace cli
 {
+    typedef struct coordinate
+    {
+        uint32_t level;
+        uint32_t order;
+    } coordinate;
+
+    typedef struct document_info
+    {
+        std::vector<coordinate> path;
+        std::string document;
+    } document_info;
+
     template<typename... Args>
     void searchChilden(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document, Args...f_compared_string)
     {
         std::string childDoc = f_parseElement->getGrammarElement()->getDocument();
         if(!childDoc.empty())
         {
-            std::string delims = " \n\t";
-            size_t trimStart = childDoc.find_first_not_of(delims);
-            childDoc = childDoc.substr(trimStart);
-            size_t trimEnd = childDoc.find_last_not_of(delims);
-            childDoc = childDoc.substr(0, trimEnd+1);
+            std::string delims = "\r\n\t";
+            childDoc.erase(0, childDoc.find_first_not_of(delims));
+            childDoc.erase(childDoc.find_last_not_of(delims) + 1);
 
             std::vector<std::string> list = {f_compared_string...};
             for(auto& compared : list)
@@ -59,9 +69,12 @@ namespace cli
 
     void searchParent(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document);
 
-    ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement);
+    ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement, uint32_t & f_depth);
 
     std::string searchDocument(ArgParse::ParsedElement * f_parseElement);
+
+    void abstractDocTree(ArgParse::ParsedElement * f_parseElement, std::vector<document_info> & f_out_documents, std::vector<coordinate> f_path, uint32_t f_depth, uint32_t f_numberOfNode);
+
 
     /// Function which prints bash completions to stdout for given list of parseTrees.
     /// NOTE: this is not calculationg completions, it merely formats existing completion results
