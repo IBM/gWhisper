@@ -45,6 +45,16 @@ std::string ArgParse::ParsedElement::findFirstChild(const std::string & f_elemen
     }
 }
 
+ArgParse::ParsedElement * ArgParse::ParsedElement::findRightMostElement()
+{
+    ParsedElement * cursor = this;
+    while(cursor->getChildren().size()!=0)
+    {
+        cursor = cursor->getChildren().back().get();
+    };
+    return cursor;
+}
+
 std::string ArgParse::ParsedElement::findChildDocument(ArgParse::ParsedElement * f_parseElement, uint32_t f_depth)
 {
     std::string document = f_parseElement->getGrammarElement()->getDocument();
@@ -150,4 +160,105 @@ std::string ArgParse::Grammar::getDotGraph()
     }
     result += "}\n";
     return result;
+}
+
+///ParsedDocument
+void ArgParse::abstractDocTree(ParsedElement * f_parseElement, std::vector<DocumentInfo> & f_out_documents, std::vector<Coordinate> f_path, uint32_t f_depth, uint32_t f_index)
+{
+    if(f_parseElement == nullptr) return;
+    ArgParse::DocumentInfo document_info(f_parseElement);
+    ArgParse::Coordinate node = {f_depth, 0, f_index}; //no column info
+    f_path.push_back(node);
+
+    if(!f_parseElement->getGrammarElement()->getDocument().empty())
+    {
+        document_info.updatePath(f_path);
+        document_info.calculateStepFromRoot();
+        f_out_documents.push_back(document_info);
+    }
+    auto children = f_parseElement->getChildren();
+    for(int i = 0; i < children.size(); ++i)
+    {
+        abstractDocTree(children[i].get(), f_out_documents, f_path, f_depth+1, i);
+    }
+}
+
+void ArgParse::transToMatrix(const std::vector<DocumentInfo> & f_documents)
+{
+    int max_row = 0;
+    int max_column = 0;
+    for(auto& document_info : f_documents)
+    {
+        if(document_info.getPath().size() > max_row)
+        {
+            max_row = document_info.getPath().size();
+        }
+        if(document_info.getMaxStep() > max_column)
+        {
+            max_column = document_info.getMaxStep();
+        }
+    }
+
+    std::string document_matrix[max_row+1][max_column+1];
+    for(int i = 0; i < max_row+1; ++i)
+    {
+        for(int j = 0; j < max_column+1; ++j)
+        {
+            document_matrix[i][j] = "#";
+        }
+    }
+
+    for(auto& document_info : f_documents)
+    {
+        for(auto& node: document_info.getPath())
+        {
+                document_matrix[node.depth][node.step] = "*";
+        }
+        document_matrix[document_info.getPath().back().depth][document_info.getPath().back().step] = "d";
+    }
+
+    //output matrix
+    for(int i = 0; i < max_row+1; ++i)
+    {
+        for(int j = 0; j < max_column+1; ++j)
+        {
+            std::cout << document_matrix[i][j];
+        }
+        std::cout << std::endl;
+    }
+}
+
+std::string ArgParse::searchDocument(ParsedElement * f_parseElement, bool f_debug)
+{
+    std::vector<DocumentInfo> documents;
+    std::vector<Coordinate> paths;
+    ArgParse::abstractDocTree(f_parseElement, documents, paths, 0, 0);
+    if(f_debug)
+    {
+        for(auto & document_info : documents)
+        {
+            document_info.printPath();
+        }
+
+        ArgParse::transToMatrix(documents);// not used
+    }
+
+    auto rightmost_info = documents.back();
+    for(auto& document_info : documents)
+    {
+        std::vector<Coordinate>::iterator it;
+        std::vector<Coordinate>::iterator rightmost_it = rightmost_info.getPath().begin();
+
+        for(it = document_info.getPath().begin();it != document_info.getPath().end();)
+        {
+            if(it->depth == rightmost_it->depth and it->index > rightmost_it->index)
+            {
+                rightmost_info = document_info;
+                break;
+            }
+            ++it;
+            ++rightmost_it;
+        }
+    }
+    return rightmost_info.getParsedElement()->getGrammarElement()->getDocument();
 }

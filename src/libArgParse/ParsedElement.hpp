@@ -86,6 +86,9 @@ class ParsedElement
             return m_children;
         }
 
+        //not uesd
+        ParsedElement * findRightMostElement();
+
         std::string findChildDocument(ArgParse::ParsedElement * f_parseElement, uint32_t f_depth = std::numeric_limits<uint32_t>::max());
 
         std::string findDocumentIncomplete(const std::string & f_elementName, uint32_t f_depth = std::numeric_limits<uint32_t>::max());
@@ -133,6 +136,10 @@ class ParsedElement
         ///  f_depth=2 will check all children and their children
         ///  and so on.
         void findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements = false, uint32_t f_depth = std::numeric_limits<uint32_t>::max());
+
+        std::string getShortDocument();
+
+        std::string getLongDocument();
 
         void setParent(ParsedElement * f_parent)
         {

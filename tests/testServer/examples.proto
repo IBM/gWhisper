@@ -92,7 +92,7 @@ service NestedTypeRpcs
     option (my_service_option) = "This is service NestedTypeRpcs";
 
     rpc duplicateEverything1d (NestedMessage1d) returns (NestedMessage1d);
-    rpc duplicateEverything2d (NestedMessage2d) returns (NestedMessage2d); 
+    rpc duplicateEverything2d (NestedMessage2d) returns (NestedMessage2d);
     rpc nestedEmpty (NestedEmpty) returns (google.protobuf.Empty);
     rpc getTime (google.protobuf.Empty) returns (google.protobuf.Timestamp);
     rpc echoRecursiveMaps (RecursiveMaps) returns (RecursiveMaps);
@@ -102,7 +102,7 @@ service NestedTypeRpcs
 service StreamingRpcs
 {
     option (my_service_option) = "This is service StreamingRpcs";
-    
+
     // Returns a stream of <number> messages of type Empty, then closes the stream.
     rpc replyStreamEmpty (Uint32) returns (stream google.protobuf.Empty);
 
