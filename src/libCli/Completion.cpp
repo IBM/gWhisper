@@ -43,7 +43,7 @@ void abstractDocTree(ArgParse::ParsedElement * f_parseElement, std::vector<docum
 }
 
 //not uesd
-ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement, uint32_t &  f_depth)
+ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement, uint32_t & f_depth)
 {
     ParsedElement * rightMost = f_parseElement;
     while(rightMost->getChildren().size()!=0)
@@ -55,102 +55,33 @@ ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement
     return rightMost;
 }
 
-// not used
-void searchParent(ArgParse::ParsedElement * f_parseElement, std::string & f_out_document)
-{
-    uint32_t depth = 0;
-    ParsedElement * rightMost = findRightMost(f_parseElement, depth);
-    f_out_document = rightMost->getGrammarElement()->getDocument();
-    ParsedElement * parent = rightMost->getParent();
-    while(f_out_document == "")
-    {
-        if(parent->getGrammarElement()->getDocument() != "")
-        {
-            f_out_document = parent->getGrammarElement()->getDocument();
-        }
-        else
-        {
-            auto children = parent->getChildren();
-            if(children.size() > 0)
-            {
-                auto child_iter = children.end()-1;
-                while (child_iter != children.begin())
-                {
-                    if((*child_iter)->getGrammarElement()->getDocument() != "")
-                    {
-                        f_out_document = (*child_iter)->getGrammarElement()->getDocument();
-                        break;
-                    }
-                    --child_iter;
-                }
-            }
-        }
-        if(parent != parent->getParent())
-        {
-            parent = parent->getParent();
-        }
-        else
-        {
-            break;
-        }
-    }
-}
-
 std::string searchDocument(ArgParse::ParsedElement * f_parseElement)
 {
-    std::string service_document;
-    std::string method_document;
-    std::string field_document;
-
-    // bool service_found;
-    // bool method_found;
-    // bool message_found;
-
-    // auto service_tree = f_parseElement->findFirstSubTree("Service", service_found);
-    // auto method_tree = f_parseElement->findFirstSubTree("Method", method_found);
-    // auto message_tree = f_parseElement->findFirstSubTree("Message", message_found);
-
-    // std::string service_document = f_parseElement->findDocumentIncomplete("Service");
-    // std::string method_document = f_parseElement->findDocumentIncomplete("Method");
-    // std::string message_document = f_parseElement->findDocumentIncomplete("Message");
-
-    // std::map<std::pair<uint32_t, uint32_t>, std::string> documents = {{std::make_pair(0, 0), ""}};
     std::vector<document_info> documents;
     std::vector<coordinate> paths;
 
     abstractDocTree(f_parseElement, documents, paths, 0, 0);
+
+    auto rightmost_info = documents.back();
     for(auto& document_info : documents)
     {
-        for(auto& node: document_info.path)
+        std::vector<coordinate>::iterator it;
+        std::vector<coordinate>::iterator rightmost_it = rightmost_info.path.begin();
+
+        for(it = document_info.path.begin();it != document_info.path.end();)
         {
-            std::cout << "(" << node.level << ", " << node.order << ")->";
+            if(it->level == rightmost_it->level and it->order > rightmost_it->order)
+            {
+                rightmost_info = document_info;
+                break;
+            }
+            ++it;
+            ++rightmost_it;
         }
-        std::cout << document_info.document << std::endl;
     }
 
-    // if(&service_tree and &method_tree and &message_tree)
-    // {
-    //     searchChilden(&service_tree, service_document);
-    //     searchChilden(&method_tree, method_document, service_document);
-    //     searchChilden(&message_tree, field_document, service_document, method_document);
-    //     // std::cout << "service_document: " << service_document << std::endl;
-    //     // std::cout << "method_document: " << method_document << std::endl;
-    //     // std::cout << "field_document: " << field_document << std::endl;
-
-    //     if(!field_document.empty()){
-    //         return field_document;
-    //     }
-    //     else if(!method_document.empty())
-    //     {
-    //         return method_document;
-    //     }
-    //     return service_document;
-    // }
-
-    std::string document = "well";
-    return document;
+    return rightmost_info.document;
 }
-
 
 void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_candidates, ParsedElement & f_parseTree, const std::string & f_args, bool f_debug)
 {
