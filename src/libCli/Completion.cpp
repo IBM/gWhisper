@@ -19,70 +19,6 @@ using namespace ArgParse;
 namespace cli
 {
 
-void abstractDocTree(ArgParse::ParsedElement * f_parseElement, std::vector<document_info> & f_out_documents, std::vector<coordinate> f_path, uint32_t f_depth, uint32_t f_numberOfNode)
-{
-    if(f_parseElement == nullptr) return;
-    ArgParse::ParsedElement * cursor = f_parseElement;
-    document_info docInfo;
-    coordinate node = {f_depth, f_numberOfNode};
-    f_path.push_back(node);
-    docInfo.document = cursor->getGrammarElement()->getDocument();
-
-    if(!docInfo.document.empty())
-    {
-        docInfo.path = f_path;
-        f_out_documents.push_back(docInfo);
-    }
-
-    auto children = cursor->getChildren();
-
-    for(int i = 0; i < children.size(); ++i)
-    {
-        abstractDocTree(children[i].get(), f_out_documents, f_path, f_depth+1, i);
-    }
-}
-
-//not uesd
-ArgParse::ParsedElement * findRightMost(ArgParse::ParsedElement * f_parseElement, uint32_t & f_depth)
-{
-    ParsedElement * rightMost = f_parseElement;
-    while(rightMost->getChildren().size()!=0)
-    {
-        f_depth++;
-        rightMost = rightMost->getChildren().back().get();
-    };
-
-    return rightMost;
-}
-
-std::string searchDocument(ArgParse::ParsedElement * f_parseElement)
-{
-    std::vector<document_info> documents;
-    std::vector<coordinate> paths;
-
-    abstractDocTree(f_parseElement, documents, paths, 0, 0);
-
-    auto rightmost_info = documents.back();
-    for(auto& document_info : documents)
-    {
-        std::vector<coordinate>::iterator it;
-        std::vector<coordinate>::iterator rightmost_it = rightmost_info.path.begin();
-
-        for(it = document_info.path.begin();it != document_info.path.end();)
-        {
-            if(it->level == rightmost_it->level and it->order > rightmost_it->order)
-            {
-                rightmost_info = document_info;
-                break;
-            }
-            ++it;
-            ++rightmost_it;
-        }
-    }
-
-    return rightmost_info.document;
-}
-
 void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_candidates, ParsedElement & f_parseTree, const std::string & f_args, bool f_debug)
 {
     // completion requested :)
@@ -110,7 +46,7 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         size_t start = n;
         size_t end;
 
-        std::string suggestionDoc = searchDocument(candidate.get());
+        std::string suggestionDoc = searchDocument(candidate.get(), f_debug);
 
         if(f_debug)
         {

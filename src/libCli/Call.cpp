@@ -21,20 +21,14 @@
 #include <chrono>
 #include <ctime>
 #include <iomanip>
-#include <google/protobuf/io/zero_copy_stream_impl.h>
-#include <google/protobuf/arena.h>
 
 // for detecting if we are writing stdout to terminal or to pipe/file
 #include <stdio.h>
 #include <unistd.h>
 
-#include <fstream>
-#include <iostream>
 #include <libCli/cliUtils.hpp>
-#include <google/protobuf/descriptor.pb.h>
 
 using namespace ArgParse;
-using namespace google::protobuf::io;
 
 static cli::OutputFormatter::CustomStringModifier getModifier(ArgParse::ParsedElement &f_optionalModifier);
 
