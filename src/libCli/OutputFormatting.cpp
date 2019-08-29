@@ -210,6 +210,14 @@ std::string OutputFormatter::getOptionString(std::string f_optString)
         output = f_optString.substr(pos_eq+1);
     }
     output.erase(remove(output.begin(), output.end(), '"' ), output.end());
+    for(size_t i =0; i<output.length(); i++)
+    {
+        
+        if(output[i] == '\n')
+        {
+            output[i] = ' ';
+        }
+    }
     return output;
 }
 

@@ -80,7 +80,7 @@ class FixedString : public GrammarElement
         virtual std::string getDotNode() override
         {
             std::string result = "";
-            result += "n" + std::to_string(m_instanceId) + "[label=\"" + std::to_string(m_instanceId) + " " + m_typeName + " " + m_elementName + " " + m_tag + "'" + m_string  + "'\"];\n";
+            result += "n" + std::to_string(m_instanceId) + "[label=\"" + std::to_string(m_instanceId) + " " + m_typeName + " " + m_elementName + " " + m_tag + "'" + m_string  + "'"  + " doc: \\\""+ m_document + "\\\"" + "\"];\n";
             return result;
         }
     private:

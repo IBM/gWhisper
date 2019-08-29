@@ -38,14 +38,16 @@ message(STATUS "DYNAMIC GRPC LINKING INFO = ${GRPC_LIBS_REFLECTION}")
 
 # determine proto file source and binary directories (binary directory used to
 # write generated code to)
-#set(PROTO_FILE_BASE_SRC_PATH ${CMAKE_SOURCE_DIR}/third_party)
-set(PROTO_FILE_BASE_SRC_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+set(PROTO_FILE_BASE_SRC_PATH ${CMAKE_SOURCE_DIR})
+#set(PROTO_FILE_BASE_SRC_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 string(REGEX REPLACE "^${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" PROTO_FILE_BASE_DST_PATH ${PROTO_FILE_BASE_SRC_PATH})
 message(STATUS "PROTO_FILE_BASE_SRC_PATH = ${PROTO_FILE_BASE_SRC_PATH}")
 message(STATUS "PROTO_FILE_BASE_DST_PATH = ${PROTO_FILE_BASE_DST_PATH}")
 
 # add reflection generated code location to include path:
 include_directories(${PROTO_FILE_BASE_DST_PATH})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_BINARY_DIR})
 
 # add rules for code generation:
 add_custom_command(

@@ -134,10 +134,10 @@ class GrammarElement
         virtual std::string getDotNode()
         {
             std::string result = "";
-            result += "n" + std::to_string(m_instanceId) + "[label=\"" + std::to_string(m_instanceId) + " " + m_typeName + " " + m_elementName + " " + m_tag + "\"];\n";
+            result += "n" + std::to_string(m_instanceId) + "[label=\"" + std::to_string(m_instanceId) + " " + m_typeName + " " + m_elementName + " " + m_tag + " doc: \\\""+ m_document + "\\\"" + "\"];\n";
             for(auto child : m_children)
             {
-                result += " n" + std::to_string(m_instanceId) + m_elementName + " -> n" + std::to_string(child->m_instanceId) + child->m_elementName + ";\n";
+                result += " n" + std::to_string(m_instanceId) + " -> n" + std::to_string(child->m_instanceId) +  ";\n";
             }
             //std::cout << " got dot string: " << result;
             return result;
