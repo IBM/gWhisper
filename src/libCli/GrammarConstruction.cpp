@@ -351,7 +351,8 @@ class GrammarInjectorMethods : public GrammarInjector
                 for (int i = 0; i < service->method_count(); ++i)
                 {
                     auto childAlt = m_grammar.createElement<FixedString>(service->method(i)->name());
-                    std::string doc = service->method(i)->options().DebugString();
+                    std::string doc = service->method(i)->options().DebugString();//grpc doc (method options)
+                    //std::string message_doc = service->method(i)->input_type()->options().DebugString();//message doc (message options)
                     childAlt->setDocument(OutputFormatter::getOptionString(doc));
                     result->addChild(childAlt);
                 }

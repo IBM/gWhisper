@@ -101,9 +101,13 @@ service NestedTypeRpcs
     rpc duplicateEverything1d (NestedMessage1d) returns (NestedMessage1d);
     rpc duplicateEverything2d (NestedMessage2d) returns (NestedMessage2d);
     rpc nestedEmpty (NestedEmpty) returns (google.protobuf.Empty);
-    rpc getTime (google.protobuf.Empty) returns (google.protobuf.Timestamp);
+    rpc getTime (google.protobuf.Empty) returns (google.protobuf.Timestamp){
+        option (rpc_doc) = "This is rpc get Time";
+        };
     rpc echoRecursiveMaps (RecursiveMaps) returns (RecursiveMaps);
-    rpc echoNestedMaps (NestedMaps) returns (NestedMaps);
+    rpc echoNestedMaps (NestedMaps) returns (NestedMaps){
+        option (rpc_doc) = "This is rpc echoNestedMaps";
+        };
 }
 
 service StreamingRpcs

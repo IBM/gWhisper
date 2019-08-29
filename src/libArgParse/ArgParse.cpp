@@ -247,22 +247,30 @@ std::string ArgParse::searchDocument(ParsedElement * f_parseElement, bool f_debu
         ArgParse::transToMatrix(documents);// not used
     }
 
-    auto rightmost_info = documents.back();
-    for(auto& document_info : documents)
+    if(documents.size() != 0)
     {
-        std::vector<Coordinate>::iterator it;
-        std::vector<Coordinate>::iterator rightmost_it = rightmost_info.getPath().begin();
-
-        for(it = document_info.getPath().begin();it != document_info.getPath().end();)
+        auto rightmost_info = documents.back();
+        for(auto& document_info : documents)
         {
-            if(it->depth == rightmost_it->depth and it->index > rightmost_it->index)
+            std::vector<Coordinate>::iterator it;
+            std::vector<Coordinate>::iterator rightmost_it = rightmost_info.getPath().begin();
+
+            for(it = document_info.getPath().begin();it != document_info.getPath().end();)
             {
-                rightmost_info = document_info;
-                break;
+                if(it->depth == rightmost_it->depth and it->index > rightmost_it->index)
+                {
+                    rightmost_info = document_info;
+                    break;
+                }
+                ++it;
+                ++rightmost_it;
             }
-            ++it;
-            ++rightmost_it;
         }
+
+        return rightmost_info.getParsedElement()->getGrammarElement()->getDocument();
     }
-    return rightmost_info.getParsedElement()->getGrammarElement()->getDocument();
+    else
+    {
+        return "";
+    }
 }
