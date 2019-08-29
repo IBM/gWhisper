@@ -15,8 +15,25 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/descriptor.proto";
 
-import "src/protoDoc/protoDoc.proto";
+//import "src/protoDoc/protoDoc.proto";
+
+extend google.protobuf.MethodOptions {
+    string rpc_doc = 51009;
+}
+
+extend google.protobuf.ServiceOptions {
+    string my_service_option = 51000;
+}
+
+extend google.protobuf.MessageOptions {
+    string my_message_option = 51001;
+}
+
+extend google.protobuf.FieldOptions {
+    string doc = 51002;
+}
 
 package examples;
 
@@ -61,7 +78,7 @@ service ComplexTypeRpcs
     // All numbers in the request are added and returned.
     rpc addAllNumbers (RepeatedNumbers) returns (Uint32) {
         option (rpc_doc) = "Sum up all given numbers";
-        }
+        };
 
     // The last color of all given is returned.
     rpc getLastColor  (RepeatedColors) returns (ColorEnum);

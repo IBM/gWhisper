@@ -14,6 +14,7 @@
 
 cmake_minimum_required (VERSION 2.8)
 
+#add_subdirectory(protoDoc)
 add_subdirectory(libArgParse)
 add_subdirectory(libCli)
 add_subdirectory(gwhisper)
