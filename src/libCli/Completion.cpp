@@ -47,6 +47,11 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         size_t end;
 
         std::string suggestionDoc = searchDocument(candidate.get(), f_debug);
+        std::string suggestionDocRoot = searchDocument(&f_parseTree, f_debug);
+        if(suggestionDocRoot == suggestionDoc)
+        {
+            suggestionDoc = "";
+        }
 
         if(f_debug)
         {
