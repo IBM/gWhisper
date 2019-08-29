@@ -137,8 +137,10 @@ class ParsedElement
         ///  and so on.
         void findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements = false, uint32_t f_depth = std::numeric_limits<uint32_t>::max());
 
+        ///TODO: implement
         std::string getShortDocument();
 
+        ///TODO: implement
         std::string getLongDocument();
 
         void setParent(ParsedElement * f_parent)

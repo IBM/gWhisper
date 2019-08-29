@@ -24,8 +24,8 @@ namespace ArgParse
 
     typedef struct Coordinate
     {
-        uint32_t depth;// depth
-        uint32_t step;//step to right from root.
+        uint32_t depth; // depth in the parsed tree
+        uint32_t step;  //step to right from root of the parsed tree.
         uint32_t index; // step to right from root node of a sub tree
 
     } Coordinate;
@@ -150,9 +150,10 @@ namespace ArgParse
             ParsedElement * m_parseElement;
     };
 
-    //not used
+    //not used, matrix is not good to reflect the real path between tree nodes.
     void transToMatrix(const std::vector<DocumentInfo> & f_documents);
 
+    ///to abstract the document tree with coordinates
     void abstractDocTree(ParsedElement * f_parseElement, std::vector<DocumentInfo> & f_out_documents, std::vector<Coordinate> f_path, uint32_t f_depth, uint32_t f_index);
 
     std::string searchDocument(ParsedElement * f_parseElement, bool f_debug);
