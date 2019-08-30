@@ -15,20 +15,15 @@
 cmake_minimum_required (VERSION 2.8)
 
 set(TARGET_NAME "protoDoc")
-set(TARGET_SRC
-    )
 
 # find grpc + protobuf libs and code generators:
 find_library(LIB_PROTOBUF protobuf)
 find_library(LIB_GRPC grpc)
 find_library(LIB_GRPC++ grpc++)
-find_library(LIB_GRPC++_reflection grpc++_reflection)
 find_program (PROTOC protoc)
 find_program (PROTOC_GRPC_PLUGIN grpc_cpp_plugin)
-set(GRPC_LIBS_REFLECTION -Wl,--no-as-needed ${LIB_GRPC++_reflection} -Wl,--as-needed ${LIB_GRPC++} ${LIB_GRPC} ${LIB_PROTOBUF})
 message(STATUS "PROTOC = ${PROTOC}")
 message(STATUS "PROTOC_GRPC_PLUGIN = ${PROTOC_GRPC_PLUGIN}")
-#message(STATUS "DYNAMIC GRPC LINKING INFO = ${GRPC_LIBS_REFLECTION}")
 
 # determine proto file source and binary directories (binary directory used to
 # write generated code to)
@@ -40,9 +35,6 @@ message(STATUS "PROTO_FILE_BASE_DST_PATH = ${PROTO_FILE_BASE_DST_PATH}")
 
 # add reflection generated code location to include path:
 include_directories(${PROTO_FILE_BASE_DST_PATH})
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${CMAKE_BINARY_DIR})
-
 
 # add rules for code generation:
 add_custom_command(
@@ -58,4 +50,4 @@ add_custom_command(
 
 set(PROTO_SRC protoDoc.pb.cc protoDoc.grpc.pb.cc)
 
-add_library(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
+add_library(${TARGET_NAME} ${PROTO_SRC})
