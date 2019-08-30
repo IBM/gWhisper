@@ -49,15 +49,22 @@ include_directories(${PROTO_FILE_BASE_DST_PATH})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_BINARY_DIR})
 
+# FIXME: proto file compiling needs cleaning up!!
+set(PROTO_DOC_SRC_PATH ${CMAKE_SOURCE_DIR}/src/protoDoc)
+set(PROTO_DOC_BIN_PATH ${CMAKE_BINARY_DIR}/src/protoDoc)
+
+include_directories(${PROTO_DOC_BIN_PATH})
+message(STATUS "PROTO_DOC_SRC_PATH = ${PROTO_DOC_SRC_PATH}")
+include_directories(${PROTO_DOC_BIN_PATH})
 # add rules for code generation:
 add_custom_command(
     OUTPUT examples.pb.cc examples.pb.h
-    COMMAND ${PROTOC} -I${PROTO_FILE_BASE_SRC_PATH} --cpp_out=${PROTO_FILE_BASE_DST_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/examples.proto
+    COMMAND ${PROTOC} -I${PROTO_FILE_BASE_SRC_PATH} -I ${PROTO_DOC_SRC_PATH} --cpp_out=${PROTO_FILE_BASE_DST_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/examples.proto
     DEPENDS examples.proto
     )
 add_custom_command(
     OUTPUT examples.grpc.pb.cc examples.grpc.pb.h
-    COMMAND ${PROTOC} -I${PROTO_FILE_BASE_SRC_PATH} --grpc_out=${PROTO_FILE_BASE_DST_PATH} --plugin=protoc-gen-grpc=${PROTOC_GRPC_PLUGIN} ${CMAKE_CURRENT_SOURCE_DIR}/examples.proto
+    COMMAND ${PROTOC} -I${PROTO_FILE_BASE_SRC_PATH} -I ${PROTO_DOC_SRC_PATH} --grpc_out=${PROTO_FILE_BASE_DST_PATH} --plugin=protoc-gen-grpc=${PROTOC_GRPC_PLUGIN} ${CMAKE_CURRENT_SOURCE_DIR}/examples.proto
     DEPENDS examples.proto
     )
 set(PROTO_SRC examples.pb.cc examples.grpc.pb.cc)
@@ -66,5 +73,6 @@ add_executable(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
 
 target_link_libraries(${TARGET_NAME}
     ${GRPC_LIBS_REFLECTION}
+    protoDoc
     )
 

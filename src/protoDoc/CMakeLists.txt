@@ -58,7 +58,4 @@ add_custom_command(
 
 set(PROTO_SRC protoDoc.pb.cc protoDoc.grpc.pb.cc)
 
-add_executable(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
-target_link_libraries(${TARGET_NAME}
-    ${GRPC_LIBS_REFLECTION}
-    )
+add_library(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
