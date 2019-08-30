@@ -51,12 +51,12 @@ include_directories(${CMAKE_BINARY_DIR})
 
 # add rules for code generation:
 add_custom_command(
-    OUTPUT examples.pb.cc examples.pb.hh
+    OUTPUT examples.pb.cc examples.pb.h
     COMMAND ${PROTOC} -I${PROTO_FILE_BASE_SRC_PATH} --cpp_out=${PROTO_FILE_BASE_DST_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/examples.proto
     DEPENDS examples.proto
     )
 add_custom_command(
-    OUTPUT examples.grpc.pb.cc examples.grpc.pb.hh
+    OUTPUT examples.grpc.pb.cc examples.grpc.pb.h
     COMMAND ${PROTOC} -I${PROTO_FILE_BASE_SRC_PATH} --grpc_out=${PROTO_FILE_BASE_DST_PATH} --plugin=protoc-gen-grpc=${PROTOC_GRPC_PLUGIN} ${CMAKE_CURRENT_SOURCE_DIR}/examples.proto
     DEPENDS examples.proto
     )
