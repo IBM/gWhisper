@@ -144,10 +144,24 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
             //end = candidateStr.find_first_of(' ', n+1);
             end = n;
         }
+
+        std::string suggestionDoc = searchDocument(candidate.get(), f_debug);
+        std::string suggestionDocRoot = searchDocument(&f_parseTree, f_debug);
+        if(suggestionDocRoot == suggestionDoc)
+        {
+            suggestionDoc = "";
+        }
+
         //printf("start=%zu, end=%zu\n", start, end);
         //suggestion = candidateStr.substr(n, std::string::npos);
         suggestion = candidateStr.substr(start, std::string::npos);
         //suggestion = candidateStr.substr(start, end-start+1);
+
+        if(suggestionDoc != "")
+        {
+            suggestion = suggestion + "    ("+ suggestionDoc + ")";
+        }
+
         if(f_debug)
         {
 

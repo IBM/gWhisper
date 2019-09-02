@@ -217,6 +217,10 @@ std::string OutputFormatter::getOptionString(std::string f_optString)
             output[i] = ' ';
         }
     }
+    std::string delims = "\r\n\t ";
+    output.erase(0, output.find_first_not_of(delims));
+    output.erase(output.find_last_not_of(delims) + 1);
+
     return output;
 }
 

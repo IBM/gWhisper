@@ -62,14 +62,7 @@ ArgParse::ParsedElement * ArgParse::ParsedElement::findRightMostElement()
 std::string ArgParse::ParsedElement::findChildDocument(ArgParse::ParsedElement * f_parseElement, uint32_t f_depth)
 {
     std::string document = f_parseElement->getGrammarElement()->getDocument();
-    if(!document.empty())
-    {
-        size_t trimStart = document.find_first_not_of('\n');
-        size_t trimEnd = document.find_last_not_of(' ');
-        document = document.substr(trimStart);
-        document = document.substr(0, trimEnd+1);
-    }
-    else
+    if(document.empty())
     {
         auto& childen = f_parseElement->getChildren();
 
@@ -266,7 +259,6 @@ std::string ArgParse::searchDocument(ParsedElement * f_parseElement, bool f_debu
                 ++rightmost_it;
             }
         }
-
         return rightmost_info.getParsedElement()->getGrammarElement()->getDocument();
     }
     else
