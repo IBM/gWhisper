@@ -114,10 +114,6 @@ namespace ArgParse
                 std::string childDoc = f_parseElement->getGrammarElement()->getDocument();
                 if(!childDoc.empty())
                 {
-                    std::string delims = "\r\n\t";
-                    childDoc.erase(0, childDoc.find_first_not_of(delims));
-                    childDoc.erase(childDoc.find_last_not_of(delims) + 1);
-
                     std::vector<std::string> list = {f_compared_string...};
                     for(auto& compared : list)
                     {
