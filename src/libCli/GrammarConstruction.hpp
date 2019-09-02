@@ -15,6 +15,7 @@
 #pragma once
 
 #include <libArgParse/ArgParse.hpp>
+#include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
 
 namespace cli
 {
@@ -23,4 +24,16 @@ namespace cli
     /// @returns the root element of the generated grammar. The pointer should not
     ///          be used after the given f_grammarPool is de-allocated.
     ArgParse::GrammarElement * constructGrammar(ArgParse::Grammar & f_grammarPool);
+    class MessageGrammarFactory{
+      public: 
+      MessageGrammarFactory(ArgParse::Grammar& grammar):
+        m_grammar(grammar){
+        }
+        ArgParse::GrammarElement * getMessageGrammar(const std::string & f_rootElementName, const grpc::protobuf::Descriptor* f_messageDescriptor, ArgParse::GrammarElement * f_wrappingElement = nullptr);
+
+      private:
+        void addFieldValueGrammar(ArgParse::GrammarElement * f_fieldGrammar, const grpc::protobuf::FieldDescriptor * f_field);
+        ArgParse::Grammar & m_grammar;
+    };
+
 }
