@@ -30,16 +30,16 @@ namespace ArgParse
 
     } Coordinate;
 
-    class DocumentInfo
+    class ParsedDocument
     {
         public:
-            DocumentInfo():
+            ParsedDocument():
                 m_parseElement(nullptr),
                 m_max_step(0)
             {
             }
 
-            DocumentInfo(ParsedElement * f_parseElement):
+            ParsedDocument(ParsedElement * f_parseElement):
                 m_parseElement(f_parseElement),
                 m_max_step(0)
             {
@@ -106,51 +106,15 @@ namespace ArgParse
                 std::cout << m_parseElement->getGrammarElement()->getDocument() << std::endl;
             }
 
-        private:
-            //not used
-            template<typename... Args>
-            void searchChilden(ParsedElement * f_parseElement, std::string & f_out_document, Args...f_compared_string)
-            {
-                std::string childDoc = f_parseElement->getGrammarElement()->getDocument();
-                if(!childDoc.empty())
-                {
-                    std::vector<std::string> list = {f_compared_string...};
-                    for(auto& compared : list)
-                    {
-                        if(compared.find(childDoc) != std::string::npos)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            f_out_document = childDoc;
-                        }
-                    }
-                }
-                else
-                {
-                    auto& childen = f_parseElement->getChildren();
-                    if(childen.size() > 0)
-                    {
-                        for(auto& child: childen)
-                        {
-                            searchChilden(child.get(), f_out_document, std::forward<Args>(f_compared_string)...);
-                        }
-                    }
-                }
-            }
+            static std::string getOptionString(std::string f_optString);
 
         private:
             std::vector<Coordinate> m_path;
             uint32_t m_max_step;
             ParsedElement * m_parseElement;
     };
-
-    //not used, matrix is not good to reflect the real path between tree nodes.
-    void transToMatrix(const std::vector<DocumentInfo> & f_documents);
-
     ///to abstract the document tree with coordinates
-    void abstractDocTree(ParsedElement * f_parseElement, std::vector<DocumentInfo> & f_out_documents, std::vector<Coordinate> f_path, uint32_t f_depth, uint32_t f_index);
+    void abstractDocTree(ParsedElement * f_parseElement, std::vector<ParsedDocument> & f_out_documents, std::vector<Coordinate> f_path, uint32_t f_depth, uint32_t f_index);
 
     std::string searchDocument(ParsedElement * f_parseElement, bool f_debug);
 }

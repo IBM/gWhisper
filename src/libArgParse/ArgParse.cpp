@@ -59,38 +59,6 @@ ArgParse::ParsedElement * ArgParse::ParsedElement::findRightMostElement()
     return cursor;
 }
 
-std::string ArgParse::ParsedElement::findChildDocument(ArgParse::ParsedElement * f_parseElement, uint32_t f_depth)
-{
-    std::string document = f_parseElement->getGrammarElement()->getDocument();
-    if(document.empty())
-    {
-        auto& childen = f_parseElement->getChildren();
-
-        if(childen.size() > 0)
-        {
-            for(auto& child: childen)
-            {
-                document = findChildDocument(child.get());
-            }
-        }
-    }
-    return document;
-}
-
-std::string ArgParse::ParsedElement::findDocumentIncomplete(const std::string & f_elementName, uint32_t f_depth)
-{
-    bool found = false;
-    ArgParse::ParsedElement & sub_tree = findFirstSubTree(f_elementName, found, f_depth);
-    if(found)
-    {
-       return findChildDocument(&sub_tree, f_depth);
-    }
-    else
-    {
-        return "";
-    }
-}
-
 void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements, uint32_t f_depth)
 {
     if(m_grammarElement->getElementName() == f_elementName)
@@ -159,11 +127,34 @@ std::string ArgParse::Grammar::getDotGraph()
     return result;
 }
 
+std::string ArgParse::ParsedDocument::getOptionString(std::string f_optString)
+{
+    std::string::size_type pos_eq = f_optString.find_first_of(':');
+    std::string output;
+    if (pos_eq != std::string::npos)
+    {
+        output = f_optString.substr(pos_eq+1);
+    }
+    output.erase(remove(output.begin(), output.end(), '"' ), output.end());
+    for(size_t i =0; i<output.length(); i++)
+    {
+        if(output[i] == '\n')
+        {
+            output[i] = ' ';
+        }
+    }
+    std::string delims = "\r\n\t ";
+    output.erase(0, output.find_first_not_of(delims));
+    output.erase(output.find_last_not_of(delims) + 1);
+
+    return output;
+}
+
 ///ParsedDocument
-void ArgParse::abstractDocTree(ParsedElement * f_parseElement, std::vector<DocumentInfo> & f_out_documents, std::vector<Coordinate> f_path, uint32_t f_depth, uint32_t f_index)
+void ArgParse::abstractDocTree(ParsedElement * f_parseElement, std::vector<ParsedDocument> & f_out_documents, std::vector<Coordinate> f_path, uint32_t f_depth, uint32_t f_index)
 {
     if(f_parseElement == nullptr) return;
-    ArgParse::DocumentInfo document_info(f_parseElement);
+    ArgParse::ParsedDocument document_info(f_parseElement);
     ArgParse::Coordinate node = {f_depth, 0, f_index}; //no column info
     f_path.push_back(node);
 
@@ -180,54 +171,9 @@ void ArgParse::abstractDocTree(ParsedElement * f_parseElement, std::vector<Docum
     }
 }
 
-void ArgParse::transToMatrix(const std::vector<DocumentInfo> & f_documents)
-{
-    int max_row = 0;
-    int max_column = 0;
-    for(auto& document_info : f_documents)
-    {
-        if(document_info.getPath().size() > max_row)
-        {
-            max_row = document_info.getPath().size();
-        }
-        if(document_info.getMaxStep() > max_column)
-        {
-            max_column = document_info.getMaxStep();
-        }
-    }
-
-    std::string document_matrix[max_row+1][max_column+1];
-    for(int i = 0; i < max_row+1; ++i)
-    {
-        for(int j = 0; j < max_column+1; ++j)
-        {
-            document_matrix[i][j] = "#";
-        }
-    }
-
-    for(auto& document_info : f_documents)
-    {
-        for(auto& node: document_info.getPath())
-        {
-                document_matrix[node.depth][node.step] = "*";
-        }
-        document_matrix[document_info.getPath().back().depth][document_info.getPath().back().step] = "d";
-    }
-
-    //output matrix
-    for(int i = 0; i < max_row+1; ++i)
-    {
-        for(int j = 0; j < max_column+1; ++j)
-        {
-            std::cout << document_matrix[i][j];
-        }
-        std::cout << std::endl;
-    }
-}
-
 std::string ArgParse::searchDocument(ParsedElement * f_parseElement, bool f_debug)
 {
-    std::vector<DocumentInfo> documents;
+    std::vector<ParsedDocument> documents;
     std::vector<Coordinate> paths;
     ArgParse::abstractDocTree(f_parseElement, documents, paths, 0, 0);
     if(f_debug)
@@ -236,8 +182,6 @@ std::string ArgParse::searchDocument(ParsedElement * f_parseElement, bool f_debu
         {
             document_info.printPath();
         }
-
-        ArgParse::transToMatrix(documents);// not used
     }
 
     if(documents.size() != 0)

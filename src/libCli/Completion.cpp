@@ -159,7 +159,7 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         {
             suggestionDoc = "";
         }
-
+        // find the max length of suggestion and document for right-aligned
         if(!suggestionDoc.empty())
         {
             if(maxSuggestionLen < suggestion.size())

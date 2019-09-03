@@ -38,7 +38,6 @@ class GrammarInjector : public GrammarElement
                 {
                     // retrieving grammar succeeded :-)
                     addChild(newGrammar);
-                    //std::cout << "new Grammar document: " << newGrammar->getDocument() << std::endl;;
                 }
                 else
                 {

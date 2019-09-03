@@ -14,7 +14,6 @@
 
 #include <libCli/GrammarConstruction.hpp>
 #include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
-#include <libCli/OutputFormatting.hpp>
 #include <libCli/cliUtils.hpp>
 #include <libCli/ConnectionManager.hpp>
 
@@ -112,9 +111,6 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
         void addFieldValueGrammar(GrammarElement * f_fieldGrammar, const grpc::protobuf::FieldDescriptor * f_field)
         {
-            //parseTree.findFirstSubTree("simple_map_int", customOutputFormatRequested).setMatchedStringDoc(OutputFormatter::getOptionString(doc));
-            //std::cout << "addFieldValueGramma \"simple_map_int\" doc: " << parseTree.findFirstSubTree("simple_map_int", customOutputFormatRequested).getMatchedStringDoc() << std::endl;
-
             switch(f_field->cpp_type())
             {
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_FLOAT:
@@ -192,7 +188,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE:
                     {
                         std::string doc = f_field->options().DebugString();
-                        f_fieldGrammar->setDocument(OutputFormatter::getOptionString(doc));
+                        f_fieldGrammar->setDocument(ArgParse::ParsedDocument::getOptionString(doc));
                         ArgParse::GrammarFactory grammarFactory(m_grammar);
 
                         //auto fieldsAlt = getMessageGrammar(f_field->message_type());
@@ -291,16 +287,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 {
                     // the simple case:
                     addFieldValueGrammar(fieldGrammar, field);
-                    //std::cout << "outer fieldGrammar: "<< fieldGrammar->toString() << std::endl;
-                    //std::cout << "outer fieldGrammar doc: "<< fieldGrammar->getDocument() << std::endl;
                 }
-
-                // for(auto child : message->getChildren())
-                // {
-                //     std::cout << "message child: "<< child->toString() << std::endl;
-                //     std::cout << "message child document: "<< child->getDocument() << std::endl;
-                // }
-
             }
 
             //std::cout << "Grammar generated:\n" << fieldsAlt->toString() << std::endl;
@@ -353,7 +340,7 @@ class GrammarInjectorMethods : public GrammarInjector
                     auto childAlt = m_grammar.createElement<FixedString>(service->method(i)->name());
                     std::string doc = service->method(i)->options().DebugString();//grpc doc (method options)
                     //std::string message_doc = service->method(i)->input_type()->options().DebugString();//message doc (message options)
-                    childAlt->setDocument(OutputFormatter::getOptionString(doc));
+                    childAlt->setDocument(ArgParse::ParsedDocument::getOptionString(doc));
                     result->addChild(childAlt);
                 }
             }
@@ -414,7 +401,7 @@ class GrammarInjectorServices : public GrammarInjector
                 auto childAlt = m_grammar.createElement<FixedString>(service);
                 const grpc::protobuf::ServiceDescriptor* m_service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(service);
                 std::string doc = m_service->options().DebugString();
-                childAlt->setDocument(OutputFormatter::getOptionString(doc));
+                childAlt->setDocument(ArgParse::ParsedDocument::getOptionString(doc));
                 result->addChild(childAlt);
             }
             return result;
