@@ -89,8 +89,6 @@ namespace cli
             /// NOTE: required for custom output format
             std::string repeatedFieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, int f_fieldIndex, CustomStringModifier f_modifier = CustomStringModifier::Default);
 
-            static std::string getOptionString(std::string f_optString);
-
         private:
             bool m_isSimpleMapOutput;
             std::map<ColorClass, std::string> m_colorMap;

@@ -265,14 +265,6 @@ int call(ParsedElement & parseTree)
         std::string msgString;
         // decide on message formatting method to use:
         bool customOutputFormatRequested = false;
-
-        //test reflection for completion documentation
-        //const google::protobuf::Descriptor * replyMessage_descriptor = replyMessage->GetDescriptor();
-        //std::string doc = replyMessage_descriptor->FindFieldByName("simple_map_int")->options().DebugString();
-        //parseTree.findFirstSubTree("simple_map_int", customOutputFormatRequested).setMatchedStringDoc(OutputFormatter::getOptionString(doc));
-        //std::cout << "field \"simple_map_int\" doc: " << parseTree.findFirstSubTree("simple_map_int", customOutputFormatRequested).getMatchedStringDoc() << std::endl;
-
-        // decide on message formatting method to use:
         ParsedElement customFormatParseTree = parseTree.findFirstSubTree("CustomOutputFormat", customOutputFormatRequested);
         if(not customOutputFormatRequested)
         {
