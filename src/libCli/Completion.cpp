@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <queue>
 #include <libCli/Completion.hpp>
 
 using namespace ArgParse;
@@ -77,7 +78,7 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         suggestion = suggestion.substr(0, trimEnd+1);
         //suggestion = candidateStr.substr(start, end-start+1);
 
-        if(suggestionDoc != "")
+        if(!suggestionDoc.empty())
         {
             suggestion = suggestion + "\t" + suggestionDoc;
         }
@@ -105,8 +106,12 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         }
     }
 
-    //size_t n = parseTree.getMatchedString().size();
+    size_t maxSuggestionLen = 0;
+    size_t maxSuggestionDocLen = 0;
+    std::queue<std::string> suggestions;
+    std::queue<std::string> suggestionDocs;
     size_t n = f_args.size();
+
     for(auto candidate : f_candidates)
     {
         std::string candidateStr =candidate->getMatchedString();
@@ -145,6 +150,9 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
             end = n;
         }
 
+        suggestion = candidateStr.substr(start, std::string::npos);
+        suggestion.erase(suggestion.find_last_not_of(" ") + 1);
+
         std::string suggestionDoc = searchDocument(candidate.get(), f_debug);
         std::string suggestionDocRoot = searchDocument(&f_parseTree, f_debug);
         if(suggestionDocRoot == suggestionDoc)
@@ -152,26 +160,46 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
             suggestionDoc = "";
         }
 
-        //printf("start=%zu, end=%zu\n", start, end);
-        //suggestion = candidateStr.substr(n, std::string::npos);
-        suggestion = candidateStr.substr(start, std::string::npos);
-        //suggestion = candidateStr.substr(start, end-start+1);
-
-        if(suggestionDoc != "")
+        if(!suggestionDoc.empty())
         {
-            suggestion = suggestion + "    ("+ suggestionDoc + ")";
+            if(maxSuggestionLen < suggestion.size())
+            {
+                maxSuggestionLen = suggestion.size();
+            }
+            if(maxSuggestionDocLen < suggestionDoc.size())
+            {
+                maxSuggestionDocLen = suggestionDoc.size();
+            }
         }
+        suggestions.push(suggestion);
+        suggestionDocs.push(suggestionDoc);
+    }
 
+    for(auto candidate : f_candidates)
+    {
+        std::string suggestion = suggestions.front();
+        std::string suggestionDoc = suggestionDocs.front();
+        if(!suggestionDoc.empty())
+        {
+            std::string palceholder = "  ";
+            // calculate how many whitespaces should be inserted into the suggestion
+            for(size_t i=0; i< maxSuggestionLen-suggestion.size() + maxSuggestionDocLen-suggestionDoc.size(); ++i)
+            {
+                palceholder += " ";
+            }
+
+            suggestion = suggestion + palceholder + "(" + suggestionDoc + ")";
+        }
         if(f_debug)
         {
-
             printf("post: '%s'\n", suggestion.c_str());
         }
         else
         {
             printf("%s\n", suggestion.c_str());
         }
+        suggestions.pop();
+        suggestionDocs.pop();
     }
 }
-
 }

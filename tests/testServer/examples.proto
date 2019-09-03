@@ -81,9 +81,15 @@ service NestedTypeRpcs
 {
     option (my_service_option) = "This is service NestedTypeRpcs";
 
-    rpc duplicateEverything1d (NestedMessage1d) returns (NestedMessage1d);
-    rpc duplicateEverything2d (NestedMessage2d) returns (NestedMessage2d);
-    rpc nestedEmpty (NestedEmpty) returns (google.protobuf.Empty);
+    rpc duplicateEverything1d (NestedMessage1d) returns (NestedMessage1d){
+        option (rpc_doc) = "This is rpc duplicate Everything 1d";
+        };
+    rpc duplicateEverything2d (NestedMessage2d) returns (NestedMessage2d){
+        option (rpc_doc) = "This is rpc duplicate Everything 2d";
+        };
+    rpc nestedEmpty (NestedEmpty) returns (google.protobuf.Empty){
+        option (rpc_doc) = "This is rpc nested Empty";
+        };
     rpc getTime (google.protobuf.Empty) returns (google.protobuf.Timestamp){
         option (rpc_doc) = "This is rpc get Time";
         };
