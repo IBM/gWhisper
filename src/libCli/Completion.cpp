@@ -47,8 +47,8 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         size_t start = n;
         size_t end;
 
-        std::string suggestionDoc = searchDocument(candidate.get(), f_debug);
-        std::string suggestionDocRoot = searchDocument(&f_parseTree, f_debug);
+        std::string suggestionDoc = candidate.get()->getShortDocument();
+        std::string suggestionDocRoot = f_parseTree.getShortDocument();
         if(suggestionDocRoot == suggestionDoc)
         {
             suggestionDoc = "";
@@ -153,8 +153,8 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         suggestion = candidateStr.substr(start, std::string::npos);
         suggestion.erase(suggestion.find_last_not_of(" ") + 1);
 
-        std::string suggestionDoc = searchDocument(candidate.get(), f_debug);
-        std::string suggestionDocRoot = searchDocument(&f_parseTree, f_debug);
+        std::string suggestionDoc = candidate.get()->getShortDocument();
+        std::string suggestionDocRoot = f_parseTree.getShortDocument();
         if(suggestionDocRoot == suggestionDoc)
         {
             suggestionDoc = "";
@@ -175,7 +175,7 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         suggestionDocs.push(suggestionDoc);
     }
 
-    for(auto candidate : f_candidates)
+    while(!suggestions.empty())
     {
         std::string suggestion = suggestions.front();
         std::string suggestionDoc = suggestionDocs.front();
@@ -187,7 +187,7 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
             {
                 palceholder += " ";
             }
-
+            // final output with documentation(description)
             suggestion = suggestion + palceholder + "(" + suggestionDoc + ")";
         }
         if(f_debug)
