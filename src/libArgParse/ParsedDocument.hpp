@@ -22,14 +22,22 @@ namespace ArgParse
 {
     class ParsedElement;
 
+    /* With the help of node coordinates 
+     * we can easily find the relative position of a node 
+     * which contains documentation.
+     */
     typedef struct Coordinate
     {
         uint32_t depth; // depth in the parsed tree
-        uint32_t step;  //step to right from root of the parsed tree.
-        uint32_t index; // step to right from root node of a sub tree
+        uint32_t step;  // step to right direction from root of the parsed tree.
+        uint32_t index; // step to right direction from root node of a sub tree
 
     } Coordinate;
 
+    /* Manipulate the documents (Description of bash or fish tab completion)
+     * which have be parsed from the .proto file written in the custom options,
+     * currently we have predefined ServicesOptions, FieldsOptions, MethodOptions.
+     */
     class ParsedDocument
     {
         public:
@@ -50,22 +58,19 @@ namespace ArgParse
                 return m_path;
             }
 
+            /// update the newest path from the root to the current node with document
             void updatePath(std::vector<Coordinate> f_path)
             {
                 m_path = f_path;
             }
 
+            /// get the maximum step to right direction from root of the parsed tree.
             uint32_t getMaxStep() const
             {
                 return m_max_step;
             }
 
-            void setMaxStep(uint32_t f_max_step)
-            {
-                m_max_step = f_max_step;
-            }
-
-            ///how many steps to right from the root
+            /// how many steps to right direction from the root
             void calculateStepFromRoot()
             {
                 for(int i = 0; i != m_path.size(); ++i)
@@ -74,9 +79,10 @@ namespace ArgParse
                     {
                         for(int j = 0; j<=i; ++j)
                         {
-                                m_path[i].step += m_path[j].index;
+                            m_path[i].step += m_path[j].index;
                         }
                     }
+                    // meanwhile update the maximum step
                     if (m_path[i].step > m_max_step)
                     {
                         m_max_step = m_path[i].step;
@@ -89,16 +95,17 @@ namespace ArgParse
                 return m_parseElement;
             }
 
+            /// for debugging
             void printPath() const
             {
-                std::cout << "(depth, index): ";
+                std::cout << "(depth, index): "; // index from the subtree root
                 for(auto & node: m_path)
                 {
                     std::cout << "(" << node.depth << ", " << node.index << ")->";
                 }
                 std::cout << m_parseElement->getGrammarElement()->getDocument() << std::endl;
 
-                std::cout << "(depth, step): ";
+                std::cout << "(depth, step): "; // step from the root
                 for(auto & node: m_path)
                 {
                     std::cout << "(" << node.depth << ", " << node.step << ")->";
@@ -113,8 +120,12 @@ namespace ArgParse
             uint32_t m_max_step;
             ParsedElement * m_parseElement;
     };
-    ///to abstract the document tree with coordinates
-    void abstractDocTree(ParsedElement * f_parseElement, std::vector<ParsedDocument> & f_out_documents, std::vector<Coordinate> f_path, uint32_t f_depth, uint32_t f_index);
 
-    std::string searchDocument(ParsedElement * f_parseElement, bool f_debug);
+    /// abstract the document info tree, stored as coordinates
+    /// @param f_parseElement the root of parsed tree.
+    /// @param f_out_documents find all document info and tored in the abstract tree.
+    /// @param f_path the path from the root to the current node with document reached, and stored as coordinates.
+    /// @param f_depth the depth of the path in the tree reached, will be passed to the next recursive function call.
+    /// @param f_index the index of the current node in the subtree reached, will be passed to the next recursive function call.
+    void abstractDocTree(ParsedElement * f_parseElement, std::vector<ParsedDocument> & f_out_documents, std::vector<Coordinate> f_path, uint32_t f_depth, uint32_t f_index);
 }

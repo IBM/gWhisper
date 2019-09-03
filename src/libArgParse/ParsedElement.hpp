@@ -133,7 +133,7 @@ class ParsedElement
         ///  and so on.
         void findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements = false, uint32_t f_depth = std::numeric_limits<uint32_t>::max());
 
-        ///TODO: implement
+        /// get every document of right most node in the subtree
         std::string getShortDocument();
 
         ///TODO: implement

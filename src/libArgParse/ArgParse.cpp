@@ -49,6 +49,44 @@ std::string ArgParse::ParsedElement::findFirstChild(const std::string & f_elemen
     }
 }
 
+std::string ArgParse::ParsedElement::getShortDocument()
+{
+    std::vector<ParsedDocument> documents;
+    std::vector<Coordinate> paths;
+    ArgParse::abstractDocTree(this, documents, paths, 0, 0);
+
+    // for(auto & document_info : documents)
+    // {
+    //     document_info.printPath();
+    // }
+
+    if(documents.size() != 0)
+    {
+        auto rightmost_info = documents.back();
+        for(auto& document_info : documents)
+        {
+            std::vector<Coordinate>::iterator it;
+            std::vector<Coordinate>::iterator rightmost_it = rightmost_info.getPath().begin();
+
+            for(it = document_info.getPath().begin();it != document_info.getPath().end();)
+            {
+                if(it->depth == rightmost_it->depth and it->index > rightmost_it->index)
+                {
+                    rightmost_info = document_info;
+                    break;
+                }
+                ++it;
+                ++rightmost_it;
+            }
+        }
+        return rightmost_info.getParsedElement()->getGrammarElement()->getDocument();
+    }
+    else
+    {
+        return "";
+    }
+}
+
 ArgParse::ParsedElement * ArgParse::ParsedElement::findRightMostElement()
 {
     ParsedElement * cursor = this;
@@ -171,42 +209,3 @@ void ArgParse::abstractDocTree(ParsedElement * f_parseElement, std::vector<Parse
     }
 }
 
-std::string ArgParse::searchDocument(ParsedElement * f_parseElement, bool f_debug)
-{
-    std::vector<ParsedDocument> documents;
-    std::vector<Coordinate> paths;
-    ArgParse::abstractDocTree(f_parseElement, documents, paths, 0, 0);
-    if(f_debug)
-    {
-        for(auto & document_info : documents)
-        {
-            document_info.printPath();
-        }
-    }
-
-    if(documents.size() != 0)
-    {
-        auto rightmost_info = documents.back();
-        for(auto& document_info : documents)
-        {
-            std::vector<Coordinate>::iterator it;
-            std::vector<Coordinate>::iterator rightmost_it = rightmost_info.getPath().begin();
-
-            for(it = document_info.getPath().begin();it != document_info.getPath().end();)
-            {
-                if(it->depth == rightmost_it->depth and it->index > rightmost_it->index)
-                {
-                    rightmost_info = document_info;
-                    break;
-                }
-                ++it;
-                ++rightmost_it;
-            }
-        }
-        return rightmost_info.getParsedElement()->getGrammarElement()->getDocument();
-    }
-    else
-    {
-        return "";
-    }
-}
