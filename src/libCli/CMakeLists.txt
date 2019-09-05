@@ -27,6 +27,7 @@ add_library(${TARGET_NAME} ${TARGET_SRC})
 target_link_libraries ( ${TARGET_NAME}
     reflection
     ArgParse
+    protoDoc
     )
 
 if(BUILD_CONFIG_USE_BOOST_REGEX)
