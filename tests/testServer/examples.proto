@@ -144,25 +144,25 @@ enum Colors
 
 message RepeatedNumberAndString
 {
-    option (my_message_option) = "Multiple Number/String pairs";
+    option (message_doc) = "Multiple Number/String pairs";
     repeated NumberAndString number_and_strings = 1 [ (doc) = "Multiple Number/String pairs"];
 }
 
 message RepeatedNumbers
 {
-    option (my_message_option) = "Message with numbers";
+    option (message_doc) = "Message with numbers";
     repeated uint32 numbers = 1 [ (doc) = "List of uint32"];
 }
 
 message NumberMap
 {
-    option (my_message_option) = "Message with map";
+    option (message_doc) = "Message with map";
     map<uint32, string> number_to_string = 1 [ (doc) = "map uint32 -> string"];
 }
 
 message RepeatedColors
 {
-    option (my_message_option) = "Message with color list";
+    option (message_doc) = "Message with color list";
     repeated Colors colors = 1 [ (doc) = "List of color enum values"];
 }
 
@@ -243,7 +243,7 @@ message NumberAndString
 
 message NestedMessage1d
 {
-    option (my_message_option) = "Nested message depth=1";
+    option (message_doc) = "Nested message depth=1";
     Numbers some_numbers = 1;
     NumberAndString number_and_string = 2;
     string str = 3;
@@ -251,7 +251,7 @@ message NestedMessage1d
 
 message NestedMessage2d
 {
-    option (my_message_option) = "Nested message depth=2";
+    option (message_doc) = "Nested message depth=2";
     NestedMessage1d sub_tree = 1;
     NumberAndString number_and_string = 2;
     string str = 3;
@@ -259,7 +259,7 @@ message NestedMessage2d
 
 message NestedMaps
 {
-    option (my_message_option) = "Nested map";
+    option (message_doc) = "Nested map";
     message SubMessage
     {
         map<uint32, uint32> simple_map_int = 1 [ (doc) = "Map uint32 -> uint32"];
@@ -281,6 +281,6 @@ message RecursiveMaps
 
 message NestedEmpty
 {
-    option (my_message_option) = "Message containing an empty sub-message";
+    option (message_doc) = "Message containing an empty sub-message";
     google.protobuf.Empty emptyChild = 1;
 }
