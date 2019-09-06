@@ -165,6 +165,7 @@ std::string ArgParse::Grammar::getDotGraph()
     return result;
 }
 
+// not used, only for formatting the options().DebugString() of protobuf reflection
 std::string ArgParse::ParsedDocument::getOptionString(std::string f_optString)
 {
     std::string::size_type pos_eq = f_optString.find_first_of(':');

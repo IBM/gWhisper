@@ -22,7 +22,7 @@ package examples;
 
 service ScalarTypeRpcs
 {
-    option (my_service_option) = "int, bool, string, bytes";
+    option (service_doc) = "int, bool, string, bytes";
 
     // All numbers given in input are incremented by one.
     rpc incrementNumbers (Numbers) returns (Numbers);
@@ -41,7 +41,7 @@ service ComplexTypeRpcs
 {
     // TODO: Any
 
-    option (my_service_option) = "Enum, oneof, repeated, map";
+    option (service_doc) = "Enum, oneof, repeated, map";
 
     // Enums:
 
@@ -79,7 +79,7 @@ service ComplexTypeRpcs
 
 service NestedTypeRpcs
 {
-    option (my_service_option) = "Nested and recursive datastructures";
+    option (service_doc) = "Nested and recursive datastructures";
 
     rpc duplicateEverything1d (NestedMessage1d) returns (NestedMessage1d){
         option (rpc_doc) = "Duplicate all given content";
@@ -101,7 +101,7 @@ service NestedTypeRpcs
 
 service StreamingRpcs
 {
-    option (my_service_option) = "uni- and bi-directional streams";
+    option (service_doc) = "uni- and bi-directional streams";
 
     // Returns a stream of <number> messages of type Empty, then closes the stream.
     rpc replyStreamEmpty (Uint32) returns (stream google.protobuf.Empty);
@@ -124,7 +124,7 @@ service StreamingRpcs
 
 service StatusHandling
 {
-    option (my_service_option) = "gRPC error handling";
+    option (service_doc) = "gRPC error handling";
 
     rpc neverEndingRpc (google.protobuf.Empty) returns (google.protobuf.Empty);
     rpc giveStatusAborted (google.protobuf.Empty) returns (google.protobuf.Empty);

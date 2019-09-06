@@ -7,11 +7,11 @@ extend google.protobuf.MethodOptions {
 }
 
 extend google.protobuf.ServiceOptions {
-    string my_service_option = 51000;
+    string service_doc = 51000;
 }
 
 extend google.protobuf.MessageOptions {
-    string my_message_option = 51001;
+    string message_doc = 51001;
 }
 
 extend google.protobuf.FieldOptions {

@@ -188,8 +188,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE:
                     {
-                        std::string doc = f_field->options().DebugString();
-                        f_fieldGrammar->setDocument(ArgParse::ParsedDocument::getOptionString(doc));
+                        f_fieldGrammar->setDocument(f_field->options().GetExtension(doc));
                         ArgParse::GrammarFactory grammarFactory(m_grammar);
 
                         //auto fieldsAlt = getMessageGrammar(f_field->message_type());
@@ -339,9 +338,8 @@ class GrammarInjectorMethods : public GrammarInjector
                 for (int i = 0; i < service->method_count(); ++i)
                 {
                     auto childAlt = m_grammar.createElement<FixedString>(service->method(i)->name());
-                    std::string doc = service->method(i)->options().DebugString();//grpc doc (method options)
-                    //std::string message_doc = service->method(i)->input_type()->options().DebugString();//message doc (message options)
-                    childAlt->setDocument(ArgParse::ParsedDocument::getOptionString(doc));
+                    //childAlt->setDocument(service->method(i)->input_type()->options().GetExtension(rpc_doc))//custom option in protoDoc: message_doc
+                    childAlt->setDocument(service->method(i)->options().GetExtension(rpc_doc));//grpc doc (methodcustom option in protoDoc: method_doc)
                     result->addChild(childAlt);
                 }
             }
@@ -401,8 +399,7 @@ class GrammarInjectorServices : public GrammarInjector
             {
                 auto childAlt = m_grammar.createElement<FixedString>(service);
                 const grpc::protobuf::ServiceDescriptor* m_service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(service);
-                std::string doc = m_service->options().DebugString();
-                childAlt->setDocument(ArgParse::ParsedDocument::getOptionString(doc));
+                childAlt->setDocument(m_service->options().GetExtension(service_doc));
                 result->addChild(childAlt);
             }
             return result;
