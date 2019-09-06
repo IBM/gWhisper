@@ -200,7 +200,7 @@ message NumberOrStringOneOf
 
 message Int32
 {
-    int32 number = 1;
+    int32 number = 1 [ (doc) = "Interger 32 bit number" ];
 }
 
 message Uint32
@@ -210,7 +210,7 @@ message Uint32
 
 message String
 {
-    string text = 1;
+    string text = 1 [ (doc) = "String field" ];
 }
 
 message Bytes
@@ -220,7 +220,7 @@ message Bytes
 
 message Numbers
 {
-    double m_double = 1;
+    double m_double = 1 [ (doc) = "double type of Numbers" ];
     float m_float   = 2;
     int32 m_int32   = 3;
     int64 m_int64   = 4;
