@@ -22,16 +22,21 @@ namespace ArgParse
 {
     class ParsedElement;
 
-    /* With the help of node coordinates 
-     * we can easily find the relative position of a node 
+    /* With the help of node coordinates,
+     * we can easily find the relative position of a node,
      * which contains documentation.
      */
     typedef struct Coordinate
     {
         uint32_t depth; // depth in the parsed tree
         uint32_t step;  // step to right direction from root of the parsed tree.
-        uint32_t index; // step to right direction from root node of a sub tree
+        uint32_t index; // step to right direction from root node of a sub tree.
 
+        friend std::ostream & operator<< (std::ostream & out, Coordinate & obj)
+        {
+            out << "(" << obj.depth << ", "<< obj.step << ", " << obj.index << ")";
+            return out;
+        }
     } Coordinate;
 
     /* Manipulate the documents (Description of bash or fish tab completion)
@@ -41,13 +46,13 @@ namespace ArgParse
     class ParsedDocument
     {
         public:
-            ParsedDocument():
+            explicit ParsedDocument():
                 m_parseElement(nullptr),
                 m_max_step(0)
             {
             }
 
-            ParsedDocument(ParsedElement * f_parseElement):
+            explicit ParsedDocument(ParsedElement * f_parseElement):
                 m_parseElement(f_parseElement),
                 m_max_step(0)
             {
@@ -58,7 +63,7 @@ namespace ArgParse
                 return m_path;
             }
 
-            /// update the newest path from the root to the current node with document
+            /// update the newest path from the root to the current node with document.
             void updatePath(std::vector<Coordinate> f_path)
             {
                 m_path = f_path;
@@ -70,7 +75,7 @@ namespace ArgParse
                 return m_max_step;
             }
 
-            /// how many steps to right direction from the root
+            /// how many steps to right direction from the root.
             void calculateStepFromRoot()
             {
                 for(int i = 0; i != m_path.size(); ++i)
@@ -82,7 +87,7 @@ namespace ArgParse
                             m_path[i].step += m_path[j].index;
                         }
                     }
-                    // meanwhile update the maximum step
+                    // meanwhile update the maximum step.
                     if (m_path[i].step > m_max_step)
                     {
                         m_max_step = m_path[i].step;
@@ -98,22 +103,15 @@ namespace ArgParse
             /// for debugging
             void printPath() const
             {
-                std::cout << "(depth, index): "; // index from the subtree root
-                for(auto & node: m_path)
+                std::cout << "(depth, index, step): "; // index calculated from the subtree root, step from the root.
+                for(auto node: m_path)
                 {
-                    std::cout << "(" << node.depth << ", " << node.index << ")->";
-                }
-                std::cout << m_parseElement->getGrammarElement()->getDocument() << std::endl;
-
-                std::cout << "(depth, step): "; // step from the root
-                for(auto & node: m_path)
-                {
-                    std::cout << "(" << node.depth << ", " << node.step << ")->";
+                    std::cout << node << "->";
                 }
                 std::cout << m_parseElement->getGrammarElement()->getDocument() << std::endl;
             }
 
-            static std::string getOptionString(std::string f_optString);
+            static std::string getOptionString(std::string f_optString);// not used, only for formatting the options().DebugString() of protobuf reflection.
 
         private:
             std::vector<Coordinate> m_path;
@@ -121,7 +119,7 @@ namespace ArgParse
             ParsedElement * m_parseElement;
     };
 
-    /// abstract the document info tree, stored as coordinates
+    /// abstract the document info tree, stored as coordinates.
     /// @param f_parseElement the root of parsed tree.
     /// @param f_out_documents find all document info and tored in the abstract tree.
     /// @param f_path the path from the root to the current node with document reached, and stored as coordinates.

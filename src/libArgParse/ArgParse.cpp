@@ -55,6 +55,7 @@ std::string ArgParse::ParsedElement::getShortDocument()
     std::vector<Coordinate> paths;
     ArgParse::abstractDocTree(this, documents, paths, 0, 0);
 
+    // for debugging
     // for(auto & document_info : documents)
     // {
     //     document_info.printPath();
