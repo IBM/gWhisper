@@ -24,6 +24,7 @@ set(TARGET_SRC
     OptionalTest.cpp
     RepetitionTest.cpp
     GrammarComboTests.cpp
+    ParsedDocumentTest.cpp
     testmain.cpp
     )
 

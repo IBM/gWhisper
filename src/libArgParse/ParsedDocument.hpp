@@ -29,12 +29,12 @@ namespace ArgParse
     typedef struct Coordinate
     {
         uint32_t depth; // depth in the parsed tree
-        uint32_t step;  // step to right direction from root of the parsed tree.
         uint32_t index; // step to right direction from root node of a sub tree.
+        uint32_t step;  // step to right direction from root of the parsed tree.
 
         friend std::ostream & operator<< (std::ostream & out, Coordinate & obj)
         {
-            out << "(" << obj.depth << ", "<< obj.step << ", " << obj.index << ")";
+            out << "(" << obj.depth << ", "<< obj.index << ", " << obj.step << ")";
             return out;
         }
     } Coordinate;
@@ -61,6 +61,11 @@ namespace ArgParse
             std::vector<Coordinate> getPath() const
             {
                 return m_path;
+            }
+
+            void addNodeToPath(Coordinate f_node)
+            {
+                m_path.push_back(f_node);
             }
 
             /// update the newest path from the root to the current node with document.
