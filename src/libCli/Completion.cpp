@@ -49,6 +49,9 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
 
         std::string suggestionDoc = candidate.get()->getShortDocument();
         std::string suggestionDocRoot = f_parseTree.getShortDocument();
+        /// here the document (description of the tab completion) extracted from the original parsed tree and from the candidate tree should be compared,
+        /// if there is no new document of candidate in the parsed tree, that means the both extracted documents must same,
+        ///we only find the document at the right most position in the parsed tree (the newest) for tab completion.
         if(suggestionDocRoot == suggestionDoc)
         {
             suggestionDoc = "";
