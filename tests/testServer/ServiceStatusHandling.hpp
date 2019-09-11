@@ -16,7 +16,7 @@
 
 #include "examples.grpc.pb.h"
 
-class ServiceScalarTypeRpcs final : public examples::StatusHandling::Service
+class ServiceStatusHandling final : public examples::StatusHandling::Service
 {
     virtual  ::grpc::Status neverEndingRpc(
             ::grpc::ServerContext* context,

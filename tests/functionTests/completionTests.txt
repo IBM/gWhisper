@@ -29,6 +29,7 @@
 127.0.0.1 examples.NestedTypeRpcs   (Nested and recursive datastructures)
 127.0.0.1 examples.ComplexTypeRpcs           (Enum, oneof, repeated, map)
 127.0.0.1 examples.StreamingRpcs        (uni- and bi-directional streams)
+127.0.0.1 examples.StatusHandling                   (gRPC error handling)
 /^127.0.0.1 grpc.reflection.*$
 #END_TEST
 
