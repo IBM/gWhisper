@@ -145,25 +145,25 @@ enum Colors
 message RepeatedNumberAndString
 {
     option (message_doc) = "Multiple Number/String pairs";
-    repeated NumberAndString number_and_strings = 1 [ (doc) = "Multiple Number/String pairs"];
+    repeated NumberAndString number_and_strings = 1 [ (field_doc) = "Multiple Number/String pairs"];
 }
 
 message RepeatedNumbers
 {
     option (message_doc) = "Message with numbers";
-    repeated uint32 numbers = 1 [ (doc) = "List of uint32"];
+    repeated uint32 numbers = 1 [ (field_doc) = "List of uint32"];
 }
 
 message NumberMap
 {
     option (message_doc) = "Message with map";
-    map<uint32, string> number_to_string = 1 [ (doc) = "map uint32 -> string"];
+    map<uint32, string> number_to_string = 1 [ (field_doc) = "map uint32 -> string"];
 }
 
 message RepeatedColors
 {
     option (message_doc) = "Message with color list";
-    repeated Colors colors = 1 [ (doc) = "List of color enum values"];
+    repeated Colors colors = 1 [ (field_doc) = "List of color enum values"];
 }
 
 message ColorEnum
@@ -192,15 +192,15 @@ message NumberOrStringOneOf
     }
     oneof number_or_string
     {
-        int32 number = 1 [ (doc) = "Only a number" ];
-        string str   = 2 [ (doc) = "Only a string" ];
-        NumberAndString both = 3 [ (doc) = "Both, a number and a string" ];
+        int32 number = 1 [ (field_doc) = "Only a number" ];
+        string str   = 2 [ (field_doc) = "Only a string" ];
+        NumberAndString both = 3 [ (field_doc) = "Both, a number and a string" ];
     }
 }
 
 message Int32
 {
-    int32 number = 1 [ (doc) = "Interger 32 bit number" ];
+    int32 number = 1 [ (field_doc) = "Interger 32 bit number" ];
 }
 
 message Uint32
@@ -210,7 +210,7 @@ message Uint32
 
 message String
 {
-    string text = 1 [ (doc) = "String field" ];
+    string text = 1 [ (field_doc) = "String field" ];
 }
 
 message Bytes
@@ -220,7 +220,7 @@ message Bytes
 
 message Numbers
 {
-    double m_double = 1 [ (doc) = "double type of Numbers" ];
+    double m_double = 1 [ (field_doc) = "double type of Numbers" ];
     float m_float   = 2;
     int32 m_int32   = 3;
     int64 m_int64   = 4;
@@ -262,13 +262,13 @@ message NestedMaps
     option (message_doc) = "Nested map";
     message SubMessage
     {
-        map<uint32, uint32> simple_map_int = 1 [ (doc) = "Map uint32 -> uint32"];
-        map<string, uint32> simple_map_string = 2 [ (doc) = "Map string -> uint32"];
+        map<uint32, uint32> simple_map_int = 1 [ (field_doc) = "Map uint32 -> uint32"];
+        map<string, uint32> simple_map_string = 2 [ (field_doc) = "Map string -> uint32"];
     }
-    NumberAndString number_and_string = 1 [ (doc) = "Simple sub-message"];
-    SubMessage sub_message = 2 [ (doc) = "Sub-message containing maps"];
-    map<uint32, uint32> simple_map_int = 3 [ (doc) = "map uint32 -> uint32"];
-    map<string, uint32> simple_map_string = 4 [ (doc) = "Map string -> uint32"];
+    NumberAndString number_and_string = 1 [ (field_doc) = "Simple sub-message"];
+    SubMessage sub_message = 2 [ (field_doc) = "Sub-message containing maps"];
+    map<uint32, uint32> simple_map_int = 3 [ (field_doc) = "map uint32 -> uint32"];
+    map<string, uint32> simple_map_string = 4 [ (field_doc) = "Map string -> uint32"];
 }
 
 message RecursiveMaps

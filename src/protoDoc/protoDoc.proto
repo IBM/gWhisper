@@ -15,7 +15,7 @@ extend google.protobuf.MessageOptions {
 }
 
 extend google.protobuf.FieldOptions {
-    string doc = 51002;
+    string field_doc = 51002;
 }
 
 

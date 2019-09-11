@@ -210,4 +210,3 @@ void ArgParse::abstractDocTree(ParsedElement * f_parseElement, std::vector<Parse
         abstractDocTree(children[i].get(), f_out_documents, f_path, f_depth+1, i);
     }
 }
-

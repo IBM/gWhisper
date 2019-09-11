@@ -248,7 +248,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                     break;
             }
 
-            if(f_field->options().GetExtension(doc).empty())
+            if(f_field->options().GetExtension(field_doc).empty())
             {
                 f_fieldGrammar->setDocument(defaultDoc);
             }
@@ -279,11 +279,11 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 //std::cerr << "Iterating field " << std::to_string(i) << " of message " << f_messageDescriptor->name() << "with name: '" << field->name() <<"'"<< std::endl;
 
                 // now we add grammar to the fieldsAlt alternation:
-                auto fieldGrammar = m_grammar.createElement<Concatenation>("Field"); //concatenation
+                auto fieldGrammar = m_grammar.createElement<Concatenation>("Field");
                 fieldGrammar->addChild(m_grammar.createElement<FixedString>(field->name(), "FieldName"));
                 fieldGrammar->addChild(m_grammar.createElement<FixedString>("="));
                 fieldsAlt->addChild(fieldGrammar);
-                fieldGrammar->setDocument(field->options().GetExtension(doc));//get the in the custom filed option of .proto definited document and set it into the grammer.
+                fieldGrammar->setDocument(field->options().GetExtension(field_doc));//get the in the custom filed option of .proto definited document and set it into the grammer.
                 if(field->is_repeated())
                 {
                     auto repeatedValue = m_grammar.createElement<Concatenation>("RepeatedValue");
@@ -363,7 +363,7 @@ class GrammarInjectorMethods : public GrammarInjector
                 {
                     auto childAlt = m_grammar.createElement<FixedString>(service->method(i)->name());
                     //childAlt->setDocument(service->method(i)->input_type()->options().GetExtension(rpc_doc))//custom option in protoDoc: message_doc
-                    childAlt->setDocument(service->method(i)->options().GetExtension(rpc_doc));//grpc doc (methodcustom option in protoDoc: method_doc)
+                    childAlt->setDocument(service->method(i)->options().GetExtension(rpc_doc));//grpc field_doc (methodcustom option in protoDoc: method_doc)
                     result->addChild(childAlt);
                 }
             }
