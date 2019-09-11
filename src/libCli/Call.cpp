@@ -263,7 +263,6 @@ int call(ParsedElement & parseTree)
 
         // print out string representation of the message:
         std::string msgString;
-
         // decide on message formatting method to use:
         bool customOutputFormatRequested = false;
         ParsedElement customFormatParseTree = parseTree.findFirstSubTree("CustomOutputFormat", customOutputFormatRequested);

@@ -31,6 +31,7 @@ class GrammarElement
             m_parent(this),
             m_typeName(f_typeName),
             m_elementName(f_elementName),
+            m_document(""),
             m_instanceId(getAndIncrementInstanceCounter())
         {
         }
@@ -115,6 +116,16 @@ class GrammarElement
             return m_elementName;
         }
 
+        std::string getDocument() const
+        {
+            return m_document;
+        }
+
+        void setDocument(const std::string & f_document)
+        {
+            m_document = f_document;
+        }
+
         virtual ~GrammarElement()
         {
 
@@ -123,7 +134,7 @@ class GrammarElement
         virtual std::string getDotNode()
         {
             std::string result = "";
-            result += "n" + std::to_string(m_instanceId) + "[label=\"" + std::to_string(m_instanceId) + " " + m_typeName + " " + m_elementName + " " + m_tag + "\"];\n";
+            result += "n" + std::to_string(m_instanceId) + "[label=\"" + std::to_string(m_instanceId) + " " + m_typeName + " " + m_elementName + " " + m_tag + " doc: \\\""+ m_document + "\\\"" + "\"];\n";
             for(auto child : m_children)
             {
                 result += " n" + std::to_string(m_instanceId) + " -> n" + std::to_string(child->m_instanceId) + ";\n";
@@ -139,6 +150,7 @@ class GrammarElement
         const std::string m_typeName;
         const std::string m_elementName;
         const uint32_t m_instanceId;
+        std::string m_document;
     private:
         static uint32_t getAndIncrementInstanceCounter()
         {

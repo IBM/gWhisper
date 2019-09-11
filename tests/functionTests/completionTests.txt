@@ -19,17 +19,17 @@
 
 #START_TEST complete a space after option
 @@CMD@@ --complete
---complete 
+--complete
 #END_TEST
 
 #START_TEST Complete port or services
 @@CMD@@ --complete 127.0.0.1 
 127.0.0.1:
-127.0.0.1 examples.ScalarTypeRpcs 
-127.0.0.1 examples.NestedTypeRpcs 
-127.0.0.1 examples.ComplexTypeRpcs 
-127.0.0.1 examples.StreamingRpcs 
-127.0.0.1 examples.StatusHandling 
+127.0.0.1 examples.ScalarTypeRpcs              (int, bool, string, bytes)
+127.0.0.1 examples.NestedTypeRpcs   (Nested and recursive datastructures)
+127.0.0.1 examples.ComplexTypeRpcs           (Enum, oneof, repeated, map)
+127.0.0.1 examples.StreamingRpcs        (uni- and bi-directional streams)
+127.0.0.1 examples.StatusHandling                   (gRPC error handling)
 /^127.0.0.1 grpc.reflection.*$
 #END_TEST
 
@@ -38,48 +38,48 @@
 ##############################################################################
 
 #START_TEST complete RPCs
-@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs 
-examples.ScalarTypeRpcs incrementNumbers 
-examples.ScalarTypeRpcs negateBool 
-examples.ScalarTypeRpcs capitalizeString 
-examples.ScalarTypeRpcs bitwiseInvertBytes 
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs
+examples.ScalarTypeRpcs incrementNumbers
+examples.ScalarTypeRpcs negateBool
+examples.ScalarTypeRpcs capitalizeString
+examples.ScalarTypeRpcs bitwiseInvertBytes
 #END_TEST
 
 #START_TEST l1 number fields
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs incrementNumbers
-incrementNumbers m_double=
-incrementNumbers m_float=
-incrementNumbers m_int32=
-incrementNumbers m_int64=
-incrementNumbers m_uint32=
-incrementNumbers m_uint64=
+incrementNumbers m_double=         (double type of Numbers)
+incrementNumbers m_float=                     (Type: float)
+incrementNumbers m_int32=            (Type: integer 32 bit)
+incrementNumbers m_int64=            (Type: integer 64 bit)
+incrementNumbers m_uint32=  (Type: unsigned integer 32 bit)
+incrementNumbers m_uint64=  (Type: unsigned integer 64 bit)
 #END_TEST
 
 #START_TEST l1 bytes field
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes
-bitwiseInvertBytes data=0x
-bitwiseInvertBytes data=file://
+bitwiseInvertBytes data=0x       (Type: string)
+bitwiseInvertBytes data=file://  (Type: string)
 #END_TEST
 
 #START_TEST l1 bytes field
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs capitalizeString 
-capitalizeString text=
+capitalizeString text=  (String field)
 #END_TEST
 
 #START_TEST l1 bool field
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs negateBool
-negateBool m_bool=true
-negateBool m_bool=false
-negateBool m_bool=1
-negateBool m_bool=0
+negateBool m_bool=true   (Type: boolean)
+negateBool m_bool=false  (Type: boolean)
+negateBool m_bool=1      (Type: boolean)
+negateBool m_bool=0      (Type: boolean)
 #END_TEST
 
 #START_TEST l1 bool field only value
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs negateBool m_bool=
-true
-false
-1
-0
+true   (Type: boolean)
+false  (Type: boolean)
+1      (Type: boolean)
+0      (Type: boolean)
 #END_TEST
 
 ##############################################################################
@@ -89,7 +89,7 @@ false
 
 #START_TEST repeated number field
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers
-addAllNumbers numbers=:
+addAllNumbers numbers=:  (List of uint32)
 #END_TEST
 
 #START_TEST repeated number field numbers cannot be completed
@@ -98,74 +98,74 @@ addAllNumbers numbers=:
 
 #START_TEST repeated number field After number choide: colon or comma
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:324
-324, 
-324:
+324,  (List of uint32)
+324:  (List of uint32)
 #END_TEST
 
 #START_TEST repeated number field After number choide: colon or comma
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:123, 324
-324, 
-324:
+324,  (List of uint32)
+324:  (List of uint32)
 #END_TEST
 
 #START_TEST enum values
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoColorEnum color=
-white
-black
-red
-green
-blue
+white  (Type: enum)
+black  (Type: enum)
+red    (Type: enum)
+green  (Type: enum)
+blue   (Type: enum)
 #END_TEST
 
 #START_TEST oneof input choices again
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs sendNumberOrStringOneOf both=:number=5 str=5:
- number=
- str=
- both=
+ number=                (Only a number)
+ str=                   (Only a string)
+ both=    (Both, a number and a string)
 #END_TEST
 
 #START_TEST oneof input choices
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs sendNumberOrStringOneOf 
-sendNumberOrStringOneOf number=
-sendNumberOrStringOneOf str=
-sendNumberOrStringOneOf both=
+sendNumberOrStringOneOf number=                (Only a number)
+sendNumberOrStringOneOf str=                   (Only a string)
+sendNumberOrStringOneOf both=    (Both, a number and a string)
 #END_TEST
 
 #START_TEST repeated enum complete the only field
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs getLastColor 
-getLastColor colors=:white
-getLastColor colors=:black
-getLastColor colors=:red
-getLastColor colors=:green
-getLastColor colors=:blue
+getLastColor colors=:white  (List of color enum values)
+getLastColor colors=:black  (List of color enum values)
+getLastColor colors=:red    (List of color enum values)
+getLastColor colors=:green  (List of color enum values)
+getLastColor colors=:blue   (List of color enum values)
 #END_TEST
 
 #START_TEST repeated enum, complete first element after field name
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs getLastColor colors=:
-white
-black
-red
-green
-blue
+white  (List of color enum values)
+black  (List of color enum values)
+red    (List of color enum values)
+green  (List of color enum values)
+blue   (List of color enum values)
 #END_TEST
 
 #START_TEST repeated enum, complete second element
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs getLastColor colors=:black
-black, white
-black, black
-black, red
-black, green
-black, blue
-black:
+black, white  (List of color enum values)
+black, black  (List of color enum values)
+black, red    (List of color enum values)
+black, green  (List of color enum values)
+black, blue   (List of color enum values)
+black:        (List of color enum values)
 #END_TEST
 
 #START_TEST repeated enum, complete second element after comma
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs getLastColor colors=:black, 
-black, white
-black, black
-black, red
-black, green
-black, blue
+black, white  (List of color enum values)
+black, black  (List of color enum values)
+black, red    (List of color enum values)
+black, green  (List of color enum values)
+black, blue   (List of color enum values)
 #END_TEST
 
 #START_TEST repeated enum, complete after last element colon
@@ -179,22 +179,22 @@ black, blue
 
 #START_TEST repeated sub message
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings
-echoNumberAndStrings number_and_strings=::number=
-echoNumberAndStrings number_and_strings=::str=
+echoNumberAndStrings number_and_strings=::number=  (Type: unsigned integer 32 bit)
+echoNumberAndStrings number_and_strings=::str=                      (Type: string)
 #END_TEST
 
 #START_TEST repeated sub message after first element
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::number=5 str=asd
-asd number=
-asd str=
-asd:
+asd number=  (Type: unsigned integer 32 bit)
+asd str=                      (Type: string)
+asd:                          (Type: string)
 #END_TEST
 
 #START_TEST repeated sub message after first element end
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::number=5 str=asd:
-, :number=
-, :str=
-:
+, :number=  (Type: unsigned integer 32 bit)
+, :str=                      (Type: string)
+:                            (Type: string)
 #END_TEST
 
 #START_TEST Custom Output format modifiers

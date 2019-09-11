@@ -135,7 +135,7 @@ class Concatenation : public GrammarElement
                                 for(auto cnd : candidateRc.candidates)
                                 {
                                     rc.candidates.push_back(cnd);
-                                    //std::cout << "Concat " << std::to_string(m_instanceId) << " Mpush candidate '" << candidateRc.candidates[0]->getMatchedString() << "'" << std::endl; 
+                                    //std::cout << "Concat " << std::to_string(m_instanceId) << " Mpush candidate '" << candidateRc.candidates[0]->getMatchedString() << "'" << std::endl;
                                 }
                             }
                         }
