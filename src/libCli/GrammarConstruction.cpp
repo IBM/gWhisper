@@ -126,19 +126,19 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                     defaultDoc = "Type: double";
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_INT32:
-                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-]?(0x|0b)?[0-9a-fA-F]+", "FieldValue"));
+                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-]?(0x|0X|0b)?[0-9a-fA-F]+", "FieldValue"));
                     defaultDoc = "Type: integer 32 bit";
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_INT64:
-                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-]?(0x|0b)?[0-9a-fA-F]+", "FieldValue"));
+                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-]?(0x|0X|0b)?[0-9a-fA-F]+", "FieldValue"));
                     defaultDoc = "Type: integer 64 bit";
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT32:
-                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("\\+?(0x|0b)?[0-9a-fA-F]+", "FieldValue"));
+                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("\\+?(0x|0X|0b)?[0-9a-fA-F]+", "FieldValue"));
                     defaultDoc = "Type: unsigned integer 32 bit";
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT64:
-                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("\\+?(0x|0b)?[0-9a-fA-F]+", "FieldValue"));
+                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("\\+?(0x|0X|0b)?[0-9a-fA-F]+", "FieldValue"));
                     defaultDoc = "Type: unsigned integer 64 bit";
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_BOOL:
