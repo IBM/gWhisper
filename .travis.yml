@@ -7,9 +7,9 @@ dist: xenial
 
 cache: ccache
 
-addons:
-    snaps:
-        - cppcheck
+#addons:
+#    snaps:
+#        - cppcheck
 
 before_install:
     - sudo apt-get update
@@ -18,9 +18,8 @@ before_install:
 
 script:
     - ./build.sh
-    - cppcheck --enable=warning,style,performance,portability,unusedFunction --std=c++11 -DGOOGLE_PROTOBUF_VERSION=3006001 --project=compile_commands.json --suppress='*:*third_party*' --suppress='*:*gWhisper/build/*' --quiet
+#    - cppcheck --enable=warning,style,performance,portability,unusedFunction --std=c++11 -DGOOGLE_PROTOBUF_VERSION=3006001 --project=compile_commands.json --suppressions-list=travis/cppcheck_suppressions.txt --quiet
     - cd build
     - ctest --verbose
     - sudo make install
     - cd ..
-

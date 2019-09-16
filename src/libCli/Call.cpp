@@ -14,9 +14,9 @@
 
 #include <libCli/Call.hpp>
 #include <third_party/gRPC_utils/cli_call.h>
-#include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
 #include <google/protobuf/dynamic_message.h>
 #include <libCli/OutputFormatting.hpp>
+#include <libCli/ConnectionManager.hpp>
 #include <libCli/MessageParsing.hpp>
 #include <chrono>
 #include <ctime>
@@ -155,20 +155,18 @@ int call(ParsedElement & parseTree)
 {
     std::string serverAddress = parseTree.findFirstChild("ServerAddress");
     std::string serverPort = parseTree.findFirstChild("ServerPort");
-    if(serverPort == "")
-    {
-        serverPort = "50051";
-    }
-    serverAddress += ":" + serverPort;
-
     std::string serviceName = parseTree.findFirstChild("Service");
     std::string methodName = parseTree.findFirstChild("Method");
     bool argsExist;
     ParsedElement & methodArgs = parseTree.findFirstSubTree("MethodArgs", argsExist);
 
-    std::shared_ptr<grpc::Channel> channel =
-        grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
+    if(serverPort == "")
+    {
+        serverPort = "50051";
+    }
+    serverAddress = serverAddress + ":" + serverPort;
 
+    std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
     if(not waitForChannelConnected(channel, getConnectTimeoutMs(&parseTree)))
     {
@@ -176,10 +174,7 @@ int call(ParsedElement & parseTree)
         return -1;
     }
 
-    grpc::ProtoReflectionDescriptorDatabase descDb(channel);
-    grpc::protobuf::DescriptorPool descPool(&descDb);
-
-    const grpc::protobuf::ServiceDescriptor* service = descPool.FindServiceByName(serviceName);
+    const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
     if(service == nullptr)
     {
         std::cerr << "Error: Service '" << serviceName << "' not found" << std::endl;
@@ -193,46 +188,23 @@ int call(ParsedElement & parseTree)
         return -1;
     }
 
-    if(method->client_streaming())
-    {
-        std::cerr << "Error: Client streaming RPCs not supported." << std::endl;
-        return -1;
-    }
-
     const grpc::protobuf::Descriptor* inputType = method->input_type();
 
     // now we have to construct a protobuf from the parsed argument, which corresponds to the inputType
     google::protobuf::DynamicMessageFactory dynamicFactory;
 
-    // read data from the parse tree into the protobuf message:
-    std::unique_ptr<grpc::protobuf::Message> message = cli::parseMessage(parseTree, dynamicFactory, inputType);
+    std::vector<ArgParse::ParsedElement*> requestMessages;
+    // search all passed messages: (true flag prevents searching sub-messages)
+    parseTree.findAllSubTrees("Message", requestMessages, true);
 
-
-
-    if(parseTree.findFirstChild("PrintParsedMessage") != "")
+    if(not method->client_streaming() and requestMessages.size() == 0)
     {
-        // use built-in human readable output format
-        cli::OutputFormatter imessageFormatter;
-        std::cout << "Request message:" << std::endl <<  imessageFormatter.messageToString(*message, method->input_type(), "| ", "| " ) << std::endl;
+        // User did not give any message arguments for non-streaming RPC
+        // In this case we just add the parseTree, which causes a default message to be cunstructed:
+        requestMessages.push_back(&parseTree);
     }
 
-
-    if(not message)
-    {
-        std::cerr << "Error: Error parsing method arguments -> aborting the call :-(" << std::endl;
-        return -1;
-    }
-
-    // now we serialize the message:
-    grpc::string serializedRequest;
-    bool success = message->SerializeToString(&serializedRequest);
-    if(not success)
-    {
-        std::cerr << "Error: Failed to serialize method arguments" << std::endl;
-        return -1;
-    }
-
-    // now we do the actual RPC call:
+    // Prepare the RPC call:
     std::multimap<grpc::string, grpc::string> clientMetadata;
     grpc::string serializedResponse;
     std::multimap<grpc::string_ref, grpc::string_ref> serverMetadataA;
@@ -240,7 +212,39 @@ int call(ParsedElement & parseTree)
 
     std::string methodStr =  "/" + serviceName + "/" + methodName;
     grpc::testing::CliCall call(channel, methodStr, clientMetadata);
-    call.Write(serializedRequest);
+
+    // Write all request messages (multiple in case of request stream)
+    for(ArgParse::ParsedElement * messageParseTree : requestMessages)
+    {
+        // read data from the parse tree into the protobuf message:
+        std::unique_ptr<grpc::protobuf::Message> message = cli::parseMessage(*messageParseTree, dynamicFactory, inputType);
+
+        if(parseTree.findFirstChild("PrintParsedMessage") != "")
+        {
+            // use built-in human readable output format
+            cli::OutputFormatter imessageFormatter;
+            std::cout << "Request message:" << std::endl <<  imessageFormatter.messageToString(*message, method->input_type(), "| ", "| " ) << std::endl;
+        }
+
+        if(not message)
+        {
+            std::cerr << "Error: Error parsing method arguments -> aborting the call :-(" << std::endl;
+            return -1;
+        }
+
+        // now we serialize the message:
+        grpc::string serializedRequest;
+        bool success = message->SerializeToString(&serializedRequest);
+        if(not success)
+        {
+            std::cerr << "Error: Failed to serialize method arguments" << std::endl;
+            return -1;
+        }
+
+        call.Write(serializedRequest);
+    }
+
+    // End the request stream. (This is a limitation of gWhisper streaming support, as we sequentially stream all request messages, then end the stream and then handle the reply stream.) No async streaming is possible via this CLI at the moment.
     call.WritesDone();
 
     // In a loop we read reply data from the reply stream:
@@ -259,7 +263,6 @@ int call(ParsedElement & parseTree)
 
         // print out string representation of the message:
         std::string msgString;
-
         // decide on message formatting method to use:
         bool customOutputFormatRequested = false;
         ParsedElement customFormatParseTree = parseTree.findFirstSubTree("CustomOutputFormat", customOutputFormatRequested);
@@ -272,6 +275,12 @@ int call(ParsedElement & parseTree)
             if(parseTree.findFirstChild("NoColor") != "")
             {
                 messageFormatter.clearColorMap();
+            }
+
+            // disable map output as key => value if explicitly specified:
+            if(parseTree.findFirstChild("NoSimpleMapOutput") != "")
+            {
+                messageFormatter.disableSimpleMapOutput();
             }
 
             // automatically disable colored output, when outputting to something

@@ -36,7 +36,6 @@ class FixedString : public GrammarElement
             ParseRc rc;
             ParseRc childRc;
             f_out_ParsedElement.setGrammarElement(this);
-
             //std::cout << " FixedString"<< std::to_string(m_instanceId) <<  "parsing '" << std::string(f_string) << "'" << std::endl;
             //printf("comparing: '%s' == '%s'\n", f_string, m_string.c_str());
             if(strncmp(m_string.c_str(), f_string, m_string.size()) == 0)
@@ -76,7 +75,7 @@ class FixedString : public GrammarElement
         virtual std::string getDotNode() override
         {
             std::string result = "";
-            result += "n" + std::to_string(m_instanceId) + "[label=\"" + std::to_string(m_instanceId) + " " + m_typeName + " " + m_elementName + " " + m_tag + "'" + m_string  + "'\"];\n";
+            result += "n" + std::to_string(m_instanceId) + "[label=\"" + std::to_string(m_instanceId) + " " + m_typeName + " " + m_elementName + " " + m_tag + "'" + m_string  + "'"  + " doc: \\\""+ m_document + "\\\"" + "\"];\n";
             return result;
         }
     private:

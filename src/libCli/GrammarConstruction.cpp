@@ -14,8 +14,9 @@
 
 #include <libCli/GrammarConstruction.hpp>
 #include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
-
 #include <libCli/cliUtils.hpp>
+#include <libCli/ConnectionManager.hpp>
+#include "protoDoc/protoDoc.pb.h"
 
 using namespace ArgParse;
 
@@ -35,7 +36,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         {
         }
 
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree) override
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
         {
             // FIXME: we are already completing this without a service parsed.
             //  this works in most cases, as it will just fail. however this is not really a nice thing.
@@ -43,47 +44,54 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             std::string serverPort = f_parseTree->findFirstChild("ServerPort");
             std::string serviceName = f_parseTree->findFirstChild("Service");
             std::string methodName = f_parseTree->findFirstChild("Method");
-
-            //std::cout << f_parseTree->getDebugString() << std::endl;
-            //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
             if(serverPort == "")
             {
                 serverPort = "50051";
             }
-            serverAddress += ":" + serverPort;
-            //std::cout << "Server addr: " << serverAddress << std::endl;
-            std::shared_ptr<grpc::Channel> channel =
-                grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
+            serverAddress = serverAddress + ":" + serverPort;
+
+            //std::cout << f_parseTree->getDebugString() << std::endl;
+            //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
+                f_ErrorMessage = "Error: Could not connect the Server.";
                 return nullptr;
             }
 
-            grpc::ProtoReflectionDescriptorDatabase descDb(channel);
-            grpc::protobuf::DescriptorPool descPool(&descDb);
+            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
 
-            const grpc::protobuf::ServiceDescriptor* service = descPool.FindServiceByName(serviceName);
             if(service == nullptr)
             {
-                //std::cerr << "Error: Service not found" << std::endl;
+                f_ErrorMessage = "Error: Service not found.";
                 return nullptr;
             }
 
             auto method = service->FindMethodByName(methodName);
             if(method == nullptr)
             {
-                //std::cerr << "Error: Method not found" << std::endl;
+                f_ErrorMessage = "Error: Method not found.";
                 return nullptr;
             }
 
             if(method->client_streaming())
             {
-                std::cerr << "Error: Client streaming RPCs not supported." << std::endl;
-                return nullptr;
-            }
+                ArgParse::GrammarFactory grammarFactory(m_grammar);
 
-            return getMessageGrammar("Message", method->input_type());
+                return grammarFactory.createList(
+                    "RequestStream",
+                    getMessageGrammar("Message", method->input_type(), m_grammar.createElement<FixedString>(":")),
+                    m_grammar.createElement<WhiteSpace>(),
+                    false,
+                    nullptr,
+                    nullptr
+                    );
+            }
+            else
+            {
+                return getMessageGrammar("Message", method->input_type());
+            }
             //auto concat = m_grammar.createElement<Concatenation>();
 
             //auto separation = m_grammar.createElement<WhiteSpace>();
@@ -104,20 +112,34 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
         void addFieldValueGrammar(GrammarElement * f_fieldGrammar, const grpc::protobuf::FieldDescriptor * f_field)
         {
+
+            std::string defaultDoc;
             switch(f_field->cpp_type())
             {
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_FLOAT:
+                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-\\.pP0-9a-fA-F]+", "FieldValue"));
+                    defaultDoc = "Type: float";
+                    break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_DOUBLE:
                     // TODO: make regex match closer
                     f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-\\.pP0-9a-fA-F]+", "FieldValue"));
+                    defaultDoc = "Type: double";
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_INT32:
+                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-]?(0x|0b)?[0-9a-fA-F]+", "FieldValue"));
+                    defaultDoc = "Type: integer 32 bit";
+                    break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_INT64:
                     f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-]?(0x|0b)?[0-9a-fA-F]+", "FieldValue"));
+                    defaultDoc = "Type: integer 64 bit";
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT32:
+                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("\\+?(0x|0b)?[0-9a-fA-F]+", "FieldValue"));
+                    defaultDoc = "Type: unsigned integer 32 bit";
+                    break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT64:
                     f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("\\+?(0x|0b)?[0-9a-fA-F]+", "FieldValue"));
+                    defaultDoc = "Type: unsigned integer 64 bit";
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_BOOL:
                     {
@@ -127,6 +149,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                         boolGrammar->addChild(m_grammar.createElement<FixedString>("1"));
                         boolGrammar->addChild(m_grammar.createElement<FixedString>("0"));
                         f_fieldGrammar->addChild(boolGrammar);
+                        defaultDoc = "Type: boolean";
                         break;
                     }
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_ENUM:
@@ -140,6 +163,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                             enumGrammar->addChild(m_grammar.createElement<FixedString>(enumValueDesc->name()));
                         }
                         f_fieldGrammar->addChild(enumGrammar);
+                        defaultDoc = "Type: enum";
                         break;
                     }
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_STRING:
@@ -177,6 +201,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                         // Using this as a workaround until parser gets better regex support
                         f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[^:, ]*", "FieldValue"));
                     }
+                    defaultDoc = "Type: string";
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE:
                     {
@@ -214,11 +239,18 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
                         //subMessage->addChild(m_grammar.createElement<FixedString>(":"));
                         f_fieldGrammar->addChild(subMessage);
+                        defaultDoc = "Type: message";
                         break;
                     }
                 default:
                     std::cerr << "Field '" << f_field->name() << "' has unsupported type: '" << f_field->type_name() << "'" << std::endl;
+                    defaultDoc = "Type: unsupported";
                     break;
+            }
+
+            if(f_field->options().GetExtension(field_doc).empty())
+            {
+                f_fieldGrammar->setDocument(defaultDoc);
             }
         }
 
@@ -265,6 +297,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 fieldGrammar->addChild(m_grammar.createElement<FixedString>(field->name(), "FieldName"));
                 fieldGrammar->addChild(m_grammar.createElement<FixedString>("="));
                 fieldsAlt->addChild(fieldGrammar);
+                fieldGrammar->setDocument(field->options().GetExtension(field_doc));//get the in the custom filed option of .proto definited document and set it into the grammer.
                 if(field->is_repeated())
                 {
                     auto repeatedValue = m_grammar.createElement<Concatenation>("RepeatedValue");
@@ -314,46 +347,43 @@ class GrammarInjectorMethods : public GrammarInjector
         {
         }
 
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree) override
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
         {
             // FIXME: we are already completing this without a service parsed.
             //  this works in most cases, as it will just fail. however this is not really a nice thing.
             std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
             std::string serverPort = f_parseTree->findFirstChild("ServerPort");
             std::string serviceName = f_parseTree->findFirstChild("Service");
-
-            //std::cout << f_parseTree->getDebugString() << std::endl;
-            //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << std::endl;
             if(serverPort == "")
             {
                 serverPort = "50051";
             }
-            serverAddress += ":" + serverPort;
-            //std::cout << "Server addr: " << serverAddress << std::endl;
-            std::shared_ptr<grpc::Channel> channel =
-                grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
-
+            serverAddress = serverAddress + ":" + serverPort;
+            //std::cout << f_parseTree->getDebugString() << std::endl;
+            //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << std::endl;
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
+                f_ErrorMessage = "Error: Could not connect the Server.";
                 return nullptr;
             }
 
-            grpc::ProtoReflectionDescriptorDatabase descDb(channel);
-            grpc::protobuf::DescriptorPool descPool(&descDb);
-
-            const grpc::protobuf::ServiceDescriptor* service = descPool.FindServiceByName(serviceName);
-
+            const grpc::protobuf::ServiceDescriptor* service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
             auto result = m_grammar.createElement<Alternation>();
             if(service != nullptr)
             {
                 for (int i = 0; i < service->method_count(); ++i)
                 {
-                    result->addChild(m_grammar.createElement<FixedString>(service->method(i)->name()));
+                    auto childAlt = m_grammar.createElement<FixedString>(service->method(i)->name());
+                    //childAlt->setDocument(service->method(i)->input_type()->options().GetExtension(rpc_doc))//custom option in protoDoc: message_doc
+                    childAlt->setDocument(service->method(i)->options().GetExtension(rpc_doc));//grpc field_doc (methodcustom option in protoDoc: method_doc)
+                    result->addChild(childAlt);
                 }
             }
             else
             {
+                f_ErrorMessage = "Error: Service not found.";
                 return nullptr;
             }
             return result;
@@ -377,7 +407,7 @@ class GrammarInjectorServices : public GrammarInjector
         {
         }
 
-        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree) override
+        virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
         {
             std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
             std::string serverPort = f_parseTree->findFirstChild("ServerPort");
@@ -385,31 +415,30 @@ class GrammarInjectorServices : public GrammarInjector
             {
                 serverPort = "50051";
             }
-            serverAddress += ":" + serverPort;
-            //std::cout << "Server addr: " << serverAddress << std::endl;
-            std::shared_ptr<grpc::Channel> channel =
-                grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials());
+            serverAddress = serverAddress + ":" + serverPort;
 
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
+                f_ErrorMessage = "Error: Server not found.";
                 return nullptr;
             }
 
-            grpc::ProtoReflectionDescriptorDatabase descDb(channel);
-
             std::vector<grpc::string> serviceList;
-            if(not descDb.GetServices(&serviceList) )
+            if(not ConnectionManager::getInstance().getDescDb(serverAddress)->GetServices(&serviceList))
             {
-                printf("error retrieving service list\n");
+                f_ErrorMessage = "Error: Could not retrieve service list.";
                 return nullptr;
             }
 
             auto result = m_grammar.createElement<Alternation>();
             for(auto service : serviceList)
             {
-
-                result->addChild(m_grammar.createElement<FixedString>(service));
+                auto childAlt = m_grammar.createElement<FixedString>(service);
+                const grpc::protobuf::ServiceDescriptor* m_service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(service);
+                childAlt->setDocument(m_service->options().GetExtension(service_doc));
+                result->addChild(childAlt);
             }
             return result;
         };
@@ -488,13 +517,29 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     GrammarElement * optionsalt = f_grammarPool.createElement<Alternation>();
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("-h", "Help"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--help", "Help"));
-    optionsalt->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
+
+    GrammarElement * completeOption = f_grammarPool.createElement<Concatenation>();
+    completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
+    GrammarElement * completeDialectOption = f_grammarPool.createElement<Optional>();
+    completeOption->addChild(completeDialectOption);
+    GrammarElement * completeDialectConcat = f_grammarPool.createElement<Concatenation>();
+    completeDialectOption->addChild(completeDialectConcat);
+    completeDialectConcat->addChild(f_grammarPool.createElement<FixedString>("="));
+    GrammarElement * completeDialectChoice = f_grammarPool.createElement<Alternation>("CompleteDialect");
+    completeDialectConcat->addChild(completeDialectChoice);
+    completeDialectChoice->addChild(f_grammarPool.createElement<FixedString>("bash", "bash"));
+    completeDialectChoice->addChild(f_grammarPool.createElement<FixedString>("fish", "fish"));
+    optionsalt->addChild(completeOption);
+
+
+    //completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--debugComplete", "CompleteDebug"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--dot", "DotExport"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noColor", "NoColor"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--color", "Color"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--version", "Version"));
     optionsalt->addChild(f_grammarPool.createElement<FixedString>("--printParsedMessage", "PrintParsedMessage"));
+    optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSimpleMapOutput", "NoSimpleMapOutput"));
     GrammarElement * timeoutOption = f_grammarPool.createElement<Concatenation>();
     timeoutOption->addChild(f_grammarPool.createElement<FixedString>("--connectTimeoutMilliseconds="));
     timeoutOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "connectTimeout"));

@@ -32,6 +32,7 @@ namespace cli
     }
 
     OutputFormatter::OutputFormatter() :
+        m_isSimpleMapOutput(true),
         m_colorMap{
             {ColorClass::Normal, "\e[0m\e[39m"},
             {ColorClass::VerticalGuides, "\e[2m\e[37m"},
@@ -54,6 +55,11 @@ namespace cli
     void OutputFormatter::clearColorMap()
     {
         m_colorMap.clear();
+    }
+
+    void OutputFormatter::disableSimpleMapOutput()
+    {
+        m_isSimpleMapOutput = false;
     }
 
     std::string OutputFormatter::getColor(OutputFormatter::ColorClass f_colorClass)
@@ -177,6 +183,22 @@ std::string OutputFormatter::repeatedFieldValueToString(const grpc::protobuf::Me
     }
 
     return result;
+}
+
+bool OutputFormatter::isMapEntryPrimitive(const grpc::protobuf::Descriptor* f_messageDescriptor)
+{
+    if(f_messageDescriptor->field_count() == 2)
+    {
+        if(f_messageDescriptor->field(0)->name() == "key" && f_messageDescriptor->field(1)->name() == "value")
+        {
+            if(f_messageDescriptor->field(0)->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE || f_messageDescriptor->field(1)->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE)
+            {
+                return false;
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 std::string OutputFormatter::fieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, CustomStringModifier f_modifier)
@@ -305,6 +327,102 @@ std::string OutputFormatter::fieldToString(const grpc::protobuf::Message & f_mes
             size_t nameSize = repName.size();
             result += generateHorizontalGuide(nameSize, maxFieldNameSize);
             result += " = " + colorize(ColorClass::MessageTypeName, "{}");
+        }
+        if(m_isSimpleMapOutput and f_fieldDescriptor->is_map() and isMapEntryPrimitive(f_fieldDescriptor->message_type()))
+        {
+            std::map<std::int64_t, const google::protobuf::Message*> int64Map;
+            std::map<std::uint64_t, const google::protobuf::Message*> uint64Map;
+            std::map<std::string, const google::protobuf::Message*> stringMap;
+            for(int i=0; i< numberOfRepetitions; i++)
+            {
+                if(f_fieldDescriptor->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE)
+                {
+                    //using this method to get repeated message from field
+                    const google::protobuf::Message & subMessage = reflection->GetRepeatedMessage(f_message, f_fieldDescriptor, i);
+                    const google::protobuf::FieldDescriptor * k_fieldDescriptor = f_fieldDescriptor->message_type()->field(0);
+                    const google::protobuf::Reflection * reflection = subMessage.GetReflection();
+                    switch(k_fieldDescriptor->type())
+                    {
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_SFIXED32:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_SINT32:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_INT32:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_FIXED32:
+                            {
+                                std::int64_t key = static_cast<int64_t>(reflection->GetInt32(subMessage, k_fieldDescriptor));
+                                int64Map.insert(std::make_pair(key, &subMessage));
+                            }
+                            break;
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_SFIXED64:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_SINT64:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_INT64:
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_FIXED64:
+                            {
+                                std::int64_t key = reflection->GetInt64(subMessage, k_fieldDescriptor);
+                                int64Map.insert(std::make_pair(key, &subMessage));
+                            }
+                            break;
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_UINT32:
+                            {
+                                std::uint64_t key = static_cast<uint64_t>(reflection->GetUInt32(subMessage, k_fieldDescriptor));
+                                uint64Map.insert(std::make_pair(key, &subMessage));
+                            }
+                            break;
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_UINT64:
+                            {
+                                std::uint64_t key = reflection->GetUInt64(subMessage, k_fieldDescriptor);
+                                uint64Map.insert(std::make_pair(key, &subMessage));
+                            }
+                            break;
+                        case grpc::protobuf::FieldDescriptor::Type::TYPE_STRING:
+                            {
+                                std::string key = reflection->GetString(subMessage, k_fieldDescriptor);
+                                stringMap.insert(std::make_pair(key, &subMessage));
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            // first determine which map is not empty, and then output it.
+            const google::protobuf::FieldDescriptor * v_fieldDescriptor = f_fieldDescriptor->message_type()->field(1);
+            if(!int64Map.empty())
+            {
+                result += outputMapTitle(int64Map, f_fieldDescriptor, f_currentPrefix);
+                for(auto& p: int64Map)
+                {
+                    result += "\n";
+                    result += colorize(ColorClass::VerticalGuides, f_currentPrefix+f_initPrefix);
+                    result += stringFromInt(p.first, CustomStringModifier::DecAndHex);
+                    result += " => ";
+                    result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix, CustomStringModifier::Default);
+                }
+            }
+            if(!uint64Map.empty())
+            {
+                result += outputMapTitle(uint64Map, f_fieldDescriptor, f_currentPrefix);
+                for(auto& p: uint64Map)
+                {
+                    result += "\n";
+                    result += colorize(ColorClass::VerticalGuides, f_currentPrefix+f_initPrefix);
+                    result += stringFromUInt(p.first, CustomStringModifier::DecAndHex);
+                    result += " => ";
+                    result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix, CustomStringModifier::Dec);
+                }
+            }
+            if(!stringMap.empty())
+            {
+                result += outputMapTitle(stringMap, f_fieldDescriptor, f_currentPrefix);
+                for(auto& p: stringMap)
+                {
+                    result += "\n";
+                    result += colorize(ColorClass::VerticalGuides, f_currentPrefix+f_initPrefix);
+                    result += stringFromString(p.first, CustomStringModifier::Default);
+                    result += " => ";
+                    result += fieldValueToString(*p.second, v_fieldDescriptor, f_initPrefix, f_currentPrefix, CustomStringModifier::Default);
+                }
+            }
+            return result;
         }
         for(int i = 0; i < numberOfRepetitions; i++)
         {

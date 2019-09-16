@@ -48,6 +48,7 @@
 #include <libArgParse/FixedString.hpp>
 #include <libArgParse/Optional.hpp>
 #include <libArgParse/ParsedElement.hpp>
+#include <libArgParse/ParsedDocument.hpp>
 #include <libArgParse/RegEx.hpp>
 #include <libArgParse/Repetition.hpp>
 #include <libArgParse/WhiteSpace.hpp>

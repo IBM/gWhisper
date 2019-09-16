@@ -86,6 +86,9 @@ class ParsedElement
             return m_children;
         }
 
+        //not uesd
+        ParsedElement * findRightMostElement();
+
         /// depth first search for a single element, directly returning the matched string.
         /// @param f_elementName element name to search for (inherited from grammar element)
         /// @param f_depth The maximum depth which should still be searched.
@@ -130,6 +133,12 @@ class ParsedElement
         ///  and so on.
         void findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements = false, uint32_t f_depth = std::numeric_limits<uint32_t>::max());
 
+        /// get every document of right most node in the subtree
+        std::string getShortDocument();
+
+        ///TODO: implement
+        std::string getLongDocument();
+
         void setParent(ParsedElement * f_parent)
         {
             m_parent = f_parent;
@@ -150,7 +159,6 @@ class ParsedElement
 
             return result;
         }
-
         void setStops()
         {
             if(m_children.size() == 0)

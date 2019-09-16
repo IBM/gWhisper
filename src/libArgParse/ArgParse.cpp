@@ -23,7 +23,11 @@ std::string ArgParse::ParsedElement::getDebugString(const std::string & f_prefix
     {
         return "!!Uninitialized Element!!";
     }
-    result += f_prefix + m_grammarElement->getTypeName() + "(" + m_grammarElement->getElementName() + "): \"" + getMatchedString() + "\" (" + std::string(m_stops ? "stopped" : "alive") + ")\n";
+    result += f_prefix + m_grammarElement->getTypeName() +
+        "(" + m_grammarElement->getElementName() + "/"  + m_grammarElement->getTag()+ "): "+
+        " matched string: \"" + getMatchedString() + "\" " +
+        " document: \"" + m_grammarElement->getDocument() + "\" " +
+        "(" + std::string(m_stops ? "stopped" : "alive") + ")\n";
     for(auto child : m_children)
     {
         result += child->getDebugString(f_prefix + "  ");
@@ -45,6 +49,55 @@ std::string ArgParse::ParsedElement::findFirstChild(const std::string & f_elemen
     }
 }
 
+std::string ArgParse::ParsedElement::getShortDocument()
+{
+    std::vector<ParsedDocument> documents;
+    std::vector<Coordinate> paths;
+    ArgParse::abstractDocTree(this, documents, paths, 0, 0);
+
+    // for debugging
+    // for(auto & document_info : documents)
+    // {
+    //     document_info.printPath();
+    // }
+
+    if(documents.size() != 0)
+    {
+        auto rightmost_info = documents.back();
+        for(auto& document_info : documents)
+        {
+            std::vector<Coordinate>::iterator it;
+            std::vector<Coordinate>::iterator rightmost_it = rightmost_info.getPath().begin();
+
+            for(it = document_info.getPath().begin();it != document_info.getPath().end();)
+            {
+                if(it->depth == rightmost_it->depth and it->index > rightmost_it->index)
+                {
+                    rightmost_info = document_info;
+                    break;
+                }
+                ++it;
+                ++rightmost_it;
+            }
+        }
+        return rightmost_info.getParsedElement()->getGrammarElement()->getDocument();
+    }
+    else
+    {
+        return "";
+    }
+}
+
+ArgParse::ParsedElement * ArgParse::ParsedElement::findRightMostElement()
+{
+    ParsedElement * cursor = this;
+    while(cursor->getChildren().size()!=0)
+    {
+        cursor = cursor->getChildren().back().get();
+    };
+    return cursor;
+}
+
 void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements, uint32_t f_depth)
 {
     if(m_grammarElement->getElementName() == f_elementName)
@@ -63,7 +116,7 @@ void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName,
 
     for(auto child : m_children)
     {
-        child->findAllSubTrees(f_elementName, f_out_result, f_depth - 1);
+        child->findAllSubTrees(f_elementName, f_out_result, f_doNotSearchChildsOfMatchingElements, f_depth - 1);
     }
 }
 
@@ -111,4 +164,49 @@ std::string ArgParse::Grammar::getDotGraph()
     }
     result += "}\n";
     return result;
+}
+
+// not used, only for formatting the options().DebugString() of protobuf reflection
+std::string ArgParse::ParsedDocument::getOptionString(std::string f_optString)
+{
+    std::string::size_type pos_eq = f_optString.find_first_of(':');
+    std::string output;
+    if (pos_eq != std::string::npos)
+    {
+        output = f_optString.substr(pos_eq+1);
+    }
+    output.erase(remove(output.begin(), output.end(), '"' ), output.end());
+    for(size_t i =0; i<output.length(); i++)
+    {
+        if(output[i] == '\n')
+        {
+            output[i] = ' ';
+        }
+    }
+    std::string delims = "\r\n\t ";
+    output.erase(0, output.find_first_not_of(delims));
+    output.erase(output.find_last_not_of(delims) + 1);
+
+    return output;
+}
+
+///ParsedDocument
+void ArgParse::abstractDocTree(ParsedElement * f_parseElement, std::vector<ParsedDocument> & f_out_documents, std::vector<Coordinate> f_path, uint32_t f_depth, uint32_t f_index)
+{
+    if(f_parseElement == nullptr) return;
+    ArgParse::ParsedDocument document_info(f_parseElement);
+    ArgParse::Coordinate node = {f_depth, 0, f_index}; //no column info
+    f_path.push_back(node);
+
+    if(!f_parseElement->getGrammarElement()->getDocument().empty())
+    {
+        document_info.updatePath(f_path);
+        document_info.calculateStepFromRoot();
+        f_out_documents.push_back(document_info);
+    }
+    auto children = f_parseElement->getChildren();
+    for(int i = 0; i < children.size(); ++i)
+    {
+        abstractDocTree(children[i].get(), f_out_documents, f_path, f_depth+1, i);
+    }
 }

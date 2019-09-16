@@ -76,20 +76,28 @@ class Repetition : public GrammarElement
                     // TODO: make unittest where those lists are different (partial parse should only complete partial result, but not append to successful list completions)
                     successfullyParsedChilds.push_back(newParsedElement);
                 }
+                if(childRc.isBad())
+                {
+                    rc.ErrorMessage = childRc.ErrorMessage;
+                    if (childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
+                    {
+                        rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
+                    }
+                }
             }
             // FIXME: maybe we have to move this in the loop and also process good rcs here with candidates (from optional/repetition/etc.) similarly to concat
-            if((not childRc.isGood()) && (childRc.errorType != ParseRc::ErrorType::unexpectedText))
+            if (childRc.isBad() && (childRc.errorType != ParseRc::ErrorType::unexpectedText))
             {
                 // add all candidates resulting from the child:
-                for(auto candidate : childRc.candidates)
+                for (auto candidate : childRc.candidates)
                 {
-                    //std::cout << "Rep " << std::to_string(m_instanceId) << " handling candidate '" << candidate->getMatchedString() << "'" << std::endl; 
+                    //std::cout << "Rep " << std::to_string(m_instanceId) << " handling candidate '" << candidate->getMatchedString() << "'" << std::endl;
                     //printf("add optional candidate : '%s'\n", candidate->getMatchedString().c_str());
                     auto realCandidate = std::make_shared<ParsedElement>(f_out_ParsedElement.getParent());
                     realCandidate->setGrammarElement(this);
                     realCandidate->setStops(); // think about this is this required for repetition?
                     // add all previous childs (similar to concatenation):
-                    for(auto previousChild : successfullyParsedChilds)
+                    for (auto previousChild : successfullyParsedChilds)
                     {
                         realCandidate->addChild(previousChild);
                     }
@@ -105,10 +113,18 @@ class Repetition : public GrammarElement
                 }
                 else
                 {
-                    // otherwise we still have missing text
-                    // FIXME: this makes repeated element not optional in some cases 
-                    rc.errorType = ParseRc::ErrorType::missingText;
-                    //rc.errorType = ParseRc::ErrorType::success;
+                    if (childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
+                    {
+                        rc.ErrorMessage = childRc.ErrorMessage;
+                        rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
+                    }
+                    else
+                    {
+                        // otherwise we still have missing text
+                        // FIXME: this makes repeated element not optional in some cases
+                        rc.errorType = ParseRc::ErrorType::missingText;
+                        //rc.errorType = ParseRc::ErrorType::success;
+                    }
                 }
             }
             else

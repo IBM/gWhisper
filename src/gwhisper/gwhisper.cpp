@@ -69,7 +69,14 @@ int main(int argc, char **argv)
     if(parseTree.findFirstChild("Complete") != "")
     {
         bool completeDebug = (parseTree.findFirstChild("CompleteDebug") != "");
-        cli::printBashCompletions(rc.candidates, parseTree, args, completeDebug);
+        if(parseTree.findFirstChild("fish") != "")
+        {
+          cli::printFishCompletions(rc.candidates, parseTree, args, completeDebug);
+        }
+        else
+        {
+          cli::printBashCompletions(rc.candidates, parseTree, args, completeDebug);
+        }
         return 0;
     }
 
@@ -87,14 +94,23 @@ int main(int argc, char **argv)
 
     if(rc.isGood() && (rc.lenParsedSuccessfully == args.length()))
     {
+        // std::cout << parseTree.getDebugString() << "\n";
         return cli::call(parseTree);
     }
 
-    std::cout << "Parse failed. ";
-    std::cout << "Parsed until: '" << parseTree.getMatchedString() << "'" << std::endl; 
 
-    //std::cout << parseTree.getDebugString() << "\n";
-    if( (rc. candidates.size() > 0) and (rc.errorType == ParseRc::ErrorType::missingText) )
+    if(rc.isBad() && rc.errorType == ParseRc::ErrorType::retrievingGrammarFailed && rc.ErrorMessage.size()!= 0)
+    {
+        std::cout << rc.ErrorMessage << std::endl;
+        std::cout << "Grammar could not be fetched from the server address: "<< parseTree.getMatchedString() << std::endl;
+    }
+    else
+    {
+        std::cout << "Parse failed.";
+        std::cout << "Parsed until: '" << parseTree.getMatchedString() << "'" << std::endl;
+    }
+
+    if( (rc. candidates.size() > 0) && (rc.errorType == ParseRc::ErrorType::missingText))
     {
         std::cout << "Possible Candidates:";
         for(auto candidate : rc.candidates)

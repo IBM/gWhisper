@@ -14,24 +14,46 @@
 
 #include "ServiceStatusHandling.hpp"
 #include <unistd.h>
+#include <mutex>
+#include <thread>
 
-::grpc::Status neverEndingRpc(
+static size_t rpcCount = 0;
+std::mutex rpcCountMutex;
+
+
+::grpc::Status ServiceStatusHandling::neverEndingRpc(
         ::grpc::ServerContext* context,
         const ::google::protobuf::Empty* request,
         ::google::protobuf::Empty* response
         )
 {
+    rpcCountMutex.lock();
+    rpcCount++;
+    size_t rpcCountCached = rpcCount;
+    rpcCountMutex.unlock();
+
+    std::thread::id threadId = std::this_thread::get_id();
+
+    std::cout << threadId << " neverEndingRpc started! Currently " << rpcCountCached << " never ending RPCs are running" << std::endl;
+
     uint64_t i = 0;
-    while(true)
+    while(not context->IsCancelled())
     {
         sleep(1);
         i++;
-        std::cout << "neverEndingRpc running for " << std::to_string(i) << "seconds" << std::endl;
+        //std::cout << "  " << threadId << " neverEndingRpc running for " << std::to_string(i) << "seconds" << std::endl;
     }
+
+    rpcCountMutex.lock();
+    rpcCount--;
+    rpcCountCached=rpcCount;
+    rpcCountMutex.unlock();
+
+    std::cout << threadId << " neverEndingRpc was cancelled! It ran for " << i << " seconds. Currently " << rpcCountCached << " never ending RPCs are running" << std::endl;
     return grpc::Status();
 }
 
-::grpc::Status giveStatusAborted(
+::grpc::Status ServiceStatusHandling::giveStatusAborted(
         ::grpc::ServerContext* context,
         const ::google::protobuf::Empty* request,
         ::google::protobuf::Empty* response

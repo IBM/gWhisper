@@ -16,10 +16,14 @@ syntax = "proto3";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
+import "protoDoc.proto";
+
 package examples;
 
 service ScalarTypeRpcs
 {
+    option (service_doc) = "int, bool, string, bytes";
+
     // All numbers given in input are incremented by one.
     rpc incrementNumbers (Numbers) returns (Numbers);
 
@@ -37,6 +41,8 @@ service ComplexTypeRpcs
 {
     // TODO: Any
 
+    option (service_doc) = "Enum, oneof, repeated, map";
+
     // Enums:
 
     // returns given Enum value back.
@@ -53,7 +59,9 @@ service ComplexTypeRpcs
     // Repeated:
 
     // All numbers in the request are added and returned.
-    rpc addAllNumbers (RepeatedNumbers) returns (Uint32);
+    rpc addAllNumbers (RepeatedNumbers) returns (Uint32) {
+        option (rpc_doc) = "Sum up all given numbers";
+        };
 
     // The last color of all given is returned.
     rpc getLastColor  (RepeatedColors) returns (ColorEnum);
@@ -71,16 +79,30 @@ service ComplexTypeRpcs
 
 service NestedTypeRpcs
 {
-    rpc duplicateEverything1d (NestedMessage1d) returns (NestedMessage1d);
-    rpc duplicateEverything2d (NestedMessage2d) returns (NestedMessage2d);
-    rpc nestedEmpty (NestedEmpty) returns (google.protobuf.Empty);
-    rpc getTime (google.protobuf.Empty) returns (google.protobuf.Timestamp);
+    option (service_doc) = "Nested and recursive datastructures";
+
+    rpc duplicateEverything1d (NestedMessage1d) returns (NestedMessage1d){
+        option (rpc_doc) = "Duplicate all given content";
+        };
+    rpc duplicateEverything2d (NestedMessage2d) returns (NestedMessage2d){
+        option (rpc_doc) = "Duplicate all given content";
+        };
+    rpc nestedEmpty (NestedEmpty) returns (google.protobuf.Empty){
+        option (rpc_doc) = "Takes a message with empty sub-message, does nothing";
+        };
+    rpc getTime (google.protobuf.Empty) returns (google.protobuf.Timestamp){
+        option (rpc_doc) = "Returns current time";
+        };
     rpc echoRecursiveMaps (RecursiveMaps) returns (RecursiveMaps);
-    rpc echoNestedMaps (NestedMaps) returns (NestedMaps);
+    rpc echoNestedMaps (NestedMaps) returns (NestedMaps){
+        option (rpc_doc) = "Echo given datastructure containing maps";
+        };
 }
 
 service StreamingRpcs
 {
+    option (service_doc) = "uni- and bi-directional streams";
+
     // Returns a stream of <number> messages of type Empty, then closes the stream.
     rpc replyStreamEmpty (Uint32) returns (stream google.protobuf.Empty);
 
@@ -102,6 +124,8 @@ service StreamingRpcs
 
 service StatusHandling
 {
+    option (service_doc) = "gRPC error handling";
+
     rpc neverEndingRpc (google.protobuf.Empty) returns (google.protobuf.Empty);
     rpc giveStatusAborted (google.protobuf.Empty) returns (google.protobuf.Empty);
     rpc notImplementedRpc (google.protobuf.Empty) returns (google.protobuf.Empty);
@@ -120,22 +144,26 @@ enum Colors
 
 message RepeatedNumberAndString
 {
-    repeated NumberAndString number_and_strings = 1;
+    option (message_doc) = "Multiple Number/String pairs";
+    repeated NumberAndString number_and_strings = 1 [ (field_doc) = "Multiple Number/String pairs"];
 }
 
 message RepeatedNumbers
 {
-    repeated uint32 numbers = 1;
+    option (message_doc) = "Message with numbers";
+    repeated uint32 numbers = 1 [ (field_doc) = "List of uint32"];
 }
 
 message NumberMap
 {
-    map<uint32, string> number_to_string = 1;
+    option (message_doc) = "Message with map";
+    map<uint32, string> number_to_string = 1 [ (field_doc) = "map uint32 -> string"];
 }
 
 message RepeatedColors
 {
-    repeated Colors colors = 1;
+    option (message_doc) = "Message with color list";
+    repeated Colors colors = 1 [ (field_doc) = "List of color enum values"];
 }
 
 message ColorEnum
@@ -164,15 +192,15 @@ message NumberOrStringOneOf
     }
     oneof number_or_string
     {
-        int32 number = 1;
-        string str   = 2;
-        NumberAndString both = 3;
+        int32 number = 1 [ (field_doc) = "Only a number" ];
+        string str   = 2 [ (field_doc) = "Only a string" ];
+        NumberAndString both = 3 [ (field_doc) = "Both, a number and a string" ];
     }
 }
 
 message Int32
 {
-    int32 number = 1;
+    int32 number = 1 [ (field_doc) = "Interger 32 bit number" ];
 }
 
 message Uint32
@@ -182,7 +210,7 @@ message Uint32
 
 message String
 {
-    string text = 1;
+    string text = 1 [ (field_doc) = "String field" ];
 }
 
 message Bytes
@@ -192,7 +220,7 @@ message Bytes
 
 message Numbers
 {
-    double m_double = 1;
+    double m_double = 1 [ (field_doc) = "double type of Numbers" ];
     float m_float   = 2;
     int32 m_int32   = 3;
     int64 m_int64   = 4;
@@ -215,6 +243,7 @@ message NumberAndString
 
 message NestedMessage1d
 {
+    option (message_doc) = "Nested message depth=1";
     Numbers some_numbers = 1;
     NumberAndString number_and_string = 2;
     string str = 3;
@@ -222,6 +251,7 @@ message NestedMessage1d
 
 message NestedMessage2d
 {
+    option (message_doc) = "Nested message depth=2";
     NestedMessage1d sub_tree = 1;
     NumberAndString number_and_string = 2;
     string str = 3;
@@ -229,16 +259,16 @@ message NestedMessage2d
 
 message NestedMaps
 {
+    option (message_doc) = "Nested map";
     message SubMessage
     {
-        map<uint32, uint32> simple_map_int = 1;
-        map<string, uint32> simple_map_string = 2;
+        map<uint32, uint32> simple_map_int = 1 [ (field_doc) = "Map uint32 -> uint32"];
+        map<string, uint32> simple_map_string = 2 [ (field_doc) = "Map string -> uint32"];
     }
-    NumberAndString number_and_string = 1;
-    SubMessage sub_message = 2;
-    map<uint32, uint32> simple_map_int = 3;
-    map<string, uint32> simple_map_string = 4;
-
+    NumberAndString number_and_string = 1 [ (field_doc) = "Simple sub-message"];
+    SubMessage sub_message = 2 [ (field_doc) = "Sub-message containing maps"];
+    map<uint32, uint32> simple_map_int = 3 [ (field_doc) = "map uint32 -> uint32"];
+    map<string, uint32> simple_map_string = 4 [ (field_doc) = "Map string -> uint32"];
 }
 
 message RecursiveMaps
@@ -251,5 +281,6 @@ message RecursiveMaps
 
 message NestedEmpty
 {
+    option (message_doc) = "Message containing an empty sub-message";
     google.protobuf.Empty emptyChild = 1;
 }

@@ -70,6 +70,10 @@ class Concatenation : public GrammarElement
                 //std::cout << " Concat "<< std::to_string(m_instanceId) <<  " parsed child" << std::to_string(i) << " rc=" << childRc.toString() << " #candidates: " << std::to_string(childRc.candidates.size()) << std::endl;
                 rc.lenParsed += childRc.lenParsed;
                 rc.lenParsedSuccessfully += childRc.lenParsedSuccessfully;
+                if(childRc.isBad() && childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed)
+                {
+                    rc.ErrorMessage = childRc.ErrorMessage;
+                }
 
                 // merge RCs
                 rc.errorType = childRc.errorType;
@@ -131,7 +135,7 @@ class Concatenation : public GrammarElement
                                 for(auto cnd : candidateRc.candidates)
                                 {
                                     rc.candidates.push_back(cnd);
-                                    //std::cout << "Concat " << std::to_string(m_instanceId) << " Mpush candidate '" << candidateRc.candidates[0]->getMatchedString() << "'" << std::endl; 
+                                    //std::cout << "Concat " << std::to_string(m_instanceId) << " Mpush candidate '" << candidateRc.candidates[0]->getMatchedString() << "'" << std::endl;
                                 }
                             }
                         }

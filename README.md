@@ -9,7 +9,7 @@ in a human readable format.
 The main design goals are:
 
 - Reflection support (no proto files required)
-- Tab completion (currently only in bash) for
+- Tab completion (currently supported in fish and bash) for
     - services
     - methods
     - method arguments, including nested types
@@ -24,7 +24,7 @@ Synopsis:
 
 Execute `gwhisper --help` or click [here](doc/Usage.txt) to get detailed information and examples on how to use the tool.
 
-__IMPORTANT:__ Do not forget to source or install the `complete.bash` file. Otherwise tab-completion will not work. See [build](#build) or [install](#install) for details.
+__IMPORTANT:__ Do not forget to source or install the `complete.bash` or `complete.fish` file. Otherwise tab-completion will not work. See [build](#build) or [install](#install) for details.
 
 Quick links:
 - [Examples and Test-Server](#examples-and-test-server)
@@ -38,7 +38,7 @@ Quick links:
 - [Contributing](CONTRIBUTING.md)
 
 ## Examples and Test-Server
-Every element except the hostname in the following example CLI invocations can be tab-completed in the bash shell.
+Every element except the hostname in the following example CLI invocations can be tab-completed in the fish or bash shell.
 
 
 Simple example of an unary RPC with only one field in the request message:
@@ -77,11 +77,12 @@ To be able to build and run tests, initialize third-party submodules (this will 
 
 To be able to build and/or run gWhisper, you need to at least have the following dependencies installed on your system:
 
-- cmake
+- __cmake__
 - A C++ compiler
-- gRPC [link](https://github.com/grpc/grpc)  
+- __gRPC__ [link](https://github.com/grpc/grpc)  
   including the protoc plugin, which is packaged separately in some linux distributions
-- protocolBuffers [link](https://github.com/protocolbuffers/protobuf)
+- __protocolBuffers__ [link](https://github.com/protocolbuffers/protobuf)
+- Either __bash__ or __fish__(>=v2.6) shell
 
 On Fedora you can install the prerequisites with:
 
@@ -96,9 +97,11 @@ Build the code
 
     ./build.sh
 
-Source the bash completion file (for tab completion)
+Source the completion file (for tab completion)
 
     . ./complete.bash
+or
+    . ./complete.fish
 
 Optionally run the tests:
 
@@ -122,6 +125,7 @@ Alternatively just copy the following files to the appropriate locations:
 
     cp build/gwhisper /usr/local/bin/
     cp complete.bash /usr/share/bash-completion/completions/gwhisper
+    cp complete.fish /usr/share/fish/vendor_completions.d/gwhisper.fish
 
 ## Current development status
 
@@ -131,17 +135,16 @@ Feel free to try it out and provide feedback/contributions.
 What is working:
 
 - Tab Completion (bash only)
-- Calling RPCs (unary + server-streaming)
-- Output of all types supported by protocol buffers
-- Input of all protocol buffer types
+- Calling RPCs (unary + streaming)
+- Input and output of all protocol buffer types
 
 Some notable things which are not yet working:
 
-- Input: Client streaming RPCs
 - Input: Escaping of control characters (":@.(, ")
 - Completion: Support for shells other than BASH (e.g. zsh, fish)
 - Security: Authentication / Encryption of channels
 - Performance: Caching of reflection queries
+- Using Proto files instead of Reflection API (currently gWhisper only works with servers which have reflection enabled)
 
 ## Supported platforms
 
