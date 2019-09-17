@@ -209,6 +209,8 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
                         //auto fieldsAlt = getMessageGrammar(f_field->message_type());
                         auto subMessage = getMessageGrammar("FieldValue", f_field->message_type(), m_grammar.createElement<FixedString>(":"));
+                        f_fieldGrammar->addChild(subMessage);
+                        defaultDoc = "Type: message";
                         //auto  prepostfix = m_grammar.createElement<FixedString>(":");
                         //GrammarElement * subMessage = grammarFactory.createList(
                         //        "FieldValue",
@@ -238,8 +240,6 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                         //subMessage->addChild(childFieldsRep);
 
                         //subMessage->addChild(m_grammar.createElement<FixedString>(":"));
-                        f_fieldGrammar->addChild(subMessage);
-                        defaultDoc = "Type: message";
                         break;
                     }
                 default:
@@ -262,27 +262,30 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         // same parse structure.
         GrammarElement * getMessageGrammar(const std::string & f_rootElementName, const grpc::protobuf::Descriptor* f_messageDescriptor, GrammarElement * f_wrappingElement = nullptr)
         {
-            std::cout << "getMessageGrammar " << f_rootElementName << " " << f_messageDescriptor->name() << std::endl;
+            //std::cout << "getMessageGrammar " << f_rootElementName << " " << f_messageDescriptor->name() << std::endl;
             // first look if we already have grammar for this type:
-            auto grammarIt = g_availableMessageGrammar.find(f_messageDescriptor);
-            if(grammarIt != g_availableMessageGrammar.end() and grammarIt->second.first == f_rootElementName)
-            {
-                return grammarIt->second.second;
-            }
+            GrammarElement * message = nullptr;
 
             ArgParse::GrammarFactory grammarFactory(m_grammar);
             auto fieldsAlt = m_grammar.createElement<Alternation>();
+            auto grammarIt = g_availableMessageGrammar.find(f_messageDescriptor);
             //auto  prepostfix = m_grammar.createElement<FixedString>(":");
-            GrammarElement * message = grammarFactory.createList(
-                    f_rootElementName,
-                    fieldsAlt,
-                    m_grammar.createElement<WhiteSpace>(),
-                    false,
-                    f_wrappingElement,
-                    f_wrappingElement
-                    );
-
-            g_availableMessageGrammar[f_messageDescriptor] = std::pair<std::string, GrammarElement*>(f_rootElementName, message);
+            if(grammarIt != g_availableMessageGrammar.end() and grammarIt->second.first.compare(f_rootElementName) == 0)
+            {
+                message = grammarIt->second.second;
+            }
+            else
+            {
+                message = grammarFactory.createList(
+                                            f_rootElementName,
+                                            fieldsAlt,
+                                            m_grammar.createElement<WhiteSpace>(),
+                                            false,
+                                            f_wrappingElement,
+                                            f_wrappingElement
+                                            );
+                g_availableMessageGrammar[f_messageDescriptor] = std::pair<std::string, GrammarElement*>(f_rootElementName, message);
+            }
 
 
             // iterate over fields:
@@ -298,44 +301,47 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 fieldGrammar->addChild(m_grammar.createElement<FixedString>("="));
                 fieldsAlt->addChild(fieldGrammar);
                 fieldGrammar->setDocument(field->options().GetExtension(field_doc));//get the in the custom filed option of .proto definited document and set it into the grammer.
-                if(field->is_repeated())
+                if(grammarIt != g_availableMessageGrammar.end() and grammarIt->second.first.compare(f_rootElementName) == 0)
                 {
-                    auto repeatedValue = m_grammar.createElement<Concatenation>("RepeatedValue");
-                    addFieldValueGrammar(repeatedValue, field);
-
-                    auto repeatedGrammar = m_grammar.createElement<Concatenation>("FieldValue");
-                    repeatedGrammar->addChild(m_grammar.createElement<FixedString>(":"));
-
-                    repeatedGrammar->addChild(repeatedValue);
-
-                    auto repeatedOptionalEntry = m_grammar.createElement<Concatenation>();
-                    repeatedOptionalEntry->addChild(m_grammar.createElement<FixedString>(","));
-                    repeatedOptionalEntry->addChild(m_grammar.createElement<WhiteSpace>());
-                    repeatedOptionalEntry->addChild(repeatedValue);
-
-                    auto repeatedOptionalValues = m_grammar.createElement<Repetition>();
-                    repeatedOptionalValues->addChild(repeatedOptionalEntry);
-                    repeatedGrammar->addChild(repeatedOptionalValues);
-                    repeatedGrammar->addChild(m_grammar.createElement<FixedString>(":"));
-
-
-                    fieldGrammar->addChild(repeatedGrammar);
+                    return message;
                 }
                 else
                 {
-                    // the simple case:
-                    addFieldValueGrammar(fieldGrammar, field);
+                    if(field->is_repeated())
+                    {
+                        auto repeatedValue = m_grammar.createElement<Concatenation>("RepeatedValue");
+                        addFieldValueGrammar(repeatedValue, field);
+
+                        auto repeatedGrammar = m_grammar.createElement<Concatenation>("FieldValue");
+                        repeatedGrammar->addChild(m_grammar.createElement<FixedString>(":"));
+
+                        repeatedGrammar->addChild(repeatedValue);
+
+                        auto repeatedOptionalEntry = m_grammar.createElement<Concatenation>();
+                        repeatedOptionalEntry->addChild(m_grammar.createElement<FixedString>(","));
+                        repeatedOptionalEntry->addChild(m_grammar.createElement<WhiteSpace>());
+                        repeatedOptionalEntry->addChild(repeatedValue);
+
+                        auto repeatedOptionalValues = m_grammar.createElement<Repetition>();
+                        repeatedOptionalValues->addChild(repeatedOptionalEntry);
+                        repeatedGrammar->addChild(repeatedOptionalValues);
+                        repeatedGrammar->addChild(m_grammar.createElement<FixedString>(":"));
+
+
+                        fieldGrammar->addChild(repeatedGrammar);
+                    }
+                    else
+                    {
+                        // the simple case:
+                        addFieldValueGrammar(fieldGrammar, field);
+                    }
                 }
             }
-
             //std::cout << "Grammar generated:\n" << fieldsAlt->toString() << std::endl;
             return message;
         }
 
-
-
         Grammar & m_grammar;
-
 };
 
 class GrammarInjectorMethods : public GrammarInjector
