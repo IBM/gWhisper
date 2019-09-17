@@ -209,8 +209,6 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
                         //auto fieldsAlt = getMessageGrammar(f_field->message_type());
                         auto subMessage = getMessageGrammar("FieldValue", f_field->message_type(), m_grammar.createElement<FixedString>(":"));
-                        f_fieldGrammar->addChild(subMessage);
-                        defaultDoc = "Type: message";
                         //auto  prepostfix = m_grammar.createElement<FixedString>(":");
                         //GrammarElement * subMessage = grammarFactory.createList(
                         //        "FieldValue",
@@ -240,6 +238,8 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                         //subMessage->addChild(childFieldsRep);
 
                         //subMessage->addChild(m_grammar.createElement<FixedString>(":"));
+                        f_fieldGrammar->addChild(subMessage);
+                        defaultDoc = "Type: message";
                         break;
                     }
                 default:
@@ -264,49 +264,42 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         {
             //std::cout << "getMessageGrammar " << f_rootElementName << " " << f_messageDescriptor->name() << std::endl;
             // first look if we already have grammar for this type:
-            GrammarElement * message = nullptr;
+            auto grammarIt = g_availableMessageGrammar.find(f_messageDescriptor);
+            if(grammarIt != g_availableMessageGrammar.end() and grammarIt->second.first == f_rootElementName)
+            {
+                return grammarIt->second.second;
+            }
 
             ArgParse::GrammarFactory grammarFactory(m_grammar);
             auto fieldsAlt = m_grammar.createElement<Alternation>();
-            auto grammarIt = g_availableMessageGrammar.find(f_messageDescriptor);
             //auto  prepostfix = m_grammar.createElement<FixedString>(":");
-            if(grammarIt != g_availableMessageGrammar.end() and grammarIt->second.first.compare(f_rootElementName) == 0)
-            {
-                message = grammarIt->second.second;
-            }
-            else
-            {
-                message = grammarFactory.createList(
-                                            f_rootElementName,
-                                            fieldsAlt,
-                                            m_grammar.createElement<WhiteSpace>(),
-                                            false,
-                                            f_wrappingElement,
-                                            f_wrappingElement
-                                            );
-                g_availableMessageGrammar[f_messageDescriptor] = std::pair<std::string, GrammarElement*>(f_rootElementName, message);
-            }
+            GrammarElement * message = grammarFactory.createList(
+                    f_rootElementName,
+                    fieldsAlt,
+                    m_grammar.createElement<WhiteSpace>(),
+                    false,
+                    f_wrappingElement,
+                    f_wrappingElement
+                    );
+
+            g_availableMessageGrammar[f_messageDescriptor] = std::pair<std::string, GrammarElement*>(f_rootElementName, message);
 
 
             // iterate over fields:
-            for(int i = 0; i< f_messageDescriptor->field_count(); i++)
+            if(grammarIt->second.first != f_rootElementName)// ??
             {
-                const grpc::protobuf::FieldDescriptor * field = f_messageDescriptor->field(i);
-
-                //std::cerr << "Iterating field " << std::to_string(i) << " of message " << f_messageDescriptor->name() << "with name: '" << field->name() <<"'"<< std::endl;
-
-                // now we add grammar to the fieldsAlt alternation:
-                auto fieldGrammar = m_grammar.createElement<Concatenation>("Field");
-                fieldGrammar->addChild(m_grammar.createElement<FixedString>(field->name(), "FieldName"));
-                fieldGrammar->addChild(m_grammar.createElement<FixedString>("="));
-                fieldsAlt->addChild(fieldGrammar);
-                fieldGrammar->setDocument(field->options().GetExtension(field_doc));//get the in the custom filed option of .proto definited document and set it into the grammer.
-                if(grammarIt != g_availableMessageGrammar.end() and grammarIt->second.first.compare(f_rootElementName) == 0)
+                for(int i = 0; i< f_messageDescriptor->field_count(); i++)
                 {
-                    return message;
-                }
-                else
-                {
+                    const grpc::protobuf::FieldDescriptor * field = f_messageDescriptor->field(i);
+
+                    //std::cerr << "Iterating field " << std::to_string(i) << " of message " << f_messageDescriptor->name() << "with name: '" << field->name() <<"'"<< std::endl;
+
+                    // now we add grammar to the fieldsAlt alternation:
+                    auto fieldGrammar = m_grammar.createElement<Concatenation>("Field");
+                    fieldGrammar->addChild(m_grammar.createElement<FixedString>(field->name(), "FieldName"));
+                    fieldGrammar->addChild(m_grammar.createElement<FixedString>("="));
+                    fieldsAlt->addChild(fieldGrammar);
+                    fieldGrammar->setDocument(field->options().GetExtension(field_doc));//get the in the custom filed option of .proto definited document and set it into the grammer.
                     if(field->is_repeated())
                     {
                         auto repeatedValue = m_grammar.createElement<Concatenation>("RepeatedValue");
@@ -341,7 +334,10 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             return message;
         }
 
+
+
         Grammar & m_grammar;
+
 };
 
 class GrammarInjectorMethods : public GrammarInjector
