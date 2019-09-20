@@ -34,7 +34,9 @@ namespace cli
             ConnectionManager(const ConnectionManager & ) = delete;
             ConnectionManager& operator=(const ConnectionManager & ) = delete;
         private:
-            ConnectionManager(){}
+            ConnectionManager(){
+                this->channel_creds = grpc::SslCredentials(grpc::SslCredentialsOptions());
+            }
             ~ConnectionManager(){}
 
         public:
@@ -97,6 +99,7 @@ namespace cli
                 return connections[f_serverAddress].descPool;
             }
         private:
+            std::shared_ptr<grpc::ChannelCredentials> channel_creds;
             // Cached map of the gRpc connection information for resuing the channel, descriptor Database and DatabasePool
             std::unordered_map<std::string, ConnList> connections;
             // Check if the cached map contains the channel of the given server address or not.
@@ -141,7 +144,7 @@ namespace cli
             void registerConnection(std::string f_serverAddress)
             {
                 ConnList connection;
-                connection.channel = grpc::CreateChannel(f_serverAddress, grpc::InsecureChannelCredentials());
+                connection.channel = grpc::CreateChannel(f_serverAddress, this->channel_creds);
                 connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
                 connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDb.get());
                 connections[f_serverAddress] = connection;

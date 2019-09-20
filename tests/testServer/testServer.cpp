@@ -46,7 +46,12 @@ int main(int argc, char **argv)
     }
     std::cout << "Starting server listening on " << addr << std::endl;
     grpc::ServerBuilder builder;
-    builder.AddListeningPort(addr, grpc::InsecureServerCredentials());
+    grpc::SslServerCredentialsOptions::PemKeyCertPair pkcp ={"a","b"};
+    grpc::SslServerCredentialsOptions ssl_opts;
+    ssl_opts.pem_root_certs="";
+    ssl_opts.pem_key_cert_pairs.push_back(pkcp);
+    std::shared_ptr<grpc::ServerCredentials> server_creds = grpc::SslServerCredentials(ssl_opts);
+    builder.AddListeningPort(addr, server_creds);
 
     // register all services:
     ServiceScalarTypeRpcs scalarTypeRpcs;
