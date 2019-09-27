@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <sstream>
+#include <fstream>
 #include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
 
 namespace cli
@@ -27,6 +29,7 @@ namespace cli
 
     } ConnList;
 
+
     /// Class to manage and resuse connection information, singleton pattern.
     class ConnectionManager
     {
@@ -34,8 +37,10 @@ namespace cli
             ConnectionManager(const ConnectionManager & ) = delete;
             ConnectionManager& operator=(const ConnectionManager & ) = delete;
         private:
-            ConnectionManager(){
-                this->channel_creds = grpc::SslCredentials(grpc::SslCredentialsOptions());
+            ConnectionManager()
+            {
+                //this->channel_creds = grpc::InsecureChannelCredentials();
+                this->channel_creds = registerClientCertificate();
             }
             ~ConnectionManager(){}
 
@@ -45,6 +50,19 @@ namespace cli
             {
                 static ConnectionManager connectionManager;
                 return connectionManager;
+            }
+
+            std::shared_ptr<grpc::ChannelCredentials> registerClientCertificate()
+            {
+                std::string key;
+                std::string cert;
+                std::string root;
+                readCertificate("certificate/client.crt", cert);
+                readCertificate("certificate/client.key", key);
+                readCertificate("certificate/ca.crt", root);
+                grpc::SslCredentialsOptions opts = {root, key, cert};
+
+                return grpc::SslCredentials(opts);
             }
 
             /// To get the channel according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
@@ -148,6 +166,20 @@ namespace cli
                 connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
                 connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDb.get());
                 connections[f_serverAddress] = connection;
+            }
+
+            void readCertificate(const std::string& filename, std::string& data)
+            {
+                std::ifstream file(filename.c_str (), std::ios::in);
+                if (file.is_open())
+                {
+                    std::stringstream ss;
+                    ss << file.rdbuf();
+
+                    file.close();
+
+                    data = ss.str();
+                }
             }
     };
 }

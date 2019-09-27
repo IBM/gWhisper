@@ -20,7 +20,22 @@
 #include "ServiceComplexTypeRpcs.hpp"
 #include "ServiceNestedTypeRpcs.hpp"
 #include "ServiceStatusHandling.hpp"
+#include <sstream>
+#include <fstream>
 
+void readCertificate(const std::string& filename, std::string& data)
+{
+    std::ifstream file(filename.c_str (), std::ios::in);
+	if (file.is_open())
+	{
+		std::stringstream ss;
+		ss << file.rdbuf();
+
+		file.close();
+
+		data = ss.str();
+	}
+}
 
 int main(int argc, char **argv)
 {
@@ -44,11 +59,21 @@ int main(int argc, char **argv)
     {
         addr = "0.0.0.0:" + std::string(argv[1]);
     }
+
+
+	std::string key;
+	std::string cert;
+	std::string root;
+
+	readCertificate( "certificate/server.crt", cert);
+	readCertificate( "certificate/server.key", key);
+	readCertificate( "certificate/ca.crt", root);
+
     std::cout << "Starting server listening on " << addr << std::endl;
     grpc::ServerBuilder builder;
-    grpc::SslServerCredentialsOptions::PemKeyCertPair pkcp ={"a","b"};
+    grpc::SslServerCredentialsOptions::PemKeyCertPair pkcp ={key, cert};
     grpc::SslServerCredentialsOptions ssl_opts;
-    ssl_opts.pem_root_certs="";
+    ssl_opts.pem_root_certs = root;
     ssl_opts.pem_key_cert_pairs.push_back(pkcp);
     std::shared_ptr<grpc::ServerCredentials> server_creds = grpc::SslServerCredentials(ssl_opts);
     builder.AddListeningPort(addr, server_creds);
