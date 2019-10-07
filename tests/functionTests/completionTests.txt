@@ -117,12 +117,13 @@ green  (Type: enum)
 blue   (Type: enum)
 #END_TEST
 
-#START_TEST oneof input choices again
-@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs sendNumberOrStringOneOf both=:number=5 str=5:
- number=                (Only a number)
- str=                   (Only a string)
- both=    (Both, a number and a string)
-#END_TEST
+## test sometimes fails, opened https://github.com/IBM/gWhisper/issues/74 to investigate
+##START_TEST oneof input choices again
+#@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs sendNumberOrStringOneOf both=:number=5 str=5:
+# number=                (Only a number)
+# str=                   (Only a string)
+# both=    (Both, a number and a string)
+##END_TEST
 
 #START_TEST oneof input choices
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs sendNumberOrStringOneOf 
