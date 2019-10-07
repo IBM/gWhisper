@@ -40,7 +40,16 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
     {
         case google::protobuf::FieldDescriptor::CppType::CPPTYPE_FLOAT:
             {
-                float value = std::stod(valueString);
+                float value;
+                try
+                {
+                    value = std::stof(valueString);
+                }
+                catch(std::exception& e)
+                {
+                    std::cerr << "Error parsing float for field '" << f_fieldDescriptor->name() << "'" << std::endl;
+                    return -1;
+                }
                 if(f_isRepeated)
                 {
                     reflection->AddFloat(f_message, f_fieldDescriptor, value);
@@ -53,7 +62,16 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
             break;
         case google::protobuf::FieldDescriptor::CppType::CPPTYPE_DOUBLE:
             {
-                double value = std::stod(valueString);
+                double value;
+                try
+                {
+                    value = std::stod(valueString);
+                }
+                catch(std::exception& e)
+                {
+                    std::cerr << "Error parsing float for field '" << f_fieldDescriptor->name() << "'" << std::endl;
+                    return -1;
+                }
                 if(f_isRepeated)
                 {
                     reflection->AddDouble(f_message, f_fieldDescriptor, value);
@@ -69,7 +87,7 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
                 long value;
                 try
                 {
-                    value = std::stoul(valueString, 0, 0);
+                    value = std::stol(valueString, 0, 0);
                 }
                 catch(std::exception& e)
                 {
@@ -91,7 +109,7 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
                 long value;
                 try
                 {
-                    value = std::stoul(valueString, 0, 0);
+                    value = std::stol(valueString, 0, 0);
                 }
                 catch(std::exception& e)
                 {
