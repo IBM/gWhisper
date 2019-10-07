@@ -73,7 +73,7 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
                 }
                 catch(std::exception& e)
                 {
-                    std::cout << "\nThe hex string should be prefixed with '0X' or '0x'\n" << std::endl;
+                    std::cerr << "Error parsing integer for field '" << f_fieldDescriptor->name() << "'" << std::endl;
                     return -1;
                 }
                 if(f_isRepeated)
@@ -95,9 +95,10 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
                 }
                 catch(std::exception& e)
                 {
-                    std::cout << "\nThe hex string should be prefixed with '0X' or '0x'\n" << std::endl;
+                    std::cerr << "Error parsing integer for field '" << f_fieldDescriptor->name() << "'" << std::endl;
                     return -1;
-                }                    if(f_isRepeated)
+                }
+                if(f_isRepeated)
                 {
                     reflection->AddInt64(f_message, f_fieldDescriptor, value);
                 }
@@ -116,9 +117,10 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
                 }
                 catch(std::exception& e)
                 {
-                    std::cout << "\nThe hex string should be prefixed with '0X' or '0x'\n" << std::endl;
+                    std::cerr << "Error parsing integer for field '" << f_fieldDescriptor->name() << "'" << std::endl;
                     return -1;
-                }                    if(f_isRepeated)
+                }
+                if(f_isRepeated)
                 {
                     reflection->AddUInt32(f_message, f_fieldDescriptor, value);
                 }
@@ -137,7 +139,7 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
                 }
                 catch(std::exception& e)
                 {
-                    std::cout << "\nThe hex string should be prefixed with '0X' or '0x'\n" << std::endl;
+                    std::cerr << "Error parsing integer for field '" << f_fieldDescriptor->name() << "'" << std::endl;
                     return -1;
                 }
                 if(f_isRepeated)
