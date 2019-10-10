@@ -14,6 +14,7 @@
 
 #include <libCli/MessageParsing.hpp>
 #include <fstream>
+#include <exception>
 
 using namespace ArgParse;
 
@@ -35,12 +36,20 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
 {
     const google::protobuf::Reflection *reflection = f_message->GetReflection();
     std::string valueString = f_parseTree.findFirstChild("FieldValue");
-
     switch(f_fieldDescriptor->cpp_type())
     {
         case google::protobuf::FieldDescriptor::CppType::CPPTYPE_FLOAT:
             {
-                float value = std::stod(valueString);
+                float value;
+                try
+                {
+                    value = std::stof(valueString);
+                }
+                catch(std::exception& e)
+                {
+                    std::cerr << "Error parsing float for field '" << f_fieldDescriptor->name() << "'" << std::endl;
+                    return -1;
+                }
                 if(f_isRepeated)
                 {
                     reflection->AddFloat(f_message, f_fieldDescriptor, value);
@@ -53,7 +62,16 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
             break;
         case google::protobuf::FieldDescriptor::CppType::CPPTYPE_DOUBLE:
             {
-                double value = std::stod(valueString);
+                double value;
+                try
+                {
+                    value = std::stod(valueString);
+                }
+                catch(std::exception& e)
+                {
+                    std::cerr << "Error parsing float for field '" << f_fieldDescriptor->name() << "'" << std::endl;
+                    return -1;
+                }
                 if(f_isRepeated)
                 {
                     reflection->AddDouble(f_message, f_fieldDescriptor, value);
@@ -66,7 +84,16 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
             break;
         case google::protobuf::FieldDescriptor::CppType::CPPTYPE_INT32:
             {
-                long value = std::stol(valueString, 0, 0);
+                long value;
+                try
+                {
+                    value = std::stol(valueString, 0, 0);
+                }
+                catch(std::exception& e)
+                {
+                    std::cerr << "Error parsing integer for field '" << f_fieldDescriptor->name() << "'" << std::endl;
+                    return -1;
+                }
                 if(f_isRepeated)
                 {
                     reflection->AddInt32(f_message, f_fieldDescriptor, value);
@@ -79,7 +106,16 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
             break;
         case google::protobuf::FieldDescriptor::CppType::CPPTYPE_INT64:
             {
-                long value = std::stol(valueString, 0, 0);
+                long value;
+                try
+                {
+                    value = std::stol(valueString, 0, 0);
+                }
+                catch(std::exception& e)
+                {
+                    std::cerr << "Error parsing integer for field '" << f_fieldDescriptor->name() << "'" << std::endl;
+                    return -1;
+                }
                 if(f_isRepeated)
                 {
                     reflection->AddInt64(f_message, f_fieldDescriptor, value);
@@ -92,7 +128,16 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
             break;
         case google::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT32:
             {
-                unsigned long value = std::stoul(valueString, 0, 0);
+                unsigned long value;
+                try
+                {
+                    value = std::stoul(valueString, 0, 0);
+                }
+                catch(std::exception& e)
+                {
+                    std::cerr << "Error parsing integer for field '" << f_fieldDescriptor->name() << "'" << std::endl;
+                    return -1;
+                }
                 if(f_isRepeated)
                 {
                     reflection->AddUInt32(f_message, f_fieldDescriptor, value);
@@ -105,7 +150,16 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
             break;
         case google::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT64:
             {
-                unsigned long value = std::stoul(valueString, 0, 0);
+                unsigned long value;
+                try
+                {
+                    value = std::stoul(valueString, 0, 0);
+                }
+                catch(std::exception& e)
+                {
+                    std::cerr << "Error parsing integer for field '" << f_fieldDescriptor->name() << "'" << std::endl;
+                    return -1;
+                }
                 if(f_isRepeated)
                 {
                     reflection->AddUInt64(f_message, f_fieldDescriptor, value);
@@ -211,14 +265,14 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
                 std::unique_ptr<google::protobuf::Message> subMessage = parseMessage(f_parseTree, f_factory, subMessageDescriptor);
                 if(subMessage != nullptr)
                 {
-                if(f_isRepeated)
-                {
-                    reflection->AddAllocatedMessage(f_message, f_fieldDescriptor, subMessage.release());
-                }
-                else
-                {
-                    reflection->SetAllocatedMessage(f_message, subMessage.release(), f_fieldDescriptor);
-                }
+                    if(f_isRepeated)
+                    {
+                        reflection->AddAllocatedMessage(f_message, f_fieldDescriptor, subMessage.release());
+                    }
+                    else
+                    {
+                        reflection->SetAllocatedMessage(f_message, subMessage.release(), f_fieldDescriptor);
+                    }
                 }
                 else
                 {
@@ -230,7 +284,6 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
         default:
             std::cerr << "Error: Parsing Field '" << f_fieldDescriptor->name() << "'. It has the unsupported type: '" << f_fieldDescriptor->type_name() << "'" << std::endl;
             return -1;
-
     }
 
     return 0;
