@@ -68,7 +68,8 @@ To be able to build and run tests, initialize third-party submodules (this will 
     cd gWhisper
     git submodule update --init
 
-## Prerequisites
+## Build
+### Prerequisites
 
 To be able to build and/or run gWhisper, you need to at least have the following dependencies installed on your system:
 
@@ -83,10 +84,10 @@ On Fedora you can install the prerequisites with:
 
     yum install cmake gcc-c++ protoc grpc grpc-devel grpc-plugins
 
-On other distributions we tried, gRPC and/or protobuf packages seem to be not available, outdated or incomplete (missing gRPC protoc plugin).
+On some (e.g. ubuntu 16.04) distributions we tried, gRPC and/or protobuf packages seem to be not available, outdated or incomplete (missing gRPC protoc plugin).
 In this case, please build and install gRPC and protocolBuffers from the official sources.
 
-## Build
+### Build
 
 Build the code
 
@@ -98,7 +99,7 @@ Executables are now available in the `build` folder.
 If you do not want to [install](#Install) gWhisper, you need to source the completion file (for tab completion): 
 `source ./complete.bash` or `source ./complete.fish`
 
-## Install
+### Install
 
 You may use the cmake-provided `install` target:
 

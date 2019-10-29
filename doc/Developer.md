@@ -12,6 +12,14 @@ This string will end up as part of the version string, returned when calling `gW
 
 ## Test environment
 gWhisper uses both function and unit testing. 
+
+To be able to build and run tests, initialize third-party submodules (this will download _googletest_)
+
+    cd gWhisper
+    git submodule update --init
+
+Tests are not build or run if submodules are not initialized.
+
 To execute all tests run
 
     cd build
