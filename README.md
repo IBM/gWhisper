@@ -63,11 +63,6 @@ Clone the repository
 
     git clone https://github.com/IBM/gWhisper.git
 
-To be able to build and run tests, initialize third-party submodules (this will download _googletest_)
-
-    cd gWhisper
-    git submodule update --init
-
 ## Build
 ### Prerequisites
 
