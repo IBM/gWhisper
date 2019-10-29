@@ -33,11 +33,10 @@ Quick links:
 
 ### Download
 
-Release version: Download [here](https://github.com/IBM/gWhisper/releases/latest)  
+Release version: [download](https://github.com/IBM/gWhisper/releases/latest)  
 Development version: `git clone https://github.com/IBM/gWhisper.git`
 
 We try to keep the master branch stable. So if you experience bugs / missing features in the latest release, feel free to try the development version.  
-Clone the repository
 
 ### Prerequisites
 
