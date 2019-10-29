@@ -91,7 +91,7 @@ Build the code
 Executables are now available in the `build` folder.
 
 
-If you do not want to [install](#Install) gWhisper, you need to source the completion file (for tab completion): 
+If you do not want to [install](#Install) gWhisper, you need to source the completion file (for tab completion):  
 `source ./complete.bash` or `source ./complete.fish`
 
 ### Install
