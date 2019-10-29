@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/IBM/gWhisper.svg?branch=master)](https://travis-ci.org/IBM/gWhisper)
 # gWhisper - A gRPC command line tool
 A gRPC command line client.
-It allows to invoke gRPC Calls from the commandline and formats the replies
-in a human readable format.
+It allows to invoke gRPC Calls from the commandline, supports tab-completion
+and formats the replies in a human readable format.
 
 ![example invocation](example.gif)
 
@@ -14,7 +14,6 @@ The main design goals are:
     - methods
     - method arguments, including nested types
 - Usable directly in the shell
-- Designed with usability in mind
 
 Have a look at the [project scope](PROJECT_SCOPE.md) for details.
 
@@ -24,34 +23,11 @@ Synopsis:
 
 Execute `gwhisper --help` or click [here](doc/Usage.txt) to get detailed information and examples on how to use the tool.
 
-__IMPORTANT:__ Do not forget to source or install the `complete.bash` or `complete.fish` file. Otherwise tab-completion will not work. See [build](#build) or [install](#install) for details.
-
 Quick links:
 - [Manual](doc/Usage.txt)
 - [Project scope](PROJECT_SCOPE.md)
 - [Contributing](CONTRIBUTING.md)
 - [Technical Documentation for Developers](doc/Developer.md)
-
-## Examples and Test-Server
-Every element except the hostname in the following example CLI invocations can be tab-completed in the fish or bash shell.
-
-
-Simple example of an unary RPC with only one field in the request message:
-
-    gwhisper exampledomain.org bakery orderCookies amount=5
-
-Nested arguments (the config field contains a sub-message):
-
-    gwhisper exampledomain.org bakery orderCookies config=:chocolate=true smarties=false: amount=5
-
-IPv6 address and explicit TCP port with an enum typed field:
-
-    gwhisper [2001:db8::2:1]:50059 bakery orderCookies type=ChunkyStyle amount=0x7
-
-
-Feel free to use the _Test-Server_ shipped with gWhisper and try out gWhisper on your own.
-It is located in `build/testServer` and implements example RPCs which cover almost the
-complete gRPC and protocol buffers function set.
 
 ## Download
 
@@ -59,6 +35,7 @@ complete gRPC and protocol buffers function set.
 Download the latest release [here](https://github.com/IBM/gWhisper/releases/latest)
 
 ### Development version
+We try to keep the master branch stable. So if you experience bugs / missing features in the latest release, feel free to try the development version.  
 Clone the repository
 
     git clone https://github.com/IBM/gWhisper.git
@@ -107,6 +84,27 @@ Alternatively just copy the following files to the appropriate locations:
     cp complete.bash /usr/share/bash-completion/completions/gwhisper
     cp complete.fish /usr/share/fish/vendor_completions.d/gwhisper.fish
 
+## Examples and Test-Server
+Every element except the hostname in the following example CLI invocations can be tab-completed in the fish or bash shell.
+
+
+Simple example of an unary RPC with only one field in the request message:
+
+    gwhisper exampledomain.org bakery orderCookies amount=5
+
+Nested arguments (the config field contains a sub-message):
+
+    gwhisper exampledomain.org bakery orderCookies config=:chocolate=true smarties=false: amount=5
+
+IPv6 address and explicit TCP port with an enum typed field:
+
+    gwhisper [2001:db8::2:1]:50059 bakery orderCookies type=ChunkyStyle amount=0x7
+
+
+Feel free to use the _Test-Server_ shipped with gWhisper and try out gWhisper on your own.
+It is located in `build/testServer` and implements example RPCs which cover almost the
+complete gRPC and protocol buffers function set.
+
 ## Current development status
 
 Basic functionality is implemented, but you may experience bugs.
@@ -134,6 +132,7 @@ with building and running this software on different linux distributions.
 
 ## Reporting issues
 
+We really appreciate any kind of feedback :-) So don't hesitate to open a new issue.  
 Please use the GitGub [issues tab](https://github.com/ibm/gWhisper/issues).
 Be sure to search issues first to avoid duplicate entries.
 
