@@ -200,6 +200,7 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
                 palceholder += " ";
             }
             // final output with documentation(description)
+            // unfortunately bash does not seem to support colors in completions
             output += palceholder + "(" + suggestion.documentation + ")";
         }
         if(f_debug)
