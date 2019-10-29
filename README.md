@@ -29,18 +29,16 @@ Quick links:
 - [Contributing](CONTRIBUTING.md)
 - [Technical Documentation for Developers](doc/Developer.md)
 
-## Download
+## Getting started
 
-### Release version
-Download the latest release [here](https://github.com/IBM/gWhisper/releases/latest)
+### Download
 
-### Development version
+Release version: Download [here](https://github.com/IBM/gWhisper/releases/latest)  
+Development version: `git clone https://github.com/IBM/gWhisper.git`
+
 We try to keep the master branch stable. So if you experience bugs / missing features in the latest release, feel free to try the development version.  
 Clone the repository
 
-    git clone https://github.com/IBM/gWhisper.git
-
-## Getting started
 ### Prerequisites
 
 To be able to build and/or run gWhisper, you need to at least have the following dependencies installed on your system:
