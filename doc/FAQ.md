@@ -8,10 +8,10 @@ The main reason is usability. As JSON uses characters also used by shells (mostl
 
 ### Why don't you use JSON for output?
 JSON is _semi_-human readable, however we found out that some aids can make datastructures even more readable, but are not possible in JSON:
-    - Horizontal guides indicating level of indentation for nested types instead of brackets.
-    - Vertical guides from identifier to value.
-    - Type information
-    - Colors
+- Horizontal guides indicating level of indentation for nested types instead of brackets.
+- Vertical guides from identifier to value.
+- Type information
+- Colors
 
 In the end we decided that machine-readability of gWhisper output is not really in the scope of gWhisper as a CLI debug tool. If we find out this functionality is really needed, we might add a flag to change this behavior
 
