@@ -27,15 +27,10 @@ Execute `gwhisper --help` or click [here](doc/Usage.txt) to get detailed informa
 __IMPORTANT:__ Do not forget to source or install the `complete.bash` or `complete.fish` file. Otherwise tab-completion will not work. See [build](#build) or [install](#install) for details.
 
 Quick links:
-- [Examples and Test-Server](#examples-and-test-server)
 - [Manual](doc/Usage.txt)
-- [Download](#download)
-- [Prerequisites](#prerequisites)
-- [Build](#build)
-- [Install](#install)
-- [Supported platforms](#supported-platforms)
 - [Project scope](PROJECT_SCOPE.md)
 - [Contributing](CONTRIBUTING.md)
+- [Technical Documentation for Developers](doc/Developer.md)
 
 ## Examples and Test-Server
 Every element except the hostname in the following example CLI invocations can be tab-completed in the fish or bash shell.
@@ -97,22 +92,11 @@ Build the code
 
     ./build.sh
 
-Source the completion file (for tab completion)
-
-    . ./complete.bash
-or
-    . ./complete.fish
-
-Optionally run the tests:
-
-    cd build
-    ctest --verbose
-
 Executables are now available in the `build` folder.
 
-NOTE:
-You may set the environment variable `GWHISPER_BUILD_VERSION` to a string of your choice before building.
-This string will end up as part of the version string, returned when calling `gWhisper --version`.
+
+If you do not want to [install](#Install) gWhisper, you need to source the completion file (for tab completion): 
+`source ./complete.bash` or `source ./complete.fish`
 
 ## Install
 
@@ -134,17 +118,18 @@ Feel free to try it out and provide feedback/contributions.
 
 What is working:
 
-- Tab Completion (bash only)
+- Tab Completion (bash and fish only)
 - Calling RPCs (unary + streaming)
 - Input and output of all protocol buffer types
 
 Some notable things which are not yet working:
 
+- Security: Authentication / Encryption of channels __(Planned in v0.4)__
+- Using Proto files instead of Reflection API (currently gWhisper only works with servers which have reflection enabled) __(Planned in v0.4)__
+- Recursive datastructures  __(Planned in v0.4)__
 - Input: Escaping of control characters (":@.(, ")
-- Completion: Support for shells other than BASH (e.g. zsh, fish)
-- Security: Authentication / Encryption of channels
+- Completion: Support for shells other than bash/fish (e.g. zsh)
 - Performance: Caching of reflection queries
-- Using Proto files instead of Reflection API (currently gWhisper only works with servers which have reflection enabled)
 
 ## Supported platforms
 
@@ -158,4 +143,5 @@ Be sure to search issues first to avoid duplicate entries.
 
 ## Contribute
 
-Please have a look at [CONTRIBUTE.md](CONTRIBUTING.md).
+Please have a look at [CONTRIBUTE.md](CONTRIBUTING.md) for general information about contributing. 
+Some more technical documentation can be found here: [Technical Documentation for Developers](doc/Developer.md).
