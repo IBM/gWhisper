@@ -28,6 +28,7 @@ Quick links:
 - [Project scope](PROJECT_SCOPE.md)
 - [Contributing](CONTRIBUTING.md)
 - [Technical Documentation for Developers](doc/Developer.md)
+- [Frequently Asked Questions](doc/FAQ.md)
 
 ## Getting started
 
