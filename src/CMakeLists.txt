@@ -19,10 +19,19 @@ add_subdirectory(libArgParse)
 add_subdirectory(libCli)
 add_subdirectory(gwhisper)
 
-add_custom_target(compileCommands
+get_filename_component(BIN_DIR_ABS ${CMAKE_BINARY_DIR}/. DIRECTORY)
+get_filename_component(SRC_DIR_ABS ${CMAKE_SOURCE_DIR}/. DIRECTORY)
+
+if( ${BIN_DIR_ABS} STREQUAL ${SRC_DIR_ABS} )
+  add_custom_target(compileCommands
+    # NOOP, the file is already at its destination
+    )
+else()
+  add_custom_target(compileCommands
     COMMAND cp ${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR}/compile_commands.json
     )
-
+endif()
+  
 add_custom_target(versionDefine
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/generateVersionDefine.sh ${PROJECT_SOURCE_DIR} > ${CMAKE_CURRENT_BINARY_DIR}/versionDefine.h
     )
