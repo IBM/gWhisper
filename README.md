@@ -40,7 +40,7 @@ Clone the repository
 
     git clone https://github.com/IBM/gWhisper.git
 
-## Build
+## Getting started
 ### Prerequisites
 
 To be able to build and/or run gWhisper, you need to at least have the following dependencies installed on your system:
