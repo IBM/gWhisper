@@ -47,39 +47,39 @@ examples.ScalarTypeRpcs bitwiseInvertBytes
 
 #START_TEST l1 number fields
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs incrementNumbers
-incrementNumbers m_double=         (double type of Numbers)
-incrementNumbers m_float=                     (Type: float)
-incrementNumbers m_int32=            (Type: integer 32 bit)
-incrementNumbers m_int64=            (Type: integer 64 bit)
-incrementNumbers m_uint32=  (Type: unsigned integer 32 bit)
-incrementNumbers m_uint64=  (Type: unsigned integer 64 bit)
+incrementNumbers m_double=  (double type of Numbers)
+incrementNumbers m_float=                    (float)
+incrementNumbers m_int32=                    (int32)
+incrementNumbers m_int64=                    (int64)
+incrementNumbers m_uint32=                  (uint32)
+incrementNumbers m_uint64=                  (uint64)
 #END_TEST
 
 #START_TEST l1 bytes field
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes
-bitwiseInvertBytes data=0x       (Type: string)
-bitwiseInvertBytes data=file://  (Type: string)
+bitwiseInvertBytes data=0x       (bytes)
+bitwiseInvertBytes data=file://  (bytes)
 #END_TEST
 
-#START_TEST l1 bytes field
+#START_TEST l1 bytes field no docstring for single completion
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs capitalizeString 
-capitalizeString text=  (String field)
+capitalizeString text=
 #END_TEST
 
 #START_TEST l1 bool field
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs negateBool
-negateBool m_bool=true   (Type: boolean)
-negateBool m_bool=false  (Type: boolean)
-negateBool m_bool=1      (Type: boolean)
-negateBool m_bool=0      (Type: boolean)
+negateBool m_bool=true   (bool)
+negateBool m_bool=false  (bool)
+negateBool m_bool=1      (bool)
+negateBool m_bool=0      (bool)
 #END_TEST
 
 #START_TEST l1 bool field only value
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs negateBool m_bool=
-true   (Type: boolean)
-false  (Type: boolean)
-1      (Type: boolean)
-0      (Type: boolean)
+true   (bool)
+false  (bool)
+1      (bool)
+0      (bool)
 #END_TEST
 
 ##############################################################################
@@ -87,9 +87,9 @@ false  (Type: boolean)
 ##############################################################################
 
 
-#START_TEST repeated number field
+#START_TEST repeated number field no docstring for single completion
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers
-addAllNumbers numbers=:  (List of uint32)
+addAllNumbers numbers=:
 #END_TEST
 
 #START_TEST repeated number field numbers cannot be completed
@@ -110,11 +110,11 @@ addAllNumbers numbers=:  (List of uint32)
 
 #START_TEST enum values
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoColorEnum color=
-white  (Type: enum)
-black  (Type: enum)
-red    (Type: enum)
-green  (Type: enum)
-blue   (Type: enum)
+white  (enum)
+black  (enum)
+red    (enum)
+green  (enum)
+blue   (enum)
 #END_TEST
 
 ## test sometimes fails, opened https://github.com/IBM/gWhisper/issues/74 to investigate
@@ -180,22 +180,22 @@ black, blue   (List of color enum values)
 
 #START_TEST repeated sub message
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings
-echoNumberAndStrings number_and_strings=::number=  (Type: unsigned integer 32 bit)
-echoNumberAndStrings number_and_strings=::str=                      (Type: string)
+echoNumberAndStrings number_and_strings=::number=  (uint32)
+echoNumberAndStrings number_and_strings=::str=     (string)
 #END_TEST
 
 #START_TEST repeated sub message after first element
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::number=5 str=asd
-asd number=  (Type: unsigned integer 32 bit)
-asd str=                      (Type: string)
-asd:                          (Type: string)
+asd number=  (uint32)
+asd str=     (string)
+asd:         (string)
 #END_TEST
 
 #START_TEST repeated sub message after first element end
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::number=5 str=asd:
-, :number=  (Type: unsigned integer 32 bit)
-, :str=                      (Type: string)
-:                            (Type: string)
+, :number=  (uint32)
+, :str=     (string)
+:           (string)
 #END_TEST
 
 #START_TEST Custom Output format modifiers
