@@ -26,7 +26,7 @@ Execute `gwhisper --help` or click [here](doc/Usage.txt) to get detailed informa
 Quick links:
 - [Manual](doc/Usage.txt)
 - [Project scope](doc/PROJECT_SCOPE.md)
-- [Contributing](doc/CONTRIBUTING.md)
+- [Contributing](CONTRIBUTING.md)
 - [Technical Documentation for Developers](doc/Developer.md)
 - [Frequently Asked Questions](doc/FAQ.md)
 
@@ -136,5 +136,5 @@ Be sure to search issues first to avoid duplicate entries.
 
 ## Contribute
 
-Please have a look at [CONTRIBUTE.md](doc/CONTRIBUTING.md) for general information about contributing. 
+Please have a look at [CONTRIBUTE.md](CONTRIBUTING.md) for general information about contributing. 
 Some more technical documentation can be found here: [Technical Documentation for Developers](doc/Developer.md).
