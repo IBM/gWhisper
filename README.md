@@ -4,7 +4,7 @@ A gRPC command line client.
 It allows to invoke gRPC Calls from the commandline, supports tab-completion
 and formats the replies in a human readable format.
 
-![example invocation](example.gif)
+![example invocation](doc/example.gif)
 
 The main design goals are:
 
@@ -15,7 +15,7 @@ The main design goals are:
     - method arguments, including nested types
 - Usable directly in the shell
 
-Have a look at the [project scope](PROJECT_SCOPE.md) for details.
+Have a look at the [project scope](doc/PROJECT_SCOPE.md) for details.
 
 Synopsis:
 
@@ -25,8 +25,8 @@ Execute `gwhisper --help` or click [here](doc/Usage.txt) to get detailed informa
 
 Quick links:
 - [Manual](doc/Usage.txt)
-- [Project scope](PROJECT_SCOPE.md)
-- [Contributing](CONTRIBUTING.md)
+- [Project scope](doc/PROJECT_SCOPE.md)
+- [Contributing](doc/CONTRIBUTING.md)
 - [Technical Documentation for Developers](doc/Developer.md)
 - [Frequently Asked Questions](doc/FAQ.md)
 
@@ -136,5 +136,5 @@ Be sure to search issues first to avoid duplicate entries.
 
 ## Contribute
 
-Please have a look at [CONTRIBUTE.md](CONTRIBUTING.md) for general information about contributing. 
+Please have a look at [CONTRIBUTE.md](doc/CONTRIBUTING.md) for general information about contributing. 
 Some more technical documentation can be found here: [Technical Documentation for Developers](doc/Developer.md).
