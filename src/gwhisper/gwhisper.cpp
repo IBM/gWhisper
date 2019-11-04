@@ -19,6 +19,7 @@
 #include <libCli/Call.hpp>
 #include <libCli/Completion.hpp>
 #include <versionDefine.h> // generated during build
+#include <libTrace/Tracer.hpp>
 
 using namespace ArgParse;
 
@@ -47,6 +48,7 @@ const char* g_helpString =
 
 int main(int argc, char **argv)
 {
+    //Tracer::enableAllWithPrefix("");
     // First we construct the initial Grammar for the CLI tool:
     Grammar grammarPool;
     GrammarElement * grammarRoot = cli::constructGrammar(grammarPool);
