@@ -14,6 +14,9 @@
 
 #pragma once
 #include <libArgParse/GrammarElement.hpp>
+#include <libTrace/Tracer.hpp>
+static Tracer g_argParseTracer("ArgParse");
+
 namespace ArgParse
 {
 class Concatenation : public GrammarElement
@@ -53,7 +56,7 @@ class Concatenation : public GrammarElement
 
         virtual ParseRc parse(const char * f_string, ParsedElement & f_out_ParsedElement, size_t candidateDepth = 1, size_t startChild = 0) override
         {
-            std::cout << "Concat " << std::to_string(m_instanceId) << " parsing '" << std::string(f_string) << "' cd=" << std::to_string(candidateDepth) << std::endl; 
+            g_argParseTracer << "Concat " << std::to_string(m_instanceId) << " parsing '" << std::string(f_string) << "' cd=" << std::to_string(candidateDepth) << std::endl; 
             ParseRc rc;
             ParseRc childRc;
             f_out_ParsedElement.setGrammarElement(this);

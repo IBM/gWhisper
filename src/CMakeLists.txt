@@ -17,6 +17,7 @@ cmake_minimum_required (VERSION 2.8)
 add_subdirectory(protoDoc)
 add_subdirectory(libArgParse)
 add_subdirectory(libCli)
+add_subdirectory(libTrace)
 add_subdirectory(gwhisper)
 
 get_filename_component(BIN_DIR_ABS ${CMAKE_BINARY_DIR}/. DIRECTORY)
