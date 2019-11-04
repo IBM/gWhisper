@@ -113,33 +113,26 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         void addFieldValueGrammar(GrammarElement * f_fieldGrammar, const grpc::protobuf::FieldDescriptor * f_field)
         {
 
-            std::string defaultDoc;
             switch(f_field->cpp_type())
             {
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_FLOAT:
                     f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-\\.pP0-9a-fA-F]+", "FieldValue"));
-                    defaultDoc = "Type: float";
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_DOUBLE:
                     // TODO: make regex match closer
                     f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-\\.pP0-9a-fA-F]+", "FieldValue"));
-                    defaultDoc = "Type: double";
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_INT32:
-                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-]?(0x|0b)?[0-9a-fA-F]+", "FieldValue"));
-                    defaultDoc = "Type: integer 32 bit";
+                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-]?(0x|0X|0b)?[0-9a-fA-F]+", "FieldValue"));
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_INT64:
-                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-]?(0x|0b)?[0-9a-fA-F]+", "FieldValue"));
-                    defaultDoc = "Type: integer 64 bit";
+                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-]?(0x|0X|0b)?[0-9a-fA-F]+", "FieldValue"));
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT32:
-                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("\\+?(0x|0b)?[0-9a-fA-F]+", "FieldValue"));
-                    defaultDoc = "Type: unsigned integer 32 bit";
+                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("\\+?(0x|0X|0b)?[0-9a-fA-F]+", "FieldValue"));
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT64:
-                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("\\+?(0x|0b)?[0-9a-fA-F]+", "FieldValue"));
-                    defaultDoc = "Type: unsigned integer 64 bit";
+                    f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("\\+?(0x|0X|0b)?[0-9a-fA-F]+", "FieldValue"));
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_BOOL:
                     {
@@ -149,7 +142,6 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                         boolGrammar->addChild(m_grammar.createElement<FixedString>("1"));
                         boolGrammar->addChild(m_grammar.createElement<FixedString>("0"));
                         f_fieldGrammar->addChild(boolGrammar);
-                        defaultDoc = "Type: boolean";
                         break;
                     }
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_ENUM:
@@ -163,7 +155,6 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                             enumGrammar->addChild(m_grammar.createElement<FixedString>(enumValueDesc->name()));
                         }
                         f_fieldGrammar->addChild(enumGrammar);
-                        defaultDoc = "Type: enum";
                         break;
                     }
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_STRING:
@@ -201,7 +192,6 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                         // Using this as a workaround until parser gets better regex support
                         f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[^:, ]*", "FieldValue"));
                     }
-                    defaultDoc = "Type: string";
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE:
                     {
@@ -239,18 +229,17 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
                         //subMessage->addChild(m_grammar.createElement<FixedString>(":"));
                         f_fieldGrammar->addChild(subMessage);
-                        defaultDoc = "Type: message";
                         break;
                     }
                 default:
                     std::cerr << "Field '" << f_field->name() << "' has unsupported type: '" << f_field->type_name() << "'" << std::endl;
-                    defaultDoc = "Type: unsupported";
                     break;
             }
 
             if(f_field->options().GetExtension(field_doc).empty())
             {
-                f_fieldGrammar->setDocument(defaultDoc);
+                // add default documentation, if no explicit docstring is given
+                f_fieldGrammar->setDocument(f_field->type_name());
             }
         }
 

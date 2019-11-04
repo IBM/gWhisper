@@ -96,6 +96,12 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
     }
 }
 
+struct Suggestion
+{
+    std::string completion;
+    std::string documentation;
+};
+
 void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_candidates, ParsedElement & f_parseTree, const std::string & f_args, bool f_debug)
 {
     // completion requested :)
@@ -111,14 +117,15 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
 
     size_t maxSuggestionLen = 0;
     size_t maxSuggestionDocLen = 0;
-    std::queue<std::string> suggestions;
-    std::queue<std::string> suggestionDocs;
+
+    // list of suggestions. first=completed string, second=docstring
+    std::vector<Suggestion> suggestions;
     size_t n = f_args.size();
 
     for(auto candidate : f_candidates)
     {
         std::string candidateStr =candidate->getMatchedString();
-        std::string suggestion;
+        Suggestion suggestion;
         size_t start = n;
         size_t end;
         if(f_debug)
@@ -153,56 +160,57 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
             end = n;
         }
 
-        suggestion = candidateStr.substr(start, std::string::npos);
-        suggestion.erase(suggestion.find_last_not_of(" ") + 1);
+        suggestion.completion = candidateStr.substr(start, std::string::npos);
+        suggestion.completion.erase(suggestion.completion.find_last_not_of(" ") + 1);
 
-        std::string suggestionDoc = candidate.get()->getShortDocument();
+        suggestion.documentation = candidate.get()->getShortDocument();
         std::string suggestionDocRoot = f_parseTree.getShortDocument();
-        if(suggestionDocRoot == suggestionDoc)
+        if(suggestionDocRoot == suggestion.documentation)
         {
-            suggestionDoc = "";
+            suggestion.documentation = "";
         }
         // find the max length of suggestion and document for right-aligned
-        if(!suggestionDoc.empty())
+        if(!suggestion.documentation.empty())
         {
-            if(maxSuggestionLen < suggestion.size())
+            if(maxSuggestionLen < suggestion.completion.size())
             {
-                maxSuggestionLen = suggestion.size();
+                maxSuggestionLen = suggestion.completion.size();
             }
-            if(maxSuggestionDocLen < suggestionDoc.size())
+            if(maxSuggestionDocLen < suggestion.documentation.size())
             {
-                maxSuggestionDocLen = suggestionDoc.size();
+                maxSuggestionDocLen = suggestion.documentation.size();
             }
         }
-        suggestions.push(suggestion);
-        suggestionDocs.push(suggestionDoc);
+        suggestions.push_back(suggestion);
     }
 
-    while(!suggestions.empty())
+    for(const Suggestion & suggestion : suggestions)
     {
-        std::string suggestion = suggestions.front();
-        std::string suggestionDoc = suggestionDocs.front();
-        if(!suggestionDoc.empty())
+        std::string output = suggestion.completion;
+        if((not suggestion.documentation.empty()) and suggestions.size() > 1 )
         {
+            // Only print documentation if choice is not unique
+            // Bash will select completion automatically if uniqe. Hence
+            // we are not allowed to print completions in this case.
+
             std::string palceholder = "  ";
             // calculate how many whitespaces should be inserted into the suggestion
-            for(size_t i=0; i< maxSuggestionLen-suggestion.size() + maxSuggestionDocLen-suggestionDoc.size(); ++i)
+            for(size_t i=0; i< maxSuggestionLen-suggestion.completion.size() + maxSuggestionDocLen-suggestion.documentation.size(); ++i)
             {
                 palceholder += " ";
             }
             // final output with documentation(description)
-            suggestion = suggestion + palceholder + "(" + suggestionDoc + ")";
+            // unfortunately bash does not seem to support colors in completions
+            output += palceholder + "(" + suggestion.documentation + ")";
         }
         if(f_debug)
         {
-            printf("post: '%s'\n", suggestion.c_str());
+            printf("post: '%s'\n", output.c_str());
         }
         else
         {
-            printf("%s\n", suggestion.c_str());
+            printf("%s\n", output.c_str());
         }
-        suggestions.pop();
-        suggestionDocs.pop();
     }
 }
 }

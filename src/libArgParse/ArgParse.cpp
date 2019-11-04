@@ -49,53 +49,19 @@ std::string ArgParse::ParsedElement::findFirstChild(const std::string & f_elemen
     }
 }
 
-std::string ArgParse::ParsedElement::getShortDocument()
+std::string ArgParse::ParsedElement::getShortDocument() const
 {
-    std::vector<ParsedDocument> documents;
-    std::vector<Coordinate> paths;
-    ArgParse::abstractDocTree(this, documents, paths, 0, 0);
-
-    // for debugging
-    // for(auto & document_info : documents)
-    // {
-    //     document_info.printPath();
-    // }
-
-    if(documents.size() != 0)
+    std::string rightmostDoc = "";
+    for(auto iChild = m_children.rbegin(); iChild != m_children.rend(); iChild++)
     {
-        auto rightmost_info = documents.back();
-        for(auto& document_info : documents)
+        std::string doc = (*iChild)->getShortDocument();
+        if( doc != "")
         {
-            std::vector<Coordinate>::iterator it;
-            std::vector<Coordinate>::iterator rightmost_it = rightmost_info.getPath().begin();
-
-            for(it = document_info.getPath().begin();it != document_info.getPath().end();)
-            {
-                if(it->depth == rightmost_it->depth and it->index > rightmost_it->index)
-                {
-                    rightmost_info = document_info;
-                    break;
-                }
-                ++it;
-                ++rightmost_it;
-            }
+            return doc;
         }
-        return rightmost_info.getParsedElement()->getGrammarElement()->getDocument();
     }
-    else
-    {
-        return "";
-    }
-}
 
-ArgParse::ParsedElement * ArgParse::ParsedElement::findRightMostElement()
-{
-    ParsedElement * cursor = this;
-    while(cursor->getChildren().size()!=0)
-    {
-        cursor = cursor->getChildren().back().get();
-    };
-    return cursor;
+    return m_grammarElement->getDocument();
 }
 
 void ArgParse::ParsedElement::findAllSubTrees(const std::string & f_elementName, std::vector<ArgParse::ParsedElement *> & f_out_result, bool f_doNotSearchChildsOfMatchingElements, uint32_t f_depth)
@@ -188,25 +154,4 @@ std::string ArgParse::ParsedDocument::getOptionString(std::string f_optString)
     output.erase(output.find_last_not_of(delims) + 1);
 
     return output;
-}
-
-///ParsedDocument
-void ArgParse::abstractDocTree(ParsedElement * f_parseElement, std::vector<ParsedDocument> & f_out_documents, std::vector<Coordinate> f_path, uint32_t f_depth, uint32_t f_index)
-{
-    if(f_parseElement == nullptr) return;
-    ArgParse::ParsedDocument document_info(f_parseElement);
-    ArgParse::Coordinate node = {f_depth, 0, f_index}; //no column info
-    f_path.push_back(node);
-
-    if(!f_parseElement->getGrammarElement()->getDocument().empty())
-    {
-        document_info.updatePath(f_path);
-        document_info.calculateStepFromRoot();
-        f_out_documents.push_back(document_info);
-    }
-    auto children = f_parseElement->getChildren();
-    for(int i = 0; i < children.size(); ++i)
-    {
-        abstractDocTree(children[i].get(), f_out_documents, f_path, f_depth+1, i);
-    }
 }
