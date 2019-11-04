@@ -57,7 +57,7 @@ class Alternation : public GrammarElement
             ParseRc rc;
             f_out_ParsedElement.setGrammarElement(this);
 
-            //std::cout << "Alternation " << std::to_string(m_instanceId) << ": parsing '" << f_string << "'\n";
+            std::cout << "Alternation " << std::to_string(m_instanceId) << ": parsing '" << f_string << "' cd=" << candidateDepth << "\n";
 
             std::vector<std::shared_ptr<ParsedElement> > candidateList;
 

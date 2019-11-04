@@ -53,10 +53,16 @@ class Concatenation : public GrammarElement
 
         virtual ParseRc parse(const char * f_string, ParsedElement & f_out_ParsedElement, size_t candidateDepth = 1, size_t startChild = 0) override
         {
-            //std::cout << "Concat " << std::to_string(m_instanceId) << " parsing '" << std::string(f_string) << "' cd=" << std::to_string(candidateDepth) << std::endl; 
+            std::cout << "Concat " << std::to_string(m_instanceId) << " parsing '" << std::string(f_string) << "' cd=" << std::to_string(candidateDepth) << std::endl; 
             ParseRc rc;
             ParseRc childRc;
             f_out_ParsedElement.setGrammarElement(this);
+
+            if(candidateDepth == 0 and f_string[0] == '\0')
+            {
+                rc.errorType = ParseRc::ErrorType::missingText;
+                return rc;
+            }
 
 
             //std::cout << "Concat "<< std::to_string(m_instanceId) <<  " parsing '" << std::string(f_string) << "' starting with child "  << std::to_string(startChild) << "/" << std::to_string(m_children.size()-1)<< "' cd=" << std::to_string(candidateDepth) <<  std::endl;
@@ -66,7 +72,7 @@ class Concatenation : public GrammarElement
                 GrammarElement* child = m_children[i];
 
                 auto newParsedElement = std::make_shared<ParsedElement>(&f_out_ParsedElement);
-                childRc = child->parse(&f_string[rc.lenParsed], *newParsedElement);
+                childRc = child->parse(&f_string[rc.lenParsed], *newParsedElement, candidateDepth);
                 //std::cout << " Concat "<< std::to_string(m_instanceId) <<  " parsed child" << std::to_string(i) << " rc=" << childRc.toString() << " #candidates: " << std::to_string(childRc.candidates.size()) << std::endl;
                 rc.lenParsed += childRc.lenParsed;
                 rc.lenParsedSuccessfully += childRc.lenParsedSuccessfully;
@@ -82,7 +88,7 @@ class Concatenation : public GrammarElement
                 {
                     for(auto candidate : childRc.candidates)
                     {
-                        //std::cout << "Concat " << std::to_string(m_instanceId) << " handling candidate from child " << std::to_string(i)<< " '" << candidate->getMatchedString() << "' cd=" << std::to_string(candidateDepth) << std::endl; 
+                        std::cout << "Concat " << std::to_string(m_instanceId) << " handling candidate from child " << std::to_string(i)<< " '" << candidate->getMatchedString() << "' cd=" << std::to_string(candidateDepth) << std::endl; 
                         // we create a new candidate (same tree level as f_out_ParsedElement)
                         auto candidateRoot = std::make_shared<ParsedElement>(f_out_ParsedElement.getParent());
                         candidateRoot->setGrammarElement(this);
@@ -113,7 +119,7 @@ class Concatenation : public GrammarElement
                             ParseRc candidateRc;
                             if(!candidateRoot->isStopped())
                             {
-                                //std::cout << "  -> forking for this candidate" << std::endl;
+                                std::cout << "  -> forking for this candidate" << std::endl;
                                 candidateRc = parse("", *candidateRoot, newCandidateDepth, i+1);
                             }
                             if(candidateRc.candidates.size() == 0)
@@ -159,7 +165,7 @@ class Concatenation : public GrammarElement
                 }
             }
 
-            //std::cout << "Concat "<< std::to_string(m_instanceId) <<  " returning rc=" << rc.toString() << " with " << std::to_string(rc.candidates.size()) << " candidates" << std::endl;
+            std::cout << "Concat "<< std::to_string(m_instanceId) <<  " returning rc=" << rc.toString() << " with " << std::to_string(rc.candidates.size()) << " candidates" << std::endl;
 
             return rc;
         }

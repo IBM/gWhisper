@@ -48,4 +48,9 @@ class ServiceNestedTypeRpcs final : public examples::NestedTypeRpcs::Service
             const ::examples::NestedMaps* request,
             ::examples::NestedMaps* response
             ) override;
+    virtual  ::grpc::Status echoRecursiveInteger(
+            ::grpc::ServerContext* context,
+            const ::examples::RecursiveInteger* request,
+            ::examples::RecursiveInteger* response
+            ) override;
 };

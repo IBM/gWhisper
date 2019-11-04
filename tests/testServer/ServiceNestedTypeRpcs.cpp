@@ -100,3 +100,15 @@
 
     return grpc::Status();
 }
+
+::grpc::Status ServiceNestedTypeRpcs::echoRecursiveInteger(
+        ::grpc::ServerContext* context,
+        const ::examples::RecursiveInteger* request,
+        ::examples::RecursiveInteger* response
+        )
+{
+
+    *response = *request;
+
+    return grpc::Status();
+}

@@ -38,6 +38,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
         virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
         {
+            std::cout << "injecting Method args" << std::endl;
             // FIXME: we are already completing this without a service parsed.
             //  this works in most cases, as it will just fail. however this is not really a nice thing.
             std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
@@ -90,7 +91,10 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             }
             else
             {
-                return getMessageGrammar("Message", method->input_type());
+                auto ret = getMessageGrammar("Message", method->input_type());
+                std::cout << "injecting Method args DONE" << std::endl;
+                std::cout << m_grammar.getDotGraph();
+                return ret;
             }
             //auto concat = m_grammar.createElement<Concatenation>();
 
@@ -256,6 +260,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             auto grammarIt = g_availableMessageGrammar.find(f_messageDescriptor);
             if(grammarIt != g_availableMessageGrammar.end() and grammarIt->second.first == f_rootElementName)
             {
+                std::cout << "found existing grammar for " << f_messageDescriptor->full_name() << " root " << f_rootElementName << std::endl;
                 return grammarIt->second.second;
             }
 
@@ -275,48 +280,45 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
 
             // iterate over fields:
-            if(grammarIt->second.first != f_rootElementName)// ??
+            for(int i = 0; i< f_messageDescriptor->field_count(); i++)
             {
-                for(int i = 0; i< f_messageDescriptor->field_count(); i++)
+                const grpc::protobuf::FieldDescriptor * field = f_messageDescriptor->field(i);
+
+                //std::cerr << "Iterating field " << std::to_string(i) << " of message " << f_messageDescriptor->name() << "with name: '" << field->name() <<"'"<< std::endl;
+
+                // now we add grammar to the fieldsAlt alternation:
+                auto fieldGrammar = m_grammar.createElement<Concatenation>("Field");
+                fieldGrammar->addChild(m_grammar.createElement<FixedString>(field->name(), "FieldName"));
+                fieldGrammar->addChild(m_grammar.createElement<FixedString>("="));
+                fieldsAlt->addChild(fieldGrammar);
+                fieldGrammar->setDocument(field->options().GetExtension(field_doc));//get the in the custom filed option of .proto definited document and set it into the grammer.
+                if(field->is_repeated())
                 {
-                    const grpc::protobuf::FieldDescriptor * field = f_messageDescriptor->field(i);
+                    auto repeatedValue = m_grammar.createElement<Concatenation>("RepeatedValue");
+                    addFieldValueGrammar(repeatedValue, field);
 
-                    //std::cerr << "Iterating field " << std::to_string(i) << " of message " << f_messageDescriptor->name() << "with name: '" << field->name() <<"'"<< std::endl;
+                    auto repeatedGrammar = m_grammar.createElement<Concatenation>("FieldValue");
+                    repeatedGrammar->addChild(m_grammar.createElement<FixedString>(":"));
 
-                    // now we add grammar to the fieldsAlt alternation:
-                    auto fieldGrammar = m_grammar.createElement<Concatenation>("Field");
-                    fieldGrammar->addChild(m_grammar.createElement<FixedString>(field->name(), "FieldName"));
-                    fieldGrammar->addChild(m_grammar.createElement<FixedString>("="));
-                    fieldsAlt->addChild(fieldGrammar);
-                    fieldGrammar->setDocument(field->options().GetExtension(field_doc));//get the in the custom filed option of .proto definited document and set it into the grammer.
-                    if(field->is_repeated())
-                    {
-                        auto repeatedValue = m_grammar.createElement<Concatenation>("RepeatedValue");
-                        addFieldValueGrammar(repeatedValue, field);
+                    repeatedGrammar->addChild(repeatedValue);
 
-                        auto repeatedGrammar = m_grammar.createElement<Concatenation>("FieldValue");
-                        repeatedGrammar->addChild(m_grammar.createElement<FixedString>(":"));
+                    auto repeatedOptionalEntry = m_grammar.createElement<Concatenation>();
+                    repeatedOptionalEntry->addChild(m_grammar.createElement<FixedString>(","));
+                    repeatedOptionalEntry->addChild(m_grammar.createElement<WhiteSpace>());
+                    repeatedOptionalEntry->addChild(repeatedValue);
 
-                        repeatedGrammar->addChild(repeatedValue);
-
-                        auto repeatedOptionalEntry = m_grammar.createElement<Concatenation>();
-                        repeatedOptionalEntry->addChild(m_grammar.createElement<FixedString>(","));
-                        repeatedOptionalEntry->addChild(m_grammar.createElement<WhiteSpace>());
-                        repeatedOptionalEntry->addChild(repeatedValue);
-
-                        auto repeatedOptionalValues = m_grammar.createElement<Repetition>();
-                        repeatedOptionalValues->addChild(repeatedOptionalEntry);
-                        repeatedGrammar->addChild(repeatedOptionalValues);
-                        repeatedGrammar->addChild(m_grammar.createElement<FixedString>(":"));
+                    auto repeatedOptionalValues = m_grammar.createElement<Repetition>();
+                    repeatedOptionalValues->addChild(repeatedOptionalEntry);
+                    repeatedGrammar->addChild(repeatedOptionalValues);
+                    repeatedGrammar->addChild(m_grammar.createElement<FixedString>(":"));
 
 
-                        fieldGrammar->addChild(repeatedGrammar);
-                    }
-                    else
-                    {
-                        // the simple case:
-                        addFieldValueGrammar(fieldGrammar, field);
-                    }
+                    fieldGrammar->addChild(repeatedGrammar);
+                }
+                else
+                {
+                    // the simple case:
+                    addFieldValueGrammar(fieldGrammar, field);
                 }
             }
             //std::cout << "Grammar generated:\n" << fieldsAlt->toString() << std::endl;

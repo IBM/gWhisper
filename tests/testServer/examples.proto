@@ -94,6 +94,9 @@ service NestedTypeRpcs
         option (rpc_doc) = "Returns current time";
         };
     rpc echoRecursiveMaps (RecursiveMaps) returns (RecursiveMaps);
+
+    rpc echoRecursiveInteger (RecursiveInteger) returns (RecursiveInteger);
+
     rpc echoNestedMaps (NestedMaps) returns (NestedMaps){
         option (rpc_doc) = "Echo given datastructure containing maps";
         };
@@ -269,6 +272,12 @@ message NestedMaps
     SubMessage sub_message = 2 [ (field_doc) = "Sub-message containing maps"];
     map<uint32, uint32> simple_map_int = 3 [ (field_doc) = "map uint32 -> uint32"];
     map<string, uint32> simple_map_string = 4 [ (field_doc) = "Map string -> uint32"];
+}
+
+message RecursiveInteger
+{
+    uint32 number = 1;
+    RecursiveInteger recursive = 2;
 }
 
 message RecursiveMaps

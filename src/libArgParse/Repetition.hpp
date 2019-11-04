@@ -37,10 +37,16 @@ class Repetition : public GrammarElement
         virtual ParseRc parse(const char * f_string, ParsedElement & f_out_ParsedElement, size_t candidateDepth = 1, size_t startChild = 0) override
         {
             //printf("rep parse\n");
+            std::cout << "Repetition " << std::to_string(m_instanceId) << " parsing '" << std::string(f_string) << "' cd=" << std::to_string(candidateDepth) << std::endl; 
             ParseRc rc;
             ParseRc childRc;
             f_out_ParsedElement.setGrammarElement(this);
 
+            if(candidateDepth <=0)
+            {
+                rc.errorType = ParseRc::ErrorType::missingText;
+                return rc;
+            }
             GrammarElement * child = nullptr;
             if(m_children.size() > 0)
             {
