@@ -50,9 +50,15 @@ To be able to build and/or run gWhisper, you need to at least have the following
 - __protocolBuffers__ [link](https://github.com/protocolbuffers/protobuf)
 - Either __bash__ or __fish__(>=v2.6) shell
 
-On Fedora you can install the prerequisites with:
+You can install the prerequisites with:
+
+Fedora:
 
     npm install cmake gcc-c++ protoc grpc grpc-devel grpc-plugins
+
+Arch Linux:
+  
+    pacman -S cmake gcc protobuf protobuf-c grpc
 
 On some (e.g. ubuntu 16.04) distributions we tried, gRPC and/or protobuf packages seem to be not available, outdated or incomplete (missing gRPC protoc plugin).
 In this case, please build and install gRPC and protocolBuffers from the official sources.
