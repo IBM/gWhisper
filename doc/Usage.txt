@@ -91,7 +91,8 @@ FIELD_VALUE:
       - The input filename is prefixed with 'file://' (e.g. file://myfile.bin)
   - strings:
       As a string without quotes. (e.g. ThisIsAString)
-      NOTE: currently strings may not contain ' ', ',' or ':'
+      NOTE::
+      gWhisper control characters ' ', ',' or ':' need to be escaped by pre-pending a ':'
   - enum values:
       As the enum value name
       Enum values are tab-completed
@@ -113,7 +114,7 @@ FIELD_VALUE:
 OUTPUT_FORMAT:
     This is a program written in a very simple formatting language. A valid program has
     the following form:
-        @ (.<FieldName>)+ : ( <String> || /<FieldName>[%<Modifier>]/ ) :
+        @ (.<FieldName>)+ : ( <String> || /<FieldName>[%<Modifier>]/ )+ :
     The modifier is optional. Valid modifiers are: 'default', 'dec', 'hex' and 'raw' (binary output)
     Example:
         ./gwhisper --customOutput @.listOfDevices:Found device /device_name%default/$'\n': 127.0.0.1 discoveryService.devices GetDevices
