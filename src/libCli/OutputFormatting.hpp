@@ -168,7 +168,13 @@ namespace cli
 
             std::string stringFromString(const std::string & f_value, const CustomStringModifier & f_modifier)
             {
-                return colorize(ColorClass::StringValue, "\"" + f_value + "\"");
+                switch (f_modifier)
+                {
+                    case CustomStringModifier::Raw:
+                        return f_value;
+                    default:
+                        return colorize(ColorClass::StringValue, "\"" + f_value + "\"");
+                }
             }
 
             std::string stringFromEnum(const google::protobuf::EnumValueDescriptor * f_value, const CustomStringModifier & f_modifier)
