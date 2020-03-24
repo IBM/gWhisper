@@ -145,8 +145,8 @@ Some notable things which are not yet working:
 
 ## Supported platforms
 
-All development and testing is done on ubuntu linux (mostly 16.04). We expect no bigger problems
-with building and running this software on different linux distributions.
+Development and testing is done on Fedora Linux 31, Arch Linux and Ubuntu.
+We expect no bigger problems with building and running this software on different linux distributions.
 
 ## Reporting issues
 
