@@ -104,6 +104,21 @@ IPv6 address and explicit TCP port with an enum typed field:
 
     gwhisper [2001:db8::2:1]:50059 bakery orderCookies type=ChunkyStyle amount=0x7
 
+## Escaping and special characters
+gWhisper control characters (` :,`) in string fields need to be escaped:
+
+    ./gwhisper 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=special: characters: :,::
+    2020-03-24 12:12:04: Received message:
+    | text = "SPECIAL CHARACTERS ,:"
+    RPC succeeded :D
+
+Shell control characters need to be escaped via shell mechanisms (works as expected):
+
+    ./gwhisper 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=shell: Characters::: \\\'\"\$
+    2020-03-24 12:14:51: Received message:
+    | text = "SHELL CHARACTERS: \'"$"
+    RPC succeeded :D
+    
 
 Feel free to use the _Test-Server_ shipped with gWhisper and try out gWhisper on your own.
 It is located in `build/testServer` and implements example RPCs which cover almost the
@@ -125,7 +140,6 @@ Some notable things which are not yet working:
 - Security: Authentication / Encryption of channels __(Planned in v0.4)__
 - Using Proto files instead of Reflection API (currently gWhisper only works with servers which have reflection enabled) __(Planned in v0.4)__
 - Recursive datastructures  __(Planned in v0.4)__
-- Input: Escaping of control characters (":@.(, ")
 - Completion: Support for shells other than bash/fish (e.g. zsh)
 - Performance: Caching of reflection queries
 
