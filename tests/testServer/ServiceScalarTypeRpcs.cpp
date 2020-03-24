@@ -48,7 +48,12 @@
         )
 {
     const std::string & str = request->text();
-    std::transform(str.begin(), str.end(),response->mutable_text()->begin(), ::toupper);
+    std::string result;
+    for(char c : request->text())
+    {
+        result += ::toupper(c);
+    }
+    response->set_text(result);
     return grpc::Status();
 }
 

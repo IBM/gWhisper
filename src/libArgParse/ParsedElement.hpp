@@ -61,15 +61,38 @@ class ParsedElement
             return *(m_children.back());
         }
 
+        void setMatchedStringUnescaped(const std::string & f_string)
+        {
+            m_matchedStringUnEscaped = f_string;
+        }
+
         void setMatchedString(const std::string & f_string)
         {
-            m_matchedString = f_string;
+            m_matchedStringRaw = f_string;
         }
 
         /// prints the "flattened parse tree" i.e. the complete matched string.
+        /// Escape characters are still contained here (useful for completion)
+        std::string getMatchedStringRaw() const
+        {
+            std::string result = m_matchedStringRaw;
+            for(auto child : m_children)
+            {
+                result += child->getMatchedStringRaw();
+            }
+            return result;
+        }
+
+        /// prints the "flattened parse tree" i.e. the complete matched string.
+        /// Escaped characters are already processed here
         std::string getMatchedString() const
         {
-            std::string result = m_matchedString;
+            std::string result = m_matchedStringUnEscaped;
+            if(result=="")
+            {
+                // we do not have escaped characters -> can use raw string
+                result = m_matchedStringRaw;
+            }
             for(auto child : m_children)
             {
                 result += child->getMatchedString();
@@ -197,7 +220,8 @@ class ParsedElement
         ParsedElement * m_parent;
         std::vector< std::shared_ptr<ParsedElement> > m_children;
         bool m_stops = false;
-        std::string m_matchedString;
+        std::string m_matchedStringRaw;
+        std::string m_matchedStringUnEscaped;
         bool m_incompleteParse = false;
 };
 

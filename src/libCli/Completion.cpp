@@ -32,7 +32,7 @@ void printFishCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
     size_t n = f_args.size();
     for(auto candidate : f_candidates)
     {
-        std::string candidateStr = candidate->getMatchedString();
+        std::string candidateStr = candidate->getMatchedStringRaw();
 
         if(f_debug)
         {
@@ -110,7 +110,7 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
         std::cerr << "Input string \"" << f_args << "\"\nCandidates:\n" << std::endl;
         for(auto candidate : f_candidates)
         {
-            std::string candidateStr =candidate->getMatchedString();
+            std::string candidateStr =candidate->getMatchedStringRaw();
             printf("pre: '%s'\n", candidateStr.c_str());
         }
     }
@@ -124,7 +124,7 @@ void printBashCompletions( std::vector<std::shared_ptr<ParsedElement> > & f_cand
 
     for(auto candidate : f_candidates)
     {
-        std::string candidateStr =candidate->getMatchedString();
+        std::string candidateStr =candidate->getMatchedStringRaw();
         Suggestion suggestion;
         size_t start = n;
         size_t end;
