@@ -104,25 +104,25 @@ IPv6 address and explicit TCP port with an enum typed field:
 
     gwhisper [2001:db8::2:1]:50059 bakery orderCookies type=ChunkyStyle amount=0x7
 
+Feel free to use the _Test-Server_ shipped with gWhisper and try out gWhisper on your own.
+It is located in `build/testServer` and implements example RPCs which cover almost the
+complete gRPC and protocol buffers function set.
+
 ## Escaping and special characters
 gWhisper control characters (` :,`) in string fields need to be escaped:
 
-    ./gwhisper 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=special: characters: :,::
+    gwhisper 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=special: characters: :,::
     2020-03-24 12:12:04: Received message:
     | text = "SPECIAL CHARACTERS ,:"
     RPC succeeded :D
 
 Shell control characters need to be escaped via shell mechanisms (works as expected):
 
-    ./gwhisper 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=shell: Characters::: \\\'\"\$
+    gwhisper 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=shell: Characters::: \\\'\"\$
     2020-03-24 12:14:51: Received message:
     | text = "SHELL CHARACTERS: \'"$"
     RPC succeeded :D
     
-
-Feel free to use the _Test-Server_ shipped with gWhisper and try out gWhisper on your own.
-It is located in `build/testServer` and implements example RPCs which cover almost the
-complete gRPC and protocol buffers function set.
 
 ## Current development status
 
