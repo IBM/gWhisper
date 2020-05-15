@@ -1,18 +1,30 @@
 gWhisper - A gRPC command-line client
 https://github.com/IBM/gWhisper
 
-This command allows to call gRPC RPCs on any gRPC server with reflection enabled.
-You may use TAB completion for all arguments (currently only supported in BASH).
+This tool allows to call gRPC RPCs on any gRPC server with reflection enabled.
+You may and should use TAB completion for all arguments (currently only
+supported in BASH and FISH).
 
 SYNOPSIS:
-gwhisper [OPTIONS] <hostname>[:port] <service> <method> [<fieldName>=FIELD_VALUE ]...
 
-client-streaming RPCs:
-gwhisper [OPTIONS] <hostname>[:port] <service> <method> [:[<fieldName>=FIELD_VALUE ]...:]...
+Unary and server-streaming RPCs:
+
+gwhisper [OPTION ]... <hostname>[:port] <service> <method> [<fieldName>=FIELD_VALUE ]...
+
+
+Client-streaming RPCs:
+
+gwhisper [OPTION ]... <hostname>[:port] <service> <method> [:[<fieldName>=FIELD_VALUE ]...: ]...
+
 
 The default TCP port used to connect to a gRPC server is 50051.
 
-OPTIONS:
+If some or all fields of the request message are omitted, they are initialized
+to their default value according to the proto3 language reference. See
+https://developers.google.com/protocol-buffers/docs/proto3#default
+for details.
+
+OPTION:
 
  General options:
 
@@ -58,41 +70,48 @@ OPTIONS:
    --customOutput OUTPUT_FORMAT
        Instead of printing the reply message using the default human readable
        format, a custom format as specified in OUTPUT_FORMAT is used.
-       See OUTPUT_FORMAT section for a description of the OUTPUT_FORMAT language.
-       Note: This is an experimental feature and will be documented in detail,
+       See OUTPUT_FORMAT section for a description of the OUTPUT_FORMAT
+       language.
+       NOTE: This is an experimental feature and will be documented in detail,
        once finished.
 
  Debug options:
 
    --dot
-       Prints a graphviz digraph, representing the current grammar of the parser.
+       Prints a graphviz digraph, representing the current grammar of the
+       parser.
 
    --printParsedMessage
-       Prints the parsed request message in a human readable format before calling
-       the remote procedure.
+       Prints the parsed request message in a human readable format before
+       calling the remote procedure.
 
    --debugComplete
        Prints debug information about completion (might only be useful if
        --complete is also present).
 
 FIELD_VALUE:
-  Field values in the request message may be specified as follows
+
+  Field values in the request message may be specified as follows:
+
   - integers:
       decimal (e.g. 46, -46, +46)
-      hexadecimal (e.g. 0x45ab, -0x45ab, +0x45ab)
+      hexadecimal (e.g. 0x45ab, -0x45Ab, +0x45ab)
+        NOTE: When parsing hex numbers the case is ignored.
       octal (e.g. 078, -078, +078)
   - floats:
       decimal (e.g. 31, -67.421e-8, 83.456, 23.3e8)
-      hexadecimal (e.g. -0xa7b6p-7)
+      hexadecimal (e.g. -0xa7B6p-7)
+        NOTE: When parsing hex numbers the case is ignored.
   - bytes:
-      As a hex number or as input from a file
-      - The hex number is prefixed with '0x' (e.g. 0xab4b2f5e9d7f)
+      As a hex number or as input from a file:
+      - The hex number is prefixed with '0x' (e.g. 0xab4B2F2e9d7f)
         NOTE: Only multiple of 8 bits possible
+        NOTE: When parsing hex numbers the case is ignored.
       - The input filename is prefixed with 'file://' (e.g. file://myfile.bin)
   - strings:
       As a string without quotes. (e.g. ThisIsAString)
-      NOTE::
-      gWhisper control characters ' ', ',' or ':' need to be escaped by pre-pending a ':'
+      NOTE: gWhisper control characters ' ', ',' or ':' need to be escaped by
+            pre-pending a ':'
   - enum values:
       As the enum value name
       Enum values are tab-completed
@@ -103,36 +122,46 @@ FIELD_VALUE:
       The nested type fields enclosed in colons. E.g. target=:field1=1 field2=2:
       Nested types are tab-completed
   - repeated fields:
-      A list of field values enclosed in colons, separated with a comma and a whitespace.
+      A list of field values enclosed in colons, separated with a comma and a
+      whitespace.
       E.g. values=:2, 4, 16, 32:
       Repeated fields are tab-completed
   - map fields:
-      As a repeated field with nested key, value pairs (protobuf representation of maps).
+      As a repeated field with nested key, value pairs (protobuf representation
+      of maps).
       E.g. my_map=::key=5 value=testval:, :key=40 value=anotherValue::
       Map fields are tab-completed
 
 OUTPUT_FORMAT:
-    This is a program written in a very simple formatting language. A valid program has
-    the following form:
+
+    This is a program written in a very simple formatting language.
+
+    A valid program has the following form:
         @ (.<FieldName>)+ : ( <String> || /<FieldName>[%<Modifier>]/ )+ :
-    The modifier is optional. Valid modifiers are: 'default', 'dec', 'hex' and 'raw' (binary output)
+    The modifier is optional. Valid modifiers are: 'default', 'dec', 'hex' and
+    'raw' (binary output)
+
     Example:
         ./gwhisper --customOutput @.listOfDevices:Found device /device_name%default/$'\n': 127.0.0.1 discoveryService.devices GetDevices
-
     Output:
         Found device Mouse
         Found device Keyboard
         Found device Screen
         ...
-    This will search for any number of fields with a name "listOfDevices" in the RPC reply message. For each match (multiple in case of repeated field), The string `"Found device /device_name/\n"` is printed with `/device_name/` replaced by the value of the field `"device_name"`.
+    This will search for any number of fields with a name "listOfDevices" in the
+    RPC reply message. For each match (multiple in case of repeated field), The
+    string `"Found device /device_name/\n"` is printed with `/device_name/`
+    replaced by the value of the field `"device_name"`.
 
 
 EXAMPLES:
+
   gwhisper exampledomain.org:50059 bakery orderCookies amount=5
       Connects to the gRPC server running at exampledomain.org on TCP port 50059
       and calls the orderCookies RPC method of the bakery service.
       A request message will be passed to the RPC call with the 'amount' field
-      set to 5. Other fields, which might be present, are left at default values.
+      set to 5. Other fields, which might be present in the message type, but
+      not specified here, are initialized to default values.
 
   gwhisper [2001:db8::2:1]:50059 bakery orderCookies config=:chocolate=true smarties=false: amount=5
       Uses IPv6 address and nested types in the request message.
