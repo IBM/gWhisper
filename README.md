@@ -48,7 +48,7 @@ To be able to build and/or run gWhisper, you need to at least have the following
 - __gRPC__ [link](https://github.com/grpc/grpc)  
   including the protoc plugin, which is packaged separately in some linux distributions
 - __protocolBuffers__ [link](https://github.com/protocolbuffers/protobuf)
-- Either __bash__ or __fish__(>=v2.6) shell
+- Either __bash__ or __fish__(>=v2.6) or __zsh__ shell
 
 You can install the prerequisites with:
 
@@ -88,8 +88,13 @@ Alternatively just copy the following files to the appropriate locations:
     cp complete.bash /usr/share/bash-completion/completions/gwhisper
     cp complete.fish /usr/share/fish/vendor_completions.d/gwhisper.fish
 
+If you are using zsh, add following lines into your `~/.zshrc` for tab-completion support based on the bash completion script.
+
+    autoload bashcompinit && bashcompinit
+    source /usr/share/bash-completion/completions/gwhisper
+
 ## Examples and Test-Server
-Every element except the hostname in the following example CLI invocations can be tab-completed in the fish or bash shell.
+Every element except the hostname in the following example CLI invocations can be tab-completed in the bash, fish or zsh shell.
 
 
 Simple example of an unary RPC with only one field in the request message:
@@ -131,7 +136,7 @@ Feel free to try it out and provide feedback/contributions.
 
 What is working:
 
-- Tab Completion (bash and fish only)
+- Tab Completion (bash, fish and zsh only)
 - Calling RPCs (unary + streaming)
 - Input and output of all protocol buffer types
 
