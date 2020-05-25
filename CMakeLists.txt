@@ -45,6 +45,9 @@ endif()
 # this causes all built executables to be on build directory toplevel.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
 
+# avoid to compile again when make install
+set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
+
 include_directories("${PROJECT_BINARY_DIR}")
 include_directories("${PROJECT_BINARY_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}")
