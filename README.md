@@ -54,7 +54,7 @@ You can install the prerequisites with:
 
 Fedora:
 
-    npm install cmake gcc-c++ protoc grpc grpc-devel grpc-plugins
+    dnf install cmake gcc protobuf protobuf-devel grpc grpc-devel grpc-plugins
 
 Arch Linux:
   
@@ -145,7 +145,7 @@ Some notable things which are not yet working:
 - Security: Authentication / Encryption of channels __(Planned in v0.4)__
 - Using Proto files instead of Reflection API (currently gWhisper only works with servers which have reflection enabled) __(Planned in v0.4)__
 - Recursive datastructures  __(Planned in v0.4)__
-- Completion: Support for shells other than bash/fish (e.g. zsh)
+- Completion: Support for shells other than bash/fish
 - Performance: Caching of reflection queries
 
 ## Supported platforms
