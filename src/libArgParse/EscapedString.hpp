@@ -77,7 +77,7 @@ class EscapedString : public GrammarElement
                 {
                     if(parsePos != interestingPosition)
                     {
-                        matchedStringUnEscaped += std::string(parsePos, interestingPosition - parsePos);
+                        matchedStringUnEscaped += std::string(parsePos, interestingPosition - parsePos - 1);
                     }
                     parsePos = interestingPosition;
                     // found end of string
