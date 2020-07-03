@@ -24,10 +24,15 @@ set(TARGET_SRC
     ./cliUtils.cpp
     )
 add_library(${TARGET_NAME} ${TARGET_SRC})
+
+# need to link against gpr to be able to use GPR in cliUtils
+find_library(LIB_GPR gpr)
+
 target_link_libraries ( ${TARGET_NAME}
     reflection
     ArgParse
     protoDoc
+    ${LIB_GPR}
     )
 
 if(BUILD_CONFIG_USE_BOOST_REGEX)

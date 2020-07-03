@@ -43,3 +43,44 @@ RPC succeeded :D
 @@CMD@@ 127.0.0.1 examples.StreamingRpcs bidirectionalStreamNegateNumbers
 RPC succeeded :D
 #END_TEST
+
+##############################################################################
+# String tests:
+##############################################################################
+
+#START_TEST stringInRepeated
+@@CMD@@ 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::str=text number=0::
+/.* Received message:
+| number_and_strings[1/1] = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = "text"
+RPC succeeded :D
+#END_TEST
+
+#START_TEST simpleString
+@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=asdf
+/.* Received message:
+| text = "ASDF"
+RPC succeeded :D
+
+#START_TEST simpleEscape
+@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=::
+/.* Received message:
+| text = ":"
+RPC succeeded :D
+
+#START_TEST complexEscape
+@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=Hello: World:,::
+/.* Received message:
+| text = "HELLO WORLD,:"
+RPC succeeded :D
+
+#START_TEST veryComplexEscape
+@@CMD@@ 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::str=text::: :, number=0::
+/.* Received message:
+| number_and_strings[1/1] = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = "text: ,"
+RPC succeeded :D
+
+
