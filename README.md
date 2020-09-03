@@ -4,7 +4,7 @@ A gRPC command line client.
 It allows to invoke gRPC Calls from the commandline, supports tab-completion
 and formats the replies in a human readable format.
 
-![example invocation](doc/example.gif)
+![example invocation](doc/exampleHello.gif)
 
 The main design goals are:
 
