@@ -66,6 +66,14 @@ int main(int argc, char **argv)
 
 
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-    server->Wait();
+    if(server != nullptr)
+    {
+        server->Wait();
+    }
+    else
+    {
+        std::cout << "Server failed to start. exiting." << std::endl;
+        return -1;
+    }
     return 0;
 }

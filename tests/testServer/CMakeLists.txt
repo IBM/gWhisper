@@ -15,6 +15,7 @@
 cmake_minimum_required (VERSION 2.8)
 
 set(TARGET_NAME "testServer")
+set(CMAKE_BUILD_TYPE Debug)
 set(TARGET_SRC
     testServer.cpp
     ServiceScalarTypeRpcs.cpp
