@@ -23,6 +23,17 @@ using namespace ArgParse;
 namespace cli
 {
 
+std::string getServerUri(ParsedElement * f_parseTree)
+{
+    std::string serverUri = f_parseTree->findFirstChild("ServerUri");
+    if(f_parseTree->findFirstChild("TcpUri") != "" and f_parseTree->findFirstChild("TcpPort") == "")
+    {
+        serverUri += ":50051";
+    }
+    //serverUri = "127.0.0.1:50051";
+    return serverUri;
+}
+
 class GrammarInjectorMethodArgs : public GrammarInjector
 {
     public:
@@ -40,15 +51,9 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         {
             // FIXME: we are already completing this without a service parsed.
             //  this works in most cases, as it will just fail. however this is not really a nice thing.
-            std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
-            std::string serverPort = f_parseTree->findFirstChild("ServerPort");
             std::string serviceName = f_parseTree->findFirstChild("Service");
             std::string methodName = f_parseTree->findFirstChild("Method");
-            if(serverPort == "")
-            {
-                serverPort = "50051";
-            }
-            serverAddress = serverAddress + ":" + serverPort;
+            std::string serverAddress = getServerUri(f_parseTree);
 
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
@@ -327,14 +332,8 @@ class GrammarInjectorMethods : public GrammarInjector
         {
             // FIXME: we are already completing this without a service parsed.
             //  this works in most cases, as it will just fail. however this is not really a nice thing.
-            std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
-            std::string serverPort = f_parseTree->findFirstChild("ServerPort");
             std::string serviceName = f_parseTree->findFirstChild("Service");
-            if(serverPort == "")
-            {
-                serverPort = "50051";
-            }
-            serverAddress = serverAddress + ":" + serverPort;
+            std::string serverAddress = getServerUri(f_parseTree);
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << std::endl;
             std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
@@ -385,14 +384,9 @@ class GrammarInjectorServices : public GrammarInjector
 
         virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
         {
-            std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
-            std::string serverPort = f_parseTree->findFirstChild("ServerPort");
-            if(serverPort == "")
-            {
-                serverPort = "50051";
-            }
-            serverAddress = serverAddress + ":" + serverPort;
+            std::string serverAddress = getServerUri(f_parseTree);
 
+            //std::cout << "Injecting Service grammar for " << serverAddress << std::endl;
             std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
             if(not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
@@ -416,6 +410,7 @@ class GrammarInjectorServices : public GrammarInjector
                 childAlt->setDocument(m_service->options().GetExtension(service_doc));
                 result->addChild(childAlt);
             }
+            //std::cout << "result = " << result <<std::endl;
             return result;
         };
 
@@ -535,17 +530,55 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     options->addChild(optionsconcat);
 
     // Server address
-    GrammarElement * serverAddress = f_grammarPool.createElement<Alternation>("ServerAddress");
-    serverAddress->addChild(f_grammarPool.createElement<RegEx>("\\d+\\.\\d+\\.\\d+\\.\\d+", "IPv4Address"));
-    serverAddress->addChild(f_grammarPool.createElement<RegEx>("\\[?[0-9a-fA-F:]+\\]?", "IPv6Address"));
-    serverAddress->addChild(f_grammarPool.createElement<RegEx>("[^\\.:\\[\\] ]+", "Hostname"));
+    // We parse gRPC URIs roughly according to https://grpc.github.io/grpc/cpp/md_doc_naming.html
+    GrammarElement * serverUri = f_grammarPool.createElement<Alternation>("ServerUri");
 
-    // Server port
+    // unix URIs:
+    GrammarElement * unixUri = f_grammarPool.createElement<Alternation>("UnixUri");
+
+    GrammarElement * unixUriSimple = f_grammarPool.createElement<Concatenation>();
+    unixUriSimple->addChild(f_grammarPool.createElement<FixedString>("unix:"));
+    unixUriSimple->addChild(f_grammarPool.createElement<RegEx>("[^ ]+"));
+    unixUri->addChild(unixUriSimple);
+
+    GrammarElement * unixUriAbstract = f_grammarPool.createElement<Concatenation>();
+    unixUriAbstract->addChild(f_grammarPool.createElement<FixedString>("unix-abstract:"));
+    unixUriAbstract->addChild(f_grammarPool.createElement<RegEx>("[^ ]+"));
+    unixUri->addChild(unixUriAbstract);
+
+    // TCP URIs:
+    GrammarElement * tcpUri = f_grammarPool.createElement<Alternation>("TcpUri");
+
+    GrammarElement * dnsUri = f_grammarPool.createElement<Concatenation>();
+    GrammarElement * dnsIdentifier = f_grammarPool.createElement<Optional>();
+    dnsIdentifier->addChild(f_grammarPool.createElement<FixedString>("dns:"));
+    dnsUri->addChild(dnsIdentifier);
+    dnsUri->addChild(f_grammarPool.createElement<RegEx>("[^:\\[\\] ]+", "Hostname"));
+    tcpUri->addChild(dnsUri);
+
+    GrammarElement * ipv4Uri = f_grammarPool.createElement<Concatenation>();
+    ipv4Uri->addChild(f_grammarPool.createElement<FixedString>("ipv4:"));
+    ipv4Uri->addChild(f_grammarPool.createElement<RegEx>("\\d+\\.\\d+\\.\\d+\\.\\d+", "IPv4Address"));
+    tcpUri->addChild(ipv4Uri);
+
+    GrammarElement * ipv6Uri = f_grammarPool.createElement<Concatenation>();
+    ipv6Uri->addChild(f_grammarPool.createElement<FixedString>("ipv6:"));
+    ipv6Uri->addChild(f_grammarPool.createElement<RegEx>("\\[?[0-9a-fA-F:]+\\]?", "IPv6Address"));
+    tcpUri->addChild(ipv6Uri);
+
     GrammarElement * cServerPort = f_grammarPool.createElement<Concatenation>();
     cServerPort->addChild(f_grammarPool.createElement<FixedString>(":"));
-    cServerPort->addChild(f_grammarPool.createElement<RegEx>("\\d+", "ServerPort"));
+    cServerPort->addChild(f_grammarPool.createElement<RegEx>("\\d+", "TcpPort"));
     GrammarElement * serverPort = f_grammarPool.createElement<Optional>();
     serverPort->addChild(cServerPort);
+    tcpUri->addChild(serverPort);
+
+
+    // a server uri can either be a unix uri or a tcp uri.
+    // tcp uris can be dns, ipv4 or ipv6 uris all with optional port
+    serverUri->addChild(unixUri);
+    serverUri->addChild(tcpUri);
+
 
     //GrammarElement * testAlt = f_grammarPool.createElement<Alternation>("TestAlt");
     //testAlt->addChild(f_grammarPool.createElement<FixedString>("challo"));
@@ -554,8 +587,7 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     // main concat:
     GrammarElement * cmain = f_grammarPool.createElement<Concatenation>();
     cmain->addChild(options);
-    cmain->addChild(serverAddress);
-    cmain->addChild(serverPort);
+    cmain->addChild(serverUri);
     //cmain->addChild(testAlt);
     //cmain->addChild(f_grammarPool.createElement<RegEx>(std::regex("\\S+"), "ServerAddress"));
     cmain->addChild(f_grammarPool.createElement<WhiteSpace>());

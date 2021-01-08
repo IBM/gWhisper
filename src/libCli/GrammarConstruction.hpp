@@ -15,6 +15,7 @@
 #pragma once
 
 #include <libArgParse/ArgParse.hpp>
+#include "libArgParse/ParsedElement.hpp"
 
 namespace cli
 {
@@ -23,4 +24,5 @@ namespace cli
     /// @returns the root element of the generated grammar. The pointer should not
     ///          be used after the given f_grammarPool is de-allocated.
     ArgParse::GrammarElement * constructGrammar(ArgParse::Grammar & f_grammarPool);
+    std::string getServerUri(ArgParse::ParsedElement * f_parseTree);
 }

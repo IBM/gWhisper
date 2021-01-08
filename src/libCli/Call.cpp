@@ -18,6 +18,7 @@
 #include <libCli/OutputFormatting.hpp>
 #include <libCli/ConnectionManager.hpp>
 #include <libCli/MessageParsing.hpp>
+#include "libCli/GrammarConstruction.hpp"
 #include <chrono>
 #include <ctime>
 #include <iomanip>
@@ -153,18 +154,11 @@ std::string getTimeString()
 
 int call(ParsedElement & parseTree)
 {
-    std::string serverAddress = parseTree.findFirstChild("ServerAddress");
-    std::string serverPort = parseTree.findFirstChild("ServerPort");
     std::string serviceName = parseTree.findFirstChild("Service");
     std::string methodName = parseTree.findFirstChild("Method");
     bool argsExist;
     ParsedElement & methodArgs = parseTree.findFirstSubTree("MethodArgs", argsExist);
-
-    if(serverPort == "")
-    {
-        serverPort = "50051";
-    }
-    serverAddress = serverAddress + ":" + serverPort;
+    std::string serverAddress = cli::getServerUri(&parseTree);
 
     std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
