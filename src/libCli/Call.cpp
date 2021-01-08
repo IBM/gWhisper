@@ -153,18 +153,12 @@ std::string getTimeString()
 
 int call(ParsedElement & parseTree)
 {
-    std::string serverAddress = parseTree.findFirstChild("ServerAddress");
-    std::string serverPort = parseTree.findFirstChild("ServerPort");
     std::string serviceName = parseTree.findFirstChild("Service");
     std::string methodName = parseTree.findFirstChild("Method");
     bool argsExist;
     ParsedElement & methodArgs = parseTree.findFirstSubTree("MethodArgs", argsExist);
 
-    if(serverPort == "")
-    {
-        serverPort = "50051";
-    }
-    serverAddress = serverAddress + ":" + serverPort;
+    std::string serverAddress = parseTree.findFirstChild("ServerUri");
 
     std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
