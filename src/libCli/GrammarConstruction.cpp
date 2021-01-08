@@ -40,9 +40,15 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         {
             // FIXME: we are already completing this without a service parsed.
             //  this works in most cases, as it will just fail. however this is not really a nice thing.
+            std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
+            std::string serverPort = f_parseTree->findFirstChild("ServerPort");
             std::string serviceName = f_parseTree->findFirstChild("Service");
             std::string methodName = f_parseTree->findFirstChild("Method");
-            std::string serverAddress = f_parseTree->findFirstChild("ServerUri");
+            if(serverPort == "")
+            {
+                serverPort = "50051";
+            }
+            serverAddress = serverAddress + ":" + serverPort;
 
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
@@ -321,8 +327,14 @@ class GrammarInjectorMethods : public GrammarInjector
         {
             // FIXME: we are already completing this without a service parsed.
             //  this works in most cases, as it will just fail. however this is not really a nice thing.
+            std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
+            std::string serverPort = f_parseTree->findFirstChild("ServerPort");
             std::string serviceName = f_parseTree->findFirstChild("Service");
-            std::string serverAddress = f_parseTree->findFirstChild("ServerUri");
+            if(serverPort == "")
+            {
+                serverPort = "50051";
+            }
+            serverAddress = serverAddress + ":" + serverPort;
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << std::endl;
             std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
@@ -373,7 +385,13 @@ class GrammarInjectorServices : public GrammarInjector
 
         virtual GrammarElement * getGrammar(ParsedElement * f_parseTree, std::string & f_ErrorMessage) override
         {
-            std::string serverAddress = f_parseTree->findFirstChild("ServerUri");
+            std::string serverAddress = f_parseTree->findFirstChild("ServerAddress");
+            std::string serverPort = f_parseTree->findFirstChild("ServerPort");
+            if(serverPort == "")
+            {
+                serverPort = "50051";
+            }
+            serverAddress = serverAddress + ":" + serverPort;
 
             std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
 
@@ -516,7 +534,18 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     //        );
     options->addChild(optionsconcat);
 
-    GrammarElement * serverUri = f_grammarPool.createElement<RegEx>("[^ ]+", "ServerUri");
+    // Server address
+    GrammarElement * serverAddress = f_grammarPool.createElement<Alternation>("ServerAddress");
+    serverAddress->addChild(f_grammarPool.createElement<RegEx>("\\d+\\.\\d+\\.\\d+\\.\\d+", "IPv4Address"));
+    serverAddress->addChild(f_grammarPool.createElement<RegEx>("\\[?[0-9a-fA-F:]+\\]?", "IPv6Address"));
+    serverAddress->addChild(f_grammarPool.createElement<RegEx>("[^\\.:\\[\\] ]+", "Hostname"));
+
+    // Server port
+    GrammarElement * cServerPort = f_grammarPool.createElement<Concatenation>();
+    cServerPort->addChild(f_grammarPool.createElement<FixedString>(":"));
+    cServerPort->addChild(f_grammarPool.createElement<RegEx>("\\d+", "ServerPort"));
+    GrammarElement * serverPort = f_grammarPool.createElement<Optional>();
+    serverPort->addChild(cServerPort);
 
     //GrammarElement * testAlt = f_grammarPool.createElement<Alternation>("TestAlt");
     //testAlt->addChild(f_grammarPool.createElement<FixedString>("challo"));
@@ -525,10 +554,10 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     // main concat:
     GrammarElement * cmain = f_grammarPool.createElement<Concatenation>();
     cmain->addChild(options);
-    //cmain->addChild(serverAddress);
-    //cmain->addChild(serverPort);
-    cmain->addChild(serverUri);
+    cmain->addChild(serverAddress);
+    cmain->addChild(serverPort);
     //cmain->addChild(testAlt);
+    //cmain->addChild(f_grammarPool.createElement<RegEx>(std::regex("\\S+"), "ServerAddress"));
     cmain->addChild(f_grammarPool.createElement<WhiteSpace>());
     cmain->addChild(f_grammarPool.createElement<GrammarInjectorServices>(f_grammarPool, "Service"));
     cmain->addChild(f_grammarPool.createElement<WhiteSpace>());
