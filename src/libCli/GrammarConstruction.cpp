@@ -568,12 +568,12 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     GrammarElement * tcpUri = f_grammarPool.createElement<Concatenation>("TcpUri");
     GrammarElement * tcpUriChoices = f_grammarPool.createElement<Alternation>("TcpUriChoices");
 
-    //GrammarElement * dnsUri = f_grammarPool.createElement<Concatenation>();
-    //GrammarElement * dnsIdentifier = f_grammarPool.createElement<Optional>();
-    //dnsIdentifier->addChild(f_grammarPool.createElement<FixedString>("dns:"));
-    //dnsUri->addChild(dnsIdentifier);
-    //dnsUri->addChild(f_grammarPool.createElement<RegEx>("[^:\\[\\] ]+", "Hostname"));
-    //tcpUri->addChild(dnsUri);
+    GrammarElement * dnsUri = f_grammarPool.createElement<Concatenation>();
+    GrammarElement * dnsIdentifier = f_grammarPool.createElement<Optional>();
+    dnsIdentifier->addChild(f_grammarPool.createElement<FixedString>("dns:"));
+    dnsUri->addChild(dnsIdentifier);
+    dnsUri->addChild(f_grammarPool.createElement<RegEx>("[^:\\[\\] ]+", "Hostname"));
+    tcpUriChoices->addChild(dnsUri);
 
     GrammarElement * ipv4Uri = f_grammarPool.createElement<Concatenation>();
     ipv4Uri->addChild(f_grammarPool.createElement<FixedString>("ipv4:"));
@@ -585,13 +585,13 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     ipv6Uri->addChild(f_grammarPool.createElement<RegEx>("\\[?[0-9a-fA-F:]+\\]?", "IPv6Address"));
     tcpUriChoices->addChild(ipv6Uri);
 
+    GrammarElement * serverPort = f_grammarPool.createElement<Optional>("OptionPort");
     GrammarElement * cServerPort = f_grammarPool.createElement<Concatenation>();
     cServerPort->addChild(f_grammarPool.createElement<FixedString>(":"));
     cServerPort->addChild(f_grammarPool.createElement<RegEx>("\\d+", "TcpPort"));
-    //GrammarElement * serverPort = f_grammarPool.createElement<Optional>("OptionPort");
-    //serverPort->addChild(cServerPort);
+    serverPort->addChild(cServerPort);
     tcpUri->addChild(tcpUriChoices);
-    //tcpUri->addChild(serverPort);
+    tcpUri->addChild(serverPort);
 
 
     // a server uri can either be a unix uri or a tcp uri.

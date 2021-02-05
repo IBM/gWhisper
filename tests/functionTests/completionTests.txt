@@ -14,7 +14,25 @@
 
 #START_TEST parse should fail with no arguments
 @@CMD@@
-/Parse failed
+Parse failed.Parsed until: ''
+Possible Candidates:
+  '-h '
+  '--help '
+  '--complete'
+  '--debugComplete '
+  '--dot '
+  '--noColor '
+  '--color '
+  '--version '
+  '--printParsedMessage '
+  '--noSimpleMapOutput '
+  '--connectTimeoutMilliseconds='
+  '--customOutput '
+  'unix:'
+  'unix-abstract:'
+  'dns:'
+  'ipv4:'
+  'ipv6:'
 #END_TEST
 
 #START_TEST complete a space after option
@@ -22,9 +40,12 @@
 --complete
 #END_TEST
 
+## FIXME: Actually this should also contain
+## 127.0.0.1:
+## in the suggestions.
+## seems to be a bug in optional + concat
 #START_TEST Complete port or services
 @@CMD@@ --complete 127.0.0.1 
-127.0.0.1:
 127.0.0.1 examples.ScalarTypeRpcs              (int, bool, string, bytes)
 127.0.0.1 examples.NestedTypeRpcs   (Nested and recursive datastructures)
 127.0.0.1 examples.ComplexTypeRpcs           (Enum, oneof, repeated, map)

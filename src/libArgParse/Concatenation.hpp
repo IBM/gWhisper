@@ -139,10 +139,12 @@ class Concatenation : public GrammarElement
                                 }
                             }
                         }
-                        else
+                        else if(i == 0)
                         {
-                            // no forks are allowed, but we sill can add the candidates we already found:
-                            rc.candidates.push_back(candidate);
+                            // no forks are allowed, but we sill can add the candidates we already found
+                            // in case we have nothing else already added (Concat with only alternation as child)
+                            // TODO: think this through, I do not 100% understand how this works and if it does the rigth thing
+                            rc.candidates.push_back(candidateRoot);
                         }
                     }
 

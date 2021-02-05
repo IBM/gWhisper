@@ -78,7 +78,7 @@ class Optional : public GrammarElement
             if((childRc.errorType == ParseRc::ErrorType::missingText) && (childRc.lenParsed >= 1))
             {
                 // In this case we reached the end of the text.
-                // but we found out, that the option is actuallt selected as we matched at least one char
+                // but we found out, that the option is actually selected as we matched at least one char
                 rc.lenParsed += childRc.lenParsed;
                 rc.errorType = ParseRc::ErrorType::missingText;
             }

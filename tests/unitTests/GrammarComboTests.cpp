@@ -564,6 +564,66 @@ TEST(CA_ComboTest, ACA_combo_NoFork) {
     EXPECT_EQ(&a1, parsedElement.getGrammarElement());
 }
 
+TEST(CA_ComboTest, AaCA_combo_PartialMatchFork) {
+    // a1
+    //  a2
+    //    f1
+    //  c1
+    //    a3
+    //      f2
+    //      f3
+
+    FixedString f1("f1");
+    FixedString f2("f2");
+    FixedString f3("f3");
+
+    Alternation a1;
+    Alternation a2;
+    Alternation a3;
+    Concatenation c1;
+
+    a1.addChild(&a2);
+    a1.addChild(&c1);
+
+    a2.addChild(&f1);
+
+    c1.addChild(&a3);
+
+    a3.addChild(&f2);
+    a3.addChild(&f3);
+
+    ParsedElement parent;
+    ParsedElement parsedElement(&parent);
+
+    ParseRc rc = a1.parse("", parsedElement);
+
+    // rc:
+    EXPECT_EQ(ParseRc::ErrorType::missingText, rc.errorType);
+    EXPECT_EQ(0, rc.lenParsed);
+    EXPECT_EQ(0, rc.lenParsedSuccessfully);
+
+    // candidates:
+    ASSERT_EQ(3, rc.candidates.size());
+
+    EXPECT_EQ("f1", rc.candidates[0]->getMatchedString());
+    EXPECT_EQ(&a1, rc.candidates[0]->getGrammarElement());
+    EXPECT_EQ(&parent, rc.candidates[0]->getParent());
+
+    EXPECT_EQ("f2", rc.candidates[1]->getMatchedString());
+    EXPECT_EQ(&a1, rc.candidates[1]->getGrammarElement());
+    EXPECT_EQ(&parent, rc.candidates[1]->getParent());
+
+    EXPECT_EQ("f3", rc.candidates[2]->getMatchedString());
+    EXPECT_EQ(&a1, rc.candidates[2]->getGrammarElement());
+    EXPECT_EQ(&parent, rc.candidates[2]->getParent());
+
+    // parsedElement
+    ASSERT_EQ(0, parsedElement.getChildren().size());
+    EXPECT_EQ(&parent, parsedElement.getParent());
+    EXPECT_EQ(false, parsedElement.isStopped());
+    EXPECT_EQ(&a1, parsedElement.getGrammarElement());
+}
+
 TEST(CA_ComboTest, ACA_combo_PartialMatchFork) {
     // a1
     //  c1
