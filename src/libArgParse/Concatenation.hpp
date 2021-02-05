@@ -106,7 +106,7 @@ class Concatenation : public GrammarElement
 
                         // we only go on parsing the next children, if we have only one candidate (unique follow up possible)
                         // or we still are allowed to fork
-                        // Otherwise we just do not return ANY candidates
+                        // Otherwise we just do not return ANY candidates FIXME!!! i just added else path to add candidate in any case
                         if(candidateDepth > 0 || childRc.candidates.size() == 1)
                         {
                             // Now continue parsing the other children, using this candidate as a base:
@@ -138,6 +138,11 @@ class Concatenation : public GrammarElement
                                     //std::cout << "Concat " << std::to_string(m_instanceId) << " Mpush candidate '" << candidateRc.candidates[0]->getMatchedString() << "'" << std::endl;
                                 }
                             }
+                        }
+                        else
+                        {
+                            // no forks are allowed, but we sill can add the candidates we already found:
+                            rc.candidates.push_back(candidate);
                         }
                     }
 
