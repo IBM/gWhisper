@@ -90,7 +90,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
             }
             else
             {
-                return getMessageGrammar("Message", method->input_type());
+                return getMessageGrammar("Message", method->input_type(), nullptr);
             }
             //auto concat = m_grammar.createElement<Concatenation>();
 
@@ -110,7 +110,11 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
     private:
 
-        void addFieldValueGrammar(GrammarElement * f_fieldGrammar, const grpc::protobuf::FieldDescriptor * f_field)
+        /// Construct Grammar for a protocol buffer field value and add it to existing grammae.
+        /// @param f_fieldGrammar Grammar element to which the field grammar will be added as a child.
+        /// @param f_field protobuf field descriptor representing the field.
+        /// @param f_maxRecursionDepth max number of nested messages. If this is 0, no grammar for sub-messages is added anymore if the field is of message type. Instead a fixed String is added to stop recursion.
+        void addFieldValueGrammar(GrammarElement * f_fieldGrammar, const grpc::protobuf::FieldDescriptor * f_field, size_t f_maxRecursionDepth)
         {
 
             switch(f_field->cpp_type())
@@ -199,7 +203,15 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                         ArgParse::GrammarFactory grammarFactory(m_grammar);
 
                         //auto fieldsAlt = getMessageGrammar(f_field->message_type());
-                        auto subMessage = getMessageGrammar("FieldValue", f_field->message_type(), m_grammar.createElement<FixedString>(":"));
+                        GrammarElement * subMessage = nullptr;
+                        if( f_maxRecursionDepth >0 )
+                        {
+                            subMessage = getMessageGrammar("FieldValue", f_field->message_type(), m_grammar.createElement<FixedString>(":"), f_maxRecursionDepth-1 );
+                        }
+                        else
+                        {
+                            subMessage = m_grammar.createElement<FixedString>("MaxRecursionDepthExceeded");
+                        }
                         //auto  prepostfix = m_grammar.createElement<FixedString>(":");
                         //GrammarElement * subMessage = grammarFactory.createList(
                         //        "FieldValue",
@@ -247,7 +259,13 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         // FIXME: we do want to generate a list via factory here not an alternation.
         // This makes life much easier and avoids duplicate code as all messages have
         // same parse structure.
-        GrammarElement * getMessageGrammar(const std::string & f_rootElementName, const grpc::protobuf::Descriptor* f_messageDescriptor, GrammarElement * f_wrappingElement = nullptr)
+        /// Construct grammar for a proto message.
+        /// @param f_rootElementName
+        /// @param f_messageDescriptor The descriptor describing the proto message for which grammar should be created
+        /// @param f_wrappingElement grammar element to be used in concatenation before and after the message grammar. If nullptr, no wrapping elements will be added.
+        /// @param f_maxRecursionDepth how deeply nested messages are allowed to be (messages cntaining sub-messages or recursive datastructures)
+        //
+        GrammarElement * getMessageGrammar(const std::string & f_rootElementName, const grpc::protobuf::Descriptor* f_messageDescriptor, GrammarElement * f_wrappingElement, size_t f_maxRecursionDepth = 10)
         {
             ArgParse::GrammarFactory grammarFactory(m_grammar);
             auto fieldsAlt = m_grammar.createElement<Alternation>();
@@ -277,7 +295,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 if(field->is_repeated())
                 {
                     auto repeatedValue = m_grammar.createElement<Concatenation>("RepeatedValue");
-                    addFieldValueGrammar(repeatedValue, field);
+                    addFieldValueGrammar(repeatedValue, field, f_maxRecursionDepth);
 
                     auto repeatedGrammar = m_grammar.createElement<Concatenation>("FieldValue");
                     repeatedGrammar->addChild(m_grammar.createElement<FixedString>(":"));
@@ -300,7 +318,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                 else
                 {
                     // the simple case:
-                    addFieldValueGrammar(fieldGrammar, field);
+                    addFieldValueGrammar(fieldGrammar, field, f_maxRecursionDepth);
                 }
             }
 

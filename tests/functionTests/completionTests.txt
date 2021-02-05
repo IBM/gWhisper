@@ -205,6 +205,13 @@ lala/data%dec
 lala/data%hex
 #END_TEST
 
+#START_TEST Recursive datastructures
+@@CMD@@ --complete 127.0.0.1 examples.NestedTypeRpcs echoRecursiveMaps
+echoRecursiveMaps number_and_string=  (message)
+echoRecursiveMaps complex_map=
+echoRecursiveMaps simple_map_int=
+echoRecursiveMaps simple_map_string=
+#END_TEST
 
 ####### these tests are actually not completion tests but functional RPC call tests TODO: move to separate file!
 
