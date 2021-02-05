@@ -565,31 +565,33 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     unixUri->addChild(unixUriAbstract);
 
     // TCP URIs:
-    GrammarElement * tcpUri = f_grammarPool.createElement<Alternation>("TcpUri");
+    GrammarElement * tcpUri = f_grammarPool.createElement<Concatenation>("TcpUri");
+    GrammarElement * tcpUriChoices = f_grammarPool.createElement<Alternation>("TcpUriChoices");
 
-    GrammarElement * dnsUri = f_grammarPool.createElement<Concatenation>();
-    GrammarElement * dnsIdentifier = f_grammarPool.createElement<Optional>();
-    dnsIdentifier->addChild(f_grammarPool.createElement<FixedString>("dns:"));
-    dnsUri->addChild(dnsIdentifier);
-    dnsUri->addChild(f_grammarPool.createElement<RegEx>("[^:\\[\\] ]+", "Hostname"));
-    tcpUri->addChild(dnsUri);
+    //GrammarElement * dnsUri = f_grammarPool.createElement<Concatenation>();
+    //GrammarElement * dnsIdentifier = f_grammarPool.createElement<Optional>();
+    //dnsIdentifier->addChild(f_grammarPool.createElement<FixedString>("dns:"));
+    //dnsUri->addChild(dnsIdentifier);
+    //dnsUri->addChild(f_grammarPool.createElement<RegEx>("[^:\\[\\] ]+", "Hostname"));
+    //tcpUri->addChild(dnsUri);
 
     GrammarElement * ipv4Uri = f_grammarPool.createElement<Concatenation>();
     ipv4Uri->addChild(f_grammarPool.createElement<FixedString>("ipv4:"));
     ipv4Uri->addChild(f_grammarPool.createElement<RegEx>("\\d+\\.\\d+\\.\\d+\\.\\d+", "IPv4Address"));
-    tcpUri->addChild(ipv4Uri);
+    tcpUriChoices->addChild(ipv4Uri);
 
     GrammarElement * ipv6Uri = f_grammarPool.createElement<Concatenation>();
     ipv6Uri->addChild(f_grammarPool.createElement<FixedString>("ipv6:"));
     ipv6Uri->addChild(f_grammarPool.createElement<RegEx>("\\[?[0-9a-fA-F:]+\\]?", "IPv6Address"));
-    tcpUri->addChild(ipv6Uri);
+    tcpUriChoices->addChild(ipv6Uri);
 
     GrammarElement * cServerPort = f_grammarPool.createElement<Concatenation>();
     cServerPort->addChild(f_grammarPool.createElement<FixedString>(":"));
     cServerPort->addChild(f_grammarPool.createElement<RegEx>("\\d+", "TcpPort"));
-    GrammarElement * serverPort = f_grammarPool.createElement<Optional>();
-    serverPort->addChild(cServerPort);
-    tcpUri->addChild(serverPort);
+    //GrammarElement * serverPort = f_grammarPool.createElement<Optional>("OptionPort");
+    //serverPort->addChild(cServerPort);
+    tcpUri->addChild(tcpUriChoices);
+    //tcpUri->addChild(serverPort);
 
 
     // a server uri can either be a unix uri or a tcp uri.
@@ -613,7 +615,7 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     cmain->addChild(f_grammarPool.createElement<WhiteSpace>());
     cmain->addChild(f_grammarPool.createElement<GrammarInjectorMethods>(f_grammarPool, "Method"));
 
-    GrammarElement * optionalArgs = f_grammarPool.createElement<Optional>();
+    GrammarElement * optionalArgs = f_grammarPool.createElement<Optional>("OptionArgs");
 
     GrammarElement * args = f_grammarPool.createElement<Concatenation>();
     args->addChild(f_grammarPool.createElement<WhiteSpace>());
