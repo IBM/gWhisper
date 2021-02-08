@@ -248,6 +248,9 @@ TEST(AlternationTest, TwoChildWrongString) {
 }
 
 TEST(AlternationTest, TwoChildCorrectStringForBoth) {
+    //  a
+    //      Fixed:child1
+    //      Fixed:child123
     FixedString child1("child1");
     FixedString child2("child123");
     Alternation myAlternation;
@@ -307,6 +310,8 @@ TEST(AlternationTest, FixStringAndConcatinationChild) {
 
     FixedString childFix("childFix");
     Concatenation childCon("childCon");
+    FixedString blubFix("blub");
+    childCon.addChild(&blubFix);
 
     myAlternation.addChild(&childFix);
     myAlternation.addChild(&childCon);
@@ -332,11 +337,20 @@ TEST(AlternationTest, FixStringAndConcatinationChild) {
 
 TEST(AlternationTest, FixStringAndConcatinationAndOptionalChild) {
 
+    //  myAlternation
+    //      Fixed:childFix
+    //      childCon
+    //          childOpt
+    //              childcon2
+    //                  Fixed:blub
+
     Alternation myAlternation;
 
     FixedString childFix("childFix");
+    FixedString blubFix("blub");
     Concatenation childCon("childCon");
     Concatenation childCon2("childCon2");
+    childCon2.addChild(&blubFix);
 
     Optional childOpt("childOpt");
     childOpt.addChild(&childCon2);
@@ -354,6 +368,13 @@ TEST(AlternationTest, FixStringAndConcatinationAndOptionalChild) {
     EXPECT_EQ(8, rc.lenParsedSuccessfully);
 
     // candidates:
+    std::cout << "p1:" << std::endl;
+    for(auto c : rc.candidates)
+    {
+        std::cout << "candidate: '" << c->getMatchedString() << "'" << std::endl;
+    }
+    // the one candidate is the "empty" candidate resulting from the option
+    // this migth be open for discussion if we want this or not.
     ASSERT_EQ(0, rc.candidates.size());
 
     // parsedElement
@@ -369,6 +390,11 @@ TEST(AlternationTest, FixStringAndConcatinationAndOptionalChild) {
     EXPECT_EQ(0, rc.lenParsedSuccessfully);
 
     // candidates:
+    std::cout << "p2:" << std::endl;
+    for(auto c : rc.candidates)
+    {
+        std::cout << "candidate: '" << c->getMatchedString() << "'" << std::endl;
+    }
     ASSERT_EQ(1, rc.candidates.size());
 
     // parsedElement

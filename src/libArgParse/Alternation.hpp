@@ -57,13 +57,14 @@ class Alternation : public GrammarElement
             ParseRc rc;
             f_out_ParsedElement.setGrammarElement(this);
 
-            //std::cout << "Alternation " << std::to_string(m_instanceId) << ": parsing '" << f_string << "'\n";
+            //std::cout << "Alternation " << std::to_string(m_instanceId) << ": parsing '" << f_string << " cd=" << candidateDepth << "'\n";
 
             std::vector<std::shared_ptr<ParsedElement> > candidateList;
 
             std::shared_ptr<ParsedElement> winner;
             std::shared_ptr<ParsedElement> maybeWinner;
             GrammarElement * maybeWinnerGE;
+            GrammarElement * winnerGE;
             size_t maybeCount = 0;
             size_t newCandidateDepth = candidateDepth;
             if(candidateDepth > 0)
@@ -73,6 +74,7 @@ class Alternation : public GrammarElement
                 // again, this time allowing forks
                 newCandidateDepth--;
             }
+            std::vector<GrammarElement*> maybeList;
             for(auto child : m_children)
             {
                 auto newParsedElement = std::make_shared<ParsedElement>(&f_out_ParsedElement);
@@ -87,13 +89,16 @@ class Alternation : public GrammarElement
                         rc.lenParsedSuccessfully = childRc.lenParsedSuccessfully;
                         rc.lenParsed = childRc.lenParsed;
                         winner = newParsedElement;
+                        winnerGE = child;
                     }
+                    maybeList.push_back(child);
                 }
                 if(childRc.isBad() && (childRc.errorType == ParseRc::ErrorType::missingText))
                 {
                     maybeWinner = newParsedElement;
                     maybeWinnerGE = child;
                     maybeCount++;
+                    maybeList.push_back(child);
                 }
                 else if(childRc.isBad() && (childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed))
                 {
@@ -111,7 +116,37 @@ class Alternation : public GrammarElement
 
             if(winner != nullptr)
             {
+                // have winner
                 f_out_ParsedElement.addChild(winner);
+
+                // parse again allowing forks this time. to get possible candidates in optional paths
+                ParsedElement unused;
+                ParseRc childRc = winnerGE->parse(f_string, unused, candidateDepth);
+                candidateList = childRc.candidates;
+
+                // unfortunately we now lost the previous candidates.
+                // need to parse again all children except winner to get those again.
+                // TODO: this is ugly. fix it better
+                for(auto child : maybeList)
+                {
+                    if(child == winnerGE)
+                    {
+                        continue;
+                    }
+                    auto newParsedElement = std::make_shared<ParsedElement>(&f_out_ParsedElement);
+                    ParseRc childRc = child->parse(f_string, *newParsedElement, newCandidateDepth);
+                    if(childRc.lenParsed < rc.lenParsed)
+                    {
+                        // we skip this succestion if the length is less tah our winner
+                        // (only keep additional options if they branch after the winner)
+                        continue;
+                    }
+                    for(auto candidate : childRc.candidates)
+                    {
+                        //std::cout << "  Alternation"<< std::to_string(m_instanceId) << ": have possible candidate: '" << candidate->getMatchedString() << "'" << std::endl;
+                        candidateList.push_back(candidate);
+                    }
+                }
             }
             else
             {
