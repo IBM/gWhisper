@@ -145,6 +145,7 @@ class Concatenation : public GrammarElement
                             // in case we have nothing else already added (Concat with only alternation as child)
                             // TODO: think this through, I do not 100% understand how this works and if it does the rigth thing
                             rc.candidates.push_back(candidateRoot);
+                            //std::cout << "Concat " << std::to_string(m_instanceId) << " i0push candidate '" << candidateRoot->getMatchedString() << "'" << std::endl; 
                         }
                     }
 

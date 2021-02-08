@@ -94,19 +94,18 @@ class Alternation : public GrammarElement
                     maybeWinner = newParsedElement;
                     maybeWinnerGE = child;
                     maybeCount++;
-
-                    // this is a candidate for completion
-                    //std::cout << " Alt"<< std::to_string(m_instanceId) <<  "one child rc=" << childRc.toString() << std::endl;
-                    for(auto candidate : childRc.candidates)
-                    {
-                        //std::cout << "  Alternation"<< std::to_string(m_instanceId) << ": have possible candidate: '" << candidate->getMatchedString() << "'" << std::endl;
-                        candidateList.push_back(candidate);
-                    }
                 }
                 else if(childRc.isBad() && (childRc.errorType == ParseRc::ErrorType::retrievingGrammarFailed))
                 {
                     rc.ErrorMessage = rc.ErrorMessage + childRc.ErrorMessage + " ";
                     rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
+                }
+
+                // Add all candidates regardless of RC
+                for(auto candidate : childRc.candidates)
+                {
+                    //std::cout << "  Alternation"<< std::to_string(m_instanceId) << ": have possible candidate: '" << candidate->getMatchedString() << "'" << std::endl;
+                    candidateList.push_back(candidate);
                 }
             }
 

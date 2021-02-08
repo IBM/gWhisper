@@ -40,12 +40,9 @@ Possible Candidates:
 --complete
 #END_TEST
 
-## FIXME: Actually this should also contain
-## 127.0.0.1:
-## in the suggestions.
-## seems to be a bug in optional + concat
 #START_TEST Complete port or services
 @@CMD@@ --complete 127.0.0.1 
+127.0.0.1:
 127.0.0.1 examples.ScalarTypeRpcs              (int, bool, string, bytes)
 127.0.0.1 examples.NestedTypeRpcs   (Nested and recursive datastructures)
 127.0.0.1 examples.ComplexTypeRpcs           (Enum, oneof, repeated, map)
