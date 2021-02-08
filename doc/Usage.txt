@@ -9,12 +9,12 @@ SYNOPSIS:
 
 Unary and server-streaming RPCs:
 
-gwhisper [OPTION ]... <hostname>[:port] <service> <method> [<fieldName>=FIELD_VALUE ]...
+gwhisper [OPTION ]... SERVER_URI <service> <method> [<fieldName>=FIELD_VALUE ]...
 
 
 Client-streaming RPCs:
 
-gwhisper [OPTION ]... <hostname>[:port] <service> <method> [:[<fieldName>=FIELD_VALUE ]...: ]...
+gwhisper [OPTION ]... SERVER_URI <service> <method> [:[<fieldName>=FIELD_VALUE ]...: ]...
 
 
 The default TCP port used to connect to a gRPC server is 50051.
@@ -88,6 +88,36 @@ OPTION:
    --debugComplete
        Prints debug information about completion (might only be useful if
        --complete is also present).
+
+SERVER_URI:
+
+    URI addressing the server.
+    Either a TCP URI, or a Unix-Domain-Socket URI:
+        host[:port]
+        dns:[//authority/]host[:port]
+        ipv4:address[:port][,address[:port],...]
+        ipv6:address[:port][,address[:port],...]
+        unix:path
+        unix-abstract:abstract_path
+
+    The URI-scheme mostly follows the gRPC Name resolution scheme, as detailed
+    here: https://grpc.github.io/grpc/cpp/md_doc_naming.html
+    With the following exceptions:
+    1. The TCP default port (if none is specified) is 50051 instead of 443
+    2. The unix://absolute_path scheme is not supported
+
+    Examples:
+        127.0.0.1
+        127.0.0.1:50053
+        exampleDomain.com
+        exampleDomain.com:50053
+        dns:exampleDomain.com
+        dns:exampleDomain.com:50053
+        ipv4:127.0.0.1
+        ipv4:127.0.0.1:50050
+        ipv6:[2607:f8b0:400e:c00::ef]:50052
+        unix:/tmp/socket
+        unix-abstract:socketAbstractName
 
 FIELD_VALUE:
 

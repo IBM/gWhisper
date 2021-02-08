@@ -48,7 +48,7 @@ To be able to build and/or run gWhisper, you need to at least have the following
 - __gRPC__ [link](https://github.com/grpc/grpc)  
   including the protoc plugin, which is packaged separately in some linux distributions
 - __protocolBuffers__ [link](https://github.com/protocolbuffers/protobuf)
-- Either __bash__ or __fish__(>=v2.6) or __zsh__ shell
+- Either __bash__, __fish__(>=v2.6) or __zsh__ shell
 
 You can install the prerequisites with:
 
@@ -88,7 +88,7 @@ Alternatively just copy the following files to the appropriate locations:
     cp complete.bash /usr/share/bash-completion/completions/gwhisper
     cp complete.fish /usr/share/fish/vendor_completions.d/gwhisper.fish
 
-If you are using zsh, add following lines into your `~/.zshrc` for tab-completion support based on the bash completion script.
+If you are using zsh, add the following lines to your `~/.zshrc` for tab-completion support based on the bash completion script.
 
     autoload bashcompinit && bashcompinit
     source /usr/share/bash-completion/completions/gwhisper
@@ -127,7 +127,7 @@ Shell control characters need to be escaped via shell mechanisms (works as expec
     2020-03-24 12:14:51: Received message:
     | text = "SHELL CHARACTERS: \'"$"
     RPC succeeded :D
-    
+
 
 ## Current development status
 
@@ -142,15 +142,13 @@ What is working:
 
 Some notable things which are not yet working:
 
-- Security: Authentication / Encryption of channels __(Planned in v0.4)__
-- Using Proto files instead of Reflection API (currently gWhisper only works with servers which have reflection enabled) __(Planned in v0.4)__
-- Recursive datastructures  __(Planned in v0.4)__
-- Completion: Support for shells other than bash/fish
+- Security: Authentication / Encryption of channels __(Planned in >=v4.0)__
+- Using Proto files instead of Reflection API (currently gWhisper only works with servers which have reflection enabled) __(Planned in >=v4.0)__
 - Performance: Caching of reflection queries
 
 ## Supported platforms
 
-Development and testing is done on Fedora Linux 31, Arch Linux and Ubuntu.
+Development and testing is done on Fedora Linux 33 and Arch Linux.
 We expect no bigger problems with building and running this software on different linux distributions.
 
 ## Reporting issues
