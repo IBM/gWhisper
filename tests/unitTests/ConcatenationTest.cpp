@@ -32,7 +32,7 @@ TEST(ConcatenationTest, NoChildEmptyString) {
     ParseRc rc = myConcatenation.parse("", parsedElement);
 
     // rc:
-    EXPECT_EQ(ParseRc::ErrorType::success, rc.errorType);
+    EXPECT_EQ(ParseRc::ErrorType::retrievingGrammarFailed, rc.errorType);
     EXPECT_EQ(0, rc.lenParsedSuccessfully);
 
     // candidates:
@@ -53,7 +53,7 @@ TEST(ConcatenationTest, NoChildNonEmptyString) {
     ParseRc rc = myConcatenation.parse("test", parsedElement);
 
     // rc:
-    EXPECT_EQ(ParseRc::ErrorType::success, rc.errorType);
+    EXPECT_EQ(ParseRc::ErrorType::retrievingGrammarFailed, rc.errorType);
     EXPECT_EQ(0, rc.lenParsedSuccessfully);
 
     // candidates:
