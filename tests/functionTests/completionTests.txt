@@ -14,17 +14,41 @@
 
 #START_TEST parse should fail with no arguments
 @@CMD@@
-/Parse failed
+Parse failed.Parsed until: ''
+Possible Candidates:
+  '-h '
+  '--help '
+  '--complete'
+  '--debugComplete '
+  '--dot '
+  '--noColor '
+  '--color '
+  '--version '
+  '--printParsedMessage '
+  '--noSimpleMapOutput '
+  '--connectTimeoutMilliseconds='
+  '--customOutput '
+  'unix:'
+  'unix-abstract:'
+  'dns:'
+  ''
+  'ipv4:'
+  'ipv6:'
 #END_TEST
 
+# Not sure why we get '--complete' two times here. ignoring this for now
 #START_TEST complete a space after option
 @@CMD@@ --complete
+--complete=bash
+--complete=fish
+--complete
 --complete
 #END_TEST
 
 #START_TEST Complete port or services
 @@CMD@@ --complete 127.0.0.1 
 127.0.0.1:
+127.0.0.1
 127.0.0.1 examples.ScalarTypeRpcs              (int, bool, string, bytes)
 127.0.0.1 examples.NestedTypeRpcs   (Nested and recursive datastructures)
 127.0.0.1 examples.ComplexTypeRpcs           (Enum, oneof, repeated, map)
@@ -53,17 +77,20 @@ incrementNumbers m_int32=                    (int32)
 incrementNumbers m_int64=                    (int64)
 incrementNumbers m_uint32=                  (uint32)
 incrementNumbers m_uint64=                  (uint64)
+incrementNumbers
 #END_TEST
 
 #START_TEST l1 bytes field
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes
 bitwiseInvertBytes data=0x       (bytes)
 bitwiseInvertBytes data=file://  (bytes)
+bitwiseInvertBytes
 #END_TEST
 
 #START_TEST l1 bytes field no docstring for single completion
 @@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs capitalizeString 
-capitalizeString text=
+capitalizeString text=  (String field)
+capitalizeString
 #END_TEST
 
 #START_TEST l1 bool field
@@ -72,6 +99,7 @@ negateBool m_bool=true   (bool)
 negateBool m_bool=false  (bool)
 negateBool m_bool=1      (bool)
 negateBool m_bool=0      (bool)
+negateBool
 #END_TEST
 
 #START_TEST l1 bool field only value
@@ -89,7 +117,8 @@ false  (bool)
 
 #START_TEST repeated number field no docstring for single completion
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers
-addAllNumbers numbers=:
+addAllNumbers numbers=:  (List of uint32)
+addAllNumbers
 #END_TEST
 
 #START_TEST repeated number field numbers cannot be completed
@@ -129,6 +158,7 @@ blue   (enum)
 sendNumberOrStringOneOf number=                (Only a number)
 sendNumberOrStringOneOf str=                   (Only a string)
 sendNumberOrStringOneOf both=    (Both, a number and a string)
+sendNumberOrStringOneOf
 #END_TEST
 
 #START_TEST repeated enum complete the only field
@@ -138,6 +168,7 @@ getLastColor colors=:black  (List of color enum values)
 getLastColor colors=:red    (List of color enum values)
 getLastColor colors=:green  (List of color enum values)
 getLastColor colors=:blue   (List of color enum values)
+getLastColor
 #END_TEST
 
 #START_TEST repeated enum, complete first element after field name
@@ -181,6 +212,7 @@ black, blue   (List of color enum values)
 @@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings
 echoNumberAndStrings number_and_strings=::number=  (uint32)
 echoNumberAndStrings number_and_strings=::str=     (string)
+echoNumberAndStrings
 #END_TEST
 
 #START_TEST repeated sub message after first element
@@ -211,6 +243,7 @@ echoRecursiveMaps number_and_string=  (message)
 echoRecursiveMaps complex_map=
 echoRecursiveMaps simple_map_int=
 echoRecursiveMaps simple_map_string=
+echoRecursiveMaps
 #END_TEST
 
 ####### these tests are actually not completion tests but functional RPC call tests TODO: move to separate file!

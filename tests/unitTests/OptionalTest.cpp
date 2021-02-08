@@ -40,7 +40,8 @@ TEST(OptionalTest, OneChildEmptyString) {
     EXPECT_EQ(0, rc.lenParsedSuccessfully);
 
     // candidates:
-    ASSERT_EQ(1, rc.candidates.size());
+    // one candidate: option taken, other candidate: option not taken
+    ASSERT_EQ(2, rc.candidates.size());
 
     // parsedElement
     ASSERT_EQ(0, parsedElement.getChildren().size());
@@ -92,7 +93,8 @@ TEST(OptionalTest, GrammarInjectorWrongServer) {
     EXPECT_EQ(0, rc.lenParsedSuccessfully);
 
     // candidates:
-    ASSERT_EQ(0, rc.candidates.size());
+    // one option: option not taken
+    ASSERT_EQ(1, rc.candidates.size());
 
     // parsedElement
     ASSERT_EQ(0, parsedElement.getChildren().size());
@@ -126,7 +128,7 @@ TEST(OptionalTest, GrammarInjectorBeforeConcanationWrongServer) {
     EXPECT_EQ(0, rc.lenParsedSuccessfully);
 
     // candidates:
-    ASSERT_EQ(0, rc.candidates.size());
+    ASSERT_EQ(1, rc.candidates.size());
 
     // parsedElement
     ASSERT_EQ(0, parsedElement.getChildren().size());

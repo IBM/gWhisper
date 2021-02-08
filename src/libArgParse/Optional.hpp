@@ -45,6 +45,12 @@ class Optional : public GrammarElement
             f_out_ParsedElement.setGrammarElement(this);
 
             ParseRc candidateRc;
+            if(m_children.size() == 0)
+            {
+                rc.ErrorMessage = "Optional Element has no child. Grammar incomplete.";
+                rc.errorType = ParseRc::ErrorType::retrievingGrammarFailed;
+                return rc;
+            }
 
             auto child = m_children[0]; // FIXME: range check
             auto newParsedElement = std::make_shared<ParsedElement>(&f_out_ParsedElement);
@@ -72,13 +78,22 @@ class Optional : public GrammarElement
                     realCandidate->addChild(candidate);
                     rc.candidates.push_back(realCandidate);
                 }
+                if(childRc.lenParsedSuccessfully == 0)
+                {
+                    // nothing parsed -> end of string
+                    // we add also the not taken option (empty candidate):
+                    auto realCandidate = std::make_shared<ParsedElement>(f_out_ParsedElement.getParent());
+                    realCandidate->setGrammarElement(this);
+                    realCandidate->setStops();
+                    rc.candidates.push_back(realCandidate);
+                }
             }
 
             // create rc code:
             if((childRc.errorType == ParseRc::ErrorType::missingText) && (childRc.lenParsed >= 1))
             {
                 // In this case we reached the end of the text.
-                // but we found out, that the option is actuallt selected as we matched at least one char
+                // but we found out, that the option is actually selected as we matched at least one char
                 rc.lenParsed += childRc.lenParsed;
                 rc.errorType = ParseRc::ErrorType::missingText;
             }
