@@ -171,17 +171,23 @@ OUTPUT_FORMAT:
     The modifier is optional. Valid modifiers are: 'default', 'dec', 'hex' and
     'raw' (binary output)
 
-    Example:
-        ./gwhisper --customOutput @.listOfDevices:Found device /device_name%default/$'\n': 127.0.0.1 discoveryService.devices GetDevices
-    Output:
-        Found device Mouse
-        Found device Keyboard
-        Found device Screen
-        ...
-    This will search for any number of fields with a name "listOfDevices" in the
-    RPC reply message. For each match (multiple in case of repeated field), The
-    string `"Found device /device_name/\n"` is printed with `/device_name/`
-    replaced by the value of the field `"device_name"`.
+    Examples:
+        Filter output:
+        gwhisper --customOutput @.listOfDevices:Found device /device_name%default/$'\n': 127.0.0.1 discoveryService.devices GetDevices
+        Output:
+            Found device Mouse
+            Found device Keyboard
+            Found device Screen
+            ...
+        This will search for any number of fields with a name "listOfDevices"
+        in the RPC reply message. For each match (multiple in case of repeated
+        field), The string `"Found device /device_name/\n"` is printed with
+        `/device_name/` replaced by the value of the field `"device_name"`.
+    
+        Write binary data to file:
+        gwhisper --customOutput @.:/data%raw/: 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes data=0xabcd > file.bin
+        This will redirect the data field of the reply message as raw binary
+        data to stdout. Then it can be redirected into a file.
 
 
 EXAMPLES:

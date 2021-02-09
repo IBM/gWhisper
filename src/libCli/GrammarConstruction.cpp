@@ -572,7 +572,7 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     GrammarElement * dnsIdentifier = f_grammarPool.createElement<Optional>();
     dnsIdentifier->addChild(f_grammarPool.createElement<FixedString>("dns:"));
     dnsUri->addChild(dnsIdentifier);
-    dnsUri->addChild(f_grammarPool.createElement<RegEx>("[^:\\[\\] ]+", "Hostname"));
+    dnsUri->addChild(f_grammarPool.createElement<RegEx>("[^-:\\[\\] ][^:\\[\\] ]+", "Hostname"));
     tcpUriChoices->addChild(dnsUri);
 
     GrammarElement * ipv4Uri = f_grammarPool.createElement<Concatenation>();

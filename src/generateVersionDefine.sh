@@ -28,7 +28,7 @@
 # TODO: we could do this via git hooks. Problem is just that hooks are not
 #       really part of the repository. I.e. each user would need to install the
 #       hooks. Will need to find some solution
-HARD_CODED_VERSION="v3.3.0"
+HARD_CODED_VERSION="v3.3.1"
 
 # get build date
 DATE=`date +%Y-%m-%d_%H:%M:%S`

@@ -83,4 +83,15 @@ RPC succeeded :D
 | | str... = "text: ,"
 RPC succeeded :D
 
+##############################################################################
+# Custom output tests:
+##############################################################################
+
+#START_TEST prefix_postfix_float_output_format
+@@CMD@@ --customOutput @.:prefix /m_float/ postfix: 127.0.0.1 examples.ScalarTypeRpcs incrementNumbers m_float=1.675
+/.* Received message:
+prefix 2.675000 postfix
+RPC succeeded :D
+
+
 
