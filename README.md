@@ -54,7 +54,7 @@ You can install the prerequisites with:
 
 Fedora:
 
-    dnf install cmake gcc protobuf protobuf-devel grpc grpc-devel grpc-plugins
+    dnf install cmake gcc gcc-c++ protobuf protobuf-devel grpc grpc-devel grpc-plugins
 
 Arch Linux:
   
