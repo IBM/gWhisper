@@ -12,16 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required (VERSION 2.8)
-
-if(EXISTS "${PROJECT_SOURCE_DIR}/third_party/googletest/CMakeLists.txt")
-    # we only build tests if googletest is available
-    # If the gWhisper source package is downloaded from GitHub as archive (tar or zip)
-    # submodules are not included. This ensures, that we build at least the functional
-    # code in this case.
+if(BUILD_TESTS)
   add_subdirectory(unitTests)
   add_subdirectory(functionTests)
 else()
-    message(WARNING "googletest submodule not found, not building tests. Please be sure to get the submodules with 'git submodule update --init' to also build tests.")
+    message(WARNING "Not building unit and functional tests - test server is still built")
 endif()
 add_subdirectory(testServer)
