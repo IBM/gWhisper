@@ -18,7 +18,7 @@ BUILD_DIR="$SOURCE_DIR/build"
 if [ ! -f "$BUILD_DIR/Makefile" ]; then
     mkdir $BUILD_DIR
     cd $BUILD_DIR
-    cmake $SOURCE_DIR "$@" -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=OFF
+    cmake $SOURCE_DIR "$@" -DCMAKE_BUILD_TYPE=Debug 
     RC=$?
     if [ "$RC" -ne 0 ]; then
         # cmake failed
