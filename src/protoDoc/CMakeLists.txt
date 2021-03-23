@@ -14,39 +14,6 @@
 
 
 set(TARGET_NAME "protoDoc")
+set(PROTO_SRC protoDoc.proto)
 
-# find grpc + protobuf libs and code generators:
-find_library(LIB_PROTOBUF protobuf)
-find_library(LIB_GRPC grpc)
-find_library(LIB_GRPC++ grpc++)
-find_program (PROTOC protoc)
-find_program (PROTOC_GRPC_PLUGIN grpc_cpp_plugin)
-message(STATUS "PROTOC = ${PROTOC}")
-message(STATUS "PROTOC_GRPC_PLUGIN = ${PROTOC_GRPC_PLUGIN}")
-
-# determine proto file source and binary directories (binary directory used to
-# write generated code to)
-set(PROTO_FILE_BASE_SRC_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-string(REGEX REPLACE "^${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" PROTO_FILE_BASE_DST_PATH ${PROTO_FILE_BASE_SRC_PATH})
-message(STATUS "PROTO_FILE_BASE_SRC_PATH = ${PROTO_FILE_BASE_SRC_PATH}")
-message(STATUS "PROTO_FILE_BASE_DST_PATH = ${PROTO_FILE_BASE_DST_PATH}")
-
-
-# add reflection generated code location to include path:
-include_directories(${PROTO_FILE_BASE_DST_PATH})
-
-# add rules for code generation:
-add_custom_command(
-    OUTPUT protoDoc.pb.cc protoDoc.pb.h
-    COMMAND ${PROTOC} --cpp_out=${PROTO_FILE_BASE_DST_PATH} -I ${PROTO_FILE_BASE_SRC_PATH} ${PROTO_FILE_BASE_SRC_PATH}/protoDoc.proto
-    DEPENDS protoDoc.proto
-    )
-add_custom_command(
-    OUTPUT protoDoc.grpc.pb.cc protoDoc.grpc.pb.h
-    COMMAND ${PROTOC} --grpc_out=${PROTO_FILE_BASE_DST_PATH} -I ${PROTO_FILE_BASE_SRC_PATH} ${PROTO_FILE_BASE_SRC_PATH}/protoDoc.proto --plugin=protoc-gen-grpc=${PROTOC_GRPC_PLUGIN}
-    DEPENDS protoDoc.proto
-    )
-
-set(PROTO_SRC protoDoc.pb.cc protoDoc.grpc.pb.cc)
-
-add_library(${TARGET_NAME} ${PROTO_SRC})
+add_protobuf_grpc_lib(${TARGET_NAME} ${PROTO_SRC} )

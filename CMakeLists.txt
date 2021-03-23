@@ -53,7 +53,7 @@ if(BUILD_CONFIG_USE_BOOST_REGEX)
 endif()
 
 # this causes all built executables to be on build directory toplevel.
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
 
 # avoid to compile again when make install
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
@@ -63,9 +63,9 @@ include_directories("${PROJECT_BINARY_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}/src")
 
+add_subdirectory(third_party)
 add_subdirectory(src)
 add_subdirectory(tests)
-add_subdirectory(third_party)
 
 install(FILES complete.bash DESTINATION /usr/share/bash-completion/completions/ RENAME gwhisper)
 install(FILES complete.fish DESTINATION /usr/share/fish/vendor_completions.d/ RENAME gwhisper.fish)

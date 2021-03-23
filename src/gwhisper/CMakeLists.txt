@@ -29,6 +29,7 @@ set(TARGET_SRC
 add_executable(${TARGET_NAME} ${TARGET_SRC})
 target_link_libraries ( ${TARGET_NAME}
     cli
+    reflection
     )
 
 add_dependencies(${TARGET_NAME} compileCommands versionDefine)
