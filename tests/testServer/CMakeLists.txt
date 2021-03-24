@@ -25,7 +25,7 @@ set(TARGET_SRC
     )
 
 
-add_protobuf_grpc_lib( ${TARGET_NAME}_protobuf examples.proto)
+add_protobuf_grpc_lib( ${TARGET_NAME}_protobuf PROTO_SOURCES examples.proto LINK_PROTO_LIB protoDoc)
 
 add_executable(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
 

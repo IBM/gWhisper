@@ -20,7 +20,7 @@ set(TARGET_SRC
     )
 
 
-add_protobuf_grpc_lib( ${TARGET_NAME}_protobuf reflection.proto)
+add_protobuf_grpc_lib( ${TARGET_NAME}_protobuf PROTO_SOURCES reflection.proto )
 
 add_library( ${TARGET_NAME} ${TARGET_SRC})
 target_link_libraries(${TARGET_NAME} PUBLIC ${TARGET_NAME}_protobuf)

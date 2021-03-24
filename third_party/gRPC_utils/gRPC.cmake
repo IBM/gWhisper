@@ -50,59 +50,76 @@ else()
     endif()
 endif()
 
-function (_generate_protobuf_sources _proto_sources _cpp_headers _cpp_sources)
+function (_generate_protobuf_source _proto_sources _includes _cpp_headers _cpp_sources)
     string(REPLACE ".proto" ".pb.cc" _sources ${_proto_sources})
     string(REPLACE ".proto" ".pb.h" _headers ${_proto_sources})
     set(${_cpp_headers} ${${_cpp_headers}} ${_headers} PARENT_SCOPE)
     set(${_cpp_sources} ${${_cpp_sources}} ${_sources} PARENT_SCOPE)
+    list(APPEND _includes ${CMAKE_CURRENT_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIR})
+    list(REMOVE_DUPLICATES _includes)
+    set(_include_commands $<$<BOOL:${_includes}>:-I$<JOIN:${_includes}, -I>>)
     add_custom_command(
         OUTPUT  ${_sources} ${_headers}
-        COMMAND ${PROTOC} -I${CMAKE_CURRENT_SOURCE_DIR} -I${PROTOBUF_INCLUDE_DIR} --cpp_out=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${_proto_sources}
+        COMMAND ${PROTOC} "${_include_commands}" --cpp_out=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${_proto_sources}
         DEPENDS ${_proto_sources}
+        COMMAND_EXPAND_LISTS
     )
 endfunction()
 
-function (_generate_protobuf_grpc_sources _proto_sources _cpp_headers _cpp_sources)
-    string(REPLACE ".proto" ".grpc.pb.cc" _sources ${_proto_sources})
-    string(REPLACE ".proto" ".grpc.pb.h" _headers ${_proto_sources})
+function (_generate_protobuf_grpc_source _proto_source _includes _cpp_headers _cpp_sources)
+    string(REPLACE ".proto" ".grpc.pb.cc" _sources ${_proto_source})
+    string(REPLACE ".proto" ".grpc.pb.h" _headers ${_proto_source})
     set(${_cpp_headers} ${${_cpp_headers}} ${_headers} PARENT_SCOPE)
     set(${_cpp_sources} ${${_cpp_sources}} ${_sources} PARENT_SCOPE)
+    list(APPEND _includes ${CMAKE_CURRENT_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIR})
+    list(REMOVE_DUPLICATES _includes)
+    message("INCLUDE COMMANDS ${include_commands}")
+    file(GENERATE OUTPUT debug.txt CONTENT "$<$<BOOL:${_includes}>:-I$<JOIN:${_includes}, -I>>")
+    file(GENERATE OUTPUT debug2.txt CONTENT "$<$<BOOL:$<GENEX_EVAL:${_includes}>>:-I$<JOIN:${_includes}, -I>>")
+    set(_include_commands $<$<BOOL:${_includes}>:-I$<JOIN:${_includes}, -I>>)
+
     add_custom_command(
         OUTPUT  ${_sources} ${_headers}
-        COMMAND ${PROTOC} -I${CMAKE_CURRENT_SOURCE_DIR} -I${PROTOBUF_INCLUDE_DIR} --grpc_out=${CMAKE_CURRENT_BINARY_DIR} --plugin=protoc-gen-grpc=${PROTOC_GRPC_PLUGIN} ${CMAKE_CURRENT_SOURCE_DIR}/${_proto_sources}
-        DEPENDS ${_proto_sources}
+        COMMAND ${PROTOC} "${_include_commands}" --grpc_out=${CMAKE_CURRENT_BINARY_DIR} --plugin=protoc-gen-grpc=${PROTOC_GRPC_PLUGIN} ${CMAKE_CURRENT_SOURCE_DIR}/${_proto_source}
+        DEPENDS ${_proto_source}
+        COMMAND_EXPAND_LISTS
     )
 endfunction()
 
-function(add_protobuf_lib _lib_name _proto_sources _include )
-    _generate_protobuf_sources(${_proto_sources} ${_lib_name}_HEADERS ${_lib_name}_SOURCES)
+function(add_protobuf_grpc_lib _lib_name  )
+    set(multiValueArgs PROTO_SOURCES LINK_PROTO_LIB)
+    cmake_parse_arguments( add_protobuf_grpc_lib "" "" "${multiValueArgs}" ${ARGN})
+    message("Sources ${add_protobuf_grpc_lib_PROTO_SOURCES}")
+    if( "" STREQUAL "${add_protobuf_grpc_lib_PROTO_SOURCES}")
+        MESSAGE(FATAL_ERROR "add_protobuf_grpc_lib called with empty PROTO_SOURCES")
+    endif()
+    message("LINK_LIBS ${add_protobuf_grpc_lib_LINK_PROTO_LIB}")
+    foreach( _consumed_proto_lib IN LISTS add_protobuf_grpc_lib_LINK_PROTO_LIB)
+        get_target_property(include_path ${_consumed_proto_lib} _proto_include)
+        message("INCLUDE PATH PROTO: ${include_path}")
+        list(APPEND _all_consumed_proto_include_dirs ${include_path})
+    endforeach()
+
+    message("ALL CONSUMED INCLUDE DIRS ${_all_consumed_proto_include_dirs}")
+    foreach( _proto_source IN LISTS add_protobuf_grpc_lib_PROTO_SOURCES)
+        _generate_protobuf_source(${_proto_source} "${_all_consumed_proto_include_dirs}" ${_lib_name}_HEADERS ${_lib_name}_SOURCES )
+        _generate_protobuf_grpc_source(${_proto_source} "${_all_consumed_proto_include_dirs}" ${_lib_name}_HEADERS  ${_lib_name}_SOURCES)
+    endforeach()
+
     add_library( ${_lib_name} ${${_lib_name}_SOURCES} ${${_lib_name}_HEADERS})
 
+    set_target_properties(${_lib_name} PROPERTIES _proto_include ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries( ${_lib_name}
         PUBLIC
         grpc++_reflection
         libprotobuf
+        PRIVATE
+        ${add_protobuf_grpc_lib_LINK_PROTO_LIB}
         )
     target_include_directories(${_lib_name}
         PUBLIC
-        ${PROTOBUF_INCLUDE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
-        )
-endfunction()
-
-function(add_protobuf_grpc_lib _lib_name _proto_sources )
-    _generate_protobuf_sources(${_proto_sources} ${_lib_name}_HEADERS ${_lib_name}_SOURCES _include)
-    _generate_protobuf_grpc_sources(${_proto_sources} ${_lib_name}_HEADERS ${_lib_name}_SOURCES)
-    add_library( ${_lib_name} ${${_lib_name}_SOURCES} ${${_lib_name}_HEADERS})
-
-    target_link_libraries( ${_lib_name}
-        PUBLIC
-        grpc++_reflection
-        libprotobuf
-        )
-    target_include_directories(${_lib_name}
-        PUBLIC
+        PRIVATE
         ${PROTOBUF_INCLUDE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        )
+    )
 endfunction()

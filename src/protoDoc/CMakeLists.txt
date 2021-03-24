@@ -16,4 +16,4 @@
 set(TARGET_NAME "protoDoc")
 set(PROTO_SRC protoDoc.proto)
 
-add_protobuf_grpc_lib(${TARGET_NAME} ${PROTO_SRC} )
+add_protobuf_grpc_lib(${TARGET_NAME} PROTO_SOURCES ${PROTO_SRC} )
