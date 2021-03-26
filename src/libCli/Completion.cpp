@@ -19,37 +19,28 @@ using namespace ArgParse;
 
 namespace cli
 {
-    std::string getLastArgument(std::string &candStr, const char *delim, std::vector<std::string> &sugs)
+    std::string getLastArgument(const std::string &candStr, const char *delim, std::vector<std::string> &sugs, const std::string userInput)
     {
+        //Compare UserInput with Candidate
+        //If #Whitespaces Cadidate > 1 +#Whitespaces -> 2 Completion in one. We have to complete only the first part (remove the part after the first whitespace of candidate)
 
-        //char *candArg = const_cast<char *>(ca,ndStr.c_str());
-        std::vector<std::string> candSuggestion;
+        std::size_t suggStart = userInput.find_last_of(delim);
+        std::string suggestion = candStr.substr(suggStart, std::string::npos);
 
-        //if (sugs.back() == ":")
-        //{
-        //return sugs[sugs.size() - 1];
-        //candSuggestion.push_back();
-        //    return "*****Shalalala***********";
-        //}
+        size_t trim = suggestion.find_first_not_of(delim);
+        suggestion = suggestion.substr(trim, std::string::npos);
 
-        // split Candidate at given delimiter
-        char *candArg = strtok(const_cast<char *>(candStr.c_str()), delim);
-        //char *candArg = const_cast<char *>(candStr.c_str());
-        //candArg = strtok(candArg, delim);
-
-        while (candArg != nullptr)
+        ////der hier müsste do eigentlich die Position des letzten " " habenMake sure that only one suggestion for candidate is completed (lookahead seperated by whitespace)
+        std::size_t found = suggestion.find(delim);
+        if (found != std::string::npos)
         {
-            candSuggestion.push_back(std::string(candArg));
-            candArg = strtok(nullptr, delim);
-        }
-        // return a reference on last element of candSuggestion
-        //if (candSuggestion.back() == ":")
-        //{
-        //    candSuggestion.push_back(getLastArgument(candStr, " "));
-        //}
+            suggestion = suggestion.substr(0, found);
 
-        return (candSuggestion.back());
-        //return ("****Bliblablubb********");
+            // TODO: Either go back in Parse tree (Open new issue)
+            // Or brute force eliminate docu (if trim)
+        }
+
+        return (suggestion);
     }
 
     void printFishCompletions(std::vector<std::shared_ptr<ParsedElement>> &f_candidates, ParsedElement &f_parseTree, const std::string &f_args, bool f_debug)
@@ -99,13 +90,13 @@ namespace cli
 
             //bis char 5 completen --> Leer wird completed
             std::vector<std::string> suggestions;
-            suggestion = getLastArgument(candidateStr, " ", suggestions);
+            suggestion = getLastArgument(candidateStr, " ", suggestions, f_args);
             suggestions.push_back(suggestion);
 
             if (f_debug)
             {
                 printf("nospace! cand='%s', n=%zu, start=%zu, end = %zu\n", candidateStr.c_str(), n, start, end);
-                printf("*******SUGGESTION = '%s'**********\n", suggestion);
+                printf("*******SUGGESTION = '%s'**********\n", suggestion.c_str());
                 printf("*******SUGGESTION = **********\n");
             }
 
