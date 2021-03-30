@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #pragma once
-#include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
+#include <gRPC_utils/proto_reflection_descriptor_database.h>
 
 #include <sstream>
 #include <iomanip>

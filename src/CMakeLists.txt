@@ -17,6 +17,7 @@ add_subdirectory(protoDoc)
 add_subdirectory(libArgParse)
 add_subdirectory(libCli)
 add_subdirectory(gwhisper)
+add_subdirectory(version)
 
 get_filename_component(BIN_DIR_ABS ${CMAKE_BINARY_DIR}/. DIRECTORY)
 get_filename_component(SRC_DIR_ABS ${CMAKE_SOURCE_DIR}/. DIRECTORY)
@@ -31,6 +32,4 @@ else()
     )
 endif()
   
-add_custom_target(versionDefine
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/generateVersionDefine.sh ${PROJECT_SOURCE_DIR} > ${CMAKE_CURRENT_BINARY_DIR}/versionDefine.h
-    )
+

@@ -14,14 +14,17 @@
 
 include_guard()
 if(USE_PRE_INSTALLED)
+    message("Using binary/preinstalled gRPC")
     # find grpc + protobuf libs and code generators:
     find_library(LIB_PROTOBUF protobuf)
     find_library(LIB_GRPC grpc)
     find_library(LIB_GRPC++ grpc++)
     find_library(LIB_GRPC++_reflection grpc++_reflection)
+    find_library(LIB_GPR gpr)
     find_program (PROTOC protoc)
     find_program (PROTOC_GRPC_PLUGIN grpc_cpp_plugin)
 else()
+    message("Building gRPC from source")
     include(FetchContent)
     FetchContent_Declare(
         gRPC
@@ -32,22 +35,15 @@ else()
     FetchContent_MakeAvailable(gRPC)
     # Since FetchContent uses add_subdirectory under the hood, we can use
     # the grpc targets directly from this build.
-    set(LIB_PROTOBUF "libprotobuf" CACHE STRING "Libprotobuf" FORCE)
-    set(LIB_GRPC "grpc" CACHE STRING "grpc" FORCE)
-    set(LIB_GRPC++ "grpc++" CACHE STRING "grpc++" FORCE)
-    set(LIB_GRPC++_REFLECTION "grpc++_reflection" CACHE STRING "grpc++_reflection" FORCE)
-    set(PROTOC "$<TARGET_FILE:protoc>" CACHE STRING "Protoc" FORCE)
-    set(PROTOC_GRPC_PLUGIN "$<TARGET_FILE:grpc_cpp_plugin>" CACHE STRING "Protoc GRPC PLUGIN" FORCE)
-    message(PROTOC_GRPC_PLUGIN ${PROTOC_GRPC_PLUGIN})
-    message(PROTOC ${PROTOC})
+    set(LIB_PROTOBUF "libprotobuf" CACHE STRING "Libprotobuf" )
+    set(LIB_GRPC "grpc" CACHE STRING "grpc" )
+    set(LIB_GRPC++ "grpc++" CACHE STRING "grpc++" )
+    set(LIB_GRPC++_REFLECTION "grpc++_reflection" CACHE STRING "grpc++_reflection" )
+    set(PROTOC "$<TARGET_FILE:protoc>" CACHE STRING "Protoc" )
+    set(PROTOC_GRPC_PLUGIN "$<TARGET_FILE:grpc_cpp_plugin>" CACHE STRING "Protoc GRPC PLUGIN" )
 
     get_target_property( _PROTOBUF_INCLUDE_DIR libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
-    set(PROTOBUF_INCLUDE_DIR ${_PROTOBUF_INCLUDE_DIR} CACHE STRING "protobuf includes" FORCE)
-    if(CMAKE_CROSSCOMPILING)
-        find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
-    else()
-        set(_GRPC_CPP_PLUGIN_EXECUTABLE "$<TARGET_FILE:grpc_cpp_plugin>" CACHE STRING "grpc cpp plugin")
-    endif()
+    set(PROTOBUF_INCLUDE_DIR ${_PROTOBUF_INCLUDE_DIR} CACHE STRING "protobuf includes" )
 endif()
 
 function (_generate_protobuf_source _proto_sources _includes _cpp_headers _cpp_sources)
@@ -73,7 +69,6 @@ function (_generate_protobuf_grpc_source _proto_source _includes _cpp_headers _c
     set(${_cpp_sources} ${${_cpp_sources}} ${_sources} PARENT_SCOPE)
     list(APPEND _includes ${CMAKE_CURRENT_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIR})
     list(REMOVE_DUPLICATES _includes)
-    message("INCLUDE COMMANDS ${include_commands}")
     file(GENERATE OUTPUT debug.txt CONTENT "$<$<BOOL:${_includes}>:-I$<JOIN:${_includes}, -I>>")
     file(GENERATE OUTPUT debug2.txt CONTENT "$<$<BOOL:$<GENEX_EVAL:${_includes}>>:-I$<JOIN:${_includes}, -I>>")
     set(_include_commands $<$<BOOL:${_includes}>:-I$<JOIN:${_includes}, -I>>)
@@ -89,18 +84,14 @@ endfunction()
 function(add_protobuf_grpc_lib _lib_name  )
     set(multiValueArgs PROTO_SOURCES LINK_PROTO_LIB)
     cmake_parse_arguments( add_protobuf_grpc_lib "" "" "${multiValueArgs}" ${ARGN})
-    message("Sources ${add_protobuf_grpc_lib_PROTO_SOURCES}")
     if( "" STREQUAL "${add_protobuf_grpc_lib_PROTO_SOURCES}")
         MESSAGE(FATAL_ERROR "add_protobuf_grpc_lib called with empty PROTO_SOURCES")
     endif()
-    message("LINK_LIBS ${add_protobuf_grpc_lib_LINK_PROTO_LIB}")
     foreach( _consumed_proto_lib IN LISTS add_protobuf_grpc_lib_LINK_PROTO_LIB)
         get_target_property(include_path ${_consumed_proto_lib} _proto_include)
-        message("INCLUDE PATH PROTO: ${include_path}")
         list(APPEND _all_consumed_proto_include_dirs ${include_path})
     endforeach()
 
-    message("ALL CONSUMED INCLUDE DIRS ${_all_consumed_proto_include_dirs}")
     foreach( _proto_source IN LISTS add_protobuf_grpc_lib_PROTO_SOURCES)
         _generate_protobuf_source(${_proto_source} "${_all_consumed_proto_include_dirs}" ${_lib_name}_HEADERS ${_lib_name}_SOURCES )
         _generate_protobuf_grpc_source(${_proto_source} "${_all_consumed_proto_include_dirs}" ${_lib_name}_HEADERS  ${_lib_name}_SOURCES)
@@ -111,10 +102,13 @@ function(add_protobuf_grpc_lib _lib_name  )
     set_target_properties(${_lib_name} PROPERTIES _proto_include ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries( ${_lib_name}
         PUBLIC
-        grpc++_reflection
-        libprotobuf
+        ${LIB_GRPC}
+        ${LIB_PROTOBUF}
+        ${LIB_GRPC++}
+        ${LIB_GRPC++_reflection}
         PRIVATE
         ${add_protobuf_grpc_lib_LINK_PROTO_LIB}
+        ${LIB_GPR}
         )
     target_include_directories(${_lib_name}
         PUBLIC

@@ -16,8 +16,25 @@
 set(TARGET_NAME "ArgParse")
 set(TARGET_SRC
     ArgParse.cpp
+    libArgParse/Alternation.hpp
+    libArgParse/ArgParse.hpp
+    libArgParse/ArgParseUtils.hpp
+    libArgParse/Concatenation.hpp
+    libArgParse/EscapedString.hpp
+    libArgParse/FixedString.hpp
+    libArgParse/GrammarElement.hpp
+    libArgParse/GrammarFactory.hpp
+    libArgParse/Grammar.hpp
+    libArgParse/GrammarInjector.hpp
+    libArgParse/Optional.hpp
+    libArgParse/ParsedDocument.hpp
+    libArgParse/ParsedElement.hpp
+    libArgParse/RegEx.hpp
+    libArgParse/Repetition.hpp
+    libArgParse/WhiteSpace.hpp
     )
 add_library(${TARGET_NAME} ${TARGET_SRC})
+target_include_directories( ${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(${TARGET_NAME}
     #boost_regex

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required (VERSION 2.8)
 
 include_directories("${PROJECT_BINARY_DIR}")
 
@@ -31,6 +30,7 @@ set(TARGET_SRC
 add_executable(${TARGET_NAME} ${TARGET_SRC})
 
 target_link_libraries (${TARGET_NAME}
+    ArgParse
     reflection
     gtest
     )

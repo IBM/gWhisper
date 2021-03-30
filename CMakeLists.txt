@@ -14,7 +14,7 @@
 
 cmake_minimum_required (VERSION 3.11)
 project (gWhisper)
-
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 ################################################################################
 # BUILD TYPE AND COMPILER FLAGS
 
@@ -47,6 +47,9 @@ endif()
 
 ################################################################################
 
+option(USE_PRE_INSTALLED "Try to use gRPC++ and protobufer from host system" ON)
+include(gRPC)
+
 
 if(BUILD_CONFIG_USE_BOOST_REGEX)
     add_definitions(-DBUILD_CONFIG_USE_BOOST_REGEX)
@@ -57,11 +60,6 @@ endif()
 
 # avoid to compile again when make install
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
-
-include_directories("${PROJECT_BINARY_DIR}")
-include_directories("${PROJECT_BINARY_DIR}/src")
-include_directories("${PROJECT_SOURCE_DIR}")
-include_directories("${PROJECT_SOURCE_DIR}/src")
 
 add_subdirectory(third_party)
 add_subdirectory(src)
