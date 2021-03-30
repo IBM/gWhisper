@@ -19,25 +19,23 @@ using namespace ArgParse;
 
 namespace cli
 {
-    std::string getLastArgument(const std::string &candStr, const char *delim, std::vector<std::string> &sugs, const std::string userInput)
+    std::string getLastArgument(const std::string &f_candidateString, const char *f_delim, const std::string f_userInput, bool &f_isTrimmed)
     {
-        //Compare UserInput with Candidate
-        //If #Whitespaces Cadidate > 1 +#Whitespaces -> 2 Completion in one. We have to complete only the first part (remove the part after the first whitespace of candidate)
+        // Compare UserInput with Candidate
+        // If #Whitespaces Cadidate > 1 +#Whitespaces -> 2 Completion in one. We have to complete only the first part (remove the part after the first whitespace of candidate)
 
-        std::size_t suggStart = userInput.find_last_of(delim);
-        std::string suggestion = candStr.substr(suggStart, std::string::npos);
+        std::size_t suggStart = f_userInput.find_last_of(f_delim);
+        std::string suggestion = f_candidateString.substr(suggStart, std::string::npos);
 
-        size_t trim = suggestion.find_first_not_of(delim);
+        size_t trim = suggestion.find_first_not_of(f_delim);
         suggestion = suggestion.substr(trim, std::string::npos);
 
-        ////der hier müsste do eigentlich die Position des letzten " " habenMake sure that only one suggestion for candidate is completed (lookahead seperated by whitespace)
-        std::size_t found = suggestion.find(delim);
+        std::size_t found = suggestion.find(f_delim);
         if (found != std::string::npos)
         {
             suggestion = suggestion.substr(0, found);
-
-            // TODO: Either go back in Parse tree (Open new issue)
-            // Or brute force eliminate docu (if trim)
+            f_isTrimmed = true;
+            //TODO: add marker for Documentation Elimentation
         }
 
         return (suggestion);
@@ -51,7 +49,10 @@ namespace cli
             std::cerr << "Input string \"" << f_args << std::endl;
         }
 
-        //size_t n = parseTree.getMatchedString().size();
+        // List with all suggestions for this candidate. Used to eliminate duplicate suggestions
+        std::vector<std::string> suggestions;
+
+        // size_t n = parseTree.getMatchedString().size();
         size_t n = f_args.size();
         for (auto candidate : f_candidates)
         {
@@ -73,9 +74,9 @@ namespace cli
 
             std::string suggestionDoc = candidate.get()->getShortDocument();
             std::string suggestionDocRoot = f_parseTree.getShortDocument();
-            /// here the document (description of the tab completion) extracted from the original parsed tree and from the candidate tree should be compared,
-            /// if there is no new document of candidate in the parsed tree, that means the both extracted documents must same,
-            ///we only find the document at the right most position in the parsed tree (the newest) for tab completion.
+            // here the document (description of the tab completion) extracted from the original parsed tree and from the candidate tree should be compared,
+            // if there is no new document of candidate in the parsed tree, that means the both extracted documents must same,
+            // we only find the document at the right most position in the parsed tree (the newest) for tab completion.
             if (suggestionDocRoot == suggestionDoc)
             {
                 suggestionDoc = "";
@@ -88,10 +89,19 @@ namespace cli
                 printf("candidateStr[n=%zu] = '%c'\n", n, candidateStr[n]);
             }
 
-            //bis char 5 completen --> Leer wird completed
-            std::vector<std::string> suggestions;
-            suggestion = getLastArgument(candidateStr, " ", suggestions, f_args);
-            suggestions.push_back(suggestion);
+            bool isTrimmed = false;
+            suggestion = getLastArgument(candidateStr, " ", f_args, isTrimmed);
+
+            if (suggestions.empty())
+            {
+                suggestions.push_back(suggestion);
+            }
+            else if (suggestion == suggestions.back())
+            {
+                //suggestions.push_back(suggestion);
+                suggestion = "";
+                continue;
+            }
 
             if (f_debug)
             {
@@ -127,9 +137,13 @@ namespace cli
 
             // }
 
-            if (!suggestionDoc.empty())
+            // Only Add Documentation, if string was not trimmed
+            if (suggestion.back() != ':' && !isTrimmed)
             {
-                suggestion = suggestion + "\t" + suggestionDoc;
+                if (!suggestionDoc.empty())
+                {
+                    suggestion = suggestion + "\t" + suggestionDoc;
+                }
             }
 
             if (f_debug)
@@ -137,6 +151,13 @@ namespace cli
                 printf("post: '%s'\n", suggestion.c_str());
                 printf("*******SUGGESTION = '%s'**********\n", suggestion.c_str());
             }
+
+            // Remove Documentation-Marker
+            if (suggestion.find_last_of("§") != std::string::npos)
+            {
+                suggestion = suggestion.substr(0, suggestion.find_last_of("§"));
+            }
+
             // NOTE: be careful when adding description (tab-delimiter) here, as
             // fish summarizes all options with same description
             printf("%s\n", suggestion.c_str());
