@@ -30,12 +30,18 @@ namespace cli
         size_t trim = suggestion.find_first_not_of(f_delim);
         suggestion = suggestion.substr(trim, std::string::npos);
 
-        std::size_t found = suggestion.find(f_delim);
-        if (found != std::string::npos)
+        std::size_t foundStart = suggestion.find_first_of(f_delim);
+        std::size_t foundEnd = suggestion.find_last_of(f_delim);
+
+        if (foundEnd != std::string::npos)
         {
-            suggestion = suggestion.substr(0, found);
+            //if (foundStart != std::string::npos)
+            //{
+            //    suggestion = suggestion.substr(foundStart, foundEnd);
+            //    return (suggestion);
+            //}
+            suggestion = suggestion.substr(0, foundEnd);
             f_isTrimmed = true;
-            //TODO: add marker for Documentation Elimentation
         }
 
         return (suggestion);
@@ -98,8 +104,8 @@ namespace cli
             }
             else if (suggestion == suggestions.back())
             {
-                //suggestions.push_back(suggestion);
-                suggestion = "";
+
+                //suggestion = "blubb";
                 continue;
             }
 
@@ -150,12 +156,6 @@ namespace cli
             {
                 printf("post: '%s'\n", suggestion.c_str());
                 printf("*******SUGGESTION = '%s'**********\n", suggestion.c_str());
-            }
-
-            // Remove Documentation-Marker
-            if (suggestion.find_last_of("§") != std::string::npos)
-            {
-                suggestion = suggestion.substr(0, suggestion.find_last_of("§"));
             }
 
             // NOTE: be careful when adding description (tab-delimiter) here, as
