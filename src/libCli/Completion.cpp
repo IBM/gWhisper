@@ -23,26 +23,40 @@ namespace cli
     {
         // Compare UserInput with Candidate
         // If #Whitespaces Cadidate > 1 +#Whitespaces -> 2 Completion in one. We have to complete only the first part (remove the part after the first whitespace of candidate)
+        std::string suggestion = f_candidateString;
+        int suggLength = suggestion.length();
+        //std::cout << "Before this line should be a breakpoint";
 
+        // if (f_userInput.find(f_delim) != std::string::npos)
+        // {
         std::size_t suggStart = f_userInput.find_last_of(f_delim);
-        std::string suggestion = f_candidateString.substr(suggStart, std::string::npos);
+        if (suggStart >= suggestion.length() || suggStart == std::string::npos)
+        {
+            return (f_candidateString);
+        }
 
-        size_t trim = suggestion.find_first_not_of(f_delim);
-        suggestion = suggestion.substr(trim, std::string::npos);
+        suggestion = suggestion.substr(suggStart, std::string::npos);
 
-        std::size_t foundStart = suggestion.find_first_of(f_delim);
-        std::size_t foundEnd = suggestion.find_last_of(f_delim);
+        if (suggestion != " ")
+        {
+            size_t trim = suggestion.find_first_not_of(f_delim);
+            suggestion = suggestion.substr(trim, std::string::npos);
+        }
 
-        if (foundEnd != std::string::npos)
+        //std::size_t foundStart = suggestion.find_first_of(f_delim);
+        std::size_t found = suggestion.find(f_delim);
+
+        if (found != std::string::npos)
         {
             //if (foundStart != std::string::npos)
             //{
             //    suggestion = suggestion.substr(foundStart, foundEnd);
             //    return (suggestion);
             //}
-            suggestion = suggestion.substr(0, foundEnd);
+            suggestion = suggestion.substr(0, found);
             f_isTrimmed = true;
         }
+        //}
 
         return (suggestion);
     }
@@ -104,8 +118,7 @@ namespace cli
             }
             else if (suggestion == suggestions.back())
             {
-
-                //suggestion = "blubb";
+                //
                 continue;
             }
 
@@ -116,35 +129,9 @@ namespace cli
                 printf("*******SUGGESTION = **********\n");
             }
 
-            // ******** Original Suggestion Creator *********
-
-            //start = candidateStr.find_last_of(" ", n) + 1;
-            //if (start == std::string::npos)
-            //{
-            //    start = 0;
-            //}
-            //end = candidateStr.find_first_of(" ", n) - 1;
-
-            //if (f_debug)
-            //{
-            //    printf("nospace! cand='%s', n=%zu, start=%zu, end = %zu\n", candidateStr.c_str(), n, start, end);
-            //}
-
-            // IDEE: if candidate string = :, include candidates with <SPACE>Candidates (like a small lookahead)
-
-            // suggestion = candidateStr.substr(start, std::string::npos);
-            // size_t trimEnd = suggestion.find_last_not_of(' ');
-            // suggestion = suggestion.substr(0, trimEnd + 1);
-            // suggestion = candidateStr.substr(start, end-start+1);
-
-            //if(suggestion == ":"){
-            //end = candidateStr.find_last_of(" ", n) + 2; //Does this include hte whitespace in between?
-            //Declare Alternative
-
-            // }
-
             // Only Add Documentation, if string was not trimmed
-            if (suggestion.back() != ':' && !isTrimmed)
+
+            if (suggestion != "" && suggestion.back() != ':' && !isTrimmed)
             {
                 if (!suggestionDoc.empty())
                 {
