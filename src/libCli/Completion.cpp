@@ -19,20 +19,20 @@ using namespace ArgParse;
 
 namespace cli
 {
+    // This function modifies the candidate string, such that:
+    // - Only the arguments after the user input are counted as suggestion
+    // - Only one suggestion is completed at a a time
+    //   (everything after a whitespace in a suggestion should be anouther suggestion)
     std::string getLastArgument(const std::string &f_candidateString, const char *f_delim, const std::string f_userInput, bool &f_isTrimmed)
     {
-        // Compare UserInput with Candidate
-        // If #Whitespaces Cadidate > 1 +#Whitespaces -> 2 Completion in one. We have to complete only the first part (remove the part after the first whitespace of candidate)
         std::string suggestion = f_candidateString;
         int suggLength = suggestion.length();
-        //std::cout << "Before this line should be a breakpoint";
-
-        // if (f_userInput.find(f_delim) != std::string::npos)
-        // {
         std::size_t suggStart = f_userInput.find_last_of(f_delim);
+
+        // avoid substring error if suggStart (_pos) is undefined
         if (suggStart >= suggestion.length() || suggStart == std::string::npos)
         {
-            return (f_candidateString);
+            return (suggestion);
         }
 
         suggestion = suggestion.substr(suggStart, std::string::npos);
@@ -43,21 +43,14 @@ namespace cli
             suggestion = suggestion.substr(trim, std::string::npos);
         }
 
-        //std::size_t foundStart = suggestion.find_first_of(f_delim);
+        // Only complete until first whitespace of suggestion
         std::size_t found = suggestion.find(f_delim);
 
         if (found != std::string::npos)
         {
-            //if (foundStart != std::string::npos)
-            //{
-            //    suggestion = suggestion.substr(foundStart, foundEnd);
-            //    return (suggestion);
-            //}
             suggestion = suggestion.substr(0, found);
             f_isTrimmed = true;
         }
-        //}
-
         return (suggestion);
     }
 
@@ -118,7 +111,7 @@ namespace cli
             }
             else if (suggestion == suggestions.back())
             {
-                //
+                // Skip duplicate suggestions, continue with next candidate
                 continue;
             }
 
@@ -130,7 +123,6 @@ namespace cli
             }
 
             // Only Add Documentation, if string was not trimmed
-
             if (suggestion != "" && suggestion.back() != ':' && !isTrimmed)
             {
                 if (!suggestionDoc.empty())
