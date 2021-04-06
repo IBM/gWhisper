@@ -23,35 +23,41 @@ namespace cli
     // - Only the arguments after the user input are counted as suggestion
     // - Only one suggestion is completed at a a time
     //   (everything after a whitespace in a suggestion should be anouther suggestion)
-    std::string getLastArgument(const std::string &f_candidateString, const char *f_delim, const std::string f_userInput, bool &f_isTrimmed)
+    std::string getNextFishSuggestion(const std::string &f_candidateString, const std::string f_userInput, bool &f_out_isTrimmed)
     {
-        std::string suggestion = f_candidateString;
-        int suggLength = suggestion.length();
+        // In fish, a completion needs to start from last space provided by User Input
+        char f_delim = ' ';
+
+        std::string out_suggestion = f_candidateString;
         std::size_t suggStart = f_userInput.find_last_of(f_delim);
 
+        // Used for debugging:
+        // size_t suggLength = out_suggestion.length();
+
         // avoid substring error if suggStart (_pos) is undefined
-        if (suggStart >= suggestion.length() || suggStart == std::string::npos)
+        if (suggStart >= out_suggestion.length() || suggStart == std::string::npos)
         {
-            return (suggestion);
+            return out_suggestion;
         }
 
-        suggestion = suggestion.substr(suggStart, std::string::npos);
+        out_suggestion = out_suggestion.substr(suggStart, std::string::npos);
 
-        if (suggestion != " ")
+        // Remove whitespace at beginning. Otherwise empty suggestions will be returned.
+        if (out_suggestion != " ")
         {
-            size_t trim = suggestion.find_first_not_of(f_delim);
-            suggestion = suggestion.substr(trim, std::string::npos);
+            size_t trim = out_suggestion.find_first_not_of(f_delim);
+            out_suggestion = out_suggestion.substr(trim, std::string::npos);
         }
 
         // Only complete until first whitespace of suggestion
-        std::size_t found = suggestion.find(f_delim);
+        std::size_t found = out_suggestion.find(f_delim);
 
         if (found != std::string::npos)
         {
-            suggestion = suggestion.substr(0, found);
-            f_isTrimmed = true;
+            out_suggestion = out_suggestion.substr(0, found);
+            f_out_isTrimmed = true;
         }
-        return (suggestion);
+        return out_suggestion;
     }
 
     void printFishCompletions(std::vector<std::shared_ptr<ParsedElement>> &f_candidates, ParsedElement &f_parseTree, const std::string &f_args, bool f_debug)
@@ -77,7 +83,6 @@ namespace cli
                 std::cout << "candiate string: " << candidateStr << std::endl;
                 std::cout << "candiate's debug string: " << std::endl;
                 std::cout << candidate->getDebugString() << std::endl;
-                std::cout << "*************Suggestion****************";
                 std::cout << "------------------------------------------------" << std::endl;
             }
 
@@ -103,26 +108,30 @@ namespace cli
             }
 
             bool isTrimmed = false;
-            suggestion = getLastArgument(candidateStr, " ", f_args, isTrimmed);
+            suggestion = getNextFishSuggestion(candidateStr, f_args, isTrimmed);
 
             if (suggestions.empty())
             {
                 suggestions.push_back(suggestion);
             }
-            else if (suggestion == suggestions.back())
+            else if (std::find(suggestions.begin(), suggestions.end(), suggestion) != suggestions.end())
             {
                 // Skip duplicate suggestions, continue with next candidate
                 continue;
+            }
+            else
+            {
+                suggestions.push_back(suggestion);
             }
 
             if (f_debug)
             {
                 printf("nospace! cand='%s', n=%zu, start=%zu, end = %zu\n", candidateStr.c_str(), n, start, end);
-                printf("*******SUGGESTION = '%s'**********\n", suggestion.c_str());
-                printf("*******SUGGESTION = **********\n");
             }
 
             // Only Add Documentation, if string was not trimmed
+            // In most casesa trimmed String means, that we complete with " " or ":". Those symbols do not need an documentation, hence we need to
+            // remove the documentation provided by the untrimmed candidate
             if (suggestion != "" && suggestion.back() != ':' && !isTrimmed)
             {
                 if (!suggestionDoc.empty())
@@ -134,7 +143,6 @@ namespace cli
             if (f_debug)
             {
                 printf("post: '%s'\n", suggestion.c_str());
-                printf("*******SUGGESTION = '%s'**********\n", suggestion.c_str());
             }
 
             // NOTE: be careful when adding description (tab-delimiter) here, as
