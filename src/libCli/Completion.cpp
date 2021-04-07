@@ -32,12 +32,18 @@ namespace cli
         std::size_t suggStart = f_userInput.find_last_of(f_delim);
 
         // Used for debugging:
-        // size_t suggLength = out_suggestion.length();
+        size_t inputLength = f_userInput.length();
+        size_t suggLength = out_suggestion.length();
 
         // avoid substring error if suggStart (_pos) is undefined
-        if (suggStart >= out_suggestion.length() || suggStart == std::string::npos)
+        //if (suggStart >= out_suggestion.length())
+        if (suggStart == std::string::npos)
         {
-            return out_suggestion;
+            //{
+            //return out_suggestion;
+            //    out_suggestion = f_candidateString; //set suggStart to right value (0)
+            //}
+            suggStart = 0;
         }
 
         out_suggestion = out_suggestion.substr(suggStart, std::string::npos);
@@ -110,11 +116,7 @@ namespace cli
             bool isTrimmed = false;
             suggestion = getNextFishSuggestion(candidateStr, f_args, isTrimmed);
 
-            if (suggestions.empty())
-            {
-                suggestions.push_back(suggestion);
-            }
-            else if (std::find(suggestions.begin(), suggestions.end(), suggestion) != suggestions.end())
+            if (std::find(suggestions.begin(), suggestions.end(), suggestion) != suggestions.end())
             {
                 // Skip duplicate suggestions, continue with next candidate
                 continue;
