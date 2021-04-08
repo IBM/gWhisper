@@ -1,0 +1,168 @@
+# Copyright 2019 IBM Corporation
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+#START_TEST parse should fail with no arguments
+@@CMD@@
+Parse failed.Parsed until: ''
+Possible Candidates:
+  '-h '
+  '--help '
+  '--complete'
+  '--debugComplete '
+  '--dot '
+  '--noColor '
+  '--color '
+  '--version '
+  '--printParsedMessage '
+  '--noSimpleMapOutput '
+  '--connectTimeoutMilliseconds='
+  '--customOutput '
+  'unix:'
+  'unix-abstract:'
+  'dns:'
+  ''
+  'ipv4:'
+  'ipv6:'
+#END_TEST
+
+# Not sure why we get '--complete' two times here. ignoring this for now
+#START_TEST complete a space after option
+@@CMD@@ --complete
+--complete=bash
+--complete=fish
+--complete
+--complete
+#END_TEST
+
+#START_TEST Complete port or services
+@@CMD@@ --complete 127.0.0.1 
+127.0.0.1:
+127.0.0.1
+127.0.0.1 examples.ScalarTypeRpcs              (int, bool, string, bytes)
+127.0.0.1 examples.NestedTypeRpcs   (Nested and recursive datastructures)
+127.0.0.1 examples.ComplexTypeRpcs           (Enum, oneof, repeated, map)
+127.0.0.1 examples.StreamingRpcs        (uni- and bi-directional streams)
+127.0.0.1 examples.StatusHandling                   (gRPC error handling)
+/^127.0.0.1 grpc.reflection.*$
+#END_TEST
+
+##############################################################################
+# Scalar type RPCs
+##############################################################################
+
+#START_TEST complete RPCs
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs
+examples.ScalarTypeRpcs incrementNumbers
+examples.ScalarTypeRpcs negateBool
+examples.ScalarTypeRpcs capitalizeString
+examples.ScalarTypeRpcs bitwiseInvertBytes
+#END_TEST
+
+#START_TEST l1 number fields
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs incrementNumbers
+incrementNumbers m_double=  (double type of Numbers)
+incrementNumbers m_float=                    (float)
+incrementNumbers m_int32=                    (int32)
+incrementNumbers m_int64=                    (int64)
+incrementNumbers m_uint32=                  (uint32)
+incrementNumbers m_uint64=                  (uint64)
+incrementNumbers
+#END_TEST
+
+#START_TEST l1 bytes field
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes
+bitwiseInvertBytes data=0x       (bytes)
+bitwiseInvertBytes data=file://  (bytes)
+bitwiseInvertBytes
+#END_TEST
+
+#START_TEST l1 bytes field no docstring for single completion
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs capitalizeString 
+capitalizeString text=  (String field)
+capitalizeString
+#END_TEST
+
+#START_TEST l1 bool field
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs negateBool
+negateBool m_bool=true   (bool)
+negateBool m_bool=false  (bool)
+negateBool m_bool=1      (bool)
+negateBool m_bool=0      (bool)
+negateBool
+#END_TEST
+
+#START_TEST l1 bool field only value
+@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs negateBool m_bool=
+true   (bool)
+false  (bool)
+1      (bool)
+0      (bool)
+#END_TEST
+
+
+##############################################################################
+# Complex type RPCs
+##############################################################################
+
+#START_TEST repeated number field no docstring for single completion
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers
+addAllNumbers numbers=:  (List of uint32)
+addAllNumbers
+#END_TEST
+
+#START_TEST repeated number field numbers cannot be completed
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:
+#END_TEST
+
+#START_TEST repeated number field After number choide: colon or comma
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:324
+324,  (List of uint32)
+324:  (List of uint32)
+#END_TEST
+
+#START_TEST repeated number field After number choide: colon or comma
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:123, 324
+324,  (List of uint32)
+324:  (List of uint32)
+#END_TEST
+
+#START_TEST enum values
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoColorEnum color=
+white  (enum)
+black  (enum)
+red    (enum)
+green  (enum)
+blue   (enum)
+#END_TEST
+
+#START_TEST oneof input choices again
+@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs sendNumberOrStringOneOf both=:number=5 str=5:
+ number=                (Only a number)
+ str=                   (Only a string)
+ both=    (Both, a number and a string)
+#END_TEST
+
+#START_TEST recursive datastructures number_and_string
+@@CMD@@ --complete=fish 0.0.0.0:50051 examples.NestedTypeRpcs echoNestedMaps number_and_string=:number=5
+number_and_string=:number=5
+number_and_string=:number=5:
+#END_TEST
+
+#START_TEST repeated enum, complete after last element colon
+@@CMD@@ --complete=fish 0.0.0.0:50051 examples.ComplexTypeRpcs getLastColor colors=:black, white:
+white:
+#END_TEST
+
+
