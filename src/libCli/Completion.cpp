@@ -36,13 +36,8 @@ namespace cli
         size_t suggLength = out_suggestion.length();
 
         // avoid substring error if suggStart (_pos) is undefined
-        //if (suggStart >= out_suggestion.length())
         if (suggStart == std::string::npos)
         {
-            //{
-            //return out_suggestion;
-            //    out_suggestion = f_candidateString; //set suggStart to right value (0)
-            //}
             suggStart = 0;
         }
 
