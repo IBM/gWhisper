@@ -186,21 +186,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                     }
                     else
                     {
-                        // FIXME: commented solution does not work:
-                        //        we always complete "::" as empty string matches
-                        //        Solution would be to change the parser to never
-                        //        attempt completion when a regex is currently
-                        //        parsed. This requires changes in the parser
-                        //        and could not be implemented on short notice.
-                        //auto stringContainer = m_grammar.createElement<Concatenation>("StringContainer");
-                        //stringContainer->addChild(m_grammar.createElement<FixedString>(":"));
-                        //stringContainer->addChild(m_grammar.createElement<RegEx>("[^:]*", "FieldValue"));
-                        //stringContainer->addChild(m_grammar.createElement<FixedString>(":"));
-                        //f_fieldGrammar->addChild(stringContainer);
-
-                        // Using this as a workaround until parser gets better regex support
-                        //f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[^:, ]*", "FieldValue"));
-                        f_fieldGrammar->addChild(m_grammar.createElement<EscapedString>(":, ", ':', "FieldValue"));
+                        f_fieldGrammar->addChild(m_grammar.createElement<EscapedString>(":, %", '%', "FieldValue"));
                     }
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE:

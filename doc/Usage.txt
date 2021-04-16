@@ -140,8 +140,11 @@ FIELD_VALUE:
       - The input filename is prefixed with 'file://' (e.g. file://myfile.bin)
   - strings:
       As a string without quotes. (e.g. ThisIsAString)
-      NOTE: gWhisper control characters ' ', ',' or ':' need to be escaped by
-            pre-pending a ':'
+      NOTE: gWhisper control characters ' ', ',', '%' or ':' need to be escaped by
+            pre-pending a '%'
+      Example:
+        The string "Hello World: 100% understood?" needs to be written as
+        Hello% World%:% 100%%% understood?
   - enum values:
       As the enum value name
       Enum values are tab-completed
