@@ -128,6 +128,11 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     fi
 done < "$testFile"
 
+if [[ $state != "FIND_TEST" ]]; then
+    echo -e "${RED}File ended in the middle of a test case. Did you forget to add #END_TEST somewhere?${NC}"
+    exit 1
+fi
+
 # analyze test result:
 echo "#################################################################"
 echo "#################################################################"
