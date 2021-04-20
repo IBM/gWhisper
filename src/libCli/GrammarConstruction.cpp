@@ -115,36 +115,45 @@ class GrammarInjectorMethodArgs : public GrammarInjector
 
     private:
 
-        /// Construct Grammar for a protocol buffer field value and add it to existing grammae.
+        /// Construct Grammar for a protocol buffer field value and add it to existing grammar.
         /// @param f_fieldGrammar Grammar element to which the field grammar will be added as a child.
         /// @param f_field protobuf field descriptor representing the field.
         /// @param f_maxRecursionDepth max number of nested messages. If this is 0, no grammar for sub-messages is added anymore if the field is of message type. Instead a fixed String is added to stop recursion.
         void addFieldValueGrammar(GrammarElement * f_fieldGrammar, const grpc::protobuf::FieldDescriptor * f_field, size_t f_maxRecursionDepth)
         {
 
+            // Adding grammar for a specofic protobuf field.
+            // We add different grammar depending on the type of the field:
             switch(f_field->cpp_type())
             {
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_FLOAT:
+                    // e.g. "-56.321e-7"
                     f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-\\.pP0-9a-fA-F]+", "FieldValue"));
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_DOUBLE:
+                    // e.g. "-56.321e-7"
                     // TODO: make regex match closer
                     f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-\\.pP0-9a-fA-F]+", "FieldValue"));
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_INT32:
+                    // e.g. "-8761" or "-0xa7bef"
                     f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-]?(0x|0X|0b)?[0-9a-fA-F]+", "FieldValue"));
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_INT64:
+                    // e.g. "-8761" or "-0xa7bef"
                     f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("[\\+-]?(0x|0X|0b)?[0-9a-fA-F]+", "FieldValue"));
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT32:
+                    // e.g. "8761" or "0xa7bef"
                     f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("\\+?(0x|0X|0b)?[0-9a-fA-F]+", "FieldValue"));
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT64:
+                    // e.g. "8761" or "0xa7bef"
                     f_fieldGrammar->addChild(m_grammar.createElement<RegEx>("\\+?(0x|0X|0b)?[0-9a-fA-F]+", "FieldValue"));
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_BOOL:
                     {
+                        // e.g. "true", "false", "0", "1"
                         auto boolGrammar = m_grammar.createElement<Alternation>("FieldValue");
                         boolGrammar->addChild(m_grammar.createElement<FixedString>("true"));
                         boolGrammar->addChild(m_grammar.createElement<FixedString>("false"));
@@ -155,6 +164,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                     }
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_ENUM:
                     {
+                        // The enum values as written in the proto file
                         const google::protobuf::EnumDescriptor * enumDesc = f_field->enum_type();
                         auto enumGrammar = m_grammar.createElement<Alternation>("FieldValue");
                         for(int i = 0; i<enumDesc->value_count(); i++)
@@ -167,8 +177,11 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                         break;
                     }
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_STRING:
+                    // Cpp-Type String is used for two protobuf typed: bytes and string
+                    // -> we need to distinguish again here:
                     if(f_field->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_BYTES)
                     {
+                        // bytes can be given either as a hex value e.g. "0xab67cf32" or a file to be read instead. e.g. "file://binaryFile.bin"
                         auto bytesContainer = m_grammar.createElement<Alternation>("FieldValue");
 
                         auto bytesContainerHexString = m_grammar.createElement<Concatenation>("FieldValueHexString");
@@ -191,9 +204,10 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                     break;
                 case grpc::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE:
                     {
+                        // A message is parsed as its fields enclosed in ":" colons 
+                        // e.g. ":field1=6 field2=8:"
                         ArgParse::GrammarFactory grammarFactory(m_grammar);
 
-                        //auto fieldsAlt = getMessageGrammar(f_field->message_type());
                         GrammarElement * subMessage = nullptr;
                         if( f_maxRecursionDepth >0 )
                         {
@@ -203,35 +217,6 @@ class GrammarInjectorMethodArgs : public GrammarInjector
                         {
                             subMessage = m_grammar.createElement<FixedString>("MaxRecursionDepthExceeded");
                         }
-                        //auto  prepostfix = m_grammar.createElement<FixedString>(":");
-                        //GrammarElement * subMessage = grammarFactory.createList(
-                        //        "FieldValue",
-                        //        fieldsAlt,
-                        //        m_grammar.createElement<WhiteSpace>(),
-                        //        false,
-                        //        prepostfix,
-                        //        prepostfix
-                        //        );
-
-                        ////std::cerr << "Field '" << field->name() << "' has message type: '" << field->type_name() << "'" << std::endl;
-                        //auto subMessage = m_grammar.createElement<Concatenation>("FieldValue");
-                        //subMessage->addChild(m_grammar.createElement<FixedString>(":"));
-
-                        //auto childFieldsRep = m_grammar.createElement<Repetition>("Fields");
-                        //auto concat = m_grammar.createElement<Concatenation>();
-                        //auto fieldsAlt = getMessageGrammar(f_field->message_type());
-                        //concat->addChild(fieldsAlt);
-
-                        //auto separation = m_grammar.createElement<WhiteSpace>();
-                        ////auto separation = m_grammar.createElement<Alternation>();
-                        ////separation->addChild(m_grammar.createElement<WhiteSpace>());
-                        ////separation->addChild(m_grammar.createElement<FixedString>(","));
-                        //concat->addChild(separation);
-
-                        //childFieldsRep->addChild(concat);
-                        //subMessage->addChild(childFieldsRep);
-
-                        //subMessage->addChild(m_grammar.createElement<FixedString>(":"));
                         f_fieldGrammar->addChild(subMessage);
                         break;
                     }
