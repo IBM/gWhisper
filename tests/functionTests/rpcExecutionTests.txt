@@ -62,26 +62,43 @@ RPC succeeded :D
 /.* Received message:
 | text = "ASDF"
 RPC succeeded :D
+#END_TEST
 
 #START_TEST simpleEscape
-@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=::
+@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=%:
 /.* Received message:
 | text = ":"
 RPC succeeded :D
+#END_TEST
 
 #START_TEST complexEscape
-@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=Hello: World:,::
+@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=Hello% World%,%:
 /.* Received message:
 | text = "HELLO WORLD,:"
 RPC succeeded :D
+#END_TEST
 
 #START_TEST veryComplexEscape
-@@CMD@@ 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::str=text::: :, number=0::
+@@CMD@@ 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::str=text%:% %, number=0::
 /.* Received message:
 | number_and_strings[1/1] = {NumberAndString}
 | | number = 0 (0x00000000)
 | | str... = "text: ,"
 RPC succeeded :D
+#END_TEST
+
+#START_TEST veryComplexEscape2
+@@CMD@@ 127.0.0.1 examples.StreamingRpcs bidirectionalStreamEchoNumberOrString :str=asd: :str=asd2%:% :
+/.* Received message:
+| number = [NOT SET]
+| str... = "asd"
+| both.. = [NOT SET]
+/.* Received message:
+| number = [NOT SET]
+| str... = "asd2: "
+| both.. = [NOT SET]
+RPC succeeded :D
+#END_TEST
 
 ##############################################################################
 # Custom output tests:
@@ -92,6 +109,7 @@ RPC succeeded :D
 /.* Received message:
 prefix 2.675000 postfix
 RPC succeeded :D
+#END_TEST
 
 
 
