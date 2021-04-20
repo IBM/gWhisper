@@ -122,7 +122,7 @@ class GrammarInjectorMethodArgs : public GrammarInjector
         void addFieldValueGrammar(GrammarElement * f_fieldGrammar, const grpc::protobuf::FieldDescriptor * f_field, size_t f_maxRecursionDepth)
         {
 
-            // Adding grammar for a specofic protobuf field.
+            // Adding grammar for a specific protobuf field.
             // We add different grammar depending on the type of the field:
             switch(f_field->cpp_type())
             {
