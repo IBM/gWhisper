@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <fstream>
+
 #include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
 
 namespace cli
@@ -21,130 +23,161 @@ namespace cli
     /// List of gRpc connection infomation
     typedef struct ConnList
     {
-       std::shared_ptr<grpc::Channel> channel = nullptr;
-       std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> descDb = nullptr;
-       std::shared_ptr<grpc::protobuf::DescriptorPool> descPool = nullptr;
+        std::shared_ptr<grpc::Channel> channel = nullptr;
+        std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> descDb = nullptr;
+        std::shared_ptr<grpc::protobuf::DescriptorPool> descPool = nullptr;
 
     } ConnList;
 
     /// Class to manage and resuse connection information, singleton pattern.
     class ConnectionManager
     {
-        public:
-            ConnectionManager(const ConnectionManager & ) = delete;
-            ConnectionManager& operator=(const ConnectionManager & ) = delete;
-        private:
-            ConnectionManager(){}
-            ~ConnectionManager(){}
+    public:
+        ConnectionManager(const ConnectionManager &) = delete;
+        ConnectionManager &operator=(const ConnectionManager &) = delete;
 
-        public:
-            /// Only use a single connection instance
-            static ConnectionManager & getInstance()
+    private:
+        ConnectionManager() {}
+        ~ConnectionManager() {}
+
+    public:
+        /// Only use a single connection instance
+        static ConnectionManager &getInstance()
+        {
+            static ConnectionManager connectionManager;
+            return connectionManager;
+        }
+
+        /// To get the channel according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
+        /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
+        /// @returns the channel of the corresponding server address.
+        std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress)
+        {
+            if (!findChannelByAddress(f_serverAddress))
             {
-                static ConnectionManager connectionManager;
-                return connectionManager;
+                registerConnection(f_serverAddress);
             }
+            return connections[f_serverAddress].channel;
+        }
 
-            /// To get the channel according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
-            /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
-            /// @returns the channel of the corresponding server address.
-            std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress)
+        /// To get the gRpc DescriptorDatabase according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
+        /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
+        /// @returns the gRpc DescriptorDatabase of the corresponding server address.
+        std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> getDescDb(std::string f_serverAddress)
+        {
+            if (!findDescDbByAddress(f_serverAddress))
             {
-                if(!findChannelByAddress(f_serverAddress))
+                if (connections[f_serverAddress].channel)
+                {
+                    connections[f_serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[f_serverAddress].channel);
+                    connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[f_serverAddress].descDb.get());
+                }
+                else
                 {
                     registerConnection(f_serverAddress);
                 }
-                return connections[f_serverAddress].channel;
             }
+            return connections[f_serverAddress].descDb;
+        }
+        /// To get the gRpc DescriptorPool according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
+        /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
+        /// @returns the gRpc DescriptorPool of the corresponding server address.
+        std::shared_ptr<grpc::protobuf::DescriptorPool> getDescPool(std::string f_serverAddress)
+        {
 
-            /// To get the gRpc DescriptorDatabase according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
-            /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
-            /// @returns the gRpc DescriptorDatabase of the corresponding server address.
-            std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> getDescDb(std::string f_serverAddress)
+            if (!findDescPoolByAddress(f_serverAddress))
             {
-                if(!findDescDbByAddress(f_serverAddress))
+                if (connections[f_serverAddress].channel)
                 {
-                    if(connections[f_serverAddress].channel)
-                    {
-                        connections[f_serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[f_serverAddress].channel);
-                        connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[f_serverAddress].descDb.get());
-                    }
-                    else
-                    {
-                        registerConnection(f_serverAddress);
-                    }
+                    connections[f_serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[f_serverAddress].channel);
+                    connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[f_serverAddress].descDb.get());
                 }
-                return connections[f_serverAddress].descDb;
+                else
+                {
+                    registerConnection(f_serverAddress);
+                }
             }
-            /// To get the gRpc DescriptorPool according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
-            /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
-            /// @returns the gRpc DescriptorPool of the corresponding server address.
-            std::shared_ptr<grpc::protobuf::DescriptorPool> getDescPool(std::string f_serverAddress)
-            {
+            return connections[f_serverAddress].descPool;
+        }
 
-                if(!findDescPoolByAddress(f_serverAddress))
-                {
-                    if(connections[f_serverAddress].channel)
-                    {
-                        connections[f_serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[f_serverAddress].channel);
-                        connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[f_serverAddress].descDb.get());
-                    }
-                    else
-                    {
-                        registerConnection(f_serverAddress);
-                    }
-                }
-                return connections[f_serverAddress].descPool;
-            }
-        private:
-            // Cached map of the gRpc connection information for resuing the channel, descriptor Database and DatabasePool
-            std::unordered_map<std::string, ConnList> connections;
-            // Check if the cached map contains the channel of the given server address or not.
-            bool findChannelByAddress(std::string f_serverAddress)
+    private:
+        // Cached map of the gRpc connection information for resuing the channel, descriptor Database and DatabasePool
+        std::unordered_map<std::string, ConnList> connections;
+        // Check if the cached map contains the channel of the given server address or not.
+        bool findChannelByAddress(std::string f_serverAddress)
+        {
+            if (connections.find(f_serverAddress) != connections.end())
             {
-                if(connections.find(f_serverAddress) != connections.end())
+                if (connections[f_serverAddress].channel != nullptr)
                 {
-                    if(connections[f_serverAddress].channel != nullptr)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
-                return false;
             }
-            // Check if the cached map contains the gRpc DescriptorDatabase of given the server address or not.
-            bool findDescDbByAddress(std::string f_serverAddress)
+            return false;
+        }
+        // Check if the cached map contains the gRpc DescriptorDatabase of given the server address or not.
+        bool findDescDbByAddress(std::string f_serverAddress)
+        {
+            if (connections.find(f_serverAddress) != connections.end())
             {
-                if(connections.find(f_serverAddress) != connections.end())
+                if (connections[f_serverAddress].descDb != nullptr)
                 {
-                    if(connections[f_serverAddress].descDb != nullptr)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
-                return false;
             }
-            // Check if the cached map contains the gRpc DescriptorPool of the given server address or not.
-            bool findDescPoolByAddress(std::string f_serverAddress)
+            return false;
+        }
+        // Check if the cached map contains the gRpc DescriptorPool of the given server address or not.
+        bool findDescPoolByAddress(std::string f_serverAddress)
+        {
+            if (connections.find(f_serverAddress) != connections.end())
             {
-                if(connections.find(f_serverAddress) != connections.end())
+                if (connections[f_serverAddress].descPool != nullptr)
                 {
-                    if(connections[f_serverAddress].descPool != nullptr)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
-                return false;
             }
-            /// To register the gRpc connection information of a given server address.
-            /// Connection List contains: Channel, DescriptorDatabase and DescriptorPool as value.
-            /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port" as key of the cached map.
-            void registerConnection(std::string f_serverAddress)
-            {
-                ConnList connection;
-                connection.channel = grpc::CreateChannel(f_serverAddress, grpc::InsecureChannelCredentials());
-                connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
-                connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDb.get());
-                connections[f_serverAddress] = connection;
-            }
+            return false;
+        }
+        /// To register the gRpc connection information of a given server address.
+        /// Connection List contains: Channel, DescriptorDatabase and DescriptorPool as value.
+        /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port" as key of the cached map.
+        void registerConnection(std::string f_serverAddress)
+        {
+            ConnList connection;
+            std::shared_ptr<grpc::ChannelCredentials> creds;
+            const char *clientKeyPath = "";
+            const char *clientCertPath = "";
+            const char *serverCertPath = "";
+
+            std::shared_ptr<grpc::ChannelCredentials> channelCreds = getCredentials(clientCertPath, clientKeyPath, serverCertPath);
+
+            connection.channel = grpc::CreateChannel(f_serverAddress, creds);
+            connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
+            connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDb.get());
+            connections[f_serverAddress] = connection;
+        }
+        /// Get Key-Cert Pairs from Files and use them as credentials for secure Channel
+        std::shared_ptr<grpc::ChannelCredentials> getCredentials(const char *f_clientCertPath, const char *f_clientKeyPath, const char *f_serverCertPath)
+        {
+            grpc::SslCredentialsOptions sslOpts;
+            sslOpts.pem_private_key = readFromFile(f_clientKeyPath);
+            sslOpts.pem_cert_chain = readFromFile(f_clientCertPath);
+            sslOpts.pem_root_certs = readFromFile(f_serverCertPath);
+
+            std::shared_ptr<grpc::ChannelCredentials> creds = grpc::SslCredentials(sslOpts);
+            return creds;
+        }
+        /// Function for reading and returning credentials (Key, Cert) for secure server
+        std::string readFromFile(const char *f_path)
+        {
+            std::ifstream credFile(f_path);
+
+            std::string str{std::istreambuf_iterator<char>(credFile),
+                            std::istreambuf_iterator<char>()};
+
+            std::cout << "File content of " << f_path << ": " << str << std::endl;
+            return str;
+        }
     };
 }

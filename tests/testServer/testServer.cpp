@@ -25,21 +25,24 @@
 /// Function for reading and returning credentials (Key, Cert) for secure server
 std::string readFromFile(const char *f_path)
 {
-    std::ifstream credFile;
-    credFile.open(f_path);
-    std::string fileContent;
+    std::ifstream credFile(f_path);
+    //credFile.open(f_path);
+    //d::string fileContent;
     char nextChar;
 
-    credFile >> std::noskipws;
-    while (credFile >> nextChar)
-    {
-        fileContent += nextChar;
-    }
+    std::string str{std::istreambuf_iterator<char>(credFile),
+                    std::istreambuf_iterator<char>()};
 
-    credFile.close();
+    //credFile >> std::noskipws;
+    //while (credFile >> nextChar)
+    //{
+    //    fileContent += nextChar;
+    //}
 
-    std::cout << "File content of" << f_path << ": " << fileContent;
-    return fileContent;
+    //credFile.close();
+
+    std::cout << "File content of " << f_path << ": " << str << std::endl;
+    return str;
 }
 
 int main(int argc, char **argv)
@@ -79,9 +82,9 @@ int main(int argc, char **argv)
 
     std::cout << "Starting secure server listening on " << serverAddr << std::endl;
     // Create a default SSL Credentials object.
-    const char *serverKeyPath = "cert-key-pairs/serverPrivateKey.key";
-    const char *serverCertPath = "cert-key-pairs/serverCert.crt";
-    const char *clientCertPath = "cert-key-pairs/clientCert.crt";
+    const char *serverKeyPath = "../cert-key-pairs/serverPrivateKey.key";
+    const char *serverCertPath = "../cert-key-pairs/serverCert.crt";
+    const char *clientCertPath = "../cert-key-pairs/clientCert.crt";
 
     std::shared_ptr<grpc::ServerCredentials> creds;
 
