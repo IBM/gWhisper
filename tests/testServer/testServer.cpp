@@ -28,21 +28,32 @@ std::string readFromFile(const char *f_path)
     std::ifstream credFile(f_path);
     //credFile.open(f_path);
     //d::string fileContent;
-    char nextChar;
+    if (credFile)
+    {
+        char nextChar;
 
-    std::string str{std::istreambuf_iterator<char>(credFile),
-                    std::istreambuf_iterator<char>()};
+        std::string str{std::istreambuf_iterator<char>(credFile),
+                        std::istreambuf_iterator<char>()};
 
-    //credFile >> std::noskipws;
-    //while (credFile >> nextChar)
-    //{
-    //    fileContent += nextChar;
-    //}
+        if (credFile)
 
-    //credFile.close();
+            //credFile >> std::noskipws;
+            //while (credFile >> nextChar)
+            //{
+            //    fileContent += nextChar;
+            //}
 
-    std::cout << "File content of " << f_path << ": " << str << std::endl;
-    return str;
+            //credFile.close();
+
+            std::cout << "Server: File content of " << f_path << ": " << str << std::endl;
+        return str;
+    }
+    else
+    {
+        std::cout << "No cert/key found at " << f_path << std::endl;
+        std::cout << "Stopping server" << std::endl;
+        exit(EXIT_FAILURE);
+    }
 }
 
 int main(int argc, char **argv)

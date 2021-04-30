@@ -146,9 +146,9 @@ namespace cli
         {
             ConnList connection;
             std::shared_ptr<grpc::ChannelCredentials> creds;
-            const char *clientKeyPath = "";
-            const char *clientCertPath = "";
-            const char *serverCertPath = "";
+            const char *clientKeyPath = "../cert-key-pairs/clientPrivateKey.key";
+            const char *clientCertPath = "../cert-key-pairs/clientCert.crt";
+            const char *serverCertPath = "../cert-key-pairs/serverCert.crt";
 
             std::shared_ptr<grpc::ChannelCredentials> channelCreds = getCredentials(clientCertPath, clientKeyPath, serverCertPath);
 
@@ -160,10 +160,14 @@ namespace cli
         /// Get Key-Cert Pairs from Files and use them as credentials for secure Channel
         std::shared_ptr<grpc::ChannelCredentials> getCredentials(const char *f_clientCertPath, const char *f_clientKeyPath, const char *f_serverCertPath)
         {
+            std::string clientKey = readFromFile(f_clientKeyPath);
+            std::string clientCert = readFromFile(f_clientCertPath);
+            std::string serverCert = readFromFile(f_serverCertPath);
+
             grpc::SslCredentialsOptions sslOpts;
-            sslOpts.pem_private_key = readFromFile(f_clientKeyPath);
-            sslOpts.pem_cert_chain = readFromFile(f_clientCertPath);
-            sslOpts.pem_root_certs = readFromFile(f_serverCertPath);
+            sslOpts.pem_private_key = clientKey;
+            sslOpts.pem_cert_chain = clientCert;
+            sslOpts.pem_root_certs = serverCert;
 
             std::shared_ptr<grpc::ChannelCredentials> creds = grpc::SslCredentials(sslOpts);
             return creds;
@@ -172,12 +176,21 @@ namespace cli
         std::string readFromFile(const char *f_path)
         {
             std::ifstream credFile(f_path);
+            if (f_path)
+            {
 
-            std::string str{std::istreambuf_iterator<char>(credFile),
-                            std::istreambuf_iterator<char>()};
+                std::string str{std::istreambuf_iterator<char>(credFile),
+                                std::istreambuf_iterator<char>()};
 
-            std::cout << "File content of " << f_path << ": " << str << std::endl;
-            return str;
+                std::cout << "Channel: File content of " << f_path << ": " << str << std::endl;
+                return str;
+            }
+            else
+            {
+                std::cout << "No cert/key found at " << f_path << std::endl;
+                std::cout << "Failed to build secure channel";
+                exit(EXIT_FAILURE);
+            }
         }
     };
 }
