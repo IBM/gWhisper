@@ -13,37 +13,47 @@
 # limitations under the License.
 
 include_guard()
-if(USE_PRE_INSTALLED)
+if(USE_PRE_INSTALLED_GRPC)
     message("Using binary/preinstalled gRPC")
     # find grpc + protobuf libs and code generators:
     find_library(LIB_PROTOBUF protobuf)
     find_library(LIB_GRPC grpc)
     find_library(LIB_GRPC++ grpc++)
-    find_library(LIB_GRPC++_reflection grpc++_reflection)
+    find_library(LIB_GRPC++_REFLECTION grpc++_reflection)
     find_library(LIB_GPR gpr)
     find_program (PROTOC protoc)
     find_program (PROTOC_GRPC_PLUGIN grpc_cpp_plugin)
 else()
     message("Building gRPC from source")
+    message("Disable testing for gRPCthird party dependency re2")
+    set(RE2_BUILD_TESTING CACHE BOOL OFF FORCE)
+    unset(LIB_PROTOBUF CACHE)
+    unset(LIB_GRPC CACHE)
+    unset(LIB_GRPC++ CACHE)
+    unset(LIB_GRPC++_REFLECTION CACHE)
+    unset(LIB_GPR CACHE)
+    unset(PROTOC CACHE)
+    unset(PROTC_GRPC_PLUGIN CACHE)
+
     include(FetchContent)
     FetchContent_Declare(
         gRPC
         GIT_REPOSITORY https://github.com/grpc/grpc
-        GIT_TAG        v1.32.0  # e.g v1.28.0
+        GIT_TAG        v1.32.0  
     )
-    set(FETCHCONTENT_QUIET OFF)
+    set(FETCHCONTENT_QUIET ON)
     FetchContent_MakeAvailable(gRPC)
     # Since FetchContent uses add_subdirectory under the hood, we can use
     # the grpc targets directly from this build.
-    set(LIB_PROTOBUF "libprotobuf" CACHE STRING "Libprotobuf" )
-    set(LIB_GRPC "grpc" CACHE STRING "grpc" )
-    set(LIB_GRPC++ "grpc++" CACHE STRING "grpc++" )
-    set(LIB_GRPC++_REFLECTION "grpc++_reflection" CACHE STRING "grpc++_reflection" )
-    set(PROTOC "$<TARGET_FILE:protoc>" CACHE STRING "Protoc" )
-    set(PROTOC_GRPC_PLUGIN "$<TARGET_FILE:grpc_cpp_plugin>" CACHE STRING "Protoc GRPC PLUGIN" )
+    set(LIB_PROTOBUF "libprotobuf" CACHE STRING "Libprotobuf" FORCE )
+    set(LIB_GRPC "grpc" CACHE STRING "grpc"  FORCE)
+    set(LIB_GRPC++ "grpc++" CACHE STRING "grpc++" FORCE)
+    set(LIB_GRPC++_REFLECTION "grpc++_reflection" CACHE STRING "grpc++_reflection" FORCE)
+    set(PROTOC "$<TARGET_FILE:protoc>" CACHE STRING "Protoc" FORCE)
+    set(PROTOC_GRPC_PLUGIN "$<TARGET_FILE:grpc_cpp_plugin>" CACHE STRING "Protoc GRPC PLUGIN" FORCE)
 
     get_target_property( _PROTOBUF_INCLUDE_DIR libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
-    set(PROTOBUF_INCLUDE_DIR ${_PROTOBUF_INCLUDE_DIR} CACHE STRING "protobuf includes" )
+    set(PROTOBUF_INCLUDE_DIR ${_PROTOBUF_INCLUDE_DIR} CACHE STRING "protobuf includes" FORCE)
 endif()
 
 function (_generate_protobuf_source _proto_sources _includes _cpp_headers _cpp_sources)

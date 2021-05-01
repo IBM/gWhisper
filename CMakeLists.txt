@@ -47,9 +47,8 @@ endif()
 
 ################################################################################
 
-option(USE_PRE_INSTALLED "Try to use gRPC++ and protobufer from host system" ON)
+option(USE_PRE_INSTALLED_GRPC "Try to use gRPC++ and protobufer from host system" ON)
 include(gRPC)
-
 
 if(BUILD_CONFIG_USE_BOOST_REGEX)
     add_definitions(-DBUILD_CONFIG_USE_BOOST_REGEX)
