@@ -23,7 +23,7 @@
 #include "ServiceStatusHandling.hpp"
 
 /// Function for reading and returning credentials (Key, Cert) for secure server
-std::string readFromFile(const char *f_path)
+std::string readFromFile(const char f_path[])
 {
     std::ifstream credFile(f_path);
     //credFile.open(f_path);
@@ -93,9 +93,13 @@ int main(int argc, char **argv)
 
     std::cout << "Starting secure server listening on " << serverAddr << std::endl;
     // Create a default SSL Credentials object.
-    const char *serverKeyPath = "../cert-key-pairs/serverPrivateKey.key";
-    const char *serverCertPath = "../cert-key-pairs/serverCert.crt";
-    const char *clientCertPath = "../cert-key-pairs/clientCert.crt";
+    //const char *serverKeyPath = "../cert-key-pairs/serverPrivateKey.key";
+    //const char *serverCertPath = "../cert-key-pairs/serverCert.crt";
+    //const char *clientCertPath = "../cert-key-pairs/clientCert.crt";
+
+    const char serverKeyPath[] = "../cert-key-pairs_2/server_key.pem";
+    const char serverCertPath[] = "../cert-key-pairs_2/server_crt.pem";
+    const char clientCertPath[] = "../cert-key-pairs_2/client_crt.pem";
 
     std::shared_ptr<grpc::ServerCredentials> creds;
 
@@ -105,7 +109,7 @@ int main(int argc, char **argv)
     std::string serverCert = readFromFile(serverCertPath);
     std::string clientCert = readFromFile(clientCertPath);
 
-    grpc::SslServerCredentialsOptions::PemKeyCertPair pkcp = {serverKey, serverCert};
+    grpc::SslServerCredentialsOptions::PemKeyCertPair pkcp = {serverKey.c_str(), serverCert.c_str()};
 
     // Security Options for ssl connection
     grpc::SslServerCredentialsOptions sslOpts(GRPC_SSL_REQUEST_CLIENT_CERTIFICATE_AND_VERIFY);

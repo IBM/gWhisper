@@ -146,11 +146,23 @@ namespace cli
         {
             ConnList connection;
             std::shared_ptr<grpc::ChannelCredentials> creds;
-            const char *clientKeyPath = "../cert-key-pairs/clientPrivateKey.key";
-            const char *clientCertPath = "../cert-key-pairs/clientCert.crt";
-            const char *serverCertPath = "../cert-key-pairs/serverCert.crt";
+            //const char *clientKeyPath = "../cert-key-pairs/clientPrivateKey.key";
+            //const char *clientCertPath = "../cert-key-pairs/clientCert.crt";
+            //const char *serverCertPath = "../cert-key-pairs/serverCert.crt";
+
+            const char clientKeyPath[] = "../cert-key-pairs_2/client_key.pem";
+            const char clientCertPath[] = "../cert-key-pairs_2/client_crt.pem";
+            const char serverCertPath[] = "../cert-key-pairs_2/server_crt.pem";
 
             std::shared_ptr<grpc::ChannelCredentials> channelCreds = getCredentials(clientCertPath, clientKeyPath, serverCertPath);
+            if (!channelCreds)
+            {
+                std::cout << "No / Wrong Channel Credentials" << std::endl;
+            }
+            else
+            {
+                std::cout << "Channel Credentials: " << channelCreds << std::endl;
+            }
 
             connection.channel = grpc::CreateChannel(f_serverAddress, creds);
             connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
@@ -158,11 +170,15 @@ namespace cli
             connections[f_serverAddress] = connection;
         }
         /// Get Key-Cert Pairs from Files and use them as credentials for secure Channel
-        std::shared_ptr<grpc::ChannelCredentials> getCredentials(const char *f_clientCertPath, const char *f_clientKeyPath, const char *f_serverCertPath)
+        std::shared_ptr<grpc::ChannelCredentials> getCredentials(const char f_clientCertPath[], const char f_clientKeyPath[], const char f_serverCertPath[])
         {
             std::string clientKey = readFromFile(f_clientKeyPath);
             std::string clientCert = readFromFile(f_clientCertPath);
             std::string serverCert = readFromFile(f_serverCertPath);
+
+            //std::string clientKey = "";
+            //std::string clientCert = "";
+            //std::string serverCert = "";
 
             grpc::SslCredentialsOptions sslOpts;
             sslOpts.pem_private_key = clientKey;
@@ -173,7 +189,7 @@ namespace cli
             return creds;
         }
         /// Function for reading and returning credentials (Key, Cert) for secure server
-        std::string readFromFile(const char *f_path)
+        std::string readFromFile(const char f_path[])
         {
             std::ifstream credFile(f_path);
             if (f_path)
@@ -182,7 +198,7 @@ namespace cli
                 std::string str{std::istreambuf_iterator<char>(credFile),
                                 std::istreambuf_iterator<char>()};
 
-                std::cout << "Channel: File content of " << f_path << ": " << str << std::endl;
+                // std::cout << "Channel: File content of " << f_path << ": " << str << std::endl;
                 return str;
             }
             else
