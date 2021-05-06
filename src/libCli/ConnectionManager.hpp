@@ -16,6 +16,9 @@
 
 #include <fstream>
 
+#include <grpcpp/grpcpp.h>
+#include <grpcpp/security/credentials.h>
+
 #include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
 
 namespace cli
@@ -161,10 +164,17 @@ namespace cli
             }
             else
             {
+                std::cout << "*****************************************************************************************************" << std::endl;
                 std::cout << "Channel Credentials: " << channelCreds << std::endl;
             }
 
-            connection.channel = grpc::CreateChannel(f_serverAddress, creds);
+            std::cout << "*****************************************************************************************************" << std::endl;
+            std::cout << "Conntecting to Server: " << f_serverAddress << std::endl;
+            //connection.channel = grpc::CreateChannel(f_serverAddress, creds);
+            connection.channel = grpc::CreateChannel("localhost", creds);
+
+            std::cout << "*****************************************************************************************************" << std::endl;
+            std::cout << "Created Channel: " << connection.channel << std::endl;
             connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
             connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDb.get());
             connections[f_serverAddress] = connection;
@@ -172,6 +182,12 @@ namespace cli
         /// Get Key-Cert Pairs from Files and use them as credentials for secure Channel
         std::shared_ptr<grpc::ChannelCredentials> getCredentials(const char f_clientCertPath[], const char f_clientKeyPath[], const char f_serverCertPath[])
         {
+
+            std::cout << "*****************************************************************************************************" << std::endl;
+            std::cout << "ClientCertPath: " << f_clientCertPath << std::endl;
+            std::cout << "ClientKeyPath: " << f_clientKeyPath << std::endl;
+            std::cout << "ServerCertPath: " << f_serverCertPath << std::endl;
+
             std::string clientKey = readFromFile(f_clientKeyPath);
             std::string clientCert = readFromFile(f_clientCertPath);
             std::string serverCert = readFromFile(f_serverCertPath);

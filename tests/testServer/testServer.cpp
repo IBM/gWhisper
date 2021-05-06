@@ -21,7 +21,7 @@
 #include "ServiceComplexTypeRpcs.hpp"
 #include "ServiceNestedTypeRpcs.hpp"
 #include "ServiceStatusHandling.hpp"
-
+#include <grpcpp/security/credentials.h>
 /// Function for reading and returning credentials (Key, Cert) for secure server
 std::string readFromFile(const char f_path[])
 {
@@ -76,10 +76,12 @@ int main(int argc, char **argv)
         std::cout << "  Default: 50051" << std::endl;
         return 0;
     }
-    std::string serverAddr = "0.0.0.0:50051";
+    //std::string serverAddr = "0.0.0.0:50051";
+    std::string serverAddr = "localhost:50051";
     if (argc >= 2)
     {
-        serverAddr = "0.0.0.0:" + std::string(argv[1]);
+        //serverAddr = "0.0.0.0:" + std::string(argv[1]);
+        serverAddr = "localhost:" + std::string(argv[1]);
     }
 
     // Frage: Wo wird der Channel geöffnet? Hier create ich doch nur einen Insecure Server
@@ -109,14 +111,19 @@ int main(int argc, char **argv)
     std::string serverCert = readFromFile(serverCertPath);
     std::string clientCert = readFromFile(clientCertPath);
 
+    //auto serverKey = readFromFile(serverKeyPath);
+    //auto serverCert = readFromFile(serverCertPath);
+    //auto clientCert = readFromFile(clientCertPath);
+
     grpc::SslServerCredentialsOptions::PemKeyCertPair pkcp = {serverKey.c_str(), serverCert.c_str()};
 
     // Security Options for ssl connection
     grpc::SslServerCredentialsOptions sslOpts(GRPC_SSL_REQUEST_CLIENT_CERTIFICATE_AND_VERIFY);
+    //grpc::SslServerCredentialsOptions sslOpts(GRPC_SSL_REQUEST_CLIENT_CERTIFICATE_BUT_DONT_VERIFY);
 
     // Set credentials
-    sslOpts.pem_key_cert_pairs.push_back(pkcp);
     sslOpts.pem_root_certs = clientCert;
+    sslOpts.pem_key_cert_pairs.push_back(pkcp);
 
     creds = grpc::SslServerCredentials(sslOpts);
     grpc::ServerBuilder builder;
