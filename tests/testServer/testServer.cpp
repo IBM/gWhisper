@@ -36,16 +36,8 @@ std::string readFromFile(const char f_path[])
                         std::istreambuf_iterator<char>()};
 
         if (credFile)
-
-            //credFile >> std::noskipws;
-            //while (credFile >> nextChar)
-            //{
-            //    fileContent += nextChar;
-            //}
-
-            //credFile.close();
-
             std::cout << "Server: File content of " << f_path << ": " << str << std::endl;
+
         return str;
     }
     else
@@ -99,9 +91,9 @@ int main(int argc, char **argv)
     //const char *serverCertPath = "../cert-key-pairs/serverCert.crt";
     //const char *clientCertPath = "../cert-key-pairs/clientCert.crt";
 
-    const char serverKeyPath[] = "../cert-key-pairs_2/server_key.pem";
-    const char serverCertPath[] = "../cert-key-pairs_2/server_crt.pem";
-    const char clientCertPath[] = "../cert-key-pairs_2/client_crt.pem";
+    const char serverKeyPath[] = "../cert-key-pairs/server_key.pem";
+    const char serverCertPath[] = "../cert-key-pairs/server_crt.pem";
+    const char clientCertPath[] = "../cert-key-pairs/client_crt.pem";
 
     std::shared_ptr<grpc::ServerCredentials> creds;
 
@@ -111,18 +103,16 @@ int main(int argc, char **argv)
     std::string serverCert = readFromFile(serverCertPath);
     std::string clientCert = readFromFile(clientCertPath);
 
-    //auto serverKey = readFromFile(serverKeyPath);
-    //auto serverCert = readFromFile(serverCertPath);
-    //auto clientCert = readFromFile(clientCertPath);
-
     grpc::SslServerCredentialsOptions::PemKeyCertPair pkcp = {serverKey.c_str(), serverCert.c_str()};
 
     // Security Options for ssl connection
     grpc::SslServerCredentialsOptions sslOpts(GRPC_SSL_REQUEST_CLIENT_CERTIFICATE_AND_VERIFY);
+    //TODO: 3 Ports for testServer: insecure, secure and secure without certs/keys
     //grpc::SslServerCredentialsOptions sslOpts(GRPC_SSL_REQUEST_CLIENT_CERTIFICATE_BUT_DONT_VERIFY);
 
     // Set credentials
     sslOpts.pem_root_certs = clientCert;
+    //sslOpts.pem_root_certs = "";
     sslOpts.pem_key_cert_pairs.push_back(pkcp);
 
     creds = grpc::SslServerCredentials(sslOpts);

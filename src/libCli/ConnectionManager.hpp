@@ -149,13 +149,10 @@ namespace cli
         {
             ConnList connection;
             std::shared_ptr<grpc::ChannelCredentials> creds;
-            //const char *clientKeyPath = "../cert-key-pairs/clientPrivateKey.key";
-            //const char *clientCertPath = "../cert-key-pairs/clientCert.crt";
-            //const char *serverCertPath = "../cert-key-pairs/serverCert.crt";
 
-            const char clientKeyPath[] = "../cert-key-pairs_2/client_key.pem";
-            const char clientCertPath[] = "../cert-key-pairs_2/client_crt.pem";
-            const char serverCertPath[] = "../cert-key-pairs_2/server_crt.pem";
+            const char clientKeyPath[] = "../cert-key-pairs/client_key.pem";
+            const char clientCertPath[] = "../cert-key-pairs/client_crt.pem";
+            const char serverCertPath[] = "../cert-key-pairs/server_crt.pem";
 
             std::shared_ptr<grpc::ChannelCredentials> channelCreds = getCredentials(clientCertPath, clientKeyPath, serverCertPath);
             if (!channelCreds)
@@ -170,8 +167,7 @@ namespace cli
 
             std::cout << "*****************************************************************************************************" << std::endl;
             std::cout << "Conntecting to Server: " << f_serverAddress << std::endl;
-            //connection.channel = grpc::CreateChannel(f_serverAddress, creds);
-            connection.channel = grpc::CreateChannel("localhost", creds);
+            connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
 
             std::cout << "*****************************************************************************************************" << std::endl;
             std::cout << "Created Channel: " << connection.channel << std::endl;
@@ -191,10 +187,6 @@ namespace cli
             std::string clientKey = readFromFile(f_clientKeyPath);
             std::string clientCert = readFromFile(f_clientCertPath);
             std::string serverCert = readFromFile(f_serverCertPath);
-
-            //std::string clientKey = "";
-            //std::string clientCert = "";
-            //std::string serverCert = "";
 
             grpc::SslCredentialsOptions sslOpts;
             sslOpts.pem_private_key = clientKey;
