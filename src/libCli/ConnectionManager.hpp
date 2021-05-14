@@ -42,18 +42,35 @@ namespace cli
     private:
         ConnectionManager() {}
         ~ConnectionManager() {}
+        int connectionStatus;
 
     public:
-        /// Get CommandlineArgs from Main. Needed for Deciding which Channel to build
-        //static auto setArgs(int argc, char **argv)
-        //{
-        //}
-
         /// Only use a single connection instance
         static ConnectionManager &getInstance()
         {
             static ConnectionManager connectionManager;
             return connectionManager;
+        }
+
+        /// Get CommandlineArgs from Main. Needed for Deciding which Channel to build
+
+        void setConnectionStatus(const int f_connectionStatus)
+        // Is static here ok? For me Connection status is const, that is why i used static here. If static is not ok, gereate connectionmanager-object in gwhisper.cpp
+        {
+            if ((f_connectionStatus == 0) || (f_connectionStatus == 1) || (f_connectionStatus == 2))
+            {
+                connectionStatus = f_connectionStatus;
+            }
+            else
+            {
+                std::cerr << "Could not set Connection Status" << std::endl;
+            }
+        }
+
+        int getConnectionStatus()
+        {
+            //not sure if getter is needed.
+            return connectionStatus;
         }
 
         /// To get the channel according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
@@ -161,10 +178,26 @@ namespace cli
 
             ConnList connection;
             std::shared_ptr<grpc::ChannelCredentials> creds;
+            int connectionStatus = getConnectionStatus();
 
             const char clientKeyPath[] = "../cert-key-pairs/client_key.pem";
             const char clientCertPath[] = "../cert-key-pairs/client_crt.pem";
             const char serverCertPath[] = "../cert-key-pairs/server_crt.pem";
+
+            switch (connectionStatus)
+            {
+            case 0:
+                //create insecure channel
+                std::cout << "CREATE INSECURE CAHNNEL" << std::endl;
+                break;
+            case 1:
+                //create secure channel
+                std::cout << "CREATE SECURE CAHNNEL" << std::endl;
+                break;
+            default:
+                std::cout << "CREATE DEFAULT CAHNNEL" << std::endl;
+                //create secure channel
+            }
 
             std::shared_ptr<grpc::ChannelCredentials> channelCreds = getCredentials(clientCertPath, clientKeyPath, serverCertPath);
             if (!channelCreds)
