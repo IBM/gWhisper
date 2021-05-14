@@ -69,12 +69,17 @@ int main(int argc, char **argv)
         return 0;
     }
     //std::string serverAddr = "0.0.0.0:50051";
+    std::string secureServerAddr = "localhost:443";
+    std::string scrChnlServerAddr = "localhost:50052";
     std::string serverAddr = "localhost:50051";
     if (argc >= 2)
     {
         //serverAddr = "0.0.0.0:" + std::string(argv[1]);
         serverAddr = "localhost:" + std::string(argv[1]);
+        std::cout << argv[1] << std::endl;
     }
+
+    //std::cout << argv[1] << std::endl;
 
     // Frage: Wo wird der Channel geöffnet? Hier create ich doch nur einen Insecure Server
     // Wie enable ich TLS für den Server? Ich habe da keinen Parameter gefunden. Genügt es über den TLS Port zu gehen?:
@@ -85,7 +90,19 @@ int main(int argc, char **argv)
     // grpc::ServerBuilder builder;
     // builder.AddListeningPort(serverAddr, grpc::InsecureServerCredentials());
 
-    std::cout << "Starting secure server listening on " << serverAddr << std::endl;
+    if (argv[1] == "-ssl")
+    {
+        std::cout << "Flag is working" << std::endl;
+    }
+    else
+    {
+        std::cout << "Flag is not working" << std::endl;
+
+        std::cout << serverAddr << std::endl;
+    }
+    std::cout << "Starting secure server listening on " << secureServerAddr << std::endl;
+    std::cout << "Starting server for secur channel listening on " << scrChnlServerAddr << std::endl;
+    std::cout << "Starting insecure server listening on " << serverAddr << std::endl;
     // Create a default SSL Credentials object.
     //const char *serverKeyPath = "../cert-key-pairs/serverPrivateKey.key";
     //const char *serverCertPath = "../cert-key-pairs/serverCert.crt";
@@ -117,6 +134,11 @@ int main(int argc, char **argv)
 
     creds = grpc::SslServerCredentials(sslOpts);
     grpc::ServerBuilder builder;
+    // Default port
+    builder.AddListeningPort(serverAddr, creds);
+    // SSL Port
+    builder.AddListeningPort(serverAddr, creds);
+    // Insecure Port
     builder.AddListeningPort(serverAddr, creds);
 
     // register all services:

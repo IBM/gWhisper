@@ -44,6 +44,11 @@ namespace cli
         ~ConnectionManager() {}
 
     public:
+        /// Get CommandlineArgs from Main. Needed for Deciding which Channel to build
+        //static auto setArgs(int argc, char **argv)
+        //{
+        //}
+
         /// Only use a single connection instance
         static ConnectionManager &getInstance()
         {
@@ -147,6 +152,13 @@ namespace cli
         /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port" as key of the cached map.
         void registerConnection(std::string f_serverAddress)
         {
+
+            //TODO: Create one Default Channel (Default Certs, channel ssh), no further flags/ options needed
+            // Create 2 other Channels based on user Input:
+            // 1 Secure Channel: connects to TLS Port of Test Server. Needs --ssl Flag as well as Path  to User defined Credentials
+            // --> Do this maybe as CL
+            // 1 Insecure Channel: connects to 50051 Port of Test server --noSsl Flag needed,
+
             ConnList connection;
             std::shared_ptr<grpc::ChannelCredentials> creds;
 
