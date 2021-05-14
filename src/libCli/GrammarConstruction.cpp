@@ -465,6 +465,7 @@ namespace cli
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("-h", "Help"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--help", "Help"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--ssl"));
+        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSsl"));
 
         GrammarElement *completeOption = f_grammarPool.createElement<Concatenation>();
         completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));

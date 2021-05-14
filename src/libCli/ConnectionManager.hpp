@@ -60,6 +60,7 @@ namespace cli
             if ((f_connectionStatus == 0) || (f_connectionStatus == 1) || (f_connectionStatus == 2))
             {
                 connectionStatus = f_connectionStatus;
+                std::cout << "Connection Status: " << f_connectionStatus << std::endl;
             }
             else
             {

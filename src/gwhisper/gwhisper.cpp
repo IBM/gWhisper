@@ -48,37 +48,50 @@ const char *g_helpString =
 
 int main(int argc, char **argv)
 {
+    std::string secureFlag = "--ssl";
+    std::string insecureFlag = "--noSsl";
 
-    //cli::ConnectionManager::setArgs(argc, argv);
+    std::string args = getArgsAsString(argc, argv);
+    std::size_t foundSecure = args.find(secureFlag);
+    std::size_t foundInsecure = args.find(insecureFlag);
+
+    //if (args.find("--ssl") != std::string::npos)
+    if (foundSecure != std::string::npos)
+    {
+        //Set Flag for Connection with Secure Channel and Secure Server
+        cli::ConnectionManager::getInstance().setConnectionStatus(1);
+    }
+    else if (foundInsecure = std::string::npos)
+    {
+        //Set Flag for insecure Connetion
+        cli::ConnectionManager::getInstance().setConnectionStatus(0);
+    }
+    else
+    {
+        //Set Flag for Default Connection with Secure Channel only
+        cli::ConnectionManager::getInstance().setConnectionStatus(2);
+    }
+
+    //Set Default Value for grade of security for connection
+    //cli::ConnectionManager::getInstance().setConnectionStatus(2);
+
     // First we construct the initial Grammar for the CLI tool:
     Grammar grammarPool;
     GrammarElement *grammarRoot = cli::constructGrammar(grammarPool);
-    // cli::ConnectionManager connectionManager = cli::ConnectionManager::connectionManager(cli::ConnectionManager);
-    //cli::ConnectionManager connectionManager = connectionManager::setConnectionStatus();
-
-    //cli::ConnectionManager ConnectionManager{};
 
     // Now we parse the given arguments using the grammar:
-    std::string args = getArgsAsString(argc, argv);
+    //std::string args = getArgsAsString(argc, argv);
     ParsedElement parseTree;
     ParseRc rc = grammarRoot->parse(args.c_str(), parseTree);
-
-    //Set Default Value for grade of security for connection
-    cli::ConnectionManager::getInstance().setConnectionStatus(2);
 
     // TODO: add option to print parse tree after parsing:
     // // Now we act according to the parse tree:
     //std::cout << parseTree.getDebugString() << "\n";
 
-    if (parseTree.findFirstChild("--ssl") != "")
-    {
-        cli::ConnectionManager::getInstance().setConnectionStatus(1);
-    }
-
-    if (parseTree.findFirstChild("--noSsl") != "")
-    {
-        cli::ConnectionManager::getInstance().setConnectionStatus(0);
-    }
+    //if (parseTree.findFirstChild("--ssl") != "")
+    //{
+    //    cli::ConnectionManager::getInstance().setConnectionStatus(1);
+    //}
 
     if (parseTree.findFirstChild("DotExport") != "")
     {
