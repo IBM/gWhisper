@@ -134,31 +134,49 @@ int main(int argc, char **argv)
 
     creds = grpc::SslServerCredentials(sslOpts);
     grpc::ServerBuilder builder;
+    grpc::ServerBuilder secureBuilder;
+    grpc::ServerBuilder insecureBuilder;
+
     // Default port
-    builder.AddListeningPort(serverAddr, creds);
+    builder.AddListeningPort(scrChnlServerAddr, creds);
+    std::cout << "DEFAULT CREATED " << scrChnlServerAddr << std::endl;
     // SSL Port
-    builder.AddListeningPort(serverAddr, creds);
-    // Insecure Port
-    builder.AddListeningPort(serverAddr, creds);
+    secureBuilder.AddListeningPort(secureServerAddr, creds);
+    std::cout << " SECURE CREATED " << secureServerAddr << std::endl;
+    //Insecure Port
+    insecureBuilder.AddListeningPort(serverAddr, grpc::InsecureServerCredentials());
+    std::cout << "INSECURE CREATED " << serverAddr << std::endl;
 
     // register all services:
     ServiceScalarTypeRpcs scalarTypeRpcs;
     builder.RegisterService(&scalarTypeRpcs);
+    secureBuilder.RegisterService(&scalarTypeRpcs);
+    insecureBuilder.RegisterService(&scalarTypeRpcs);
 
     ServiceNestedTypeRpcs nestedTypeRpcs;
     builder.RegisterService(&nestedTypeRpcs);
+    secureBuilder.RegisterService(&nestedTypeRpcs);
+    insecureBuilder.RegisterService(&nestedTypeRpcs);
 
     ServiceComplexTypeRpcs complexTypeRpcs;
     builder.RegisterService(&complexTypeRpcs);
+    secureBuilder.RegisterService(&complexTypeRpcs);
+    insecureBuilder.RegisterService(&complexTypeRpcs);
 
     ServiceStreamingRpcs streamingRpcs;
     builder.RegisterService(&streamingRpcs);
+    secureBuilder.RegisterService(&streamingRpcs);
+    insecureBuilder.RegisterService(&streamingRpcs);
 
     ServiceStatusHandling statusHandling;
     builder.RegisterService(&statusHandling);
+    secureBuilder.RegisterService(&statusHandling);
+    insecureBuilder.RegisterService(&statusHandling);
 
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-    if (server != nullptr)
+    std::unique_ptr<grpc::Server> secureServer(secureBuilder.BuildAndStart());
+    std::unique_ptr<grpc::Server> insecureServer(insecureBuilder.BuildAndStart());
+    if (server != nullptr || secureServer != nullptr || insecureServer != nullptr)
     {
         server->Wait();
     }
