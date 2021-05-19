@@ -181,58 +181,143 @@ namespace cli
             std::shared_ptr<grpc::ChannelCredentials> creds;
             int connectionStatus = getConnectionStatus();
 
-            const char clientKeyPath[] = "../cert-key-pairs/client_key.pem";
-            const char clientCertPath[] = "../cert-key-pairs/client_crt.pem";
-            const char serverCertPath[] = "../cert-key-pairs/server_crt.pem";
+            // const char clientKeyPath[] = "../cert-key-pairs/client_key.pem";
+            // const char clientCertPath[] = "../cert-key-pairs/client_crt.pem";
+            // const char serverCertPath[] = "../cert-key-pairs/server_crt.pem";
 
-            switch (connectionStatus)
+            const std::string clientKeyPath = "../cert-key-pairs/client_key.pem";
+            const std::string clientCertPath = "../cert-key-pairs/client_crt.pem";
+            const std::string serverCertPath = "../cert-key-pairs/server_crt.pem";
+
+            // TODO: get files according user Iput:
+            // 1. IF
+
+            //std::shared_ptr<grpc::ChannelCredentials> channelCreds = getCredentials(clientCertPath, clientKeyPath, serverCertPath);
+            std::shared_ptr<grpc::ChannelCredentials> channelCreds;
+
+            //switch (connectionStatus)
+            //{
+            //case 0:
+            //create insecure channel
+            //    std::cout << "CREATE INSECURE CAHNNEL" << std::endl;
+            //    connection.channel = grpc::CreateChannel(f_serverAddress, grpc::InsecureChannelCredentials());
+            //    break;
+            //case 1:
+            //create secure channel
+            //    std::cout << "CREATE SECURE CAHNNEL" << std::endl;
+
+            //    std::cout << "Please Provide location of Client-Cert:";
+
+            // std::cin >> clientCertPath;
+
+            //    std::cout << "Please Provide location of Client-Key:";
+            //std::cin >> clientKeyPath;
+
+            //    std::cout << "Please Provide location of Server-Cert:";
+            // std::cin >> serverCertPath;
+
+            //    channelCreds = generateSSLCredentials(clientCertPath, clientKeyPath, serverCertPath);
+            //    connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
+            //    break;
+            //default:
+            //    std::cout << "CREATE DEFAULT CAHNNEL" << std::endl;
+            //    channelCreds = generateDefaultCredentials(clientCertPath, clientKeyPath);
+            //    checkCredentials(channelCreds);
+            //    connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
+            //createChannel(f_serverAddress, channelCreds);
+            //create secure channel
+            //}
+
+            if (connectionStatus == 0)
             {
-            case 0:
                 //create insecure channel
                 std::cout << "CREATE INSECURE CAHNNEL" << std::endl;
-                break;
-            case 1:
+                connection.channel = grpc::CreateChannel(f_serverAddress, grpc::InsecureChannelCredentials());
+            }
+            else if (connectionStatus == 1)
+            {
                 //create secure channel
                 std::cout << "CREATE SECURE CAHNNEL" << std::endl;
-                break;
-            default:
-                std::cout << "CREATE DEFAULT CAHNNEL" << std::endl;
-                //create secure channel
+                const std::string sslClientCertPath = getFile("Client-Cert");
+                const std::string sslClientKeyPath = getFile("Client-Key");
+                const std::string sslServerCertPath = getFile("Server-Cert");
+
+                channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);
+                connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
+            }
+            else
+            {
+                if (connectionStatus == 2)
+                {
+                    std::cout << "CREATE DEFAULT CAHNNEL" << std::endl;
+                    channelCreds = generateDefaultCredentials(clientCertPath, clientKeyPath);
+                    //channelCreds = generateSSLCredentials(clientCertPath, clientKeyPath, serverCertPath);
+                    checkCredentials(channelCreds);
+                    connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
+                }
+                else
+                {
+                    std::cerr << "Invalid Connection Status!";
+                }
             }
 
-            std::shared_ptr<grpc::ChannelCredentials> channelCreds = getCredentials(clientCertPath, clientKeyPath, serverCertPath);
-            if (!channelCreds)
+            //std::cout << "*****************************************************************************************************" << std::endl;
+
+            // connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
+            std::cout << "*****************************************************************************************************" << std::endl;
+            std::cout << "Connected to Server: " << f_serverAddress << std::endl;
+            std::cout << "Created Channel: " << connection.channel << std::endl;
+
+            connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
+            connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDb.get());
+            connections[f_serverAddress] = connection;
+        }
+
+        std::string getFile(std::string fileID)
+        {
+
+            std::string userInput;
+            std::cout << "Please Provide location of " << fileID << " : ";
+            std::cin >> userInput;
+            return userInput;
+        }
+
+        void checkCredentials(std::shared_ptr<grpc::ChannelCredentials> f_channelCreds)
+        {
+            if (!f_channelCreds)
             {
                 std::cout << "No / Wrong Channel Credentials" << std::endl;
             }
             else
             {
                 std::cout << "*****************************************************************************************************" << std::endl;
-                std::cout << "Channel Credentials: " << channelCreds << std::endl;
+                std::cout << "Channel Credentials: " << f_channelCreds << std::endl;
             }
-
-            std::cout << "*****************************************************************************************************" << std::endl;
-            std::cout << "Conntecting to Server: " << f_serverAddress << std::endl;
-            connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
-
-            std::cout << "*****************************************************************************************************" << std::endl;
-            std::cout << "Created Channel: " << connection.channel << std::endl;
-            connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
-            connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDb.get());
-            connections[f_serverAddress] = connection;
         }
-        /// Get Key-Cert Pairs from Files and use them as credentials for secure Channel
-        std::shared_ptr<grpc::ChannelCredentials> getCredentials(const char f_clientCertPath[], const char f_clientKeyPath[], const char f_serverCertPath[])
+
+        std::shared_ptr<grpc::ChannelCredentials> generateDefaultCredentials(const std::string f_clientCertPath, const std::string f_clientKeyPath)
         {
-
-            std::cout << "*****************************************************************************************************" << std::endl;
-            std::cout << "ClientCertPath: " << f_clientCertPath << std::endl;
-            std::cout << "ClientKeyPath: " << f_clientKeyPath << std::endl;
-            std::cout << "ServerCertPath: " << f_serverCertPath << std::endl;
-
+            std::cout << "Entered Generate Default Credentials" << std::endl;
             std::string clientKey = readFromFile(f_clientKeyPath);
             std::string clientCert = readFromFile(f_clientCertPath);
-            std::string serverCert = readFromFile(f_serverCertPath);
+
+            grpc::SslCredentialsOptions sslOpts;
+            sslOpts.pem_private_key = clientKey;
+            sslOpts.pem_cert_chain = clientCert;
+            sslOpts.pem_root_certs;
+            std::cout << "Default ServerCert: " << sslOpts.pem_root_certs << std::endl;
+            // Do I need to set environment variable GRPC_DEFAULT_SSL_ROOTS_FILE_PATH?
+
+            std::shared_ptr<grpc::ChannelCredentials> creds = grpc::SslCredentials(sslOpts);
+            return creds;
+        }
+
+        /// Get Key-Cert Pairs from Files and use them as credentials for secure Channel
+        std::shared_ptr<grpc::ChannelCredentials> generateSSLCredentials(const std::string f_sslClientCertPath, const std::string f_sslClientKeyPath, const std::string f_sslServerCertPath)
+        {
+            std::string clientKey = readFromFile(f_sslClientKeyPath);
+            std::string clientCert = readFromFile(f_sslClientCertPath);
+            std::string serverCert = readFromFile(f_sslServerCertPath);
 
             grpc::SslCredentialsOptions sslOpts;
             sslOpts.pem_private_key = clientKey;
@@ -243,10 +328,11 @@ namespace cli
             return creds;
         }
         /// Function for reading and returning credentials (Key, Cert) for secure server
-        std::string readFromFile(const char f_path[])
+        std::string readFromFile(const std::string f_path)
         {
             std::ifstream credFile(f_path);
-            if (f_path)
+            const char *file = f_path.c_str();
+            if (file)
             {
 
                 std::string str{std::istreambuf_iterator<char>(credFile),

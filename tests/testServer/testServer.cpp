@@ -112,7 +112,8 @@ int main(int argc, char **argv)
     const char serverCertPath[] = "../cert-key-pairs/server_crt.pem";
     const char clientCertPath[] = "../cert-key-pairs/client_crt.pem";
 
-    std::shared_ptr<grpc::ServerCredentials> creds;
+    std::shared_ptr<grpc::ServerCredentials> sslCreds;
+    //std::shared_ptr<grpc::ServerCredentials> defaultCreds;
 
     // Get Credentials from Files and define them as  Server Key Cert Pair (needed to fill pem_key_cert_pairs vector of SslCredentialOptions)
     // Here we can change to chain of trust instead of selfsigned
@@ -124,6 +125,7 @@ int main(int argc, char **argv)
 
     // Security Options for ssl connection
     grpc::SslServerCredentialsOptions sslOpts(GRPC_SSL_REQUEST_CLIENT_CERTIFICATE_AND_VERIFY);
+    // grpc::SslServerCredentialsOptions defaultOpts(GRPC_SSL_REQUEST_CLIENT_CERTIFICATE_BUT_DONT_VERIFY);
     //TODO: 3 Ports for testServer: insecure, secure and secure without certs/keys
     //grpc::SslServerCredentialsOptions sslOpts(GRPC_SSL_REQUEST_CLIENT_CERTIFICATE_BUT_DONT_VERIFY);
 
@@ -132,16 +134,20 @@ int main(int argc, char **argv)
     //sslOpts.pem_root_certs = "";
     sslOpts.pem_key_cert_pairs.push_back(pkcp);
 
-    creds = grpc::SslServerCredentials(sslOpts);
+    //defaultOpts.pem_root_certs = clientCert;
+    //defaultOpts.pem_key_cert_pairs.push_back(pkcp);
+
+    sslCreds = grpc::SslServerCredentials(sslOpts);
+    //defaultCreds = grpc::SslServerCredentials(defaultOpts);
     grpc::ServerBuilder builder;
     grpc::ServerBuilder secureBuilder;
     grpc::ServerBuilder insecureBuilder;
 
     // Default port
-    builder.AddListeningPort(scrChnlServerAddr, creds);
+    builder.AddListeningPort(scrChnlServerAddr, sslCreds);
     std::cout << "DEFAULT CREATED " << scrChnlServerAddr << std::endl;
     // SSL Port
-    secureBuilder.AddListeningPort(secureServerAddr, creds);
+    secureBuilder.AddListeningPort(secureServerAddr, sslCreds);
     std::cout << " SECURE CREATED " << secureServerAddr << std::endl;
     //Insecure Port
     insecureBuilder.AddListeningPort(serverAddr, grpc::InsecureServerCredentials());

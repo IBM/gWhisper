@@ -61,7 +61,7 @@ int main(int argc, char **argv)
         //Set Flag for Connection with Secure Channel and Secure Server
         cli::ConnectionManager::getInstance().setConnectionStatus(1);
     }
-    else if (foundInsecure = std::string::npos)
+    else if (foundInsecure != std::string::npos)
     {
         //Set Flag for insecure Connetion
         cli::ConnectionManager::getInstance().setConnectionStatus(0);
