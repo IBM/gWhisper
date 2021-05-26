@@ -56,7 +56,7 @@ namespace cli
 
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
-            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *(f_parseTree));
 
             if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
@@ -316,7 +316,7 @@ namespace cli
             std::string serverAddress = getServerUri(f_parseTree);
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << std::endl;
-            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *(f_parseTree));
 
             if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
@@ -365,7 +365,7 @@ namespace cli
             std::string serverAddress = getServerUri(f_parseTree);
 
             //std::cout << "Injecting Service grammar for " << serverAddress << std::endl;
-            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress);
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *(f_parseTree));
 
             if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
@@ -464,8 +464,17 @@ namespace cli
         GrammarElement *optionsalt = f_grammarPool.createElement<Alternation>();
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("-h", "Help"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--help", "Help"));
-        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--ssl"));
-        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSsl"));
+        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--ssl", "ssl"));
+        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSsl", "noSsl"));
+
+        //Todo: neues Grammar-Element ConnectionOpts?
+        //GrammarElement *connectionOption = f_grammarPool.createElement<Concatenation>();
+        //connectionOption->addChild(f_grammarPool.createElement<FixedString>("--clientCert="));
+        //connectionOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+"));
+        //connectionOption->addChild(f_grammarPool.createElement<FixedString>("--clientPubKey="));
+        //connectionOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+"));
+        //connectionOption->addChild(f_grammarPool.createElement<FixedString>("--serverCert="));
+        //connectionOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+"));
 
         GrammarElement *completeOption = f_grammarPool.createElement<Concatenation>();
         completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
