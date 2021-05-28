@@ -24,6 +24,17 @@ set(TARGET_SRC
     ServiceStreamingRpcs.cpp
     ServiceComplexTypeRpcs.cpp
     )
+ADD_DEPENDENCIES(${TARGET_NAME} 
+cert-key-pair/ca.crt
+cert-key-pair/ca.key
+cert-key-pair/ca.srl
+cert-key-pair/client_crt.pem
+cert-key-pair/client_csr.pem
+cert-key-pair/client_key.pem
+cert-key-pair/server_crt.pem
+cert-key-pair/server_csr.pem
+cert-key-pair/server_key.pem
+)
 
 # find grpc + protobuf libs and code generators:
 find_library(LIB_PROTOBUF protobuf)
