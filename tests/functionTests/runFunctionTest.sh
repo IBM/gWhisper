@@ -30,10 +30,10 @@
 # output. If one of those lines starts with a "/" the line is interpreted as a regex.
 
 # cli arguments
-build=$1
-gwhisper=$build/gwhisper
-testFile=$2
-testResources=$build/tests/functionTests/resources
+gwhisper=$1
+testServer=$2
+testFile=$3
+testResources=$cmake_binary_dir/tests/functionTests/resources
 
 # colors
 RED='\033[0;31m'
@@ -42,11 +42,12 @@ NC='\033[0m'
 
 
 # starting test server
-echo "Starting server: $build/testServer ...";
-$build/testServer &
+echo "Starting server: $testServer ...";
+$testServer &
 serverPID=$!
 sleep 0.2
 
+echo "Starting server: $testServer ...done";
 echo "Running Completion tests..."
 
 # state machine for parser

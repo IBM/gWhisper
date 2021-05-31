@@ -29,9 +29,11 @@ add_protobuf_grpc_lib( ${TARGET_NAME}_protobuf PROTO_SOURCES examples.proto LINK
 
 add_executable(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
 
+
 target_link_libraries(${TARGET_NAME}
     PUBLIC
     ${TARGET_NAME}_protobuf
+    ${LIB_GRPC++_REFLECTION}
     protoDoc
     )
 

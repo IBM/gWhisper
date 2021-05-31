@@ -112,10 +112,10 @@ function(add_protobuf_grpc_lib _lib_name  )
     set_target_properties(${_lib_name} PROPERTIES _proto_include ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries( ${_lib_name}
         PUBLIC
-        ${LIB_GRPC}
         ${LIB_PROTOBUF}
+        ${LIB_GRPC++_REFLECTION}
         ${LIB_GRPC++}
-        ${LIB_GRPC++_reflection}
+        ${LIB_GRPC}
         PRIVATE
         ${add_protobuf_grpc_lib_LINK_PROTO_LIB}
         ${LIB_GPR}
