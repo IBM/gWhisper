@@ -220,55 +220,66 @@ namespace cli
         void registerConnection(std::string f_serverAddress)
         {
 
-            //TODO: Create one Default Channel (Default Certs, channel ssh), no further flags/ options needed
-            // Create 2 other Channels based on user Input:
-            // 1 Secure Channel: connects to TLS Port of Test Server. Needs --ssl Flag as well as Path  to User defined Credentials
-            // --> Do this maybe as CL
-            // 1 Insecure Channel: connects to 50051 Port of Test server --noSsl Flag needed,
-
             ConnList connection;
             std::shared_ptr<grpc::ChannelCredentials> creds;
-            int connectionStatus = getConnectionStatus();
-
-            // TODO: get files according user Iput:
-            // 1. IF
 
             //std::shared_ptr<grpc::ChannelCredentials> channelCreds = getCredentials(clientCertPath, clientKeyPath, serverCertPath);
             std::shared_ptr<grpc::ChannelCredentials> channelCreds;
 
-            if (ConnectionManager::parseTree.findFirstChild("noSsl") != "")
+            if (ConnectionManager::parseTree.findFirstChild("ssl") != "")
             {
-                //create insecure channel
+                // check if user provides Cerificates / Keys
+                bool clientCertOption = (ConnectionManager::parseTree.findFirstChild("OptionClientCert") != "");
+                bool clientKeyOption = (ConnectionManager::parseTree.findFirstChild("OptionClientCert") != "");
+                bool serverCertOption = (ConnectionManager::parseTree.findFirstChild("OptionClientCert") != "");
+
+                if (clientCertOption && clientKeyOption && serverCertOption)
+                {
+                    const std::string sslClientCertPath = ConnectionManager::parseTree.findFirstChild("FileClientCert");
+                    const std::string sslClientKeyPath = ConnectionManager::parseTree.findFirstChild("FileClientKey");
+                    const std::string sslServerCertPath = ConnectionManager::parseTree.findFirstChild("ServerClientCert");
+
+                    std::cout << "CREATE SECURE CAHNNEL WITH USER-PROVIDED CREDENTIALS" << std::endl;
+                    channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);
+                    connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
+                }
+                else
+                {
+
+                    std::string userInput = decideConnectionType();
+
+                    // ask if user wants to provide Files
+                    if (userInput == "Y")
+                    {
+                        const std::string sslClientCertPath = getFile("Client-Cert");
+                        const std::string sslClientKeyPath = getFile("Client-Key");
+                        const std::string sslServerCertPath = getFile("Server-Cert");
+
+                        std::cout << "CREATE SECURE CAHNNEL USER-PROVIDED CREDENTIALS" << std::endl;
+                        channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);
+                        connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
+                    }
+                    else if (userInput == "N")
+                    {
+                        const std::string dfltClientCertPath = ConnectionManager::parseTree.findFirstChild("FileClientCert");
+                        const std::string dfltClientKeyPath = ConnectionManager::parseTree.findFirstChild("FileClientKey");
+                        const std::string dfltServerCertPath = ConnectionManager::parseTree.findFirstChild("ServerClientCert");
+
+                        // Connect with default Credentials
+                        std::cout << "CREATE SECURE CAHNNEL WITH DEFAULT CREDENTIALS" << std::endl;
+                        //channelCreds = generateDefaultCredentials(clientCertOption, clientKeyOption, serverCertOption);
+                        channelCreds = generateSSLCredentials(dfltClientCertPath, dfltClientKeyPath, dfltServerCertPath);
+                        checkCredentials(channelCreds);
+                        connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
+                    }
+                }
+            }
+            else
+            { //create insecure channel
                 std::cout << "CREATE INSECURE CAHNNEL" << std::endl;
                 connection.channel = grpc::CreateChannel(f_serverAddress, grpc::InsecureChannelCredentials());
             }
-            else if (ConnectionManager::parseTree.findFirstChild("ssl") != "")
-            {
-                //create secure channel (SSL/TLS)
-                const std::string sslClientCertPath = getFile("Client-Cert");
-                const std::string sslClientKeyPath = getFile("Client-Key");
-                const std::string sslServerCertPath = getFile("Server-Cert");
 
-                std::cout << "CREATE SECURE CAHNNEL" << std::endl;
-                channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);
-                connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
-            }
-            else
-            {
-                //create default channel (client authentication)
-                const std::string clientKeyPath = "";
-                const std::string clientCertPath = "";
-
-                std::cout << "CREATE DEFAULT CAHNNEL" << std::endl;
-                channelCreds = generateDefaultCredentials(clientCertPath, clientKeyPath);
-                //channelCreds = generateSSLCredentials(clientCertPath, clientKeyPath, serverCertPath);
-                checkCredentials(channelCreds);
-                connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
-            }
-
-            //std::cout << "*****************************************************************************************************" << std::endl;
-
-            // connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
             std::cout << "*****************************************************************************************************" << std::endl;
             std::cout << "Connected to Server: " << f_serverAddress << std::endl;
             std::cout << "Created Channel: " << connection.channel << std::endl;
@@ -278,8 +289,19 @@ namespace cli
             connections[f_serverAddress] = connection;
         }
 
+        /// Decides Connection Type based on the credentials provided by user
+        std::string decideConnectionType()
+        {
+            std::string userInput;
+            std::cout << "Do you want to provide Certs/ Keys for SSL-Authentication [Y]/[N]?" << std::endl;
+            std::cin >> userInput;
+
+            return userInput;
+        }
+
         /// get key/certs for SSL/TLS-connectoin from user Input
-        std::string getFile(std::string fileID)
+        std::string
+        getFile(std::string fileID)
         {
 
             std::string userInput;
@@ -302,13 +324,33 @@ namespace cli
             }
         }
 
-        std::shared_ptr<grpc::ChannelCredentials> generateDefaultCredentials(const std::string f_clientCertPath, const std::string f_clientKeyPath)
+        //std::shared_ptr<grpc::ChannelCredentials> generateDefaultCredentials(const std::string f_clientCertPath, const std::string f_clientKeyPath)
+        std::shared_ptr<grpc::ChannelCredentials> generateDefaultCredentials(bool f_clientCertOption, bool f_clientKeyOption, bool f_serverCertOption)
         {
+
             std::cout << "Entered Generate Default Credentials" << std::endl;
+            grpc::SslCredentialsOptions sslOpts;
+
+            if (f_clientCertOption)
+            {
+                std::string clientCertPath;
+                std::string clientCert;
+                sslOpts.pem_cert_chain = clientCert;
+            }
+
+            if (f_clientKeyOption)
+            {
+                std::string clientKey;
+            }
+
+            if (f_serverCertOption)
+            {
+            }
+
             //std::string clientKey = readFromFile(f_clientKeyPath);
             //std::string clientCert = readFromFile(f_clientCertPath);
 
-            grpc::SslCredentialsOptions sslOpts;
+            // grpc::SslCredentialsOptions sslOpts;
             //sslOpts.pem_private_key = clientKey;
             //sslOpts.pem_cert_chain = clientCert;
             //sslOpts.pem_root_certs = "";
