@@ -71,6 +71,6 @@ COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cert-key-gen.sh ${CMAKE_CURRENT_BINARY_DIR}
 
 add_custom_target(
 MakeKeyCert ALL
-DEPENDS cert-key-pair/ca.crt cert-key-pair/ca.key cert-key-pair/ca.srl cert-key-pair/client_crt.pem cert-key-pair/#client_csr.pem cert-key-pair/client_key.pem cert-key-pair/server_crt.pem cert-key-pair/server_csr.pem cert-key-pair/server_key.pem
+DEPENDS cert-key-pair/ca.crt cert-key-pair/ca.key cert-key-pair/ca.srl cert-key-pair/client_crt.pem cert-key-pair/client_csr.pem cert-key-pair/client_key.pem cert-key-pair/server_crt.pem cert-key-pair/server_csr.pem cert-key-pair/server_key.pem
 )
 
