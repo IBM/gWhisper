@@ -108,9 +108,9 @@ int main(int argc, char **argv)
     //const char *serverCertPath = "../cert-key-pairs/serverCert.crt";
     //const char *clientCertPath = "../cert-key-pairs/clientCert.crt";
 
-    const char serverKeyPath[] = "../cert-key-pairs/server_key.pem";
-    const char serverCertPath[] = "../cert-key-pairs/server_crt.pem";
-    const char clientCertPath[] = "../cert-key-pairs/client_crt.pem";
+    const char serverKeyPath[] = "cert-key-pair/server_key.pem";
+    const char serverCertPath[] = "cert-key-pair/server_crt.pem";
+    const char clientCertPath[] = "cert-key-pair/client_crt.pem";
 
     std::shared_ptr<grpc::ServerCredentials> sslCreds;
     std::shared_ptr<grpc::ServerCredentials> defaultCreds;
