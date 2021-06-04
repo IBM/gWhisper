@@ -29,7 +29,7 @@ namespace cli
         char f_delim = ' ';
 
         std::string out_suggestion = f_candidateString;
-        std::size_t suggStart = f_userInput.find_last_of(f_delim);
+        size_t suggStart = f_userInput.find_last_of(f_delim);
 
         // Used for debugging:
         size_t inputLength = f_userInput.length();
@@ -46,12 +46,24 @@ namespace cli
         // Remove whitespace at beginning. Otherwise empty suggestions will be returned.
         if (out_suggestion != " ")
         {
-            size_t trim = out_suggestion.find_first_not_of(f_delim);
-            out_suggestion = out_suggestion.substr(trim, std::string::npos);
+            size_t trim;
+            // avoid conflicts, if suggestion only contains whitespaces
+            if (out_suggestion.find_first_not_of(f_delim) == std::string::npos)
+            {
+                // convert multiple whitespaces into one whitespace
+                trim = out_suggestion.find_first_of(f_delim);
+                trim = trim + 1;
+                out_suggestion = out_suggestion.substr(0, trim);
+            }
+            else
+            {
+                trim = out_suggestion.find_first_not_of(f_delim);
+                out_suggestion = out_suggestion.substr(trim, std::string::npos);
+            }
         }
 
         // Only complete until first whitespace of suggestion
-        std::size_t found = out_suggestion.find(f_delim);
+        size_t found = out_suggestion.find(f_delim);
 
         if (found != std::string::npos)
         {
