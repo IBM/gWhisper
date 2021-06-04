@@ -464,33 +464,22 @@ namespace cli
         GrammarElement *optionsalt = f_grammarPool.createElement<Alternation>();
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("-h", "Help"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--help", "Help"));
+        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--ssl", "ssl"));
 
-        GrammarElement *sslOption = f_grammarPool.createElement<Concatenation>();
-
-        sslOption->addChild(f_grammarPool.createElement<FixedString>("--ssl", "ssl"));
-        sslOption->addChild(f_grammarPool.createElement<WhiteSpace>());
-        optionsalt->addChild(sslOption);
-
-        //Todo: neues Grammar-Element ConnectionOpts?
-        GrammarElement *connectionOptionSsl = f_grammarPool.createElement<Concatenation>();
-        //connectionOptionSsl->addChild(f_grammarPool.createElement<FixedString>("--ssl", "ssl"));
-        //<EscapedString>(":, %", '%', Name) statt RegEx
         GrammarElement *clientCert = f_grammarPool.createElement<Concatenation>();
-        connectionOptionSsl->addChild(clientCert);
-        clientCert->addChild(f_grammarPool.createElement<FixedString>("clientCert=", "OptionClientCert"));
+        clientCert->addChild(f_grammarPool.createElement<FixedString>("--clientCert=", "OptionClientCert"));
         clientCert->addChild(f_grammarPool.createElement<EscapedString>(":, %", '%', "FileClientCert"));
-        clientCert->addChild(f_grammarPool.createElement<WhiteSpace>());
+        optionsalt->addChild(clientCert);
+
         GrammarElement *clientKey = f_grammarPool.createElement<Concatenation>();
-        connectionOptionSsl->addChild(clientKey);
-        clientKey->addChild(f_grammarPool.createElement<FixedString>("clientPubKey=", "OptionClientKey"));
+        clientKey->addChild(f_grammarPool.createElement<FixedString>("--clientPubKey=", "OptionClientKey"));
         clientKey->addChild(f_grammarPool.createElement<EscapedString>(":, %", '%', "FileClientKey"));
-        clientKey->addChild(f_grammarPool.createElement<WhiteSpace>());
+        optionsalt->addChild(clientKey);
+
         GrammarElement *serverCert = f_grammarPool.createElement<Concatenation>();
-        connectionOptionSsl->addChild(serverCert);
-        serverCert->addChild(f_grammarPool.createElement<FixedString>("serverCert=", "OptionServerCert"));
+        serverCert->addChild(f_grammarPool.createElement<FixedString>("--serverCert=", "OptionServerCert"));
         serverCert->addChild(f_grammarPool.createElement<EscapedString>(":, %", '%', "FileServerCert"));
-        serverCert->addChild(f_grammarPool.createElement<WhiteSpace>());
-        sslOption->addChild(connectionOptionSsl);
+        optionsalt->addChild(serverCert);
 
         GrammarElement *completeOption = f_grammarPool.createElement<Concatenation>();
         completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
