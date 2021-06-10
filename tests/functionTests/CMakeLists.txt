@@ -20,4 +20,6 @@ add_test(NAME CompletionFunctionTests_fish COMMAND ${PROJECT_SOURCE_DIR}/tests/f
 
 add_test(NAME RpcExecutionTests COMMAND ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/tests/functionTests/rpcExecutionTests.txt)
 
+add_test(NAME RpcExecutionTests COMMAND ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/tests/functionTests/sslFunctionTests.txt)
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/data.bin DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)

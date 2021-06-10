@@ -1,0 +1,132 @@
+# Copyright 2019 IBM Corporation
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+##############################################################################
+# Insecure Channel
+##############################################################################
+
+#START_TEST No SSL with unsecure port
+@@CMD@@ localhost:50051 examples.NestedTypeRpcs echoNestedMaps
+Warning: no Fields found in parseTree for message 'NestedMaps'
+2021-06-09 09:11:10: Received message:
+| number_and_string..... = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = ""
+| sub_message........... = {SubMessage}
+| | simple_map_int[0/0] = {}
+| | simple_map_string[0/0] = {}
+| simple_map_int[0/0] = {}
+| simple_map_string[0/0] = {}
+RPC succeeded :D
+#END_TEST
+
+#START_TEST no SSL with SSL-Port
+@@CMD@@ localhost:50443 examples.ScalarTypeRpcs
+#END_TEST
+
+##############################################################################
+# Secure Channel with all certificates/keys
+##############################################################################
+
+#START_TEST complete SSL-Option
+@@CMD@@ --complete
+dns:
+unix-abstract:
+--color
+--debugComplete
+--noSimpleMapOutput
+--version
+ipv4:
+-h
+--complete
+--dot
+--printParsedMessage  
+ipv6:
+--clientCert=
+--connectTimeoutMilliseconds=
+--help
+--serverCert=         
+unix:
+--clientPubKey=
+--customOutput
+--noColor
+--ssl  
+#END_TEST
+
+#START_TEST complete Key/Cert-Options
+@@CMD@@ ---complete -ssl --client-cert=/home/anna/gWhisper/build/cert-key-pair/client_crt.pem
+dns:
+unix-abstract:
+--color
+--debugComplete
+--noSimpleMapOutput
+--version
+ipv4:
+-h
+--complete
+--dot
+--printParsedMessage  
+ipv6:
+--clientCert=
+--connectTimeoutMilliseconds=
+--help
+--serverCert=         
+unix:
+--clientPubKey=
+--customOutput
+--noColor
+--ssl
+#END_TEST
+
+#START_TEST complete Secure-gRPC
+@@CMD@@ --complete --ssl --client-cert=/home/anna/gWhisper/build/cert-key-pair/client_crt.pem --clientPubKey=/home/anna/gWhisper/build/cert-key-pair/client_key.pem --serverCert=/home/anna/gWhisper/build/cert-key-pair/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+:number=  (uint32)
+:str=     (string)
+#END_TEST
+
+#START_TEST gRPC over Secure Channel
+@@CMD@@ --ssl --client-cert=/home/anna/gWhisper/build/cert-key-pair/client_crt.pem --clientPubKey=/home/anna/gWhisper/build/cert-key-pair/client_key.pem --serverCert=/home/anna/gWhisper/build/cert-key-pair/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+Warning: no Fields found in parseTree for message 'NestedMaps'
+2021-06-09 09:09:32: Received message:
+| number_and_string..... = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = ""
+| sub_message........... = {SubMessage}
+| | simple_map_int[0/0] = {}
+| | simple_map_string[0/0] = {}
+| simple_map_int[0/0] = {}
+| simple_map_string[0/0] = {}
+RPC succeeded :D
+#END_TEST
+
+##############################################################################
+# Secure Channel with default certificates/keys (if not user-defined)
+##############################################################################
+
+#START_TEST completion with missing Certificate/Key
+@@CMD@@ --complete --ssl --client-cert=/home/anna/gWhisper/build/cert-key-pair/client_crt.pem --serverCert=/home/anna/gWhisper/build/cert-key-pair/server_crt.pem localhost:50052
+#END_TEST
+
+#START_TEST gRPC over secure channel with default Server-Cert
+@@CMD@@ --ssl --client-cert=
+#END_TEST
+
+#START_TEST gRPC over secure channel with default Client-Cert
+@@CMD@@ --ssl --client-cert=
+#END_TEST
+
+#START_TEST gRPC over secure channel with Cert/Key added later
+@@CMD@@ --ssl --client-cert=
+#END_TEST

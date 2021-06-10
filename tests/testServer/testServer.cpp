@@ -104,10 +104,6 @@ int main(int argc, char **argv)
     std::cout << "Starting server for secur channel listening on " << scrChnlServerAddr << std::endl;
     std::cout << "Starting insecure server listening on " << serverAddr << std::endl;
     // Create a default SSL Credentials object.
-    //const char *serverKeyPath = "../cert-key-pairs/serverPrivateKey.key";
-    //const char *serverCertPath = "../cert-key-pairs/serverCert.crt";
-    //const char *clientCertPath = "../cert-key-pairs/clientCert.crt";
-
     const char serverKeyPath[] = "cert-key-pair/server_key.pem";
     const char serverCertPath[] = "cert-key-pair/server_crt.pem";
     const char clientCertPath[] = "cert-key-pair/client_crt.pem";
@@ -129,7 +125,6 @@ int main(int argc, char **argv)
 
     // Set credentials
     sslOpts.pem_root_certs = clientCert;
-    //sslOpts.pem_root_certs = "";
     sslOpts.pem_key_cert_pairs.push_back(pkcp);
 
     defaultOpts.pem_root_certs = clientCert;
