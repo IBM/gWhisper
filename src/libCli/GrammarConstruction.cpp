@@ -64,7 +64,7 @@ namespace cli
                 return nullptr;
             }
 
-            const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
+            const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(serviceName);
 
             if (service == nullptr)
             {
@@ -324,7 +324,7 @@ namespace cli
                 return nullptr;
             }
 
-            const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
+            const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(serviceName);
             auto result = m_grammar.createElement<Alternation>();
             if (service != nullptr)
             {
@@ -374,7 +374,7 @@ namespace cli
             }
 
             std::vector<grpc::string> serviceList;
-            if (not ConnectionManager::getInstance().getDescDb(serverAddress)->GetServices(&serviceList))
+            if (not ConnectionManager::getInstance().getDescDb(serverAddress, *f_parseTree)->GetServices(&serviceList))
             {
                 f_ErrorMessage = "Error: Could not retrieve service list.";
                 return nullptr;
@@ -384,7 +384,7 @@ namespace cli
             for (auto service : serviceList)
             {
                 auto childAlt = m_grammar.createElement<FixedString>(service);
-                const grpc::protobuf::ServiceDescriptor *m_service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(service);
+                const grpc::protobuf::ServiceDescriptor *m_service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(service);
                 childAlt->setDocument(m_service->options().GetExtension(service_doc));
                 result->addChild(childAlt);
             }

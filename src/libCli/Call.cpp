@@ -167,7 +167,7 @@ namespace cli
             return -1;
         }
 
-        const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress)->FindServiceByName(serviceName);
+        const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress, parseTree)->FindServiceByName(serviceName);
         if (service == nullptr)
         {
             std::cerr << "Error: Service '" << serviceName << "' not found" << std::endl;

@@ -55,26 +55,6 @@ int main(int argc, char **argv)
     std::size_t foundSecure = args.find(secureFlag);
     std::size_t foundInsecure = args.find(insecureFlag);
 
-    //if (args.find("--ssl") != std::string::npos)
-    //if (foundSecure != std::string::npos)
-    //{
-    //Set Flag for Connection with Secure Channel and Secure Server
-    //  cli::ConnectionManager::getInstance().setConnectionStatus(1);
-    //}
-    //else if (foundInsecure != std::string::npos)
-    //{
-    //Set Flag for insecure Connetion
-    //    cli::ConnectionManager::getInstance().setConnectionStatus(0);
-    //}
-    //else
-    //{
-    //Set Flag for Default Connection with Secure Channel only
-    //   cli::ConnectionManager::getInstance().setConnectionStatus(2);
-    //}
-
-    //Set Default Value for grade of security for connection
-    //cli::ConnectionManager::getInstance().setConnectionStatus(2);
-
     // First we construct the initial Grammar for the CLI tool:
     Grammar grammarPool;
     GrammarElement *grammarRoot = cli::constructGrammar(grammarPool);
