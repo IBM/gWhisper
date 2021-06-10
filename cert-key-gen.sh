@@ -2,6 +2,7 @@
 
 # Generate key-cert-pair folder in build directory, if it doesn't already exist
 # $1 is the CMAKE_CURRENT_BINARY_DIR Variable
+echo RUN KEYCERTGEN
 mkdir -p $1/cert-key-pair
 FILE_PATH = $1/cert-key-pair/
 
