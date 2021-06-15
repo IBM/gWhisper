@@ -114,7 +114,7 @@ int main(int argc, char **argv)
     if (rc.isBad() && rc.errorType == ParseRc::ErrorType::retrievingGrammarFailed && rc.ErrorMessage.size() != 0)
     {
         std::cout << rc.ErrorMessage << std::endl;
-        std::cout << "Grammar could not be fetched from the server address: " << parseTree.getMatchedString() << std::endl;
+        std::cout << "Grammar could not be fetched from the server address: '" << cli::getServerUri(&parseTree) << "'" << std::endl;
     }
     else
     {
