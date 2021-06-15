@@ -19,8 +19,7 @@
 
 #START_TEST No SSL with unsecure port
 @@CMD@@ localhost:50051 examples.NestedTypeRpcs echoNestedMaps
-Warning: no Fields found in parseTree for message 'NestedMaps'
-2021-06-09 09:11:10: Received message:
+/.* Received message:
 | number_and_string..... = {NumberAndString}
 | | number = 0 (0x00000000)
 | | str... = ""
@@ -32,8 +31,30 @@ Warning: no Fields found in parseTree for message 'NestedMaps'
 RPC succeeded :D
 #END_TEST
 
+#START_TEST SSL with unsecure port
+@@CMD@@ --ssl --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50051 examples.NestedTypeRpcs echoNestedMaps
+E0615 /.* Handshake failed with fatal error SSL_ERROR_SSL: error:1408F10B:SSL routines:ssl3_get_record:wrong version number.
+E0615/.* Handshake failed with fatal error SSL_ERROR_SSL: error:1408F10B:SSL routines:ssl3_get_record:wrong version number.
+Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.
+#END_TEST
+
 #START_TEST no SSL with SSL-Port
-@@CMD@@ localhost:50443 examples.ScalarTypeRpcs
+@@CMD@@ localhost:50443 examples.ScalarTypeRpcs echoNestedMaps
+ServerReflectionInfo rpc failed. Error code: 14, message: Broken pipe, debug info: /.*
+#END_TEST
+
+#START_TEST setting credentials without --ssl
+@@CMD@@ --clientCert=@@PTB@@/cert-key-pair/client_crt.pem --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50051 examples.NestedTypeRpcs echoNestedMaps
+/.* Received message:
+| number_and_string..... = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = ""
+| sub_message........... = {SubMessage}
+| | simple_map_int[0/0] = {}
+| | simple_map_string[0/0] = {}
+| simple_map_int[0/0] = {}
+| simple_map_string[0/0] = {}
+RPC succeeded :D
 #END_TEST
 
 ##############################################################################
@@ -59,14 +80,14 @@ ipv6:
 --help
 --serverCert=         
 unix:
---clientPubKey=
+--clientKey=
 --customOutput
 --noColor
 --ssl  
 #END_TEST
 
 #START_TEST complete Key/Cert-Options
-@@CMD@@ ---complete -ssl --client-cert=/home/anna/gWhisper/build/cert-key-pair/client_crt.pem
+@@CMD@@ ---complete --ssl --clientCert=@@PTB@@/cert-key-pair/client_crt.pem
 dns:
 unix-abstract:
 --color
@@ -84,22 +105,15 @@ ipv6:
 --help
 --serverCert=         
 unix:
---clientPubKey=
+--clientKey=
 --customOutput
 --noColor
 --ssl
 #END_TEST
 
-#START_TEST complete Secure-gRPC
-@@CMD@@ --complete --ssl --client-cert=/home/anna/gWhisper/build/cert-key-pair/client_crt.pem --clientPubKey=/home/anna/gWhisper/build/cert-key-pair/client_key.pem --serverCert=/home/anna/gWhisper/build/cert-key-pair/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
-:number=  (uint32)
-:str=     (string)
-#END_TEST
-
-#START_TEST gRPC over Secure Channel
-@@CMD@@ --ssl --client-cert=/home/anna/gWhisper/build/cert-key-pair/client_crt.pem --clientPubKey=/home/anna/gWhisper/build/cert-key-pair/client_key.pem --serverCert=/home/anna/gWhisper/build/cert-key-pair/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
-Warning: no Fields found in parseTree for message 'NestedMaps'
-2021-06-09 09:09:32: Received message:
+#START_TEST gRPC over Secure Channel 
+@@CMD@@ --ssl --clientCert=@@PTB@@/cert-key-pair/client_crt.pem --clientKey=@@PTB@@/cert-key-pair/client_key.pem --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+/.* Received message:
 | number_and_string..... = {NumberAndString}
 | | number = 0 (0x00000000)
 | | str... = ""
@@ -112,21 +126,47 @@ RPC succeeded :D
 #END_TEST
 
 ##############################################################################
-# Secure Channel with default certificates/keys (if not user-defined)
+# Secure Channel with empty certificates/keys (if not user-defined)
 ##############################################################################
 
-#START_TEST completion with missing Certificate/Key
-@@CMD@@ --complete --ssl --client-cert=/home/anna/gWhisper/build/cert-key-pair/client_crt.pem --serverCert=/home/anna/gWhisper/build/cert-key-pair/server_crt.pem localhost:50052
+#START_TEST secure gRPC with missing Certificate/Key and server does not require cert-key-pair
+@@CMD@@ --ssl --clientCert=@@PTB@@/cert-key-pair/client_crt.pem --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50052 examples.NestedTypeRpcs echoNestedMaps
+/.* Received message:
+| number_and_string..... = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = ""
+| sub_message........... = {SubMessage}
+| | simple_map_int[0/0] = {}
+| | simple_map_string[0/0] = {}
+| simple_map_int[0/0] = {}
+| simple_map_string[0/0] = {}
+RPC succeeded :D
 #END_TEST
 
-#START_TEST gRPC over secure channel with default Server-Cert
-@@CMD@@ --ssl --client-cert=
+#START_TEST secure gRPC with missing Certificate/Key and server requires cert-key-pair
+@@CMD@@ --ssl --clientCert=@@PTB@@/cert-key-pair/client_crt.pem --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+/.* Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials. /.* 
 #END_TEST
 
-#START_TEST gRPC over secure channel with default Client-Cert
-@@CMD@@ --ssl --client-cert=
+#START_TEST secure gRPC with serverCert at default location
+@@CMD@@ --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
+/.* Received message:
+| number_and_string..... = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = ""
+| sub_message........... = {SubMessage}
+| | simple_map_int[0/0] = {}
+| | simple_map_string[0/0] = {}
+| simple_map_int[0/0] = {}
+| simple_map_string[0/0] = {}
+RPC succeeded :D
 #END_TEST
 
-#START_TEST gRPC over secure channel with Cert/Key added later
-@@CMD@@ --ssl --client-cert=
+#START_TEST secure gRPC with missing serverCert at default location
+@@CMD@@ --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
+E0615 /.* Handshake failed with fatal error SSL_ERROR_SSL: error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed.
+E0615 /.* Handshake failed with fatal error SSL_ERROR_SSL: error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed.
+Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.
 #END_TEST
+ 
+

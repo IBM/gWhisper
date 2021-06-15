@@ -1,0 +1,2 @@
+gwhisper --complete=fish " --debugComlete 0.0.0.0:50051 examples.NestedTypeRpcs echoNestedMaps "
+NEW

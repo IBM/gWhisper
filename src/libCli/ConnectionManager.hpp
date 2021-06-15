@@ -203,6 +203,7 @@ namespace cli
         /// To register the gRpc connection information of a given server address.
         /// Connection List contains: Channel, DescriptorDatabase and DescriptorPool as value.
         /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port" as key of the cached map.
+        /// @param f_parseTree Tree of the recent gWhisper command. Used to lookup which connection type should be opened (SSL or not).
         void registerConnection(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree)
         {
             ConnList connection;
@@ -212,7 +213,7 @@ namespace cli
 
             if (f_parseTree.findFirstChild("ssl") != "")
             {
-                // check if user provides Cerificates / Keys
+                // if --ssl set is set, check if user provides keys/ certs
                 bool clientCertOption = (f_parseTree.findFirstChild("OptionClientCert") != "");
                 bool clientKeyOption = (f_parseTree.findFirstChild("OptionClientKey") != "");
                 bool serverCertOption = (f_parseTree.findFirstChild("OptionServerCert") != "");
@@ -221,107 +222,35 @@ namespace cli
                 std::string sslClientKeyPath = f_parseTree.findFirstChild("FileClientKey");
                 std::string sslServerCertPath = f_parseTree.findFirstChild("FileServerCert");
 
-                if (clientCertOption && clientKeyOption && serverCertOption)
-                {
-                    //std::cout << "ClientCert: Entered SSL=TRUE" << std::endl;
-                    debugString = "CREATE SECURE CAHNNEL WITH USER-PROVIDED CREDENTIALS";
-
-                    channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);
-                    // checkCredentials(debugString, channelCreds, f_serverAddress);
-                    connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
-                }
-                else
-                {
-                    // ask if user wants to provide Files
-                    std::string userInput;
-                    std::cout << "Do you want to provide Certs/ Keys for SSL-Authentication [Y]/[N]?" << std::endl;
-                    std::cin >> userInput;
-
-                    if (userInput == "Y" || userInput == "y")
-                    {
-
-                        if (!clientCertOption)
-                        {
-                            sslClientCertPath = getFile("Client-Cert");
-                        }
-
-                        if (!clientKeyOption)
-                        {
-                            sslClientKeyPath = getFile("Client-Key");
-                        }
-
-                        if (!serverCertOption)
-                        {
-                            sslServerCertPath = getFile("Server-Cert");
-                        }
-
-                        channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);
-                        //checkCredentials(debugString, channelCreds, f_serverAddress);
-                        connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
-                    }
-                    else if (userInput == "N" || userInput == "n")
-                    {
-                        // Connect with default Credentials
-                        debugString = "CREATE SECURE CAHNNEL WITH DEFAULT CREDENTIALS";
-                        channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);
-                        //checkCredentials(debugString, channelCreds, f_serverAddress);
-                        connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
-                    }
-                    else
-                    {
-                        std::cout << "Invalid User Input" << std::endl;
-                        exit(EXIT_FAILURE);
-                    }
-                }
+                debugString = "CREATE SECURE CAHNNEL WITH USER-PROVIDED CREDENTIALS";
+                channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);
+                // checkCredentials(debugString, channelCreds, f_serverAddress);
+                connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
             }
             else
             {
-                //create insecure channel
+                //create insecure channel by default
                 debugString = "CREATE INSECURE CAHNNEL";
                 connection.channel = grpc::CreateChannel(f_serverAddress, grpc::InsecureChannelCredentials());
             }
 
             //std::cout << "Created Channel: " << connection.channel << std::endl;
-
             connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
             connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDb.get());
             connections[f_serverAddress] = connection;
         }
 
-        /// get key/certs for SSL/TLS-connection from user Input
-        std::string getFile(std::string fileID)
-        {
-
-            std::string userInput;
-            std::cout << "Please Provide location of " << fileID << " : " << std::endl;
-            std::cin >> userInput;
-            return userInput;
-        }
-
-        void checkCredentials(std::string f_debugString, std::shared_ptr<grpc::ChannelCredentials> f_channelCreds, std::string f_serverAddress)
-        {
-            if (!f_channelCreds)
-            {
-                std::cout << "No / Wrong Channel Credentials" << std::endl;
-            }
-            else
-            {
-                std::cout << "*****************************************************************************************************" << std::endl;
-                std::cout << f_debugString << std::endl;
-                std::cout << "At server-address: " << f_serverAddress << std::endl;
-                std::cout << "With Channel Credentials: " << f_channelCreds << std::endl;
-            }
-        }
-
-        /// Get Key-Cert Pairs from Files and use them as credentials for SSL/TLS Channel
+        /// Takes the contents of key/ certificate files and transforms them into gRPC SSL/TLS credentials
+        /// If file is empty (i.e. user does not provide path to such a file) the default roots will be used (see gRPC SslCredentials).
+        /// @param f_sslClientCertPath Path to client certificate provided as std::string
+        /// @param f_sslClientKeyPath Path to client private key provided as std::string
+        /// @param f_sslServerCretPath Path to server certificate provided as std::string
+        /// @return std::shared_ptr<grpc::ChannelCredentials> gRPC credentials as used for creating an SSL/TLS channel
         std::shared_ptr<grpc::ChannelCredentials> generateSSLCredentials(const std::string f_sslClientCertPath, const std::string f_sslClientKeyPath, const std::string f_sslServerCertPath)
         {
             std::string clientKey = readFromFile(f_sslClientKeyPath);
             std::string clientCert = readFromFile(f_sslClientCertPath);
             std::string serverCert = readFromFile(f_sslServerCertPath);
-            //std::cout << "client Cert File: " << clientCert << std::endl;
-            //std::cout << "client Key File: " << clientKey << std::endl;
-            //std::cout << "Server Cert File: " << serverCert << std::endl;
 
             grpc::SslCredentialsOptions sslOpts;
 
@@ -345,7 +274,9 @@ namespace cli
             return creds;
         }
 
-        /// Function for reading and returning credentials (Key, Cert) from file
+        /// Function for reading contents of a file and returning them as a string
+        /// @param f_path Location of the file to read from as a string
+        /// @return File content as simple string
         std::string readFromFile(const std::string f_path)
         {
             std::ifstream credFile(f_path);
@@ -355,8 +286,6 @@ namespace cli
 
                 std::string str{std::istreambuf_iterator<char>(credFile),
                                 std::istreambuf_iterator<char>()};
-
-                // std::cout << "Channel: File content of " << f_path << ": " << str << std::endl;
                 return str;
             }
             else
@@ -364,6 +293,25 @@ namespace cli
                 std::cout << "No cert/key found at " << f_path << std::endl;
                 std::cout << "Failed to build secure channel";
                 exit(EXIT_FAILURE);
+            }
+        }
+
+        /// Function for debugging SSL-Credential Problems
+        /// @param f_debugString std::string that indicates Type of Connection for better readability
+        /// @param f_channelCreds std::shared_ptr<grpc::ChannelCredentials> Credentials used to open an SSL/TLS connection
+        /// @param f_serverAddress Address of the server used for SSL/TLS connection as a std::string
+        void checkCredentials(std::string f_debugString, std::shared_ptr<grpc::ChannelCredentials> f_channelCreds, std::string f_serverAddress)
+        {
+            if (!f_channelCreds)
+            {
+                std::cout << "No / Wrong Channel Credentials" << std::endl;
+            }
+            else
+            {
+                std::cout << "*****************************************************************************************************" << std::endl;
+                std::cout << f_debugString << std::endl;
+                std::cout << "At server-address: " << f_serverAddress << std::endl;
+                std::cout << "With Channel Credentials: " << f_channelCreds << std::endl;
             }
         }
     };

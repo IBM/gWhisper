@@ -26,6 +26,8 @@
 # a SINGLE line containing command is expected which will be executed in a sub-shell.
 # If this line contains the string "@@CMD@@" it will be replaced with a path to
 # the gwhisper executable.
+# If this line contains the string "@@PTB@@" it will be replaced with a path to 
+# the gwhisper build directory
 # All following lines until a line Starting with "#END_TEST" are the expected command
 # output. If one of those lines starts with a "/" the line is interpreted as a regex.
 
@@ -50,6 +52,7 @@ echo "Running Completion tests..."
 
 # state machine for parser
 state="FIND_TEST"
+pathToBuild=""
 cmd=""
 received=()
 expected=()
@@ -113,19 +116,36 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         state="FIND_TEST"
         continue
     fi
+
     if [[ $state = "PARSE_CMD" ]]; then
         cmd=${line/@@CMD@@/$gwhisper}
         echo " execute cmd '$cmd'"
+        pathToBuild=${cmd/@@PTB@@/$build}
+        echo " path to build '$pathToBuild'"
         out=$(eval "$cmd 2>&1") # use eval here to correctly split args into arg array
         IFS=$'\n' received=($out)
         state="PARSE_RESULT"
         expected=()
         continue
     fi
+    
+    # if [[ $state = "PARSE_CMD" ]]; then
+    #     pathToBuild=${line/@@PTB@@/$bin}
+    #     echo " path to build '$pathToBuild'"
+    #     out=$(eval "$pathToBuild 2>&1") # use eval here to correctly split args into arg array
+    #     IFS=$'\n' received=($out)
+    #     state="PARSE_RESULT"
+    #     expected=()
+    #     continue
+    # fi  
+
+
     if [[ $state = "PARSE_RESULT" ]]; then
         expected+=($line)
         continue
     fi
+
+   
 done < "$testFile"
 
 if [[ $state != "FIND_TEST" ]]; then

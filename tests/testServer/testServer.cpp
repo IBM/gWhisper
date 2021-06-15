@@ -70,12 +70,12 @@ int main(int argc, char **argv)
     }
     //std::string serverAddr = "0.0.0.0:50051";
     std::string secureServerAddr = "localhost:50443";
-    std::string scrChnlServerAddr = "localhost:50052";
-    std::string serverAddr = "localhost:50051";
+    std::string dfltServerAddr = "localhost:50052";
+    std::string insecureServerAddr = "localhost:50051";
     if (argc >= 2)
     {
         //serverAddr = "0.0.0.0:" + std::string(argv[1]);
-        serverAddr = "localhost:" + std::string(argv[1]);
+        insecureServerAddr = "localhost:" + std::string(argv[1]);
         std::cout << argv[1] << std::endl;
     }
 
@@ -98,11 +98,11 @@ int main(int argc, char **argv)
     {
         std::cout << "Flag is not working" << std::endl;
 
-        std::cout << serverAddr << std::endl;
+        std::cout << insecureServerAddr << std::endl;
     }
     std::cout << "Starting secure server listening on " << secureServerAddr << std::endl;
-    std::cout << "Starting server for secur channel listening on " << scrChnlServerAddr << std::endl;
-    std::cout << "Starting insecure server listening on " << serverAddr << std::endl;
+    std::cout << "Starting server for secur channel listening on " << dfltServerAddr << std::endl;
+    std::cout << "Starting insecure server listening on " << insecureServerAddr << std::endl;
     // Create a default SSL Credentials object.
     const char serverKeyPath[] = "cert-key-pair/server_key.pem";
     const char serverCertPath[] = "cert-key-pair/server_crt.pem";
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
     grpc::SslServerCredentialsOptions::PemKeyCertPair pkcp = {serverKey.c_str(), serverCert.c_str()};
 
     // Security Options for ssl connection
-    grpc::SslServerCredentialsOptions sslOpts(GRPC_SSL_REQUEST_CLIENT_CERTIFICATE_AND_VERIFY);
+    grpc::SslServerCredentialsOptions sslOpts(GRPC_SSL_REQUEST_AND_REQUIRE_CLIENT_CERTIFICATE_AND_VERIFY);
     grpc::SslServerCredentialsOptions defaultOpts(GRPC_SSL_DONT_REQUEST_CLIENT_CERTIFICATE);
 
     // Set credentials
@@ -136,15 +136,15 @@ int main(int argc, char **argv)
     grpc::ServerBuilder secureBuilder;
     grpc::ServerBuilder insecureBuilder;
 
-    // Default port
-    builder.AddListeningPort(scrChnlServerAddr, defaultCreds);
-    std::cout << "DEFAULT CREATED " << scrChnlServerAddr << std::endl;
-    // SSL Port
+    // Default port: 50052, Server does not require key-cert-pair
+    builder.AddListeningPort(dfltServerAddr, defaultCreds);
+    std::cout << "DEFAULT CREATED " << dfltServerAddr << std::endl;
+    // SSL Port: 50443, server requires all credentials
     secureBuilder.AddListeningPort(secureServerAddr, sslCreds);
     std::cout << " SECURE CREATED " << secureServerAddr << std::endl;
-    //Insecure Port
-    insecureBuilder.AddListeningPort(serverAddr, grpc::InsecureServerCredentials());
-    std::cout << "INSECURE CREATED " << serverAddr << std::endl;
+    //Insecure Port: 50051. no credentials required
+    insecureBuilder.AddListeningPort(insecureServerAddr, grpc::InsecureServerCredentials());
+    std::cout << "INSECURE CREATED " << insecureServerAddr << std::endl;
 
     // register all services:
     ServiceScalarTypeRpcs scalarTypeRpcs;

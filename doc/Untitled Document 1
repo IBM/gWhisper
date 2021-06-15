@@ -1,0 +1,33 @@
+SSL options
+--ssl 
+	Opening a secure channel with SSL/TLS for gRPCs.
+	You can (but not must) use --clientCert, --clientKey and --serverCert to specify credentials.
+	Not setting the --ssl option opens an insecure connection with no encryption.
+	Valid Examples: 
+		gwhisper --ssl --serverCert=<path> --clientKey=<path> --clientCert=<path> <host>
+		gwhisper --ssl <host>
+		gwhisper --ssl --serverPath=<path> <host>
+
+--clienCert=<path to client-certificate>:
+	Set location to client certificate as path.
+	This optional parameter can be set, if you want to specify a client certificate.
+	May be empty if client does not have a certificate chain.
+	If the authentication requires a valid cert-key-pair and the --clientCert is empty, the connection will fail.
+	If this option is used before/without using --ssl, gWhisper fails with an parse error.
+
+--clientKey=[Path to Client-Private-Key]
+	Set location to client private key as path. 
+	This optional parameter can be set if you want to specify a client certificate.
+	May be empty if client does not have a certificate chain.
+	If the server requires a valid cert-key-pair for authentication and the --clientKey is empty, the connection will fail.
+	If this option is used before/without using --ssl, gWhisper fails with an parse error
+	
+--serverCert
+	Set location to client certificate as path from root. This optional parameter can be set, if you want to specify a client certificate.
+	If this option is not set, the default-roots will be used.
+	While clientCert and clientKey are not always needed, the serverCert is manadory for building a connection. 
+	Connection will fail if no Cert is found at default location / User-specified location
+	If this option is used before/ without using --ssl, gWhisper fails with an parse error
+	
+	
+

@@ -60,7 +60,7 @@ namespace cli
 
             if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
-                f_ErrorMessage = "Error: Could not establish Channel.";
+                f_ErrorMessage = "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.";
                 return nullptr;
             }
 
@@ -320,7 +320,7 @@ namespace cli
 
             if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
-                f_ErrorMessage = "Error: Could not establish Channel.";
+                f_ErrorMessage = "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.";
                 return nullptr;
             }
 
@@ -369,7 +369,7 @@ namespace cli
 
             if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
-                f_ErrorMessage = "Error: Could not establish Channel.";
+                f_ErrorMessage = "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.";
                 return nullptr;
             }
 
@@ -472,7 +472,7 @@ namespace cli
         optionsalt->addChild(clientCert);
 
         GrammarElement *clientKey = f_grammarPool.createElement<Concatenation>();
-        clientKey->addChild(f_grammarPool.createElement<FixedString>("--clientPubKey=", "OptionClientKey"));
+        clientKey->addChild(f_grammarPool.createElement<FixedString>("--clientKey=", "OptionClientKey"));
         clientKey->addChild(f_grammarPool.createElement<EscapedString>(":, %", '%', "FileClientKey"));
         optionsalt->addChild(clientKey);
 

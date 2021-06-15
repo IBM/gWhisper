@@ -58,6 +58,22 @@ Possible Candidates:
 #END_TEST
 
 ##############################################################################
+# SSL RPCs
+##############################################################################
+
+#START_TEST complete Secure-gRPC with all Credentials
+@@CMD@@ --complete --ssl --client-cert=@@PTB@@/cert-key-pair/client_crt.pem --clientPubKey=@@PTB@@/cert-key-pair/client_key.pem --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+:number=  (uint32)
+:str=     (string)
+#END_TEST
+
+#START_TEST complete Secure-gRPC without key-cert pair
+@@CMD@@ --complete --ssl --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+:number=  (uint32)
+:str=     (string)
+#END_TEST
+
+##############################################################################
 # Scalar type RPCs
 ##############################################################################
 
