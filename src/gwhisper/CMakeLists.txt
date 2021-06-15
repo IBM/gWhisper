@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required (VERSION 2.8)
 
 set(TARGET_NAME "gwhisper")
 
@@ -22,6 +21,10 @@ add_custom_command(
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/generateRawStringFile.sh ${CMAKE_SOURCE_DIR}/doc/Usage.txt ${CMAKE_CURRENT_BINARY_DIR}/HelpString.h
     DEPENDS ${CMAKE_SOURCE_DIR}/doc/Usage.txt
     )
+add_library( generateHelpString INTERFACE)
+add_dependencies(generateHelpString HelpString.h)
+target_include_directories(generateHelpString INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
+
 
 set(TARGET_SRC
     gwhisper.cpp
@@ -29,7 +32,12 @@ set(TARGET_SRC
     )
 add_executable(${TARGET_NAME} ${TARGET_SRC})
 target_link_libraries ( ${TARGET_NAME}
+    PRIVATE
+    ArgParse
     cli
+    reflection
+    version
+    generateHelpString
     )
 
 add_dependencies(${TARGET_NAME} compileCommands versionDefine)

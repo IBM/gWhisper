@@ -1,4 +1,4 @@
-# Copyright 2019 IBM Corporation
+# Copyright 2021 IBM Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,9 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+add_custom_target(versionDefine
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/generateVersionDefine.sh ${PROJECT_SOURCE_DIR} > ${CMAKE_CURRENT_BINARY_DIR}/versionDefine.h
+    )
 
+add_library( version INTERFACE)
+target_include_directories(version INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
+add_dependencies( version versionDefine )
 
-set(TARGET_NAME "protoDoc")
-set(PROTO_SRC protoDoc.proto)
-
-add_protobuf_grpc_lib(${TARGET_NAME} PROTO_SOURCES ${PROTO_SRC} )

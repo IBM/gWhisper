@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
+#include <gRPC_utils/proto_reflection_descriptor_database.h>
 
 namespace cli
 {

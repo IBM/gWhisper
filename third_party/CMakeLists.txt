@@ -12,14 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required (VERSION 2.8)
-
-# only build gtest when it is checked out (if CMakeLists.txt is present, we
-# assume this is the case)
-if(EXISTS "${PROJECT_SOURCE_DIR}/third_party/googletest/CMakeLists.txt")
-    # EXCLUDE_FROM_ALL only causes targets to be built only when needed as an dependency.
-    # Also install targets are not installed (we do not want gtest to be installed)
-    add_subdirectory(googletest EXCLUDE_FROM_ALL)
+if(BUILD_TESTS)
+    include(FetchContent)
+    message("Fetching googletest")
+    FetchContent_Declare (
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG release-1.10.0
+    )
+    FetchContent_GetProperties(googletest)
+    if(NOT googletest_POPULATED)
+        message("Fetching googletest - populating")
+        FetchContent_Populate(googletest)
+        add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
+    endif()
+    message("Fetching googletest - done")
 endif()
+
 
 add_subdirectory(gRPC_utils)
