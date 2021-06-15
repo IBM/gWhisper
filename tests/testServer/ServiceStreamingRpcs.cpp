@@ -103,3 +103,16 @@
     }
     return grpc::Status();
 }
+
+::grpc::Status ServiceStreamingRpcs::bidirectionalStreamEchoNumberOrString(
+            ::grpc::ServerContext* context,
+            ::grpc::ServerReaderWriter< ::examples::NumberOrStringOneOf,
+            ::examples::NumberOrStringOneOf>* stream
+            )
+{
+    ::examples::NumberOrStringOneOf message;
+    while (stream->Read(&message)) {
+        stream->Write(message);
+    }
+    return grpc::Status();
+}

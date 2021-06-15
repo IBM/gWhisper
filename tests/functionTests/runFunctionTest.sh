@@ -40,7 +40,6 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-
 # starting test server
 echo "Starting server: $testServer ...";
 $testServer &
@@ -129,6 +128,11 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         continue
     fi
 done < "$testFile"
+
+if [[ $state != "FIND_TEST" ]]; then
+    echo -e "${RED}File ended in the middle of a test case. Did you forget to add #END_TEST somewhere?${NC}"
+    exit 1
+fi
 
 # analyze test result:
 echo "#################################################################"
