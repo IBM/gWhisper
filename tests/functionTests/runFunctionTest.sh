@@ -120,9 +120,9 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     if [[ $state = "PARSE_CMD" ]]; then
         cmd=${line/@@CMD@@/$gwhisper}
         echo " execute cmd '$cmd'"
-        pathToBuild=${cmd/@@PTB@@/$build}
+        pathToBuild=${cmd//@@PTB@@/$build}
         echo " path to build '$pathToBuild'"
-        out=$(eval "$cmd 2>&1") # use eval here to correctly split args into arg array
+        out=$(eval "$pathToBuild 2>&1") # use eval here to correctly split args into arg array
         IFS=$'\n' received=($out)
         state="PARSE_RESULT"
         expected=()

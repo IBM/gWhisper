@@ -34,7 +34,7 @@ RPC succeeded :D
 #START_TEST SSL with unsecure port
 @@CMD@@ --ssl --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50051 examples.NestedTypeRpcs echoNestedMaps
 E0615 /.* Handshake failed with fatal error SSL_ERROR_SSL: error:1408F10B:SSL routines:ssl3_get_record:wrong version number.
-E0615/.* Handshake failed with fatal error SSL_ERROR_SSL: error:1408F10B:SSL routines:ssl3_get_record:wrong version number.
+E0615 /.* Handshake failed with fatal error SSL_ERROR_SSL: error:1408F10B:SSL routines:ssl3_get_record:wrong version number.
 Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.
 #END_TEST
 
@@ -62,32 +62,35 @@ RPC succeeded :D
 ##############################################################################
 
 #START_TEST complete SSL-Option
-@@CMD@@ --complete
-dns:
-unix-abstract:
---color
---debugComplete
---noSimpleMapOutput
---version
-ipv4:
--h
---complete
---dot
---printParsedMessage  
-ipv6:
---clientCert=
---connectTimeoutMilliseconds=
---help
---serverCert=         
-unix:
---clientKey=
---customOutput
---noColor
---ssl  
+@@CMD@@
+Parse failed.Parsed until: ''
+Possible Candidates:
+  '-h '
+  '--help '
+  '--ssl '
+  '--clientCert='
+  '--clientKey='
+  '--serverCert='
+  '--complete'
+  '--debugComplete '
+  '--dot '
+  '--noColor '
+  '--color '
+  '--version '
+  '--printParsedMessage '
+  '--noSimpleMapOutput '
+  '--connectTimeoutMilliseconds='
+  '--customOutput '
+  'unix:'
+  'unix-abstract:'
+  'dns:'
+  ''
+  'ipv4:'
+  'ipv6:'
 #END_TEST
 
 #START_TEST complete Key/Cert-Options
-@@CMD@@ ---complete --ssl --clientCert=@@PTB@@/cert-key-pair/client_crt.pem
+@@CMD@@ --complete --ssl --clientCert=@@PTB@@/cert-key-pair/client_crt.pem
 dns:
 unix-abstract:
 --color

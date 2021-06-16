@@ -18,6 +18,10 @@ Parse failed.Parsed until: ''
 Possible Candidates:
   '-h '
   '--help '
+  '--ssl '
+  '--clientCert='
+  '--clientKey='
+  '--serverCert='
   '--complete'
   '--debugComplete '
   '--dot '
@@ -33,7 +37,7 @@ Possible Candidates:
   'dns:'
   ''
   'ipv4:'
-  'ipv6:'
+  'ipv6:''
 #END_TEST
 
 # Not sure why we get '--complete' two times here. ignoring this for now
