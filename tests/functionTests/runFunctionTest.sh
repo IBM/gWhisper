@@ -96,7 +96,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
                 else
                     if [ "$expectedLine" != "${received[$idx]}" ]; then
                         fail=true
-                        failtext="line $(((idx+1))) received and expected text does not match."
+                        failtext="line $(((idx+1))) received text '${received[$idx]}' and expected text '$expectedLine' does not match."
                         break
                     fi
                 fi
@@ -118,11 +118,11 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     fi
 
     if [[ $state = "PARSE_CMD" ]]; then
-        cmd=${line/@@CMD@@/$gwhisper}
-        echo " execute cmd '$cmd'"
-        pathToBuild=${cmd//@@PTB@@/$build}
-        echo " path to build '$pathToBuild'"
-        out=$(eval "$pathToBuild 2>&1") # use eval here to correctly split args into arg array
+        cmd=${line//@@CMD@@/$gwhisper}
+        echo " resolve cmd '$cmd'"
+        newLine=${cmd//@@PTB@@/$build}
+        echo " execute new command '$newLine'"
+        out=$(eval "$newLine 2>&1") # use eval here to correctly split args into arg array
         IFS=$'\n' received=($out)
         state="PARSE_RESULT"
         expected=()

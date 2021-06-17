@@ -37,7 +37,7 @@ Possible Candidates:
   'dns:'
   ''
   'ipv4:'
-  'ipv6:''
+  'ipv6:'
 #END_TEST
 
 # Not sure why we get '--complete' two times here. ignoring this for now
@@ -66,15 +66,21 @@ Possible Candidates:
 ##############################################################################
 
 #START_TEST complete Secure-gRPC with all Credentials
-@@CMD@@ --complete --ssl --client-cert=@@PTB@@/cert-key-pair/client_crt.pem --clientPubKey=@@PTB@@/cert-key-pair/client_key.pem --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
-:number=  (uint32)
-:str=     (string)
+@@CMD@@ --complete --ssl --clientCert=@@PTB@@/cert-key-pair/client_crt.pem --clientKey=@@PTB@@/cert-key-pair/client_key.pem --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+echoNestedMaps number_and_string=           (Simple sub-message)
+echoNestedMaps sub_message=        (Sub-message containing maps)
+echoNestedMaps simple_map_int=            (map uint32 -> uint32)
+echoNestedMaps simple_map_string=         (Map string -> uint32)
+echoNestedMaps
 #END_TEST
 
 #START_TEST complete Secure-gRPC without key-cert pair
-@@CMD@@ --complete --ssl --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
-:number=  (uint32)
-:str=     (string)
+@@CMD@@ --complete --ssl --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50052 examples.NestedTypeRpcs echoNestedMaps
+echoNestedMaps number_and_string=           (Simple sub-message)
+echoNestedMaps sub_message=        (Sub-message containing maps)
+echoNestedMaps simple_map_int=            (map uint32 -> uint32)
+echoNestedMaps simple_map_string=         (Map string -> uint32)
+echoNestedMaps
 #END_TEST
 
 ##############################################################################
