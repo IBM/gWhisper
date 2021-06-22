@@ -43,6 +43,7 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 # starting test server
+cd $build
 echo "Starting server: $build/testServer ...";
 $build/testServer &
 serverPID=$!
@@ -65,7 +66,7 @@ numTests=0
 # parse testcase file and execute tests
 while IFS='' read -r line || [[ -n "$line" ]]; do
     ((curline=curline+1))
-    #echo "Text read from file: $line"
+    # echo "Text read from file: $line"
 
     if [[ "$line" =~ ^#START_TEST ]] && [[ $state = "FIND_TEST" ]]; then
         testline=$curline
@@ -141,7 +142,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
 
 
     if [[ $state = "PARSE_RESULT" ]]; then
-        expected+=($line)
+        expected+=("$line")
         continue
     fi
 

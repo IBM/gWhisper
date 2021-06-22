@@ -44,7 +44,7 @@ Grammar could not be fetched from the server address: 'localhost:50051'
 @@CMD@@ localhost:50443 examples.ScalarTypeRpcs echoNestedMaps
 Error: Could not retrieve service list.
 Grammar could not be fetched from the server address: 'localhost:50443'
-/ServerReflectionInfo rpc failed. .* Broken pipe.*
+/.*
 #END_TEST
 
 #START_TEST setting credentials without --ssl
