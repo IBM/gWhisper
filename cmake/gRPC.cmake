@@ -39,7 +39,7 @@ else()
     FetchContent_Declare(
         gRPC
         GIT_REPOSITORY https://github.com/grpc/grpc
-        GIT_TAG        v1.32.0  
+        GIT_TAG        v1.38.0  
     )
     set(FETCHCONTENT_QUIET ON)
     FetchContent_MakeAvailable(gRPC)
@@ -112,7 +112,7 @@ function(add_protobuf_grpc_lib _lib_name  )
     set_target_properties(${_lib_name} PROPERTIES _proto_include ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries( ${_lib_name}
         PUBLIC
-        ${LIB_PROTOBUF}
+        -Wl,--push-state,--no-as-needed ${LIB_PROTOBUF} pthread  -Wl,--pop-state
         ${LIB_GRPC++_REFLECTION}
         ${LIB_GRPC++}
         ${LIB_GRPC}
