@@ -92,6 +92,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
                     if [ ${expectedLine:0:1} = "?" ]; then
                         continue;
                     else
+                        fail=true
                         failtext="line $(((idx+1))) expected more lines."
                         break;
                     fi
@@ -100,7 +101,6 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
                     # optional regex
                     expectedLine=${expectedLine:1}
                     if ! [[ ${received[$idx]} =~ $expectedLine ]]; then
-                        fail=true
                         continue
                     fi
                 elif [ ${expectedLine:0:1} = "/" ]; then
