@@ -72,6 +72,7 @@ namespace cli
                 return nullptr;
             }
 
+            // Methoden Descriptor
             auto method = service->FindMethodByName(methodName);
             if (method == nullptr)
             {
@@ -85,6 +86,7 @@ namespace cli
 
                 return grammarFactory.createList(
                     "RequestStream",
+                    // message Descriptor von request (input)
                     getMessageGrammar("Message", method->input_type(), m_grammar.createElement<FixedString>(":")),
                     m_grammar.createElement<WhiteSpace>(),
                     false,

@@ -129,17 +129,6 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         expected=()
         continue
     fi
-    
-    # if [[ $state = "PARSE_CMD" ]]; then
-    #     pathToBuild=${line/@@PTB@@/$bin}
-    #     echo " path to build '$pathToBuild'"
-    #     out=$(eval "$pathToBuild 2>&1") # use eval here to correctly split args into arg array
-    #     IFS=$'\n' received=($out)
-    #     state="PARSE_RESULT"
-    #     expected=()
-    #     continue
-    # fi  
-
 
     if [[ $state = "PARSE_RESULT" ]]; then
         expected+=("$line")

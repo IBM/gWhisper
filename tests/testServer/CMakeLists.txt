@@ -73,21 +73,14 @@ set(PROTO_SRC examples.pb.cc examples.grpc.pb.cc)
 
 add_executable(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
 
-ADD_DEPENDENCIES(${TARGET_NAME} 
-#cert-key-pair/ca.crt
-#cert-key-pair/ca.key
-#cert-key-pair/ca.srl
-#cert-key-pair/client_crt.pem
-#cert-key-pair/client_csr.pem
-#cert-key-pair/client_key.pem
-#cert-key-pair/server_crt.pem
-#cert-key-pair/server_csr.pem
-#cert-key-pair/server_key.pem
+ADD_DEPENDENCIES(${TARGET_NAME}
+
 MakeKeyCert
 )
 
 target_link_libraries(${TARGET_NAME}
     ${GRPC_LIBS_REFLECTION}
     protoDoc
+    gwhisperUtils
     )
 

@@ -34,8 +34,8 @@ RPC succeeded :D
 
 #START_TEST SSL with unsecure port
 @@CMD@@ --ssl --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50051 examples.NestedTypeRpcs echoNestedMaps
-/.* Handshake failed with fatal error SSL_ERROR_SSL: .* routines:ssl3_get_record:wrong version number.
-/.* Handshake failed with fatal error SSL_ERROR_SSL: .* routines:ssl3_get_record:wrong version number.
+/.* Handshake failed with fatal error SSL_ERROR_SSL: .*
+/.* Handshake failed with fatal error SSL_ERROR_SSL: .*
 Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.
 Grammar could not be fetched from the server address: 'localhost:50051'
 #END_TEST

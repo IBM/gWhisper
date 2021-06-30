@@ -48,30 +48,14 @@ const char *g_helpString =
 
 int main(int argc, char **argv)
 {
-    std::string secureFlag = "--ssl";
-    std::string insecureFlag = "--noSsl";
-
-    std::string args = getArgsAsString(argc, argv);
-    std::size_t foundSecure = args.find(secureFlag);
-    std::size_t foundInsecure = args.find(insecureFlag);
-
     // First we construct the initial Grammar for the CLI tool:
     Grammar grammarPool;
     GrammarElement *grammarRoot = cli::constructGrammar(grammarPool);
 
     // Now we parse the given arguments using the grammar:
-    //std::string args = getArgsAsString(argc, argv);
+    std::string args = getArgsAsString(argc, argv);
     ParsedElement parseTree;
     ParseRc rc = grammarRoot->parse(args.c_str(), parseTree);
-
-    // TODO: add option to print parse tree after parsing:
-    // // Now we act according to the parse tree:
-    //std::cout << parseTree.getDebugString() << "\n";
-
-    //if (parseTree.findFirstChild("--ssl") != "")
-    //{
-    //    cli::ConnectionManager::getInstance().setConnectionStatus(1);
-    //}
 
     if (parseTree.findFirstChild("DotExport") != "")
     {

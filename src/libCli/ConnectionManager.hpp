@@ -15,7 +15,8 @@
 #pragma once
 
 #include <fstream>
-//#include <readline/readline.h>
+
+#include "utils/gwhisperUtils.hpp"
 
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/security/credentials.h>
@@ -45,18 +46,6 @@ namespace cli
         ConnectionManager() {}
         ~ConnectionManager() {}
 
-        // ArgParse::ParsedElement parseTree;
-        enum class Connection
-        {
-            insecure,
-            secure,
-            dflt
-        };
-
-        Connection connectionType;
-
-        int connectionStatus;
-
     public:
         /// Only use a single connection instance
         static ConnectionManager &getInstance()
@@ -65,56 +54,13 @@ namespace cli
             return connectionManager;
         }
 
-        std::string connectionEnumToString(Connection f_connectionType)
-        {
-            switch (f_connectionType)
-            {
-            case Connection::secure:
-                return ("secure");
-                break;
-            case Connection::insecure:
-                return ("insecure");
-                break;
-            default:
-                return ("default");
-            }
-        }
-
-        /// Get CommandlineArgs from Main. Needed for Deciding which Channel to build
-
-        void getConnectionStatus(const int f_connectionStatus)
-        // Is static here ok? For me Connection status is const, that is why i used static here. If static is not ok, gereate connectionmanager-object in gwhisper.cpp
-        {
-            if (f_connectionStatus)
-                // if ((f_connectionStatus == connection::insecure) || (f_connectionStatus == connection::secure) || (f_connectionStatus == connection::default))
-                if ((f_connectionStatus == 0) || (f_connectionStatus == 1) || (f_connectionStatus == 2))
-                {
-                    connectionStatus = f_connectionStatus;
-                    //std::cout << "Connection Status: " << f_connectionStatus << std::endl;
-                }
-                else
-                {
-                    std::cerr << "Could not set Connection Status" << std::endl;
-                }
-        }
-
-        int getConnectionStatus()
-        {
-            //not sure if getter is needed.
-            return connectionStatus;
-        }
-
         /// To get the channel according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
         /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
         /// @returns the channel of the corresponding server address.
         std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree)
-        //should f_parseTree be a pointer?
         {
             if (!findChannelByAddress(f_serverAddress))
             {
-                //Connection connectionType; Singleton richtig angesprochen?
-                //ConnectionManager::parseTree = f_parseTree;
-
                 registerConnection(f_serverAddress, f_parseTree);
             }
             return connections[f_serverAddress].channel;
@@ -209,7 +155,6 @@ namespace cli
             ConnList connection;
             std::shared_ptr<grpc::ChannelCredentials> creds;
             std::shared_ptr<grpc::ChannelCredentials> channelCreds;
-            std::string debugString;
 
             if (f_parseTree.findFirstChild("ssl") != "")
             {
@@ -222,15 +167,13 @@ namespace cli
                 std::string sslClientKeyPath = f_parseTree.findFirstChild("FileClientKey");
                 std::string sslServerCertPath = f_parseTree.findFirstChild("FileServerCert");
 
-                debugString = "CREATE SECURE CAHNNEL WITH USER-PROVIDED CREDENTIALS";
+                // debugString = "CREATE SECURE CAHNNEL WITH USER-PROVIDED CREDENTIALS";
                 channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);
-                // checkCredentials(debugString, channelCreds, f_serverAddress);
                 connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
             }
             else
             {
-                //create insecure channel by default
-                debugString = "CREATE INSECURE CAHNNEL";
+                // create insecure channel by default
                 connection.channel = grpc::CreateChannel(f_serverAddress, grpc::InsecureChannelCredentials());
             }
 
@@ -240,17 +183,35 @@ namespace cli
             connections[f_serverAddress] = connection;
         }
 
-        /// Takes the contents of key/ certificate files and transforms them into gRPC SSL/TLS credentials
-        /// If file is empty (i.e. user does not provide path to such a file) the default roots will be used (see gRPC SslCredentials).
-        /// @param f_sslClientCertPath Path to client certificate provided as std::string
-        /// @param f_sslClientKeyPath Path to client private key provided as std::string
-        /// @param f_sslServerCretPath Path to server certificate provided as std::string
+        /// @param f_sslClientCertPath Path to client certificate. Provide certificate as .pem or .crt
+        /// @param f_sslClientKeyPath Path to client private key. Provide key as .pem or .key
+        /// @param f_sslServerCretPath Path to server certificate. Provide Certificate as .pem or .crt
         /// @return std::shared_ptr<grpc::ChannelCredentials> gRPC credentials as used for creating an SSL/TLS channel
         std::shared_ptr<grpc::ChannelCredentials> generateSSLCredentials(const std::string f_sslClientCertPath, const std::string f_sslClientKeyPath, const std::string f_sslServerCertPath)
         {
-            std::string clientKey = readFromFile(f_sslClientKeyPath);
-            std::string clientCert = readFromFile(f_sslClientCertPath);
-            std::string serverCert = readFromFile(f_sslServerCertPath);
+            std::string clientKey = gwhisper::util::readFromFile(f_sslClientKeyPath);
+            if (clientKey == "FAIL")
+            {
+                std::cerr << "Error while fetching clientKey from: " << f_sslClientKeyPath << std::endl;
+                std::cerr << "Failed to build secure channel" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            std::string clientCert = gwhisper::util::readFromFile(f_sslClientCertPath);
+            if (clientCert == "FAIL")
+            {
+                std::cerr << "Error while fetching clientCert from: " << f_sslClientCertPath << std::endl;
+                std::cerr << "Failed to build secure channel" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            std::string serverCert = gwhisper::util::readFromFile(f_sslServerCertPath);
+            if (serverCert == "FAIL")
+            {
+                std::cerr << "Error while fetching serverCert from: " << f_sslServerCertPath << std::endl;
+                std::cerr << "Failed to build secure channel" << std::endl;
+                exit(EXIT_FAILURE);
+            }
 
             grpc::SslCredentialsOptions sslOpts;
 
@@ -272,47 +233,6 @@ namespace cli
             std::shared_ptr<grpc::ChannelCredentials> creds = grpc::SslCredentials(sslOpts);
 
             return creds;
-        }
-
-        /// Function for reading contents of a file and returning them as a string
-        /// @param f_path Location of the file to read from as a string
-        /// @return File content as simple string
-        std::string readFromFile(const std::string f_path)
-        {
-            std::ifstream credFile(f_path);
-            const char *file = f_path.c_str();
-            if (file)
-            {
-
-                std::string str{std::istreambuf_iterator<char>(credFile),
-                                std::istreambuf_iterator<char>()};
-                return str;
-            }
-            else
-            {
-                std::cout << "No cert/key found at " << f_path << std::endl;
-                std::cout << "Failed to build secure channel";
-                exit(EXIT_FAILURE);
-            }
-        }
-
-        /// Function for debugging SSL-Credential Problems
-        /// @param f_debugString std::string that indicates Type of Connection for better readability
-        /// @param f_channelCreds std::shared_ptr<grpc::ChannelCredentials> Credentials used to open an SSL/TLS connection
-        /// @param f_serverAddress Address of the server used for SSL/TLS connection as a std::string
-        void checkCredentials(std::string f_debugString, std::shared_ptr<grpc::ChannelCredentials> f_channelCreds, std::string f_serverAddress)
-        {
-            if (!f_channelCreds)
-            {
-                std::cout << "No / Wrong Channel Credentials" << std::endl;
-            }
-            else
-            {
-                std::cout << "*****************************************************************************************************" << std::endl;
-                std::cout << f_debugString << std::endl;
-                std::cout << "At server-address: " << f_serverAddress << std::endl;
-                std::cout << "With Channel Credentials: " << f_channelCreds << std::endl;
-            }
         }
     };
 }

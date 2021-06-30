@@ -1,8 +1,0 @@
-gwhisper --complete=fish " 0.0.0.0:50051 examples.NestedTypeRpcs "
-NEW
-duplicateEverything1d	Duplicate all given content
-duplicateEverything2d	Duplicate all given content
-nestedEmpty	Takes a message with empty sub-message, does nothing
-getTime	Returns current time
-echoRecursiveMaps
-echoNestedMaps	Echo given datastructure containing maps
