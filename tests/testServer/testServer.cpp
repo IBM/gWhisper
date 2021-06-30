@@ -98,7 +98,7 @@ int main(int argc, char **argv)
     }
 
     std::string serverCert = gwhisper::util::readFromFile(serverCertPath);
-    std::cout << "Server: File content of " << serverCertPath << ": " << serverCertPath << std::endl;
+    std::cout << "Server: File content of " << serverCertPath << ": " << serverCert << std::endl;
     if (serverCert == "FAIL")
     {
         std::cout << "No server cert found at " << serverCertPath << std::endl;
@@ -107,7 +107,7 @@ int main(int argc, char **argv)
     }
 
     std::string clientCert = gwhisper::util::readFromFile(clientCertPath);
-    std::cout << "Server: File content of " << clientCertPath << ": " << clientCertPath << std::endl;
+    std::cout << "Server: File content of " << clientCertPath << ": " << clientCert << std::endl;
     if (clientCert == "FAIL")
     {
         std::cout << "No client cert found at " << clientCertPath << std::endl;
