@@ -34,17 +34,17 @@ RPC succeeded :D
 
 #START_TEST SSL with unsecure port
 @@CMD@@ --ssl --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50051 examples.NestedTypeRpcs echoNestedMaps
-/.* Handshake failed with fatal error SSL_ERROR_SSL: .*
-/.* Handshake failed with fatal error SSL_ERROR_SSL: .*
+/.*SSL_ERROR_SSL.*
+?.*SSL_ERROR_SSL.*
 Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.
 Grammar could not be fetched from the server address: 'localhost:50051'
 #END_TEST
 
 #START_TEST no SSL with SSL-Port
 @@CMD@@ localhost:50443 examples.ScalarTypeRpcs echoNestedMaps
-Error: Could not retrieve service list.
+/Error: .*
 Grammar could not be fetched from the server address: 'localhost:50443'
-/.*
+?.*
 #END_TEST
 
 #START_TEST setting credentials without --ssl
@@ -136,8 +136,8 @@ Grammar could not be fetched from the server address: 'localhost:50443'
 
 #START_TEST secure gRPC with missing serverCert at default location
 @@CMD@@ --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
-/.* Handshake failed with fatal error SSL_ERROR_SSL: .* routines:tls_process_server_certificate:certificate verify failed.
-/.* Handshake failed with fatal error SSL_ERROR_SSL: .* routines:tls_process_server_certificate:certificate verify failed.
+/.*SSL_ERROR_SSL.*
+?.*SSL_ERROR_SSL.*
 Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.
 Grammar could not be fetched from the server address: 'localhost:50052'
 #END_TEST

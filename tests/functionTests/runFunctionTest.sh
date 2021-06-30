@@ -80,14 +80,32 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         ((numTests=numTests+1))
         fail=false
         failtext=""
-        if [ ${#received[@]} -ne ${#expected[@]} ]; then
-            fail=true
-            failtext="expected and received length do not match."
-        else
+        #if [ ${#received[@]} -ne ${#expected[@]} ]; then
+        #    fail=true
+        #    failtext="expected and received length do not match."
+        #else
             idx=0
             for expectedLine in "${expected[@]}"
             do
-                if [ ${expectedLine:0:1} = "/" ]; then
+                if [ ${#received[@]} -le $idx ]; then
+                    # prevent over reading the received arrwy
+                    if [ ${expectedLine:0:1} = "?" ]; then
+                        continue;
+                    else
+                        failtext="line $(((idx+1))) expected more lines."
+                        break;
+                    fi
+                fi;
+                if [ ${expectedLine:0:1} = "?" ]; then
+                    # optional regex
+                    expectedLine=${expectedLine:1}
+                    if ! [[ ${received[$idx]} =~ $expectedLine ]]; then
+                        fail=true
+                        failtext="line $(((idx+1))) received text '${received[$idx]}' does not match optional expected regex '$expectedLine'. skipping."
+                        continue
+                    fi
+                elif [ ${expectedLine:0:1} = "/" ]; then
+                    # mandatory regex
                     expectedLine=${expectedLine:1}
                     if ! [[ ${received[$idx]} =~ $expectedLine ]]; then
                         fail=true
@@ -95,6 +113,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
                         break
                     fi
                 else
+                    # mandatory exact match
                     if [ "$expectedLine" != "${received[$idx]}" ]; then
                         fail=true
                         failtext="line $(((idx+1))) received text '${received[$idx]}' and expected text '$expectedLine' does not match."
@@ -103,6 +122,10 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
                 fi
                 ((idx=idx+1))
             done
+        #fi;
+        if [ ${#received[@]} -ne $idx ]; then
+            fail=true
+            failtext="expected number of lines ${idx} (of ${#expected[@]}) and received number of lines ${#received[@]} do not match!"
         fi;
         if [ $fail = true ]; then
             failedTests+=("line: ${testline}, name: '${testname}'")
