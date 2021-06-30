@@ -42,7 +42,7 @@ Grammar could not be fetched from the server address: 'localhost:50051'
 
 #START_TEST no SSL with SSL-Port
 @@CMD@@ localhost:50443 examples.ScalarTypeRpcs echoNestedMaps
-Error: Could not retrieve service list.
+/Error: .*
 Grammar could not be fetched from the server address: 'localhost:50443'
 /.*
 #END_TEST
