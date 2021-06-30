@@ -101,7 +101,6 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
                     expectedLine=${expectedLine:1}
                     if ! [[ ${received[$idx]} =~ $expectedLine ]]; then
                         fail=true
-                        failtext="line $(((idx+1))) received text '${received[$idx]}' does not match optional expected regex '$expectedLine'. skipping."
                         continue
                     fi
                 elif [ ${expectedLine:0:1} = "/" ]; then
