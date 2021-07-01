@@ -11,21 +11,23 @@ namespace gwhisper
         /// @return File content as simple string
         std::string readFromFile(const std::string f_path)
         {
-            std::ifstream credFile(f_path);
-            const char *file = f_path.c_str();
-            if (file)
+            std::ifstream credFile;
+            credFile.open(f_path);
+
+            if (!credFile)
+            {
+                return ("FAIL");
+            }
+
+            else
             {
 
                 std::string str{std::istreambuf_iterator<char>(credFile),
                                 std::istreambuf_iterator<char>()};
                 return str;
-            }
-            else
-            {
+
                 //std::cerr << "File not found at: " << f_path << std::endl;
-                return ("FAIL");
             }
         }
     }
-
 }
