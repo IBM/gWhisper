@@ -37,31 +37,28 @@ Quick links:
 Release version: [download](https://github.com/IBM/gWhisper/releases/latest)  
 Development version: `git clone https://github.com/IBM/gWhisper.git`
 
-We try to keep the master branch stable. So if you experience bugs / missing features in the latest release, feel free to try the development version.  
-
 ### Prerequisites
 
 To be able to build and/or run gWhisper, you need to at least have the following dependencies installed on your system:
 
 - __cmake__
-- A C++ compiler
-- __gRPC__ [link](https://github.com/grpc/grpc)  
-  including the protoc plugin, which is packaged separately in some linux distributions
-- __protocolBuffers__ [link](https://github.com/protocolbuffers/protobuf)
+- A C++ compiler, e.g. __gcc__
 - Either __bash__, __fish__(>=v2.6) or __zsh__ shell
+- __openssl__ (If building the test server)
+
+If you have gRPC installed on your system this will be used to build against,
+otherwise the gWhisper build system will download, build and statically link
+gRPC automatically.
 
 You can install the prerequisites with:
 
 Fedora:
 
-    dnf install cmake gcc gcc-c++ protobuf protobuf-devel grpc grpc-devel grpc-plugins
+    dnf install cmake gcc gcc-c++
 
 Arch Linux:
-  
-    pacman -S cmake gcc protobuf protobuf-c grpc
 
-On some (e.g. ubuntu 16.04) distributions we tried, gRPC and/or protobuf packages seem to be not available, outdated or incomplete (missing gRPC protoc plugin).
-In this case, please build and install gRPC and protocolBuffers from the official sources.
+    pacman -S cmake gcc
 
 ### Build
 
@@ -92,6 +89,35 @@ If you are using zsh, add the following lines to your `~/.zshrc` for tab-complet
 
     autoload bashcompinit && bashcompinit
     source /usr/share/bash-completion/completions/gwhisper
+
+### Advanced building
+
+If you plan to build gWhisper for packaging or as a developer / contributor the
+following information might be useful.
+
+#### Directly use CMake to build
+
+Follow the usual cmake flow:
+
+   mkdir build
+   cd build
+   cmake .. <cmake-options>
+   make -j<numCores>
+
+#### CMake options
+You can list gWhisper related build options via
+
+   cmake -LAH .. | grep --context 1 GWHISPER
+
+The following are the most relevant options:
+
+- `GWHISPER_BUILD_TESTS` (default = OFF): Build unit and functional tests
+- `GWHISPER_BUILD_TESTSERVER` (default = ON): Build the testserver. This requires openssl to be installed for certificate creation.
+- `GWHISPER_FORCE_BUILDING_GRPC` (default = OFF): Do not use a system installation of gRPC even if found. Instead always download and build gRPC from source
+
+You can set options in cmake with the `-D` flag. For example:
+
+   cmake .. -D GWHISPER_BUILD_TESTSERVER=OFF
 
 ## Examples and Test-Server
 Every element except the hostname in the following example CLI invocations can be tab-completed in the bash, fish or zsh shell.
