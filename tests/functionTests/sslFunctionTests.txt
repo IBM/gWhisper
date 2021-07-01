@@ -131,9 +131,6 @@ Error: Could not establish Channel. Try checking network connection, hostname or
 Grammar could not be fetched from the server address: 'localhost:50443'
 #END_TEST
 
-# TODO-Test: secure gRPC with serverCert at default location
-# ./gwhisper --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
-
 #START_TEST secure gRPC with missing serverCert at default location
 @@CMD@@ --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
 /.*SSL_ERROR_SSL.*
@@ -141,5 +138,7 @@ Grammar could not be fetched from the server address: 'localhost:50443'
 Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.
 Grammar could not be fetched from the server address: 'localhost:50052'
 #END_TEST
- 
+
+#START TEST secure gRPC with invalid / non-existent key/cert file
+@@CMD@@ --ssl --clientCert=@@PTB@@/cert-key-pair/client_crt.pem --serverCert=@@PTB@@/cert-key-pair/blubb.bla localhost:50052 examples.NestedTypeRpcs echoNestedMaps
 
