@@ -14,7 +14,6 @@
 
 include_guard()
 if(NOT GWHISPER_FORCE_BUILDING_GRPC)
-    message("Using binary/preinstalled gRPC")
     # find grpc + protobuf libs and code generators:
     find_library(LIB_PROTOBUF protobuf)
     find_library(LIB_GRPC grpc)
@@ -62,7 +61,7 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
     FetchContent_Declare(
         gRPC
         GIT_REPOSITORY https://github.com/grpc/grpc
-        GIT_TAG        v1.38.0  
+        GIT_TAG        v1.38.0
     )
     set(FETCHCONTENT_QUIET ON)
     message("Downloading gRPC and its dependencies. This might take a while...")

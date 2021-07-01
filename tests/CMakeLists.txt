@@ -13,6 +13,7 @@
 # limitations under the License.
 
 if(GWHISPER_BUILD_TESTS)
+    message("Building unit and functional tests")
     include(FetchContent)
     message("Fetching googletest")
     FetchContent_Declare (
@@ -31,7 +32,10 @@ if(GWHISPER_BUILD_TESTS)
     add_subdirectory(unitTests)
     add_subdirectory(functionTests)
 else()
-    message(WARNING "Not building unit and functional tests - test server is still built")
+    message("Not building unit and functional tests")
 endif()
 
-add_subdirectory(testServer)
+if(GWHISPER_BUILD_TESTSERVER OR GWHISPER_BUILD_TESTS)
+    message("Building testserver")
+    add_subdirectory(testServer)
+endif()

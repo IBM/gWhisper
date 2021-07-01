@@ -34,9 +34,11 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ################################################################################
 
+option(GWHISPER_BUILD_TESTSERVER "Build a test server, which may be used to play around with gWhisper. It is also used by automated functional tests." ON)
+
 ################################################################################
 # BUILD TESTS
-option(GWHISPER_BUILD_TESTS "Build unit and functional tests - needs active internet connection for googletest" ON)
+option(GWHISPER_BUILD_TESTS "Build unit and functional tests - needs active internet connection for googletest" OFF)
 if(GWHISPER_BUILD_TESTS)
     enable_testing()
     message("Testing Enabled: Building unit and functional tests")
@@ -47,7 +49,6 @@ endif()
 
 ################################################################################
 
-#option(USE_PRE_INSTALLED_GRPC "Try to use gRPC++ and protobufer from host system" ON)
 option(GWHISPER_FORCE_BUILDING_GRPC "Fetch, build and statically link against gRPC even if gRPC is found to be installed" OFF)
 include(gRPC)
 
