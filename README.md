@@ -66,7 +66,7 @@ Build the code
 
     ./build.sh
 
-Executables are now available in the `build` folder.
+Executables are now available in the `build/bin` folder.
 
 
 If you do not want to [install](#Install) gWhisper, you need to source the completion file (for tab completion):  
@@ -99,15 +99,15 @@ following information might be useful.
 
 Follow the usual cmake flow:
 
-   mkdir build
-   cd build
-   cmake .. <cmake-options>
-   make -j<numCores>
+    mkdir build
+    cd build
+    cmake .. <cmake-options>
+    make -j<numCores>
 
 #### CMake options
 You can list gWhisper related build options via
 
-   cmake -LAH .. | grep --context 1 GWHISPER
+    cmake -LAH .. | grep --context 1 GWHISPER
 
 The following are the most relevant options:
 
@@ -117,7 +117,7 @@ The following are the most relevant options:
 
 You can set options in cmake with the `-D` flag. For example:
 
-   cmake .. -D GWHISPER_BUILD_TESTSERVER=OFF
+    cmake .. -D GWHISPER_BUILD_TESTSERVER=OFF
 
 ## Examples and Test-Server
 Every element except the hostname in the following example CLI invocations can be tab-completed in the bash, fish or zsh shell.
