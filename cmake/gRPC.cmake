@@ -112,7 +112,7 @@ function(add_protobuf_grpc_lib _lib_name  )
     set_target_properties(${_lib_name} PROPERTIES _proto_include ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries( ${_lib_name}
         PUBLIC
-        -Wl,--push-state,--no-as-needed,--whole-archive ${LIB_PROTOBUF} pthread  -Wl,--pop-state
+        ${LIB_PROTOBUF} pthread
         ${LIB_GRPC++}
         ${LIB_GRPC}
         PRIVATE
