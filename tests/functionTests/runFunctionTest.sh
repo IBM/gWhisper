@@ -32,8 +32,8 @@
 # cli arguments
 gwhisper=$1
 testServer=$2
-testFile=$3
-testResources=$cmake_binary_dir/tests/functionTests/resources
+testFile=$4
+testResources=$3
 
 # colors
 RED='\033[0;31m'
