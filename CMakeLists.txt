@@ -36,8 +36,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ################################################################################
 # BUILD TESTS
-option(BUILD_TESTS "Build unit and functional tests - needs active internet connection for googletest" ON)
-if(BUILD_TESTS)
+option(GWHISPER_BUILD_TESTS "Build unit and functional tests - needs active internet connection for googletest" ON)
+if(GWHISPER_BUILD_TESTS)
     enable_testing()
     message("Testing Enabled: Building unit and functional tests")
     message("Testing Enabled: Need access to github to be successful")
@@ -47,7 +47,8 @@ endif()
 
 ################################################################################
 
-option(USE_PRE_INSTALLED_GRPC "Try to use gRPC++ and protobufer from host system" ON)
+#option(USE_PRE_INSTALLED_GRPC "Try to use gRPC++ and protobufer from host system" ON)
+option(GWHISPER_FORCE_BUILDING_GRPC "Fetch, build and statically link against gRPC even if gRPC is found to be installed" OFF)
 include(gRPC)
 
 if(BUILD_CONFIG_USE_BOOST_REGEX)

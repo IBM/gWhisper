@@ -13,7 +13,7 @@
 # limitations under the License.
 
 include_guard()
-if(USE_PRE_INSTALLED_GRPC)
+if(NOT GWHISPER_FORCE_BUILDING_GRPC)
     message("Using binary/preinstalled gRPC")
     # find grpc + protobuf libs and code generators:
     find_library(LIB_PROTOBUF protobuf)
@@ -23,7 +23,30 @@ if(USE_PRE_INSTALLED_GRPC)
     find_library(LIB_GPR gpr)
     find_program (PROTOC protoc)
     find_program (PROTOC_GRPC_PLUGIN grpc_cpp_plugin)
-else()
+
+    if(
+            LIB_PROTOBUF STREQUAL "LIB_PROTOBUF-NOTFOUND"
+            OR
+            LIB_GRPC                STREQUAL "LIB_GRPC-NOTFOUND"
+            OR
+            LIB_GRPC++              STREQUAL "LIB_GRPC++-NOTFOUND"
+            OR
+            LIB_GRPC++_REFLECTION   STREQUAL "LIB_GRPC++_REFLECTION-NOTFOUND"
+            OR
+            LIB_GPR                 STREQUAL "LIB_GPR-NOTFOUND"
+            OR
+            PROTOC                  STREQUAL "PROTOC-NOTFOUND"
+            OR
+            PROTOC_GRPC_PLUGIN      STREQUAL "PROTOC_GRPC_PLUGIN-NOTFOUND"
+      )
+        message("No gRPC installation found on this system.")
+        set(GRPC_NOT_FOUND TRUE)
+    else()
+        message("gRPC installation found on the system, using this. If you do not want this and instead want CMake to download, build and statically link against gRPC, use '-D GWHISPER_FORCE_BUILDING_GRPC=ON'")
+    endif()
+endif()
+
+if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
     message("Building gRPC from source")
     message("Disable testing for gRPCthird party dependency re2")
     set(RE2_BUILD_TESTING CACHE BOOL OFF FORCE)
@@ -42,7 +65,9 @@ else()
         GIT_TAG        v1.38.0  
     )
     set(FETCHCONTENT_QUIET ON)
+    message("Downloading gRPC and its dependencies. This might take a while...")
     FetchContent_MakeAvailable(gRPC)
+    message("Download of gRPC finished")
     # Since FetchContent uses add_subdirectory under the hood, we can use
     # the grpc targets directly from this build.
     set(LIB_PROTOBUF "libprotobuf" CACHE STRING "Libprotobuf" FORCE )

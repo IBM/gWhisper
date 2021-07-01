@@ -12,22 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(BUILD_TESTS)
-    include(FetchContent)
-    message("Fetching googletest")
-    FetchContent_Declare (
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG release-1.11.0
-    )
-    FetchContent_GetProperties(googletest)
-    if(NOT googletest_POPULATED)
-        message("Fetching googletest - populating")
-        FetchContent_Populate(googletest)
-        add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
-    endif()
-    message("Fetching googletest - done")
-endif()
-
-
 add_subdirectory(gRPC_utils)
