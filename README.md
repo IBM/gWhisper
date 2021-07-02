@@ -49,7 +49,7 @@ Mandatory:
 
 Optional:
 
-- __openssl__ Required if building the test server to generate test certificates. To disable building the test server see [Advanced Building](#Advanced building)
+- __openssl__ Required if building the test server to generate test certificates. To disable building the test server see [Advanced Building](#advanced-building)
 - __gRPC__ If you have gRPC installed on your system this will be used to build against,
 otherwise the gWhisper build system will download, build and statically link
 gRPC automatically.
