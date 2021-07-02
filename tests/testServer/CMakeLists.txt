@@ -29,6 +29,11 @@ add_protobuf_grpc_lib( ${TARGET_NAME}_protobuf PROTO_SOURCES examples.proto LINK
 
 add_executable(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
 
+set_target_properties(
+    ${TARGET_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    )
+
 
 target_link_libraries(${TARGET_NAME}
     PUBLIC

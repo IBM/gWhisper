@@ -46,9 +46,11 @@ if(NOT GWHISPER_FORCE_BUILDING_GRPC)
 endif()
 
 if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
-    message("Building gRPC from source")
-    message("Disable testing for gRPCthird party dependency re2")
+    message("Using gRPC built from source")
+
+    # Try to disable as much testing in gRPC as possible:
     set(RE2_BUILD_TESTING CACHE BOOL OFF FORCE)
+
     unset(LIB_PROTOBUF CACHE)
     unset(LIB_GRPC CACHE)
     unset(LIB_GRPC++ CACHE)
@@ -63,17 +65,18 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
         GIT_REPOSITORY https://github.com/grpc/grpc
         GIT_TAG        v1.38.0
     )
-    #set(grpc_BUILD_TESTS OFF) does not work
     set(FETCHCONTENT_QUIET ON)
-    message("Downloading gRPC and its dependencies. This might take a while...")
-    #FetchContent_MakeAvailable(grpc)
     FetchContent_GetProperties(grpc)
     if(NOT grpc_POPULATED)
+        message("Downloading gRPC and its dependencies. This might take a while...")
         FetchContent_Populate(grpc)
+        message("Download of gRPC finished")
     endif()
-    #add_subdirectory(${grpc_SOURCE_DIR} ${grpc_BINARY_DIR} EXCLUDE_FROM_ALL)
-    add_subdirectory(${grpc_SOURCE_DIR} ${grpc_BINARY_DIR})
-    message("Download of gRPC finished")
+    # Adding the "EXCLUDE_FROM_ALL" here, to prevent install targets to be added
+    # As we do not want to intsall whole gRPC and its depdendencies to the system.
+    # NOTE: This unfortunately does not work for tests, which causes us to do some
+    #       Hacks because of zlib tests being not disableable
+    add_subdirectory(${grpc_SOURCE_DIR} ${grpc_BINARY_DIR} EXCLUDE_FROM_ALL)
 
     # Since FetchContent uses add_subdirectory under the hood, we can use
     # the grpc targets directly from this build.

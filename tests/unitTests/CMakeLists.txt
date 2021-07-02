@@ -40,4 +40,18 @@ if(BUILD_CONFIG_USE_BOOST_REGEX)
     )
 endif()
 
+# This is an ugly workaround to build zlib examples, as I cannot manage to disable
+# zlib tests. They always run as part of gwhisper tests.
+# However, as I need to EXCLUDE_FROM_ALL for gRPC dependency to avoid installing
+# all gRPC stuff, I am not building the examples, which causes zlib test to fail.
+# by adding a dependency here, I enforce building of the zlib tests.
+# This is a limitation of FetchContent. If anyone knows how to solve this (do
+# not install anythinf and do not test anything from FetchContent depdendencies) please tell me.
+if (TARGET example)
+    add_dependencies(${TARGET_NAME} example)
+endif()
+if (TARGET example64)
+    add_dependencies(${TARGET_NAME} example64)
+endif()
+
 add_test(NAME UnitTests COMMAND ${TARGET_NAME})

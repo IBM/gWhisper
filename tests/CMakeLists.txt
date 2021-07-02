@@ -15,7 +15,6 @@
 if(GWHISPER_BUILD_TESTS)
     message("Building unit and functional tests")
     include(FetchContent)
-    message("Fetching googletest")
     FetchContent_Declare (
         googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
@@ -25,9 +24,9 @@ if(GWHISPER_BUILD_TESTS)
     if(NOT googletest_POPULATED)
         message("Downloading googletest...")
         FetchContent_Populate(googletest)
+        message("Download of googletest finished.")
     endif()
     add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
-    message("Download of googletest finished.")
 
     add_subdirectory(unitTests)
     add_subdirectory(functionTests)

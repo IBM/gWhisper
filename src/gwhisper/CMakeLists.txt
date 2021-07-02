@@ -40,6 +40,11 @@ target_link_libraries ( ${TARGET_NAME}
     generateHelpString
     )
 
+set_target_properties(
+    ${TARGET_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    )
+
 add_dependencies(${TARGET_NAME} compileCommands versionDefine)
 
 install(TARGETS ${TARGET_NAME}
