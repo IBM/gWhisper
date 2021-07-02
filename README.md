@@ -43,7 +43,7 @@ To be able to build and/or run gWhisper, you need to have the following dependen
 
 Mandatory:
 
-- __cmake__
+- __cmake__(>=3.14)
 - A C++ compiler, e.g. __gcc__
 - Either __bash__, __fish__(>=v2.6) or __zsh__ shell
 

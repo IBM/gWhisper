@@ -59,14 +59,22 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
 
     include(FetchContent)
     FetchContent_Declare(
-        gRPC
+        grpc
         GIT_REPOSITORY https://github.com/grpc/grpc
         GIT_TAG        v1.38.0
     )
+    #set(grpc_BUILD_TESTS OFF) does not work
     set(FETCHCONTENT_QUIET ON)
     message("Downloading gRPC and its dependencies. This might take a while...")
-    FetchContent_MakeAvailable(gRPC)
+    #FetchContent_MakeAvailable(grpc)
+    FetchContent_GetProperties(grpc)
+    if(NOT grpc_POPULATED)
+        FetchContent_Populate(grpc)
+    endif()
+    #add_subdirectory(${grpc_SOURCE_DIR} ${grpc_BINARY_DIR} EXCLUDE_FROM_ALL)
+    add_subdirectory(${grpc_SOURCE_DIR} ${grpc_BINARY_DIR})
     message("Download of gRPC finished")
+
     # Since FetchContent uses add_subdirectory under the hood, we can use
     # the grpc targets directly from this build.
     set(LIB_PROTOBUF "libprotobuf" CACHE STRING "Libprotobuf" FORCE )
