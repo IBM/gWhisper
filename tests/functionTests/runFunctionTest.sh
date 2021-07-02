@@ -29,7 +29,12 @@
 # If this line contains the string "@@PTB@@" it will be replaced with a path to 
 # the gwhisper build directory
 # All following lines until a line Starting with "#END_TEST" are the expected command
-# output. If one of those lines starts with a "/" the line is interpreted as a regex.
+# output.
+# If one of those lines starts with a "/" the line is interpreted as a regex.
+# If one of those lines starts with a "?" the line is interpreted as a regex,
+# but is optional. This means, if the regex does not match, the next expected
+# line is tried.
+
 
 # cli arguments
 build=$1
@@ -80,48 +85,43 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         ((numTests=numTests+1))
         fail=false
         failtext=""
-        #if [ ${#received[@]} -ne ${#expected[@]} ]; then
-        #    fail=true
-        #    failtext="expected and received length do not match."
-        #else
-            idx=0
-            for expectedLine in "${expected[@]}"
-            do
-                if [ ${#received[@]} -le $idx ]; then
-                    # prevent over reading the received arrwy
-                    if [ ${expectedLine:0:1} = "?" ]; then
-                        continue;
-                    else
-                        failtext="line $(((idx+1))) expected more lines."
-                        break;
-                    fi
-                fi;
+        idx=0
+        for expectedLine in "${expected[@]}"
+        do
+            if [ ${#received[@]} -le $idx ]; then
+                # prevent over reading the received arrwy
                 if [ ${expectedLine:0:1} = "?" ]; then
-                    # optional regex
-                    expectedLine=${expectedLine:1}
-                    if ! [[ ${received[$idx]} =~ $expectedLine ]]; then
-                        fail=true
-                        continue
-                    fi
-                elif [ ${expectedLine:0:1} = "/" ]; then
-                    # mandatory regex
-                    expectedLine=${expectedLine:1}
-                    if ! [[ ${received[$idx]} =~ $expectedLine ]]; then
-                        fail=true
-                        failtext="line $(((idx+1))) received text '${received[$idx]}' does not match expected regex '$expectedLine'."
-                        break
-                    fi
+                    continue;
                 else
-                    # mandatory exact match
-                    if [ "$expectedLine" != "${received[$idx]}" ]; then
-                        fail=true
-                        failtext="line $(((idx+1))) received text '${received[$idx]}' and expected text '$expectedLine' does not match."
-                        break
-                    fi
+                    fail=true
+                    failtext="line $(((idx+1))) expected more lines."
+                    break;
                 fi
-                ((idx=idx+1))
-            done
-        #fi;
+            fi;
+            if [ ${expectedLine:0:1} = "?" ]; then
+                # optional regex
+                expectedLine=${expectedLine:1}
+                if ! [[ ${received[$idx]} =~ $expectedLine ]]; then
+                    continue
+                fi
+            elif [ ${expectedLine:0:1} = "/" ]; then
+                # mandatory regex
+                expectedLine=${expectedLine:1}
+                if ! [[ ${received[$idx]} =~ $expectedLine ]]; then
+                    fail=true
+                    failtext="line $(((idx+1))) received text '${received[$idx]}' does not match expected regex '$expectedLine'."
+                    break
+                fi
+            else
+                # mandatory exact match
+                if [ "$expectedLine" != "${received[$idx]}" ]; then
+                    fail=true
+                    failtext="line $(((idx+1))) received text '${received[$idx]}' and expected text '$expectedLine' does not match."
+                    break
+                fi
+            fi
+            ((idx=idx+1))
+        done
         if [ ${#received[@]} -ne $idx ]; then
             fail=true
             failtext="expected number of lines ${idx} (of ${#expected[@]}) and received number of lines ${#received[@]} do not match!"
