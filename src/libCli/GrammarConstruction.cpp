@@ -56,7 +56,7 @@ namespace cli
 
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
-            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *(f_parseTree));
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *f_parseTree);
 
             if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
@@ -318,7 +318,7 @@ namespace cli
             std::string serverAddress = getServerUri(f_parseTree);
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << std::endl;
-            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *(f_parseTree));
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *f_parseTree);
 
             if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
@@ -367,7 +367,7 @@ namespace cli
             std::string serverAddress = getServerUri(f_parseTree);
 
             //std::cout << "Injecting Service grammar for " << serverAddress << std::endl;
-            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *(f_parseTree));
+            std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *f_parseTree);
 
             if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {

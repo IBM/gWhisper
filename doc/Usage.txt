@@ -74,6 +74,7 @@ OPTION:
 	The certificate should be in .pem or .crt format.
 	Use this optional parameter, if you want to specify a client certificate.
 	May be empty if client does not have a certificate chain.
+	As soon as --clientKey is set, a clientCert ist required
 	If the server requires a valid cert-key-pair and --clientCert is not set, 
 	the connection will fail.
 	If this option is used without using --ssl on a secure server,
@@ -84,7 +85,8 @@ OPTION:
 	The key should be in .pem or .key format.
 	Use this optional parameter, if you want to specify a client key.
 	May be empty (set with empty string) or not set at all, if server
-	does not require a valid client cert-key pair for authentication
+	does not require a valid client cert-key pair for authentication. 
+	If you set --clientKey you must provide the matching clientCert
 	If the server requires a valid cert-key-pair for authentication 
 	and the --clientKey is empty or not set, the connection will fail.
 	If this option is used without using --ssl on a secure server, 

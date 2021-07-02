@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <iostream>
-#include <fstream>
 
 #include <grpcpp/grpcpp.h>
 #include "ServiceScalarTypeRpcs.hpp"
@@ -89,7 +88,7 @@ int main(int argc, char **argv)
     // Get Credentials from Files and define them as  Server Key Cert Pair (needed to fill pem_key_cert_pairs vector of SslCredentialOptions)
     // Here we can change to chain of trust instead of selfsigned
     std::string serverKey = gwhisper::util::readFromFile(serverKeyPath);
-    std::cout << "Server: File content of " << serverKeyPath << ": " << serverKey << std::endl;
+    std::cout << "Reading server key from " << serverKeyPath << std::endl;
     if (serverKey == "FAIL")
     {
         std::cout << "No server key found at " << serverKeyPath << std::endl;
@@ -98,7 +97,7 @@ int main(int argc, char **argv)
     }
 
     std::string serverCert = gwhisper::util::readFromFile(serverCertPath);
-    std::cout << "Server: File content of " << serverCertPath << ": " << serverCert << std::endl;
+    std::cout << "Reading server cert from " << serverCertPath << std::endl;
     if (serverCert == "FAIL")
     {
         std::cout << "No server cert found at " << serverCertPath << std::endl;
@@ -107,7 +106,7 @@ int main(int argc, char **argv)
     }
 
     std::string clientCert = gwhisper::util::readFromFile(clientCertPath);
-    std::cout << "Server: File content of " << clientCertPath << ": " << clientCert << std::endl;
+    std::cout << "Reading client cert from " << clientCertPath << std::endl;
     if (clientCert == "FAIL")
     {
         std::cout << "No client cert found at " << clientCertPath << std::endl;

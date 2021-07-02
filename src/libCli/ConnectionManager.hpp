@@ -14,8 +14,6 @@
 
 #pragma once
 
-#include <fstream>
-
 #include "utils/gwhisperUtils.hpp"
 
 #include <grpcpp/grpcpp.h>
@@ -189,44 +187,50 @@ namespace cli
         /// @return std::shared_ptr<grpc::ChannelCredentials> gRPC credentials as used for creating an SSL/TLS channel
         std::shared_ptr<grpc::ChannelCredentials> generateSSLCredentials(const std::string f_sslClientCertPath, const std::string f_sslClientKeyPath, const std::string f_sslServerCertPath)
         {
-            std::string clientKey = gwhisper::util::readFromFile(f_sslClientKeyPath);
-            if (clientKey == "FAIL")
-            {
-                std::cerr << "Error while fetching clientKey from: " << f_sslClientKeyPath << std::endl;
-                std::cerr << "Failed to build secure channel" << std::endl;
-                exit(EXIT_FAILURE);
-            }
 
-            std::string clientCert = gwhisper::util::readFromFile(f_sslClientCertPath);
-            if (clientCert == "FAIL")
-            {
-                std::cerr << "Error while fetching clientCert from: " << f_sslClientCertPath << std::endl;
-                std::cerr << "Failed to build secure channel" << std::endl;
-                exit(EXIT_FAILURE);
-            }
-
-            std::string serverCert = gwhisper::util::readFromFile(f_sslServerCertPath);
-            if (serverCert == "FAIL")
-            {
-                std::cerr << "Error while fetching serverCert from: " << f_sslServerCertPath << std::endl;
-                std::cerr << "Failed to build secure channel" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            std::string clientCert = "";
+            std::string clientKey = "";
+            std::string serverCert = "";
 
             grpc::SslCredentialsOptions sslOpts;
 
+            // Read credentials from files. If file is not found / cannot be opened terminate
+            // If no client key / cert were specified and a valid client key-cert pair is not required, continue without these files.
             if (f_sslClientKeyPath != "")
             {
+                clientKey = gwhisper::util::readFromFile(f_sslClientKeyPath);
+
+                if (clientKey == "FAIL")
+                {
+                    std::cerr << "Error while fetching clientKey from: " << f_sslClientKeyPath << std::endl;
+                    std::cerr << "Failed to build secure channel" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
                 sslOpts.pem_private_key = clientKey;
             }
 
             if (f_sslClientCertPath != "")
             {
+                clientCert = gwhisper::util::readFromFile(f_sslClientCertPath);
+
+                if (clientCert == "FAIL")
+                {
+                    std::cerr << "Error while fetching clientCert from: " << f_sslClientCertPath << std::endl;
+                    std::cerr << "Failed to build secure channel" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
                 sslOpts.pem_cert_chain = clientCert;
             }
 
             if (f_sslServerCertPath != "")
+                serverCert = gwhisper::util::readFromFile(f_sslServerCertPath);
             {
+                if (serverCert == "FAIL")
+                {
+                    std::cerr << "Error while fetching serverCert from: " << f_sslServerCertPath << std::endl;
+                    std::cerr << "Failed to build secure channel" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
                 sslOpts.pem_root_certs = serverCert;
             }
 
