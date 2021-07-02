@@ -49,23 +49,14 @@ Mandatory:
 
 Optional:
 
-- __openssl__ Required if building the test server to generate test certificates. To disable building the test server see [Advanced Building](#advanced-building)
+- __openssl__ Required if building the test server to generate test certificates. To disable building the test server have a look at [Advanced Building](#advanced-building)
 - __gRPC__ If you have gRPC installed on your system this will be used to build against,
 otherwise the gWhisper build system will download, build and statically link
 gRPC automatically.
 
-You can install the prerequisites with:
-
-Fedora:
-
-    dnf install cmake gcc gcc-c++
-
-Arch Linux:
-
-    pacman -S cmake gcc
-
 ### Build
-To simply build gWhisper in default configuration (includeing the test server),
+
+To simply build gWhisper in default configuration (including the test server),
 just execute
 
     ./build.sh
@@ -145,22 +136,6 @@ Feel free to use the _Test-Server_ shipped with gWhisper and try out gWhisper on
 It is located in `build/bin/testServer` and implements example RPCs which cover almost the
 complete gRPC and protocol buffers function set.
 
-## Escaping and special characters
-gWhisper control characters (` :,`) in string fields need to be escaped:
-
-    gwhisper 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=special: characters: :,::
-    2020-03-24 12:12:04: Received message:
-    | text = "SPECIAL CHARACTERS ,:"
-    RPC succeeded :D
-
-Shell control characters need to be escaped via shell mechanisms (works as expected):
-
-    gwhisper 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=shell: Characters::: \\\'\"\$
-    2020-03-24 12:14:51: Received message:
-    | text = "SHELL CHARACTERS: \'"$"
-    RPC succeeded :D
-
-
 ## Current development status
 
 Basic functionality is implemented, but you may experience bugs.
@@ -175,7 +150,7 @@ What is working:
 Some notable things which are not yet working:
 
 - Security: Authentication / Encryption of channels __(Planned in >=v4.0)__
-- Using Proto files instead of Reflection API (currently gWhisper only works with servers which have reflection enabled) __(Planned in >=v4.0)__
+- Using Proto files instead of Reflection API (currently gWhisper only works with servers which have reflection enabled)
 - Performance: Caching of reflection queries
 
 ## Supported platforms
