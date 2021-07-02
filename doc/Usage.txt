@@ -54,15 +54,15 @@ OPTION:
        call and reflection-based completion attempts are aborted.
 
  SSL connection options:
- 
-   --ssl 
+
+   --ssl
 	   Opens a secure channel with SSL/TLS for RPCs.
 	   Optionally you may use --clientCert, --clientKey and --serverCert to
 	   specify credentials.
 	   If the server is insecure (no SSL), not setting the --ssl option opens 
 	   an insecure connection without encryption and authentication.
 	   Building the connection fails, when using --ssl on a insecure server.
-	   
+
 	   Valid Examples: 
 	      gwhisper <host>
 	      gwhisper --ssl --serverCert=<path> --clientKey=<path> --clientCert=<path> <host>
@@ -74,24 +74,26 @@ OPTION:
 	   The certificate should be in .pem or .crt format.
 	   Use this optional parameter, if you want to specify a client certificate.
 	   May be empty if client does not have a certificate chain.
-	   If the server requires a valid cert-key-pair and --clientCert is not set, 
+	   As soon as --clientKey is set, a clientCert ist required
+	   If the server requires a valid cert-key-pair and --clientCert is not set,
 	   the connection will fail.
 	   If this option is used without using --ssl on a secure server,
-	   building the connection fails.	
+	   building the connection fails.
 
    --clientKey=[Path to Client-Private-Key]
 	   Set location to client private key file. 
 	   The key should be in .pem or .key format.
 	   Use this optional parameter, if you want to specify a client key.
 	   May be empty (set with empty string) or not set at all, if server
-	   does not require a valid client cert-key pair for authentication
-	   If the server requires a valid cert-key-pair for authentication 
+	   does not require a valid client cert-key pair for authentication.
+	   If you set --clientKey you must provide the matching clientCert
+	   If the server requires a valid cert-key-pair for authentication
 	   and the --clientKey is empty or not set, the connection will fail.
-	   If this option is used without using --ssl on a secure server, 
+	   If this option is used without using --ssl on a secure server,
 	   building the connection fails.
-	
+
    --serverCert
-	   Set location to client certificate file. 
+	   Set location to client certificate file.
 	   The certificate should be in .pem or .crt format.
 	   Use this optional parameter, if you want to specify a client certificate.
 	   If this option is not set, the default-roots will be used.
@@ -235,7 +237,7 @@ OUTPUT_FORMAT:
         in the RPC reply message. For each match (multiple in case of repeated
         field), The string `"Found device /device_name/\n"` is printed with
         `/device_name/` replaced by the value of the field `"device_name"`.
-    
+
         Write binary data to file:
         gwhisper --customOutput @.:/data%raw/: 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes data=0xabcd > file.bin
         This will redirect the data field of the reply message as raw binary
