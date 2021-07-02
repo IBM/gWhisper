@@ -13,12 +13,9 @@ This string will end up as part of the version string, returned when calling `gW
 ## Test environment
 gWhisper uses both function and unit testing. 
 
-To be able to build and run tests, initialize third-party submodules (this will download _googletest_)
+To be able to build and run tests, enable them in CMake
 
-    cd gWhisper
-    git submodule update --init
-
-Tests are not build or run if submodules are not initialized.
+    cmake .. -D GWHISPER_BUILD_TESTS=ON
 
 To execute all tests run
 
@@ -29,13 +26,8 @@ To execute all tests run
 ### Function tests
 For function testing we wrote a simple bash test framework which runs gWhisper against the testServer and compares the received output with te expected output. 
 The test framework is implemented in `tests/functionTests/runFunctionTest.sh`. 
-It receives two arguments:
-    1. A path to a directory where the test server and gWhisper executable is residing.
-    2. A test desctiprion file
-
-An example invocation looks like this:
-
-    ./runFunctionTest.sh ../../build/ rpcExecutionTests.txt
+The script receives several arguments to build paths. Best you look at the output
+of `ctest --verbose` to find out how to execute a single test in isolation.
 
 The test description file contains multiple tests like this example:
 

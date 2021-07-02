@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #include <libCli/GrammarConstruction.hpp>
-#include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
+#include <gRPC_utils/proto_reflection_descriptor_database.h>
 #include <libCli/cliUtils.hpp>
 #include <libCli/ConnectionManager.hpp>
-#include "protoDoc/protoDoc.pb.h"
+#include <protoDoc.pb.h>
 
 using namespace ArgParse;
 

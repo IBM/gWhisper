@@ -14,7 +14,7 @@
 
 #include <gtest/gtest.h>
 #include <libArgParse/ArgParse.hpp>
-#include <tests/unitTests/GrammarInjectorTest.cpp>
+#include "GrammarInjectorTest.cpp"
 
 using namespace ArgParse;
 
