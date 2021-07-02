@@ -6,7 +6,7 @@ and formats the replies in a human readable format.
 
 ![example invocation](doc/exampleHello.gif)
 
-The main design goals are:
+The main features are:
 
 - Reflection support (no proto files required)
 - Tab completion (currently supported in fish and bash) for
@@ -39,14 +39,18 @@ Development version: `git clone https://github.com/IBM/gWhisper.git`
 
 ### Prerequisites
 
-To be able to build and/or run gWhisper, you need to at least have the following dependencies installed on your system:
+To be able to build and/or run gWhisper, you need to have the following dependencies installed on your system:
+
+Mandatory:
 
 - __cmake__
 - A C++ compiler, e.g. __gcc__
 - Either __bash__, __fish__(>=v2.6) or __zsh__ shell
-- __openssl__ (If building the test server)
 
-If you have gRPC installed on your system this will be used to build against,
+Optional:
+
+- __openssl__ Required if building the test server to generate test certificates. To disable building the test server see [Advanced Building](#Advanced Building)
+- __gRPC__ If you have gRPC installed on your system this will be used to build against,
 otherwise the gWhisper build system will download, build and statically link
 gRPC automatically.
 
@@ -61,16 +65,18 @@ Arch Linux:
     pacman -S cmake gcc
 
 ### Build
-
-Build the code
+To simply build gWhisper in default configuration (includeing the test server),
+just execute
 
     ./build.sh
 
 Executables are now available in the `build/bin` folder.
 
 
-If you do not want to [install](#Install) gWhisper, you need to source the completion file (for tab completion):  
-`source ./complete.bash` or `source ./complete.fish`
+If you do not want to [install](#Install) gWhisper, you need to source the
+completion file (for tab completion):  
+
+    source ./complete.bash` or `source ./complete.fish
 
 ### Install
 
@@ -81,7 +87,7 @@ You may use the cmake-provided `install` target:
 
 Alternatively just copy the following files to the appropriate locations:
 
-    cp build/gwhisper /usr/local/bin/
+    cp build/bin/gwhisper /usr/local/bin/
     cp complete.bash /usr/share/bash-completion/completions/gwhisper
     cp complete.fish /usr/share/fish/vendor_completions.d/gwhisper.fish
 
@@ -92,12 +98,12 @@ If you are using zsh, add the following lines to your `~/.zshrc` for tab-complet
 
 ### Advanced building
 
-If you plan to build gWhisper for packaging or as a developer / contributor the
-following information might be useful.
+If you plan to build gWhisper for packaging or as a developer / contributor, the
+following information might be useful:
 
 #### Directly use CMake to build
 
-Follow the usual cmake flow:
+Follow the usual CMake flow:
 
     mkdir build
     cd build
@@ -115,7 +121,7 @@ The following are the most relevant options:
 - `GWHISPER_BUILD_TESTSERVER` (default = ON): Build the testserver. This requires openssl to be installed for certificate creation.
 - `GWHISPER_FORCE_BUILDING_GRPC` (default = OFF): Do not use a system installation of gRPC even if found. Instead always download and build gRPC from source
 
-You can set options in cmake with the `-D` flag. For example:
+You can set options in CMake with the `-D` flag. For example:
 
     cmake .. -D GWHISPER_BUILD_TESTSERVER=OFF
 
@@ -136,7 +142,7 @@ IPv6 address and explicit TCP port with an enum typed field:
     gwhisper [2001:db8::2:1]:50059 bakery orderCookies type=ChunkyStyle amount=0x7
 
 Feel free to use the _Test-Server_ shipped with gWhisper and try out gWhisper on your own.
-It is located in `build/testServer` and implements example RPCs which cover almost the
+It is located in `build/bin/testServer` and implements example RPCs which cover almost the
 complete gRPC and protocol buffers function set.
 
 ## Escaping and special characters
