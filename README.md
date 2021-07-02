@@ -24,7 +24,7 @@ Synopsis:
 Execute `gwhisper --help` or click [here](doc/Usage.txt) to get detailed information and examples on how to use the tool.
 
 Quick links:
-- [Manual](doc/Usage.txt)
+- [Usage Manual](doc/Usage.txt)
 - [Project scope](doc/PROJECT_SCOPE.md)
 - [Contributing](CONTRIBUTING.md)
 - [Technical Documentation for Developers](doc/Developer.md)
