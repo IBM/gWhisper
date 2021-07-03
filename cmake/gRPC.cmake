@@ -75,12 +75,12 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
     # Adding the "EXCLUDE_FROM_ALL" here, to prevent install targets to be added
     # As we do not want to intsall whole gRPC and its depdendencies to the system.
     # We do not want to build any tests from grpc
-    SET(BUILD_TESTING OFF)
+    set(BUILD_TESTING OFF)
     # The zlib module is not intended to be included as sub directory
     # Building tests without the neded dependencies, making
     # a regression run fail
     # zlib can be expected to be systemwide available
-    SET(gRPC_ZLIB_PROVIDER package)
+    set(gRPC_ZLIB_PROVIDER "package" CACHE STRING "force overwritten by gWhisper" FORCE )
     add_subdirectory(${grpc_SOURCE_DIR} ${grpc_BINARY_DIR} EXCLUDE_FROM_ALL)
 
     # Since FetchContent uses add_subdirectory under the hood, we can use
