@@ -62,13 +62,21 @@ namespace cli
             }
         }
 
+        // count trim size (how much do we need to trim)
+
         // Only complete until first whitespace of suggestion
         size_t found = out_suggestion.find(f_delim);
 
         if (found != std::string::npos)
         {
+           
+            if (found != (out_suggestion.size() - 1))
+            {
+                f_out_isTrimmed = true;
+            }
+            
             out_suggestion = out_suggestion.substr(0, found);
-            f_out_isTrimmed = true;
+            
         }
         return out_suggestion;
     }
@@ -139,15 +147,16 @@ namespace cli
             }
 
             // Only Add Documentation, if string was not trimmed
-            // In most casesa trimmed String means, that we complete with " " or ":". Those symbols do not need an documentation, hence we need to
+            // In most cases trimmed String means, that we complete with " " or ":". Those symbols do not need an documentation, hence we need to
             // remove the documentation provided by the untrimmed candidate
-            if (suggestion != "" && suggestion.back() != ':' && !isTrimmed)
+            if (suggestion != "" && suggestion.back() != ':' && !isTrimmed )
             {
                 if (!suggestionDoc.empty())
                 {
                     suggestion = suggestion + "\t" + suggestionDoc;
                 }
-            }
+            }    
+
 
             if (f_debug)
             {
