@@ -15,9 +15,6 @@ JSON is _semi_-human readable, however we found out that some aids can make data
 
 In the end we decided that machine-readability of gWhisper output is not really in the scope of gWhisper as a CLI debug tool. If we find out this functionality is really needed, we might add a flag to change this behavior
 
-### Do you support secure channels?
-Not yet, but we are planning this for version v0.4.
-
 ### What if my server does not support reflection?
 Currently your server needs to have reflection enabled.  
 However we are working on a solution to load grammar from protofiles instead from reflection API.

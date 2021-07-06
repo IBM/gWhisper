@@ -25,6 +25,7 @@ set(TARGET_SRC
     ServiceComplexTypeRpcs.cpp
     )
 
+
 # find grpc + protobuf libs and code generators:
 find_library(LIB_PROTOBUF protobuf)
 find_library(LIB_GRPC grpc)
@@ -72,8 +73,14 @@ set(PROTO_SRC examples.pb.cc examples.grpc.pb.cc)
 
 add_executable(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
 
+ADD_DEPENDENCIES(${TARGET_NAME}
+
+MakeKeyCert
+)
+
 target_link_libraries(${TARGET_NAME}
     ${GRPC_LIBS_REFLECTION}
     protoDoc
+    gwhisperUtils
     )
 

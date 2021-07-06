@@ -12,32 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required (VERSION 2.8)
-
-set(TARGET_NAME "cli")
+set(TARGET_NAME "gwhisperUtils")
 set(TARGET_SRC
-    ./MessageParsing.cpp
-    ./OutputFormatting.cpp
-    ./GrammarConstruction.cpp
-    ./Completion.cpp
-    ./Call.cpp
-    ./cliUtils.cpp
+    ./gwhisperUtils.cpp
     )
 add_library(${TARGET_NAME} ${TARGET_SRC})
 
-# need to link against gpr to be able to use GPR in cliUtils
-find_library(LIB_GPR gpr)
 
-target_link_libraries ( ${TARGET_NAME}
-    reflection
-    ArgParse
-    protoDoc
-    ${LIB_GPR}
-    gwhisperUtils
-    )
 
-if(BUILD_CONFIG_USE_BOOST_REGEX)
-    target_link_libraries (${TARGET_NAME}
-        boost_regex
-    )
-endif()
+
