@@ -26,8 +26,8 @@
 # a SINGLE line containing command is expected which will be executed in a sub-shell.
 # If this line contains the string "@@CMD@@" it will be replaced with a path to
 # the gwhisper executable.
-# If this line contains the string "@@PTB@@" it will be replaced with a path to 
-# the gwhisper build directory
+# If this line contains the string "@@PTC@@" it will be replaced with a path to 
+# the certificate directory directory
 # All following lines until a line Starting with "#END_TEST" are the expected command
 # output.
 # If one of those lines starts with a "/" the line is interpreted as a regex.
@@ -37,10 +37,11 @@
 
 
 # cli arguments
-build=$1
-gwhisper=$build/gwhisper
-testFile=$2
-testResources=$build/tests/functionTests/resources
+gwhisper=$1
+testServer=$2
+testFile=$5
+testResources=$3
+certs=$4
 
 # colors
 RED='\033[0;31m'
@@ -48,12 +49,12 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 # starting test server
-cd $build
-echo "Starting server: $build/testServer ...";
-$build/testServer &
+echo "Starting server: '$testServer --certBasePath $certs' ...";
+$testServer --certBasePath $certs &
 serverPID=$!
 sleep 0.2
 
+echo "Starting server: $testServer ...done";
 echo "Running Completion tests..."
 
 # state machine for parser
@@ -143,7 +144,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     if [[ $state = "PARSE_CMD" ]]; then
         cmd=${line//@@CMD@@/$gwhisper}
         echo " resolve cmd '$cmd'"
-        newLine=${cmd//@@PTB@@/$build}
+        newLine=${cmd//@@PTC@@/$certs}
         echo " execute new command '$newLine'"
         out=$(eval "$newLine 2>&1") # use eval here to correctly split args into arg array
         IFS=$'\n' received=($out)

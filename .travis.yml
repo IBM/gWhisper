@@ -13,11 +13,13 @@ cache: ccache
 
 before_install:
     - sudo apt-get update
-    - sudo apt-get install -y g++ cmake build-essential autoconf libtool pkg-config ccache
-    - ./travis/installGrpc.sh
+    - sudo apt-get install -y g++ cmake build-essential autoconf libtool pkg-config ccache openssl
+#    - ./travis/installGrpc.sh
 
 script:
-    - ./build.sh
+    - cmake --version
+    - gcc --version
+    - ./build.sh -D GWHISPER_BUILD_TESTS=ON
 #    - cppcheck --enable=warning,style,performance,portability,unusedFunction --std=c++11 -DGOOGLE_PROTOBUF_VERSION=3006001 --project=compile_commands.json --suppressions-list=travis/cppcheck_suppressions.txt --quiet
     - cd build
     - ctest --verbose

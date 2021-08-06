@@ -1,44 +1,64 @@
 # Copyright 2019 IBM Corporation
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.11)
 project (gWhisper)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-if(DEFINED CMAKE_BUILD_TYPE)
-else()
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+################################################################################
+# BUILD TYPE AND COMPILER FLAGS
+################################################################################
+# Need to check if CMAKE_BUILD_TYPE is empty, it is always defined, but empty by default
+if(NOT CMAKE_BUILD_TYPE)
     # By default we build in Debug mode. For releases,
     # please run CMAKE with
     # -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
     # non optimized with debug symbols:
-    set(CMAKE_BUILD_TYPE Debug)
+    message("Cmake Build type is not set setting: " ${CMAKE_BUILD_TYPE})
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
 endif()
+message("Build Type is set to: " ${CMAKE_BUILD_TYPE})
 
-if (CMAKE_VERSION VERSION_LESS "3.1")
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-    else()
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    endif()
-else()
-    set(CMAKE_CXX_STANDARD 11)
-endif()
-
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-enable_testing()
 
-if(BUILD_CONFIG_USE_BOOST_REGEX)
+
+################################################################################
+# BUILD OPTIONS
+################################################################################
+option(GWHISPER_BUILD_TESTSERVER "Build a test server, which may be used to play around with gWhisper. It is also used by automated functional tests." ON)
+option(GWHISPER_BUILD_TESTS "Build unit and functional tests - needs active internet connection for googletest" OFF)
+option(GWHISPER_FORCE_BUILDING_GRPC "Fetch, build and statically link against gRPC even if gRPC is found to be installed" OFF)
+option(GWHISPER_USE_BOOST_REGEX "Use Boost regex library instead of c++ standard library regex" OFF)
+
+################################################################################
+# MISC PROJECT SETUP
+################################################################################
+if(GWHISPER_BUILD_TESTS)
+    enable_testing()
+    message("Testing Enabled: Building unit and functional tests")
+    message("                 Need access to github to be successful")
+else()
+    message("Testing Disabled")
+endif()
+
+include(gRPC)
+
+if(GWHISPER_USE_BOOST_REGEX)
     add_definitions(-DBUILD_CONFIG_USE_BOOST_REGEX)
 endif()
 
@@ -48,17 +68,17 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
 # avoid to compile again when make install
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
-include_directories("${PROJECT_BINARY_DIR}")
-include_directories("${PROJECT_BINARY_DIR}/src")
-include_directories("${PROJECT_SOURCE_DIR}")
-include_directories("${PROJECT_SOURCE_DIR}/src")
 
+################################################################################
+# GWHISPER CODE COMPONENTS
+################################################################################
+add_subdirectory(third_party)
 add_subdirectory(src)
-
 add_subdirectory(tests)
 
-add_subdirectory(third_party)
-
+################################################################################
+# INSTALL RULES FOR TAB-COMPLETION
+################################################################################
 install(FILES complete.bash DESTINATION /usr/share/bash-completion/completions/ RENAME gwhisper)
 install(FILES complete.fish DESTINATION /usr/share/fish/vendor_completions.d/ RENAME gwhisper.fish)
 

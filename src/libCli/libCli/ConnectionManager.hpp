@@ -14,13 +14,13 @@
 
 #pragma once
 
+#include <gRPC_utils/proto_reflection_descriptor_database.h>
+
 #include "utils/gwhisperUtils.hpp"
 
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/security/credentials.h>
 #include <libArgParse/ArgParse.hpp>
-
-#include <third_party/gRPC_utils/proto_reflection_descriptor_database.h>
 
 namespace cli
 {

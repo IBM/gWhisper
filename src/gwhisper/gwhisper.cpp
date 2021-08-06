@@ -42,9 +42,9 @@ std::string getArgsAsString(int argc, char **argv)
     return result;
 }
 
-const char *g_helpString =
-#include <gwhisper/HelpString.h>
-    ;
+const char* g_helpString =
+#include <HelpString.h>
+;
 
 int main(int argc, char **argv)
 {

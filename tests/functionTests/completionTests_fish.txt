@@ -67,7 +67,7 @@ Possible Candidates:
 ##############################################################################
 
 #START_TEST complete Secure-gRPC with all Credentials
-@@CMD@@ --complete --ssl --clientCert=@@PTB@@/cert-key-pair/client_crt.pem --clientKey=@@PTB@@/cert-key-pair/client_key.pem --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps" "
+@@CMD@@ --complete --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps" "
 number_and_string=           (Simple sub-message)
 sub_message=        (Sub-message containing maps)
 simple_map_int=            (map uint32 -> uint32)
@@ -75,7 +75,7 @@ simple_map_string=         (Map string -> uint32)
 #END_TEST
 
 #START_TEST complete Secure-gRPC without key-cert pair
-@@CMD@@ --complete --ssl --serverCert=@@PTB@@/cert-key-pair/server_crt.pem localhost:50052 examples.NestedTypeRpcs echoNestedMaps" "
+@@CMD@@ --complete --ssl --serverCert=@@PTC@@/server_crt.pem localhost:50052 examples.NestedTypeRpcs echoNestedMaps" "
 number_and_string=           (Simple sub-message)
 sub_message=        (Sub-message containing maps)
 simple_map_int=            (map uint32 -> uint32)

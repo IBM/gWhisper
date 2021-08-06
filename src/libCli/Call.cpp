@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <libCli/Call.hpp>
-#include <third_party/gRPC_utils/cli_call.h>
+#include <gRPC_utils/cli_call.h>
 #include <google/protobuf/dynamic_message.h>
 #include <libCli/OutputFormatting.hpp>
 #include <libCli/ConnectionManager.hpp>
