@@ -64,8 +64,9 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
         grpc
         GIT_REPOSITORY https://github.com/grpc/grpc
         GIT_TAG        v1.38.0
+        GIT_PROGRESS TRUE
     )
-    set(FETCHCONTENT_QUIET ON)
+    set(FETCHCONTENT_QUIET OFF)
     FetchContent_GetProperties(grpc)
     if(NOT grpc_POPULATED)
         message("Downloading gRPC and its dependencies. This might take a while...")
@@ -73,7 +74,7 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
         message("Download of gRPC finished")
     endif()
     # Adding the "EXCLUDE_FROM_ALL" here, to prevent install targets to be added
-    # As we do not want to intsall whole gRPC and its depdendencies to the system.
+    # As we do not want to install whole gRPC and its depdendencies to the system.
     # We do not want to build any tests from grpc
     set(BUILD_TESTING OFF)
     # The zlib module is not intended to be included as sub directory
