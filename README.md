@@ -45,11 +45,11 @@ Mandatory:
 
 - __cmake__(>=3.11)
 - A C++ compiler, e.g. __gcc__
-- Either __bash__, __fish__(>=v2.6) or __zsh__ shell
+- Either __bash__, __fish__(>=v2.6)
 
 Optional:
 
-- __openssl__ Required if building the test server to generate test certificates. To disable building the test server have a look at [Advanced Building](#advanced-building)
+- __openssl__ Required if building the test server to generate test certificates. To disable building the test server, have a look at [Advanced Building](#advanced-building)
 - __gRPC__ If you have gRPC installed on your system this will be used to build against,
 otherwise the gWhisper build system will download, build and statically link
 gRPC automatically.
@@ -67,7 +67,7 @@ Executables are now available in the `build/bin` folder.
 If you do not want to [install](#Install) gWhisper, you need to source the
 completion file (for tab completion):  
 
-    source ./complete.bash` or `source ./complete.fish
+`source ./complete.bash` or `source ./complete.fish`
 
 ### Install
 
@@ -81,11 +81,6 @@ Alternatively just copy the following files to the appropriate locations:
     cp build/bin/gwhisper /usr/local/bin/
     cp complete.bash /usr/share/bash-completion/completions/gwhisper
     cp complete.fish /usr/share/fish/vendor_completions.d/gwhisper.fish
-
-If you are using zsh, add the following lines to your `~/.zshrc` for tab-completion support based on the bash completion script.
-
-    autoload bashcompinit && bashcompinit
-    source /usr/share/bash-completion/completions/gwhisper
 
 ### Advanced building
 
@@ -117,7 +112,7 @@ You can set options in CMake with the `-D` flag. For example:
     cmake .. -D GWHISPER_BUILD_TESTSERVER=OFF
 
 ## Examples and Test-Server
-Every element except the hostname in the following example CLI invocations can be tab-completed in the bash, fish or zsh shell.
+Every element except the hostname in the following example CLI invocations can be tab-completed in the bash or fish shell.
 
 
 Simple example of an unary RPC with only one field in the request message:
@@ -143,7 +138,7 @@ Feel free to try it out and provide feedback/contributions.
 
 What is working:
 
-- Tab Completion (bash, fish and zsh only)
+- Tab Completion (bash and fish only)
 - Calling RPCs (unary + streaming)
 - Input and output of all protocol buffer types
 
