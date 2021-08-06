@@ -81,3 +81,16 @@ add_subdirectory(tests)
 ################################################################################
 install(FILES complete.bash DESTINATION /usr/share/bash-completion/completions/ RENAME gwhisper)
 install(FILES complete.fish DESTINATION /usr/share/fish/vendor_completions.d/ RENAME gwhisper.fish)
+
+# Generate new Key-Cert Pairs every build.  
+# There is a bug regarding multiple output files in CMAKE 2.8.12.1 which is fixed in CMAKE 3.2 (https://cmake.org/Bug/view.php?id=15116).
+add_custom_command(
+OUTPUT cert-key-pair/ca.crt cert-key-pair/ca.key cert-key-pair/ca.srl cert-key-pair/client_crt.pem cert-key-pair/client_csr.pem cert-key-pair/client_key.pem cert-key-pair/server_crt.pem cert-key-pair/server_csr.pem cert-key-pair/server_key.pem
+COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cert-key-gen.sh ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_custom_target(
+MakeKeyCert
+DEPENDS cert-key-pair/ca.crt cert-key-pair/ca.key cert-key-pair/ca.srl cert-key-pair/client_crt.pem cert-key-pair/client_csr.pem cert-key-pair/client_key.pem cert-key-pair/server_crt.pem cert-key-pair/server_csr.pem cert-key-pair/server_key.pem
+)
+

@@ -24,7 +24,6 @@ set(TARGET_SRC
     ServiceComplexTypeRpcs.cpp
     )
 
-
 add_protobuf_grpc_lib( ${TARGET_NAME}_protobuf PROTO_SOURCES examples.proto LINK_PROTO_LIB protoDoc)
 
 add_executable(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
@@ -34,6 +33,11 @@ set_target_properties(
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
     )
 
+
+ADD_DEPENDENCIES(${TARGET_NAME}
+
+MakeKeyCert
+)
 
 target_link_libraries(${TARGET_NAME}
     PUBLIC
@@ -48,5 +52,6 @@ target_link_libraries(${TARGET_NAME}
     -Wl,--push-state,--no-as-needed,--whole-archive ${LIB_GRPC++_REFLECTION} -Wl,--pop-state
 
     protoDoc
+    gwhisperUtils
     )
 

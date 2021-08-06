@@ -18,6 +18,7 @@ add_subdirectory(libArgParse)
 add_subdirectory(libCli)
 add_subdirectory(gwhisper)
 add_subdirectory(version)
+add_subdirectory(utils)
 
 get_filename_component(BIN_DIR_ABS ${CMAKE_BINARY_DIR}/. DIRECTORY)
 get_filename_component(SRC_DIR_ABS ${CMAKE_SOURCE_DIR}/. DIRECTORY)
@@ -31,5 +32,4 @@ else()
     COMMAND cp ${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR}/compile_commands.json
     )
 endif()
-  
 

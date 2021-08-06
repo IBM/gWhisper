@@ -26,14 +26,22 @@
 # a SINGLE line containing command is expected which will be executed in a sub-shell.
 # If this line contains the string "@@CMD@@" it will be replaced with a path to
 # the gwhisper executable.
+# If this line contains the string "@@PTC@@" it will be replaced with a path to 
+# the certificate directory directory
 # All following lines until a line Starting with "#END_TEST" are the expected command
-# output. If one of those lines starts with a "/" the line is interpreted as a regex.
+# output.
+# If one of those lines starts with a "/" the line is interpreted as a regex.
+# If one of those lines starts with a "?" the line is interpreted as a regex,
+# but is optional. This means, if the regex does not match, the next expected
+# line is tried.
+
 
 # cli arguments
 gwhisper=$1
 testServer=$2
-testFile=$4
+testFile=$5
 testResources=$3
+certs=$4
 
 # colors
 RED='\033[0;31m'
@@ -41,8 +49,8 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 # starting test server
-echo "Starting server: $testServer ...";
-$testServer &
+echo "Starting server: '$testServer --certBasePath $certs' ...";
+$testServer --certBasePath $certs &
 serverPID=$!
 sleep 0.2
 
@@ -51,6 +59,7 @@ echo "Running Completion tests..."
 
 # state machine for parser
 state="FIND_TEST"
+pathToBuild=""
 cmd=""
 received=()
 expected=()
@@ -63,7 +72,7 @@ numTests=0
 # parse testcase file and execute tests
 while IFS='' read -r line || [[ -n "$line" ]]; do
     ((curline=curline+1))
-    #echo "Text read from file: $line"
+    # echo "Text read from file: $line"
 
     if [[ "$line" =~ ^#START_TEST ]] && [[ $state = "FIND_TEST" ]]; then
         testline=$curline
@@ -77,29 +86,46 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         ((numTests=numTests+1))
         fail=false
         failtext=""
-        if [ ${#received[@]} -ne ${#expected[@]} ]; then
-            fail=true
-            failtext="expected and received length do not match."
-        else
-            idx=0
-            for expectedLine in "${expected[@]}"
-            do
-                if [ ${expectedLine:0:1} = "/" ]; then
-                    expectedLine=${expectedLine:1}
-                    if ! [[ ${received[$idx]} =~ $expectedLine ]]; then
-                        fail=true
-                        failtext="line $(((idx+1))) received text '${received[$idx]}' does not match expected regex '$expectedLine'."
-                        break
-                    fi
+        idx=0
+        for expectedLine in "${expected[@]}"
+        do
+            if [ ${#received[@]} -le $idx ]; then
+                # prevent over reading the received arrwy
+                if [ ${expectedLine:0:1} = "?" ]; then
+                    continue;
                 else
-                    if [ "$expectedLine" != "${received[$idx]}" ]; then
-                        fail=true
-                        failtext="line $(((idx+1))) received and expected text does not match."
-                        break
-                    fi
+                    fail=true
+                    failtext="line $(((idx+1))) expected more lines."
+                    break;
                 fi
-                ((idx=idx+1))
-            done
+            fi;
+            if [ ${expectedLine:0:1} = "?" ]; then
+                # optional regex
+                expectedLine=${expectedLine:1}
+                if ! [[ ${received[$idx]} =~ $expectedLine ]]; then
+                    continue
+                fi
+            elif [ ${expectedLine:0:1} = "/" ]; then
+                # mandatory regex
+                expectedLine=${expectedLine:1}
+                if ! [[ ${received[$idx]} =~ $expectedLine ]]; then
+                    fail=true
+                    failtext="line $(((idx+1))) received text '${received[$idx]}' does not match expected regex '$expectedLine'."
+                    break
+                fi
+            else
+                # mandatory exact match
+                if [ "$expectedLine" != "${received[$idx]}" ]; then
+                    fail=true
+                    failtext="line $(((idx+1))) received text '${received[$idx]}' and expected text '$expectedLine' does not match."
+                    break
+                fi
+            fi
+            ((idx=idx+1))
+        done
+        if [ ${#received[@]} -ne $idx ]; then
+            fail=true
+            failtext="expected number of lines ${idx} (of ${#expected[@]}) and received number of lines ${#received[@]} do not match!"
         fi;
         if [ $fail = true ]; then
             failedTests+=("line: ${testline}, name: '${testname}'")
@@ -114,19 +140,25 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         state="FIND_TEST"
         continue
     fi
+
     if [[ $state = "PARSE_CMD" ]]; then
-        cmd=${line/@@CMD@@/$gwhisper}
-        echo " execute cmd '$cmd'"
-        out=$(eval "$cmd 2>&1") # use eval here to correctly split args into arg array
+        cmd=${line//@@CMD@@/$gwhisper}
+        echo " resolve cmd '$cmd'"
+        newLine=${cmd//@@PTC@@/$certs}
+        echo " execute new command '$newLine'"
+        out=$(eval "$newLine 2>&1") # use eval here to correctly split args into arg array
         IFS=$'\n' received=($out)
         state="PARSE_RESULT"
         expected=()
         continue
     fi
+
     if [[ $state = "PARSE_RESULT" ]]; then
-        expected+=($line)
+        expected+=("$line")
         continue
     fi
+
+   
 done < "$testFile"
 
 if [[ $state != "FIND_TEST" ]]; then

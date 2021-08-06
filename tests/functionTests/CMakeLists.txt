@@ -14,8 +14,12 @@
 
 set( gwhisper_exec $<TARGET_FILE:gwhisper> )
 set( testserver_exec $<TARGET_FILE:testServer> )
-add_test(NAME CompletionFunctionTests COMMAND ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.sh ${gwhisper_exec} ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests.txt)
+add_test(NAME CompletionFunctionTests COMMAND ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.sh ${gwhisper_exec} ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests.txt)
 
 add_test(NAME RpcExecutionTests COMMAND ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.sh ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_SOURCE_DIR}/tests/functionTests/rpcExecutionTests.txt)
 
-add_test(NAME CompletionFunctionTests_fish COMMAND ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.sh  ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests_fish.txt)
+add_test(NAME CompletionFunctionTests_fish COMMAND ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.sh ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests_fish.txt)
+
+add_test(NAME SslFuntionTests COMMAND ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.sh  ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/sslFunctionTests.txt)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/data.bin DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)

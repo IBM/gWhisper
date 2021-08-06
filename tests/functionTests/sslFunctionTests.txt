@@ -1,0 +1,144 @@
+# Copyright 2019 IBM Corporation
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+##############################################################################
+# Insecure Channel
+##############################################################################
+
+#START_TEST No SSL with unsecure port
+@@CMD@@ localhost:50051 examples.NestedTypeRpcs echoNestedMaps
+Warning: no Fields found in parseTree for message 'NestedMaps'
+/.* Received message:
+| number_and_string..... = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = ""
+| sub_message........... = {SubMessage}
+| | simple_map_int[0/0]... = {}
+| | simple_map_string[0/0] = {}
+| simple_map_int[0/0]... = {}
+| simple_map_string[0/0] = {}
+RPC succeeded :D
+#END_TEST
+
+#START_TEST SSL with unsecure port
+@@CMD@@ --ssl --serverCert=@@PTC@@/server_crt.pem localhost:50051 examples.NestedTypeRpcs echoNestedMaps
+/.*SSL_ERROR_SSL.*
+?.*SSL_ERROR_SSL.*
+Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.
+Grammar could not be fetched from the server address: 'localhost:50051'
+#END_TEST
+
+#START_TEST no SSL with SSL-Port
+@@CMD@@ localhost:50443 examples.ScalarTypeRpcs echoNestedMaps
+/Error: .*
+Grammar could not be fetched from the server address: 'localhost:50443'
+?.*
+#END_TEST
+
+#START_TEST setting credentials without --ssl
+@@CMD@@ --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50051 examples.NestedTypeRpcs echoNestedMaps
+Warning: no Fields found in parseTree for message 'NestedMaps'
+/.* Received message:
+| number_and_string..... = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = ""
+| sub_message........... = {SubMessage}
+| | simple_map_int[0/0]... = {}
+| | simple_map_string[0/0] = {}
+| simple_map_int[0/0]... = {}
+| simple_map_string[0/0] = {}
+RPC succeeded :D
+#END_TEST
+
+##############################################################################
+# Secure Channel with all certificates/keys
+##############################################################################
+
+#START_TEST complete Key/Cert-Options
+@@CMD@@ --complete --ssl --clientCert=@@PTC@@/client_crt.pem" "
+-h
+--help
+--ssl
+--clientCert=
+--clientKey=
+--serverCert=
+--complete
+--debugComplete
+--dot
+--noColor
+--color
+--version
+--printParsedMessage
+--noSimpleMapOutput
+--connectTimeoutMilliseconds=
+--customOutput
+unix:
+unix-abstract:
+dns:
+ipv4:
+ipv6:
+#END_TEST
+
+#START_TEST gRPC over Secure Channel 
+@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+Warning: no Fields found in parseTree for message 'NestedMaps'
+/.* Received message:
+| number_and_string..... = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = ""
+| sub_message........... = {SubMessage}
+| | simple_map_int[0/0]... = {}
+| | simple_map_string[0/0] = {}
+| simple_map_int[0/0]... = {}
+| simple_map_string[0/0] = {}
+RPC succeeded :D
+#END_TEST
+
+##############################################################################
+# Secure Channel with empty certificates/keys (if not user-defined)
+##############################################################################
+
+#START_TEST secure gRPC with missing Certificate/Key and server does not require cert-key-pair
+@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50052 examples.NestedTypeRpcs echoNestedMaps
+Warning: no Fields found in parseTree for message 'NestedMaps'
+/.* Received message:
+| number_and_string..... = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = ""
+| sub_message........... = {SubMessage}
+| | simple_map_int[0/0]... = {}
+| | simple_map_string[0/0] = {}
+| simple_map_int[0/0]... = {}
+| simple_map_string[0/0] = {}
+RPC succeeded :D
+#END_TEST
+
+#START_TEST secure gRPC with missing Certificate/Key and server requires cert-key-pair
+@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.
+Grammar could not be fetched from the server address: 'localhost:50443'
+#END_TEST
+
+#START_TEST secure gRPC with missing serverCert at default location
+@@CMD@@ --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
+/.*SSL_ERROR_SSL.*
+?.*SSL_ERROR_SSL.*
+Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.
+Grammar could not be fetched from the server address: 'localhost:50052'
+#END_TEST
+
+#START TEST secure gRPC with invalid / non-existent key/cert file
+@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/blubb.bla localhost:50052 examples.NestedTypeRpcs echoNestedMaps
+
