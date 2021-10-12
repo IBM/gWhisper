@@ -222,6 +222,14 @@ std::string OutputFormatter::fieldValueToString(const grpc::protobuf::Message & 
         }
     }
 
+    // Now we check if this field is set to a value:
+    if(not reflection->HasField(f_message, f_fieldDescriptor))
+    {
+            result += "[NOT SET]";
+            // no need to decode any further...
+            return result;
+    }
+
     switch(f_fieldDescriptor->type())
     {
         case grpc::protobuf::FieldDescriptor::Type::TYPE_SFIXED32:
