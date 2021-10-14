@@ -293,11 +293,14 @@ std::string OutputFormatter::fieldValueToString(const grpc::protobuf::Message & 
         case grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE:
             {
                 const google::protobuf::Message & subMessage = reflection->GetMessage(f_message, f_fieldDescriptor);
-                //result += ":\n";
                 result += colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
-                result += "\n";
-                result += messageToString(subMessage,f_fieldDescriptor->message_type(), f_initPrefix, f_currentPrefix+f_initPrefix);
-                //result += "\n" + f_currentPrefix + f_initPrefix + ":";
+                std::string formattedMessage = messageToString(subMessage,f_fieldDescriptor->message_type(), f_initPrefix, f_currentPrefix+f_initPrefix);
+                if(formattedMessage.size() != 0)
+                {
+                    // in case of a message with no fields this is empty.
+                    // we do not want to add a use-less newline in this case
+                    result += "\n" + formattedMessage;
+                }
             }
             break;
         default:

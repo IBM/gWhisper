@@ -33,6 +33,11 @@ class ServiceNestedTypeRpcs final : public examples::NestedTypeRpcs::Service
             const ::examples::NestedEmpty* request,
             ::google::protobuf::Empty* response
             ) override;
+    virtual  ::grpc::Status returnNestedMixedEmpty(
+            ::grpc::ServerContext* context,
+            const ::google::protobuf::Empty* request,
+            ::examples::NestedMixedEmpty* response
+            ) override;
     virtual  ::grpc::Status getTime(
             ::grpc::ServerContext* context,
             const ::google::protobuf::Empty* request,
