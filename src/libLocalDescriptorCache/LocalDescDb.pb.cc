@@ -14,9 +14,8 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
-extern PROTOBUF_INTERNAL_EXPORT_google_2fprotobuf_2fdescriptor_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<6> scc_info_FileDescriptorProto_google_2fprotobuf_2fdescriptor_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2fprotobuf_2ftimestamp_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_LocalDescDb_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_Host_LocalDescDb_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_LocalDescDb_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Host_LocalDescDb_2eproto;
 namespace localDescDb {
 class DescriptorDbDefaultTypeInternal {
  public:
@@ -53,10 +52,9 @@ static void InitDefaultsscc_info_Host_LocalDescDb_2eproto() {
   ::localDescDb::Host::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_Host_LocalDescDb_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_Host_LocalDescDb_2eproto}, {
-      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,
-      &scc_info_FileDescriptorProto_google_2fprotobuf_2fdescriptor_2eproto.base,}};
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Host_LocalDescDb_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Host_LocalDescDb_2eproto}, {
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_LocalDescDb_2eproto[2];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_LocalDescDb_2eproto = nullptr;
@@ -90,16 +88,13 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_LocalDescDb_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\021LocalDescDb.proto\022\013localDescDb\032\037google"
-  "/protobuf/timestamp.proto\032 google/protob"
-  "uf/descriptor.proto\"0\n\014DescriptorDb\022 \n\005h"
-  "osts\030\001 \003(\0132\021.localDescDb.Host\"\220\001\n\004Host\022\023"
-  "\n\013hostAddress\030\001 \001(\t\022.\n\nlastUpdate\030\002 \001(\0132"
-  "\032.google.protobuf.Timestamp\022C\n\025file_desc"
-  "riptor_proto\030\003 \003(\0132$.google.protobuf.Fil"
-  "eDescriptorProtob\006proto3"
+  "/protobuf/timestamp.proto\"0\n\014DescriptorD"
+  "b\022 \n\005hosts\030\001 \003(\0132\021.localDescDb.Host\"j\n\004H"
+  "ost\022\023\n\013hostAddress\030\001 \001(\t\022.\n\nlastUpdate\030\002"
+  " \001(\0132\032.google.protobuf.Timestamp\022\035\n\025file"
+  "_descriptor_proto\030\003 \003(\014b\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_LocalDescDb_2eproto_deps[2] = {
-  &::descriptor_table_google_2fprotobuf_2fdescriptor_2eproto,
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_LocalDescDb_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2ftimestamp_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_LocalDescDb_2eproto_sccs[2] = {
@@ -108,8 +103,8 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Loc
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_LocalDescDb_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_LocalDescDb_2eproto = {
-  false, false, descriptor_table_protodef_LocalDescDb_2eproto, "LocalDescDb.proto", 304,
-  &descriptor_table_LocalDescDb_2eproto_once, descriptor_table_LocalDescDb_2eproto_sccs, descriptor_table_LocalDescDb_2eproto_deps, 2, 2,
+  false, false, descriptor_table_protodef_LocalDescDb_2eproto, "LocalDescDb.proto", 231,
+  &descriptor_table_LocalDescDb_2eproto_once, descriptor_table_LocalDescDb_2eproto_sccs, descriptor_table_LocalDescDb_2eproto_deps, 2, 1,
   schemas, file_default_instances, TableStruct_LocalDescDb_2eproto::offsets,
   file_level_metadata_LocalDescDb_2eproto, 2, file_level_enum_descriptors_LocalDescDb_2eproto, file_level_service_descriptors_LocalDescDb_2eproto,
 };
@@ -307,7 +302,6 @@ void DescriptorDb::CopyFrom(const DescriptorDb& from) {
 }
 
 bool DescriptorDb::IsInitialized() const {
-  if (!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(hosts_)) return false;
   return true;
 }
 
@@ -342,9 +336,6 @@ void Host::clear_lastupdate() {
     delete lastupdate_;
   }
   lastupdate_ = nullptr;
-}
-void Host::clear_file_descriptor_proto() {
-  file_descriptor_proto_.Clear();
 }
 Host::Host(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena),
@@ -442,13 +433,14 @@ const char* Host::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // repeated .google.protobuf.FileDescriptorProto file_descriptor_proto = 3;
+      // repeated bytes file_descriptor_proto = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_file_descriptor_proto(), ptr);
+            auto str = _internal_add_file_descriptor_proto();
+            ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
@@ -500,12 +492,10 @@ failure:
         2, _Internal::lastupdate(this), target, stream);
   }
 
-  // repeated .google.protobuf.FileDescriptorProto file_descriptor_proto = 3;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_file_descriptor_proto_size()); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(3, this->_internal_file_descriptor_proto(i), target, stream);
+  // repeated bytes file_descriptor_proto = 3;
+  for (int i = 0, n = this->_internal_file_descriptor_proto_size(); i < n; i++) {
+    const auto& s = this->_internal_file_descriptor_proto(i);
+    target = stream->WriteBytes(3, s, target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -524,11 +514,12 @@ size_t Host::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .google.protobuf.FileDescriptorProto file_descriptor_proto = 3;
-  total_size += 1UL * this->_internal_file_descriptor_proto_size();
-  for (const auto& msg : this->file_descriptor_proto_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  // repeated bytes file_descriptor_proto = 3;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(file_descriptor_proto_.size());
+  for (int i = 0, n = file_descriptor_proto_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+      file_descriptor_proto_.Get(i));
   }
 
   // string hostAddress = 1;
@@ -600,7 +591,6 @@ void Host::CopyFrom(const Host& from) {
 }
 
 bool Host::IsInitialized() const {
-  if (!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(file_descriptor_proto_)) return false;
   return true;
 }
 

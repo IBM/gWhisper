@@ -21,7 +21,7 @@ set(TARGET_SRC
 
 add_protobuf_grpc_lib( ${TARGET_NAME}_protobuf PROTO_SOURCES LocalDescDb.proto)
 
-add_executable(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
+add_library(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
 # Difference btw. set Target und add Executable?
 
 set_target_properties(

@@ -33,7 +33,6 @@
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/timestamp.pb.h>
-#include <google/protobuf/descriptor.pb.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_LocalDescDb_2eproto
@@ -335,23 +334,29 @@ class Host PROTOBUF_FINAL :
     kHostAddressFieldNumber = 1,
     kLastUpdateFieldNumber = 2,
   };
-  // repeated .google.protobuf.FileDescriptorProto file_descriptor_proto = 3;
+  // repeated bytes file_descriptor_proto = 3;
   int file_descriptor_proto_size() const;
   private:
   int _internal_file_descriptor_proto_size() const;
   public:
   void clear_file_descriptor_proto();
-  PROTOBUF_NAMESPACE_ID::FileDescriptorProto* mutable_file_descriptor_proto(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< PROTOBUF_NAMESPACE_ID::FileDescriptorProto >*
-      mutable_file_descriptor_proto();
+  const std::string& file_descriptor_proto(int index) const;
+  std::string* mutable_file_descriptor_proto(int index);
+  void set_file_descriptor_proto(int index, const std::string& value);
+  void set_file_descriptor_proto(int index, std::string&& value);
+  void set_file_descriptor_proto(int index, const char* value);
+  void set_file_descriptor_proto(int index, const void* value, size_t size);
+  std::string* add_file_descriptor_proto();
+  void add_file_descriptor_proto(const std::string& value);
+  void add_file_descriptor_proto(std::string&& value);
+  void add_file_descriptor_proto(const char* value);
+  void add_file_descriptor_proto(const void* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& file_descriptor_proto() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_file_descriptor_proto();
   private:
-  const PROTOBUF_NAMESPACE_ID::FileDescriptorProto& _internal_file_descriptor_proto(int index) const;
-  PROTOBUF_NAMESPACE_ID::FileDescriptorProto* _internal_add_file_descriptor_proto();
+  const std::string& _internal_file_descriptor_proto(int index) const;
+  std::string* _internal_add_file_descriptor_proto();
   public:
-  const PROTOBUF_NAMESPACE_ID::FileDescriptorProto& file_descriptor_proto(int index) const;
-  PROTOBUF_NAMESPACE_ID::FileDescriptorProto* add_file_descriptor_proto();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< PROTOBUF_NAMESPACE_ID::FileDescriptorProto >&
-      file_descriptor_proto() const;
 
   // string hostAddress = 1;
   void clear_hostaddress();
@@ -403,7 +408,7 @@ class Host PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< PROTOBUF_NAMESPACE_ID::FileDescriptorProto > file_descriptor_proto_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> file_descriptor_proto_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr hostaddress_;
   PROTOBUF_NAMESPACE_ID::Timestamp* lastupdate_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -619,40 +624,78 @@ inline void Host::set_allocated_lastupdate(PROTOBUF_NAMESPACE_ID::Timestamp* las
   // @@protoc_insertion_point(field_set_allocated:localDescDb.Host.lastUpdate)
 }
 
-// repeated .google.protobuf.FileDescriptorProto file_descriptor_proto = 3;
+// repeated bytes file_descriptor_proto = 3;
 inline int Host::_internal_file_descriptor_proto_size() const {
   return file_descriptor_proto_.size();
 }
 inline int Host::file_descriptor_proto_size() const {
   return _internal_file_descriptor_proto_size();
 }
-inline PROTOBUF_NAMESPACE_ID::FileDescriptorProto* Host::mutable_file_descriptor_proto(int index) {
-  // @@protoc_insertion_point(field_mutable:localDescDb.Host.file_descriptor_proto)
-  return file_descriptor_proto_.Mutable(index);
+inline void Host::clear_file_descriptor_proto() {
+  file_descriptor_proto_.Clear();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< PROTOBUF_NAMESPACE_ID::FileDescriptorProto >*
-Host::mutable_file_descriptor_proto() {
-  // @@protoc_insertion_point(field_mutable_list:localDescDb.Host.file_descriptor_proto)
-  return &file_descriptor_proto_;
+inline std::string* Host::add_file_descriptor_proto() {
+  // @@protoc_insertion_point(field_add_mutable:localDescDb.Host.file_descriptor_proto)
+  return _internal_add_file_descriptor_proto();
 }
-inline const PROTOBUF_NAMESPACE_ID::FileDescriptorProto& Host::_internal_file_descriptor_proto(int index) const {
+inline const std::string& Host::_internal_file_descriptor_proto(int index) const {
   return file_descriptor_proto_.Get(index);
 }
-inline const PROTOBUF_NAMESPACE_ID::FileDescriptorProto& Host::file_descriptor_proto(int index) const {
+inline const std::string& Host::file_descriptor_proto(int index) const {
   // @@protoc_insertion_point(field_get:localDescDb.Host.file_descriptor_proto)
   return _internal_file_descriptor_proto(index);
 }
-inline PROTOBUF_NAMESPACE_ID::FileDescriptorProto* Host::_internal_add_file_descriptor_proto() {
+inline std::string* Host::mutable_file_descriptor_proto(int index) {
+  // @@protoc_insertion_point(field_mutable:localDescDb.Host.file_descriptor_proto)
+  return file_descriptor_proto_.Mutable(index);
+}
+inline void Host::set_file_descriptor_proto(int index, const std::string& value) {
+  // @@protoc_insertion_point(field_set:localDescDb.Host.file_descriptor_proto)
+  file_descriptor_proto_.Mutable(index)->assign(value);
+}
+inline void Host::set_file_descriptor_proto(int index, std::string&& value) {
+  // @@protoc_insertion_point(field_set:localDescDb.Host.file_descriptor_proto)
+  file_descriptor_proto_.Mutable(index)->assign(std::move(value));
+}
+inline void Host::set_file_descriptor_proto(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  file_descriptor_proto_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:localDescDb.Host.file_descriptor_proto)
+}
+inline void Host::set_file_descriptor_proto(int index, const void* value, size_t size) {
+  file_descriptor_proto_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:localDescDb.Host.file_descriptor_proto)
+}
+inline std::string* Host::_internal_add_file_descriptor_proto() {
   return file_descriptor_proto_.Add();
 }
-inline PROTOBUF_NAMESPACE_ID::FileDescriptorProto* Host::add_file_descriptor_proto() {
+inline void Host::add_file_descriptor_proto(const std::string& value) {
+  file_descriptor_proto_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:localDescDb.Host.file_descriptor_proto)
-  return _internal_add_file_descriptor_proto();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< PROTOBUF_NAMESPACE_ID::FileDescriptorProto >&
+inline void Host::add_file_descriptor_proto(std::string&& value) {
+  file_descriptor_proto_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:localDescDb.Host.file_descriptor_proto)
+}
+inline void Host::add_file_descriptor_proto(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  file_descriptor_proto_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:localDescDb.Host.file_descriptor_proto)
+}
+inline void Host::add_file_descriptor_proto(const void* value, size_t size) {
+  file_descriptor_proto_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:localDescDb.Host.file_descriptor_proto)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
 Host::file_descriptor_proto() const {
   // @@protoc_insertion_point(field_list:localDescDb.Host.file_descriptor_proto)
   return file_descriptor_proto_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+Host::mutable_file_descriptor_proto() {
+  // @@protoc_insertion_point(field_mutable_list:localDescDb.Host.file_descriptor_proto)
+  return &file_descriptor_proto_;
 }
 
 #ifdef __GNUC__
