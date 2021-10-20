@@ -6,3 +6,7 @@ ls -a
 
 echo "Looking for litprotobufd.a"
 find . -iname libprotobufd.a
+
+cd build/_deps/grpc-build/third_party/protobuf
+echo "Contents of $(pwd):"
+ls -a
