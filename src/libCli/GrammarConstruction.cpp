@@ -14,6 +14,7 @@
 
 #include <libCli/GrammarConstruction.hpp>
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
+#include "libLocalDescriptorCache/DescDbProxy.hpp"
 #include <libCli/cliUtils.hpp>
 #include <libCli/ConnectionManager.hpp>
 #include <protoDoc.pb.h>
@@ -376,7 +377,7 @@ namespace cli
             }
 
             std::vector<grpc::string> serviceList;
-            if (not ConnectionManager::getInstance().getDescDb(serverAddress, *f_parseTree)->GetServices(&serviceList))
+            if (not ConnectionManager::getInstance().getDescDb(serverAddress, *f_parseTree)->GetServices(&serviceList,serverAddress))
             {
                 f_ErrorMessage = "Error: Could not retrieve service list.";
                 return nullptr;

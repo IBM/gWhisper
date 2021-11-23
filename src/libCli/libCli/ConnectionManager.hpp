@@ -17,6 +17,7 @@
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
 
 #include "utils/gwhisperUtils.hpp"
+#include "libLocalDescriptorCache/DescDbProxy.hpp"
 
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/security/credentials.h>
@@ -24,11 +25,13 @@
 
 namespace cli
 {
+    std::string localDescDbPath = "";
     /// List of gRpc connection infomation
     typedef struct ConnList
     {
         std::shared_ptr<grpc::Channel> channel = nullptr;
-        std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> descDb = nullptr;
+        //std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> descDb = nullptr;
+        std::shared_ptr<DescDbProxy> localDescDb;
         std::shared_ptr<grpc::protobuf::DescriptorPool> descPool = nullptr;
 
     } ConnList;
@@ -67,21 +70,23 @@ namespace cli
         /// To get the gRpc DescriptorDatabase according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
         /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
         /// @returns the gRpc DescriptorDatabase of the corresponding server address.
-        std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> getDescDb(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree)
+        std::shared_ptr<DescDbProxy> getDescDb(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree)
         {
             if (!findDescDbByAddress(f_serverAddress))
             {
                 if (connections[f_serverAddress].channel)
                 {
-                    connections[f_serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[f_serverAddress].channel);
-                    connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[f_serverAddress].descDb.get());
+                    //connections[f_serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[f_serverAddress].channel);
+                    connections[f_serverAddress].localDescDb = std::make_shared<DescDbProxy>(cli::localDescDbPath, f_serverAddress, connections[f_serverAddress].channel);
+                    connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[f_serverAddress].localDescDb.get());
                 }
                 else
                 {
                     registerConnection(f_serverAddress, f_parseTree);
                 }
             }
-            return connections[f_serverAddress].descDb;
+            return connections[f_serverAddress].localDescDb;
+            //return connections[f_serverAddress].pdescDb;
         }
         /// To get the gRpc DescriptorPool according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
         /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
@@ -93,8 +98,9 @@ namespace cli
             {
                 if (connections[f_serverAddress].channel)
                 {
-                    connections[f_serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[f_serverAddress].channel);
-                    connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[f_serverAddress].descDb.get());
+                    //connections[f_serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[f_serverAddress].channel);
+                    connections[f_serverAddress].localDescDb = std::make_shared<DescDbProxy>(cli::localDescDbPath, f_serverAddress, connections[f_serverAddress].channel);
+                    connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[f_serverAddress].localDescDb.get());
                 }
                 else
                 {
@@ -124,7 +130,7 @@ namespace cli
         {
             if (connections.find(f_serverAddress) != connections.end())
             {
-                if (connections[f_serverAddress].descDb != nullptr)
+                if (connections[f_serverAddress].localDescDb != nullptr)
                 {
                     return true;
                 }
@@ -176,8 +182,10 @@ namespace cli
             }
 
             //std::cout << "Created Channel: " << connection.channel << std::endl;
-            connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
-            connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDb.get());
+            //connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
+            connection.localDescDb = std::make_shared<DescDbProxy>(cli::localDescDbPath, f_serverAddress, connection.channel);
+
+            connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.localDescDb.get());
             connections[f_serverAddress] = connection;
         }
 

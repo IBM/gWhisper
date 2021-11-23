@@ -331,7 +331,9 @@ class Host PROTOBUF_FINAL :
 
   enum : int {
     kFileDescriptorProtoFieldNumber = 3,
+    kServiceListFieldNumber = 4,
     kHostAddressFieldNumber = 1,
+    kTestFieldNumber = 5,
     kLastUpdateFieldNumber = 2,
   };
   // repeated bytes file_descriptor_proto = 3;
@@ -358,6 +360,30 @@ class Host PROTOBUF_FINAL :
   std::string* _internal_add_file_descriptor_proto();
   public:
 
+  // repeated string serviceList = 4;
+  int servicelist_size() const;
+  private:
+  int _internal_servicelist_size() const;
+  public:
+  void clear_servicelist();
+  const std::string& servicelist(int index) const;
+  std::string* mutable_servicelist(int index);
+  void set_servicelist(int index, const std::string& value);
+  void set_servicelist(int index, std::string&& value);
+  void set_servicelist(int index, const char* value);
+  void set_servicelist(int index, const char* value, size_t size);
+  std::string* add_servicelist();
+  void add_servicelist(const std::string& value);
+  void add_servicelist(std::string&& value);
+  void add_servicelist(const char* value);
+  void add_servicelist(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& servicelist() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_servicelist();
+  private:
+  const std::string& _internal_servicelist(int index) const;
+  std::string* _internal_add_servicelist();
+  public:
+
   // string hostAddress = 1;
   void clear_hostaddress();
   const std::string& hostaddress() const;
@@ -381,6 +407,31 @@ class Host PROTOBUF_FINAL :
   const std::string& _internal_hostaddress() const;
   void _internal_set_hostaddress(const std::string& value);
   std::string* _internal_mutable_hostaddress();
+  public:
+
+  // string test = 5;
+  void clear_test();
+  const std::string& test() const;
+  void set_test(const std::string& value);
+  void set_test(std::string&& value);
+  void set_test(const char* value);
+  void set_test(const char* value, size_t size);
+  std::string* mutable_test();
+  std::string* release_test();
+  void set_allocated_test(std::string* test);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_test();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_test(
+      std::string* test);
+  private:
+  const std::string& _internal_test() const;
+  void _internal_set_test(const std::string& value);
+  std::string* _internal_mutable_test();
   public:
 
   // .google.protobuf.Timestamp lastUpdate = 2;
@@ -409,7 +460,9 @@ class Host PROTOBUF_FINAL :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> file_descriptor_proto_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> servicelist_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr hostaddress_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr test_;
   PROTOBUF_NAMESPACE_ID::Timestamp* lastupdate_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_LocalDescDb_2eproto;
@@ -696,6 +749,161 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
 Host::mutable_file_descriptor_proto() {
   // @@protoc_insertion_point(field_mutable_list:localDescDb.Host.file_descriptor_proto)
   return &file_descriptor_proto_;
+}
+
+// string test = 5;
+inline void Host::clear_test() {
+  test_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& Host::test() const {
+  // @@protoc_insertion_point(field_get:localDescDb.Host.test)
+  return _internal_test();
+}
+inline void Host::set_test(const std::string& value) {
+  _internal_set_test(value);
+  // @@protoc_insertion_point(field_set:localDescDb.Host.test)
+}
+inline std::string* Host::mutable_test() {
+  // @@protoc_insertion_point(field_mutable:localDescDb.Host.test)
+  return _internal_mutable_test();
+}
+inline const std::string& Host::_internal_test() const {
+  return test_.Get();
+}
+inline void Host::_internal_set_test(const std::string& value) {
+  
+  test_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void Host::set_test(std::string&& value) {
+  
+  test_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:localDescDb.Host.test)
+}
+inline void Host::set_test(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  test_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:localDescDb.Host.test)
+}
+inline void Host::set_test(const char* value,
+    size_t size) {
+  
+  test_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:localDescDb.Host.test)
+}
+inline std::string* Host::_internal_mutable_test() {
+  
+  return test_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* Host::release_test() {
+  // @@protoc_insertion_point(field_release:localDescDb.Host.test)
+  return test_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void Host::set_allocated_test(std::string* test) {
+  if (test != nullptr) {
+    
+  } else {
+    
+  }
+  test_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), test,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:localDescDb.Host.test)
+}
+inline std::string* Host::unsafe_arena_release_test() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:localDescDb.Host.test)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return test_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void Host::unsafe_arena_set_allocated_test(
+    std::string* test) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (test != nullptr) {
+    
+  } else {
+    
+  }
+  test_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      test, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:localDescDb.Host.test)
+}
+
+// repeated string serviceList = 4;
+inline int Host::_internal_servicelist_size() const {
+  return servicelist_.size();
+}
+inline int Host::servicelist_size() const {
+  return _internal_servicelist_size();
+}
+inline void Host::clear_servicelist() {
+  servicelist_.Clear();
+}
+inline std::string* Host::add_servicelist() {
+  // @@protoc_insertion_point(field_add_mutable:localDescDb.Host.serviceList)
+  return _internal_add_servicelist();
+}
+inline const std::string& Host::_internal_servicelist(int index) const {
+  return servicelist_.Get(index);
+}
+inline const std::string& Host::servicelist(int index) const {
+  // @@protoc_insertion_point(field_get:localDescDb.Host.serviceList)
+  return _internal_servicelist(index);
+}
+inline std::string* Host::mutable_servicelist(int index) {
+  // @@protoc_insertion_point(field_mutable:localDescDb.Host.serviceList)
+  return servicelist_.Mutable(index);
+}
+inline void Host::set_servicelist(int index, const std::string& value) {
+  // @@protoc_insertion_point(field_set:localDescDb.Host.serviceList)
+  servicelist_.Mutable(index)->assign(value);
+}
+inline void Host::set_servicelist(int index, std::string&& value) {
+  // @@protoc_insertion_point(field_set:localDescDb.Host.serviceList)
+  servicelist_.Mutable(index)->assign(std::move(value));
+}
+inline void Host::set_servicelist(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  servicelist_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:localDescDb.Host.serviceList)
+}
+inline void Host::set_servicelist(int index, const char* value, size_t size) {
+  servicelist_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:localDescDb.Host.serviceList)
+}
+inline std::string* Host::_internal_add_servicelist() {
+  return servicelist_.Add();
+}
+inline void Host::add_servicelist(const std::string& value) {
+  servicelist_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:localDescDb.Host.serviceList)
+}
+inline void Host::add_servicelist(std::string&& value) {
+  servicelist_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:localDescDb.Host.serviceList)
+}
+inline void Host::add_servicelist(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  servicelist_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:localDescDb.Host.serviceList)
+}
+inline void Host::add_servicelist(const char* value, size_t size) {
+  servicelist_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:localDescDb.Host.serviceList)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+Host::servicelist() const {
+  // @@protoc_insertion_point(field_list:localDescDb.Host.serviceList)
+  return servicelist_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+Host::mutable_servicelist() {
+  // @@protoc_insertion_point(field_mutable_list:localDescDb.Host.serviceList)
+  return &servicelist_;
 }
 
 #ifdef __GNUC__

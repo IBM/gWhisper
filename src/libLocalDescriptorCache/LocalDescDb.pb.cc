@@ -75,6 +75,8 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_LocalDescDb_2eproto::offsets[]
   PROTOBUF_FIELD_OFFSET(::localDescDb::Host, hostaddress_),
   PROTOBUF_FIELD_OFFSET(::localDescDb::Host, lastupdate_),
   PROTOBUF_FIELD_OFFSET(::localDescDb::Host, file_descriptor_proto_),
+  PROTOBUF_FIELD_OFFSET(::localDescDb::Host, test_),
+  PROTOBUF_FIELD_OFFSET(::localDescDb::Host, servicelist_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::localDescDb::DescriptorDb)},
@@ -89,10 +91,11 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_LocalDescDb_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\021LocalDescDb.proto\022\013localDescDb\032\037google"
   "/protobuf/timestamp.proto\"0\n\014DescriptorD"
-  "b\022 \n\005hosts\030\001 \003(\0132\021.localDescDb.Host\"j\n\004H"
-  "ost\022\023\n\013hostAddress\030\001 \001(\t\022.\n\nlastUpdate\030\002"
-  " \001(\0132\032.google.protobuf.Timestamp\022\035\n\025file"
-  "_descriptor_proto\030\003 \003(\014b\006proto3"
+  "b\022 \n\005hosts\030\001 \003(\0132\021.localDescDb.Host\"\215\001\n\004"
+  "Host\022\023\n\013hostAddress\030\001 \001(\t\022.\n\nlastUpdate\030"
+  "\002 \001(\0132\032.google.protobuf.Timestamp\022\035\n\025fil"
+  "e_descriptor_proto\030\003 \003(\014\022\014\n\004test\030\005 \001(\t\022\023"
+  "\n\013serviceList\030\004 \003(\tb\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_LocalDescDb_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2ftimestamp_2eproto,
@@ -103,7 +106,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Loc
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_LocalDescDb_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_LocalDescDb_2eproto = {
-  false, false, descriptor_table_protodef_LocalDescDb_2eproto, "LocalDescDb.proto", 231,
+  false, false, descriptor_table_protodef_LocalDescDb_2eproto, "LocalDescDb.proto", 267,
   &descriptor_table_LocalDescDb_2eproto_once, descriptor_table_LocalDescDb_2eproto_sccs, descriptor_table_LocalDescDb_2eproto_deps, 2, 1,
   schemas, file_default_instances, TableStruct_LocalDescDb_2eproto::offsets,
   file_level_metadata_LocalDescDb_2eproto, 2, file_level_enum_descriptors_LocalDescDb_2eproto, file_level_service_descriptors_LocalDescDb_2eproto,
@@ -339,18 +342,25 @@ void Host::clear_lastupdate() {
 }
 Host::Host(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena),
-  file_descriptor_proto_(arena) {
+  file_descriptor_proto_(arena),
+  servicelist_(arena) {
   SharedCtor();
   RegisterArenaDtor(arena);
   // @@protoc_insertion_point(arena_constructor:localDescDb.Host)
 }
 Host::Host(const Host& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      file_descriptor_proto_(from.file_descriptor_proto_) {
+      file_descriptor_proto_(from.file_descriptor_proto_),
+      servicelist_(from.servicelist_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   hostaddress_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_hostaddress().empty()) {
     hostaddress_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_hostaddress(),
+      GetArena());
+  }
+  test_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_test().empty()) {
+    test_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_test(),
       GetArena());
   }
   if (from._internal_has_lastupdate()) {
@@ -364,6 +374,7 @@ Host::Host(const Host& from)
 void Host::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Host_LocalDescDb_2eproto.base);
   hostaddress_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  test_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   lastupdate_ = nullptr;
 }
 
@@ -376,6 +387,7 @@ Host::~Host() {
 void Host::SharedDtor() {
   GOOGLE_DCHECK(GetArena() == nullptr);
   hostaddress_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  test_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete lastupdate_;
 }
 
@@ -401,7 +413,9 @@ void Host::Clear() {
   (void) cached_has_bits;
 
   file_descriptor_proto_.Clear();
+  servicelist_.Clear();
   hostaddress_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  test_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   if (GetArena() == nullptr && lastupdate_ != nullptr) {
     delete lastupdate_;
   }
@@ -444,6 +458,29 @@ const char* Host::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+        } else goto handle_unusual;
+        continue;
+      // repeated string serviceList = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_servicelist();
+            ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "localDescDb.Host.serviceList"));
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
+        } else goto handle_unusual;
+        continue;
+      // string test = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+          auto str = _internal_mutable_test();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "localDescDb.Host.test"));
+          CHK_(ptr);
         } else goto handle_unusual;
         continue;
       default: {
@@ -498,6 +535,26 @@ failure:
     target = stream->WriteBytes(3, s, target);
   }
 
+  // repeated string serviceList = 4;
+  for (int i = 0, n = this->_internal_servicelist_size(); i < n; i++) {
+    const auto& s = this->_internal_servicelist(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "localDescDb.Host.serviceList");
+    target = stream->WriteString(4, s, target);
+  }
+
+  // string test = 5;
+  if (this->test().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_test().data(), static_cast<int>(this->_internal_test().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "localDescDb.Host.test");
+    target = stream->WriteStringMaybeAliased(
+        5, this->_internal_test(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -522,11 +579,26 @@ size_t Host::ByteSizeLong() const {
       file_descriptor_proto_.Get(i));
   }
 
+  // repeated string serviceList = 4;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(servicelist_.size());
+  for (int i = 0, n = servicelist_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      servicelist_.Get(i));
+  }
+
   // string hostAddress = 1;
   if (this->hostaddress().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_hostaddress());
+  }
+
+  // string test = 5;
+  if (this->test().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_test());
   }
 
   // .google.protobuf.Timestamp lastUpdate = 2;
@@ -568,8 +640,12 @@ void Host::MergeFrom(const Host& from) {
   (void) cached_has_bits;
 
   file_descriptor_proto_.MergeFrom(from.file_descriptor_proto_);
+  servicelist_.MergeFrom(from.servicelist_);
   if (from.hostaddress().size() > 0) {
     _internal_set_hostaddress(from._internal_hostaddress());
+  }
+  if (from.test().size() > 0) {
+    _internal_set_test(from._internal_test());
   }
   if (from.has_lastupdate()) {
     _internal_mutable_lastupdate()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_lastupdate());
@@ -598,7 +674,9 @@ void Host::InternalSwap(Host* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   file_descriptor_proto_.InternalSwap(&other->file_descriptor_proto_);
+  servicelist_.InternalSwap(&other->servicelist_);
   hostaddress_.Swap(&other->hostaddress_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  test_.Swap(&other->test_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   swap(lastupdate_, other->lastupdate_);
 }
 
