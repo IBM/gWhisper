@@ -1,7 +1,8 @@
 build/
+buidl2/
 *.swp
 compile_commands.json
 # IDEs
 .idea
 .vscode/
-buidl2/
+
