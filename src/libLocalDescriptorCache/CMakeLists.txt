@@ -22,7 +22,6 @@ set(TARGET_SRC
 add_protobuf_grpc_lib( ${TARGET_NAME}_protobuf PROTO_SOURCES LocalDescDb.proto)
 
 add_library(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
-# Difference btw. set Target und add Executable?
 
 set_target_properties(
     ${TARGET_NAME} PROPERTIES
@@ -45,7 +44,7 @@ target_link_libraries(${TARGET_NAME}
     # there)
     # This is done with --no-as-needed in case we link dynamically and
     # --whole-archive in case we link statically.
-    -Wl,--push-state,--no-as-needed,--whole-archive ${LIB_GRPC++_REFLECTION} -Wl,--pop-state
+    #-Wl,--push-state,--no-as-needed,--whole-archive ${LIB_GRPC++_REFLECTION} -Wl,--pop-state
 
     gwhisperUtils
     reflection

@@ -55,17 +55,18 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     // at first creation or at the update of DB entry for host. 
     // If services are found, fills in *output and returns true, , otherwise returns
     // false and leaves *output undefined.
-    bool GetServices(std::vector<grpc::string>* output, const std::string hostAddress);
+    bool GetServices(std::vector<grpc::string>* output); //, const std::string hostAddress
     
     // Checks, if local DB contains valid descriptorDB entries for host
     bool isValidHostEntry(const localDescDb::DescriptorDb& descDb, const std::string hostAddress);
 
     // Add new entry on local DB for new host address or update outdated entries
-    void editLocalDb(localDescDb::Host* host, std::string hostAddress);
+    void editLocalDb(localDescDb::Host* host, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
     
     
     // Instead of loading descriptors from ReflectionDB on the gRPC server, load them from local DB, if the local DB is not outdated..
-    std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> loadDbFromFile(std::string dbFileName, std::string hostAddress);
+    // std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> loadDbFromFile(std::string dbFileName, std::string hostAddress);
+    void loadDbFromFile(std::string dbFileName, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
     //std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> loadDbFromFile(std::string dbFileName, std::string hostAddress);
 
 
@@ -87,10 +88,13 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     //cli::ConnList m_connList;
 
 
+    //std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> localDB;
     grpc::protobuf::SimpleDescriptorDatabase localDB;
     grpc::ProtoReflectionDescriptorDatabase reflectionDescDb;
     //TODO: think about pointer
-    std::vector<grpc::string>* serviceList;
+    std::vector<grpc::string> serviceList;
+    std::vector<grpc::string> fileList;
+    std::vector<grpc::protobuf::FileDescriptor>descList;
         
 
 };

@@ -25,7 +25,7 @@
 
 namespace cli
 {
-    std::string localDescDbPath = "";
+    static std::string localDescDbPath = "../../libLocalDescriptorCache/libLocalDescriptorCache";
     /// List of gRpc connection infomation
     typedef struct ConnList
     {

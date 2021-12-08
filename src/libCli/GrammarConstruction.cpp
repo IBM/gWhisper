@@ -377,7 +377,7 @@ namespace cli
             }
 
             std::vector<grpc::string> serviceList;
-            if (not ConnectionManager::getInstance().getDescDb(serverAddress, *f_parseTree)->GetServices(&serviceList,serverAddress))
+            if (not ConnectionManager::getInstance().getDescDb(serverAddress, *f_parseTree)->GetServices(&serviceList)) // We don'need host addres anymore
             {
                 f_ErrorMessage = "Error: Could not retrieve service list.";
                 return nullptr;
@@ -387,7 +387,10 @@ namespace cli
             for (auto service : serviceList)
             {
                 auto childAlt = m_grammar.createElement<FixedString>(service);
-                const grpc::protobuf::ServiceDescriptor *m_service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(service);
+                const std::shared_ptr<google::protobuf::DescriptorPool> pool = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree);
+                const grpc::protobuf::ServiceDescriptor *m_service = (*pool).FindServiceByName(service);
+
+                //const grpc::protobuf::ServiceDescriptor *m_service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(service);
                 childAlt->setDocument(m_service->options().GetExtension(service_doc));
                 result->addChild(childAlt);
             }

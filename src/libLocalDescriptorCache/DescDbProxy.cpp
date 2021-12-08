@@ -29,6 +29,7 @@
 //#include "gRPC_utils/reflection.grpc.pb.h"
 #include "LocalDescDb.pb.h"
 #include <grpcpp/impl/codegen/config_protobuf.h>
+//#include "../libCli/libCli/ConnectionManager.hpp"
 //#include <libCli/ConnectionManager.hpp>
 //#TODO: Generate with protoc: include "LocalDescDb.pb.h"
 
@@ -38,12 +39,7 @@
 // Otherwise, returns false, leaving the contents of *output undefined.
 // TODO: At function call, iterate over all servives in service list. Call function in getDbFromFile()
 bool DescDbProxy::FindFileByName(const std::string& filename, grpc::protobuf::FileDescriptorProto* output){
-    bool foundInFile = localDB.FindFileByName(filename, output);
-    if (foundInFile){
-        return true;
-    } else {
-        return false;
-    }                               
+    return localDB.FindFileByName(filename, output);                 
 }
 
 // const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(serviceName);
@@ -51,7 +47,9 @@ bool DescDbProxy::FindFileByName(const std::string& filename, grpc::protobuf::Fi
 // If found, fills in *output and returns true, otherwise returns false
 // and leaves *output undefined.
 bool DescDbProxy::FindFileContainingSymbol(const std::string& symbol_name,
-                                        grpc::protobuf::FileDescriptorProto* output){}
+                                        grpc::protobuf::FileDescriptorProto* output){
+    return localDB.FindFileContainingSymbol(symbol_name, output);                 
+}                              
 
 // Find the file which defines an extension extending the given message type
 // with the given field number.  If found, fills in *output and returns true,
@@ -59,29 +57,32 @@ bool DescDbProxy::FindFileContainingSymbol(const std::string& symbol_name,
 // must be a fully-qualified type name.
 bool DescDbProxy::FindFileContainingExtension(const std::string& containing_type,
                                         int field_number,
-                                        grpc::protobuf::FileDescriptorProto* output){}
+                                        grpc::protobuf::FileDescriptorProto* output){
+    return localDB.FindFileContainingExtension(containing_type, field_number, output);                 
+}       
 
 // Lookup Services in Local DescDB. Services have been written into local DescDB
 // at first creation or at the update of DB entry for host. 
 // If services are found, fills in *output and returns true, , otherwise returns
 // false and leaves *output undefined.
-bool DescDbProxy::GetServices(std::vector<grpc::string>* output, const std::string hostAddress){
+bool DescDbProxy::GetServices(std::vector<grpc::string>* output){ //
    
    // TODO: member-var(verctor) für service list. her nur noch assignen
    // Access right host entry in db --> Put this in load from file.
-   if(! serviceList->empty()){
-       output = serviceList;
+   if(! serviceList.empty()){
+      // output = serviceList; TODO here:pushback?
+      (*output) = serviceList;
        return true;
 
    } else {
         //Wie loggen wir?
-        std::cout << "Error while fetching services from localDB entry for host " << hostAddress << std::endl;
+        std::cout << "Error while fetching services from localDB entry for host "  << std::endl;
         return false;    
    }
 }  
 
 
-bool isValidHostEntry(const localDescDb::DescriptorDb& descDb, const std::string hostAddress){
+bool DescDbProxy::isValidHostEntry(const localDescDb::DescriptorDb& descDb, const std::string hostAddress){
     bool validHostEntry=false; //TODO: Maybe rename in something with Reflection
     static google::protobuf::util::TimeUtil timestamp;
     //static google::protobuf::util::TimeUtil lastUpdateTime;
@@ -114,24 +115,89 @@ bool isValidHostEntry(const localDescDb::DescriptorDb& descDb, const std::string
     return validHostEntry;
 }
 
-void editLocalDb(localDescDb::Host* host, std::string hostAddress){
+void DescDbProxy::editLocalDb(localDescDb::Host* host, std::string hostAddress,std::shared_ptr<grpc::Channel> channel){
+   // localDescDb::Host host2;
     static google::protobuf::util::TimeUtil timestamp;
-    google::protobuf::Timestamp currentTime = timestamp.GetCurrentTime(); // current Time in UTC 
-    host->set_allocated_lastupdate(&currentTime);
-    host->set_hostaddress(hostAddress);
-    // TODO: get FileDesc and ServiceList via Reflection
-    //reflectionDB.getFilebynae(file, output) //get Desc from reflectionDB
-    //write Desc (output) into Proto
-
-    //reflecionDB.getServices() //fetch Services via reflection
-    //write each service name into proto
-
-    std::cout << "added new host entry" << std::endl;
+    google::protobuf::DescriptorPool descPool(&reflectionDescDb);
+ 
+    //lastUpdate->set_seconds(5);
     
+    
+    //static google::protobuf::util::TimeUtil timestamp;
+    //localDescDb::Host host2;
+    //host = &host2;
+   // google::protobuf::Timestamp currentTime = timestamp.GetCurrentTime(); // current Time in UTC 
+    //timestamp.TimeTToTimestamp(currentTime);
+  //  std::cout << "Current Time= " <<currentTime << std::endl;
+    //FromDateTime(currentTime);
+    //host->set_lastupdate
+   // *(host->mutable_lastupdate()) = timestamp.GetCurrentTime();
+     host->set_hostaddress(hostAddress);
+   // (*(host->mutable_lastupdate())).set_seconds(5) ;//= timestamp.GetCurrentTime();
+   // auto * lastUpdate = host->mutable_lastupdate(); 
+   
+    //lastUpdate->set_seconds(5);
+    (*(host->mutable_lastupdate())) = timestamp.GetCurrentTime();
+    std::cout << "setted last update" << std::endl;
+
+
+    host->clear_servicelist(); //evtl. abfangen wenn liste leer
+    reflectionDescDb.GetServices(&serviceList);
+     
+    for(const auto& serviceName: (serviceList)){
+        // Add ervice to loacal DB
+        host->add_servicelist(serviceName); 
+
+        google::protobuf::FileDescriptorProto someDesc;
+        const google::protobuf::ServiceDescriptor * serviceDesc;
+        const grpc::protobuf::FileDescriptor * fileDesc;
+        serviceDesc = descPool.FindServiceByName(serviceName);
+        fileDesc = serviceDesc->file();
+        //for (int i, i y method_count(), i++){
+        //    gehe in method message
+        //     hole rekursive alle verlinkten Descriptoren
+        //              assume: message = fprotomessage
+        //              msgFileDesc = methodDesc -> file()
+        //              for (int i, i<message_type_count(), i++ ){
+        //                  rekursiveFunktion
+        //              }
+        //}
+        
+        
+        //reflectionDescDb.FindFileByName(serviceName, &someDesc);
+        //descList.push_back(*fileDesc);
+
+        // Get file names for file descriptor from service descriptor
+        // Evtl needed for getFileByName
+        //std::string name = (&someDesc)->name();
+        //(&someDesc)->file();
+       // fileList.push_back(name);        
+    }
+
+    host->clear_file_descriptor_proto();
+    //Get File Descriptor for each Service Descriptor (maybe overkill)
+    bool test = reflectionDescDb.FindAllFileNames(&fileList); //
+
+   for (const auto& descFile: (descList)){
+       std::string descString = descFile.DebugString();
+       host->add_file_descriptor_proto(descFile.DebugString());
+   }
+
+   //for (const auto fileName: (fileList)){
+   //      host->add_file_descriptor_proto(fileName);
+   // }
+    
+    std::cout << "added new host entry" << std::endl;
 }
 
+// GetDescFromDB (Rekursiv!)
+// DescPool = DescPool for reflectionDB
+// serviceDesc = DescPool.getServiceByName(serviceName)
+// serviceProtoFile = serviceDesc.file() 
+// in dieserProto: Gibt es noch mehr protos? -> für method
+
 // Instead of loading descriptors from ReflectionDB on the gRPC server, load them from local DB, if the local DB is not outdated..
-std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> DescDbProxy::loadDbFromFile(std::string dbFileName, std::string hostAddress){
+void DescDbProxy::loadDbFromFile(std::string dbFileName, std::string hostAddress, std::shared_ptr<grpc::Channel> channel){
     google::protobuf::FileDescriptorProto descriptor;
     //Use dbFile from .prot file
     localDescDb::DescriptorDb dbFile;
@@ -144,7 +210,7 @@ std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> DescDbProxy::loadDbFro
 
     //Add/Update DB entry for new/outdated host (via Reflection)
     if(!isValidHostEntry(dbFile, hostAddress)){
-        editLocalDb(dbFile.add_hosts(), hostAddress);
+        editLocalDb(dbFile.add_hosts(), hostAddress, channel);
         std::cout << dbFile.DebugString();
 
     }
@@ -155,15 +221,14 @@ std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> DescDbProxy::loadDbFro
 
         const localDescDb::Host host = dbFile.hosts(i); //Todo this access proceess evtl in own method
         if (host.hostaddress() == hostAddress){
-            // get Services from DB entry for host 
+            // get Services from DB entry for host  --> ist das redundantt? S. editEntry
             for(int j=0; j < host.servicelist_size(); j++){
                 serviceName = host.servicelist(i);
                 // Save services in memeber variable
-                (*serviceList).push_back(serviceName);
+                (serviceList).push_back(serviceName);
             }
         }     
     }
-
 
 
     // Get Desc for Host and add them to localDB
@@ -176,14 +241,13 @@ std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> DescDbProxy::loadDbFro
                 //TODO: steht in descriptor jetzt schon der Wert? Ist ein i = ein Descriptor?
                 descriptor.ParseFromString(host.file_descriptor_proto(i));
                 //google::protobuf::FileDescriptorProto descriptor =  host.file_descriptor_proto(i);
-                localDB.Add(descriptor);
+                localDB.Add(descriptor); //localDB is nonstatic
             }                              
         }
         break;
     }
 
    // writeCacheToFile(dbFileName, dbFile, localDescDb);
-
     //Write updated Db to disc --> new function: write Cahce to File
     std::fstream output(dbFileName, std::ios::out | std::ios::trunc | std::ios::binary);
     dbFile.SerializeToOstream(&output);
@@ -192,9 +256,9 @@ std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> DescDbProxy::loadDbFro
 // Stores DescDB acquired via sever reflection locally as protofile (proto3) (might be serialized i.e. not human readable)
 // For each host one protofile
 // Timestamp needed for validity / freshness of this local cache
-std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> DescDbProxy::writeCacheToFile (std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> f_descDB){
+//std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> DescDbProxy::writeCacheToFile (std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> f_descDB){
       
-}
+//}
 
 
 
@@ -202,7 +266,11 @@ DescDbProxy::DescDbProxy(std::string dbFileName, std::string hostAddress, std::s
     reflectionDescDb(channel) //channel instanz --> über Argumente von Konstruktor
 // grpc::ProtoReflectionDescriptorDatabase(std::unique_ptr<reflection::v1alpha::ServerReflection::Stub> stub)
 {
-    loadDbFromFile(dbFileName, hostAddress);   
+    //localDescDb::Host host;
+    //auto * lastUpdate = host.mutable_lastupdate(); 
+    //lastUpdate->seconds();
+
+    loadDbFromFile(dbFileName, hostAddress, channel);   //sollte localDB returnen
 }
 
 

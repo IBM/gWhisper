@@ -17,7 +17,6 @@ message Host{
     string hostAddress = 1;
     google.protobuf.Timestamp lastUpdate = 2;
     repeated bytes file_descriptor_proto = 3;
-    string test = 5;
     repeated string serviceList = 4;
     //repeated Service services = 4 
 
