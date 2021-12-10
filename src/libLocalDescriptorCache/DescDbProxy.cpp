@@ -19,6 +19,7 @@
 #include "DescDbProxy.hpp"
 
 #include<string>
+#include <deque>
 #include <iostream>
 #include <fstream>
 
@@ -145,38 +146,44 @@ void DescDbProxy::editLocalDb(localDescDb::Host* host, std::string hostAddress,s
     reflectionDescDb.GetServices(&serviceList);
      
     for(const auto& serviceName: (serviceList)){
-        // Add ervice to loacal DB
+        // Add service to loacal DB
         host->add_servicelist(serviceName); 
 
-        google::protobuf::FileDescriptorProto someDesc;
-        const google::protobuf::ServiceDescriptor * serviceDesc;
+       // google::protobuf::FileDescriptorProto methodFileDesc;
+       //check initialisation for ownership
         const grpc::protobuf::FileDescriptor * fileDesc;
+        const grpc::protobuf::FileDescriptor * dependencyDesc;
+        const grpc::protobuf::ServiceDescriptor * serviceDesc;
+        const grpc::protobuf::FileDescriptor * methodFileDesc;
+        const grpc::protobuf::MethodDescriptor * methodDesc;
+        const grpc::protobuf::Descriptor * messageDescIn;
+        const grpc::protobuf::Descriptor * messageDescOut;
+
+        // Get descriptor of file, where service is defined in
         serviceDesc = descPool.FindServiceByName(serviceName);
         fileDesc = serviceDesc->file();
-        //for (int i, i y method_count(), i++){
-        //    gehe in method message
-        //     hole rekursive alle verlinkten Descriptoren
-        //              assume: message = fprotomessage
-        //              msgFileDesc = methodDesc -> file()
-        //              for (int i, i<message_type_count(), i++ ){
-        //                  rekursiveFunktion
-        //              }
-        //}
-        
-        
-        //reflectionDescDb.FindFileByName(serviceName, &someDesc);
-        //descList.push_back(*fileDesc);
+        fileDesc->dependency_count();
 
-        // Get file names for file descriptor from service descriptor
-        // Evtl needed for getFileByName
-        //std::string name = (&someDesc)->name();
-        //(&someDesc)->file();
-       // fileList.push_back(name);        
+        for (int i; i<(*fileDesc).dependency_count(); i++){
+            // Get file of imported files used in this service and search for more files
+            dependencyDesc = fileDesc->dependency(i);
+            getMessages(dependencyDesc);
+        }
+
+        // Get all descriptors linked to the service
+        //for (int i; i<(*serviceDesc).method_count(); i++){
+        //    methodDesc = serviceDesc->method(i);
+        //    methodFileDesc = methodDesc->file();
+            //getMessages(methodFileDesc);
+        //    getMessages(messageDescIn);
+        //    getMessages(messageDescOut);
+        //} 
     }
+
 
     host->clear_file_descriptor_proto();
     //Get File Descriptor for each Service Descriptor (maybe overkill)
-    bool test = reflectionDescDb.FindAllFileNames(&fileList); //
+    //bool test = reflectionDescDb.FindAllFileNames(&fileList); //
 
    for (const auto& descFile: (descList)){
        std::string descString = descFile.DebugString();
@@ -190,11 +197,84 @@ void DescDbProxy::editLocalDb(localDescDb::Host* host, std::string hostAddress,s
     std::cout << "added new host entry" << std::endl;
 }
 
-// GetDescFromDB (Rekursiv!)
-// DescPool = DescPool for reflectionDB
-// serviceDesc = DescPool.getServiceByName(serviceName)
-// serviceProtoFile = serviceDesc.file() 
-// in dieserProto: Gibt es noch mehr protos? -> für method
+void DescDbProxy::getMessages(const grpc::protobuf::FileDescriptor * parentDesc){
+        
+        std::deque<const grpc::protobuf::FileDescriptor*> todoList;
+        int amountChildren;
+
+        todoList.push_front(parentDesc);
+
+        //ToDo: make fpor right: toDoList not Empty
+        while (not todoList.empty()){
+            amountChildren = parentDesc->dependency_count();
+            for (int c; c < amountChildren; c++)
+            {
+                todoList.push_back(parentDesc->dependency(c));
+            }
+            // Remove parent from Todo and add to retrun list
+            descList.push_back(*(todoList.front())); //ist das der richtige Typ?
+            todoList.pop_front();    
+
+        }
+        
+
+        // Public and weak = subsets of dependencies
+        // Über dependecies
+        // DoneTable[]
+        // ToDoTable[]
+        // for (ToDoTable not empty){
+        //      for (messageFileDesc.dependencies_count)
+        //          dependencies.push_back(messageFileDesc(i))
+        //          ToDoTable.add(messageFileDesc(i))
+        //
+        // DoneTable.rm(currentDependency)y  
+        //}
+        // 
+        // 
+
+}
+
+
+//void getMessagesRecursive(const grpc::protobuf::Descriptor * parentMsgDesc){
+//    int numberChildren = (*parentMsgDesc).nested_type_count();
+//    std::vector<grpc::protobuf::Descriptor> children;
+//   for (int c; c<numberChildren; c++){
+//       children.push_back((*parentMsgDesc).nested_type(c));
+//   }
+
+    // Add Children todo
+    // RM parent Todo to done
+
+    // int numberChildren = (*parentMsgDesc).message_type_count();
+    //std::vector<grpc::protobuf::FileDescriptor> messageList;
+
+    //if (numberChildren = 0){
+        //TODO: Duplicte Check
+        // Possible Problem: always adds itself
+    //    descList.push_back(*parentMsgDesc);
+    //}
+
+    //evtl. liste der Kinder aanlegen
+    //for (int c; c<numberChildren; c++){
+        //getChildrenDesc
+    //    currentChild = (*parentMsgDesc).message_type(i);
+        //messageList.push_back(getMessages(childrenDesc))
+
+    //}
+
+    //if (no children)
+    //      return MethodFileDesc
+
+    //for (int i, i < MethodFileDesc.message_type_count(), i++)
+    //          children = childrenList.push_back(message_type(i));
+
+    //MessageList[] //1st level
+    
+    // for i in children
+    //      MessageList.push_back(getMessages(childrenDesc))
+
+//}
+
 
 // Instead of loading descriptors from ReflectionDB on the gRPC server, load them from local DB, if the local DB is not outdated..
 void DescDbProxy::loadDbFromFile(std::string dbFileName, std::string hostAddress, std::shared_ptr<grpc::Channel> channel){

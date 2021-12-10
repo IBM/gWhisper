@@ -60,6 +60,8 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     // Checks, if local DB contains valid descriptorDB entries for host
     bool isValidHostEntry(const localDescDb::DescriptorDb& descDb, const std::string hostAddress);
 
+    void getMessages(const grpc::protobuf::FileDescriptor * parentDesc);
+
     // Add new entry on local DB for new host address or update outdated entries
     void editLocalDb(localDescDb::Host* host, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
     
@@ -91,11 +93,14 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     //std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> localDB;
     grpc::protobuf::SimpleDescriptorDatabase localDB;
     grpc::ProtoReflectionDescriptorDatabase reflectionDescDb;
+
+    //Sinnvoll als Member?
+    std::vector<const grpc::protobuf::FileDescriptor>descList;
+    
     //TODO: think about pointer
     std::vector<grpc::string> serviceList;
     std::vector<grpc::string> fileList;
-    std::vector<grpc::protobuf::FileDescriptor>descList;
-        
+
 
 };
 
