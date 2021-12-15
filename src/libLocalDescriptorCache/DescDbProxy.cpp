@@ -151,22 +151,22 @@ void DescDbProxy::editLocalDb(localDescDb::Host* host, std::string hostAddress,s
 
        // google::protobuf::FileDescriptorProto methodFileDesc;
        //check initialisation for ownership
-        const grpc::protobuf::FileDescriptor * fileDesc;
+        const grpc::protobuf::FileDescriptor * serviceFileDesc;
         const grpc::protobuf::FileDescriptor * dependencyDesc;
         const grpc::protobuf::ServiceDescriptor * serviceDesc;
-        const grpc::protobuf::FileDescriptor * methodFileDesc;
-        const grpc::protobuf::MethodDescriptor * methodDesc;
-        const grpc::protobuf::Descriptor * messageDescIn;
-        const grpc::protobuf::Descriptor * messageDescOut;
+       // const grpc::protobuf::FileDescriptor * methodFileDesc;
+        //const grpc::protobuf::MethodDescriptor * methodDesc;
+       // const grpc::protobuf::Descriptor * messageDescIn;
+        //const grpc::protobuf::Descriptor * messageDescOut;
 
         // Get descriptor of file, where service is defined in
         serviceDesc = descPool.FindServiceByName(serviceName);
-        fileDesc = serviceDesc->file();
-        fileDesc->dependency_count();
+        serviceFileDesc = serviceDesc->file();
+        serviceFileDesc->dependency_count();
 
-        for (int i; i<(*fileDesc).dependency_count(); i++){
+        for (int i; i<(*serviceFileDesc).dependency_count(); i++){
             // Get file of imported files used in this service and search for more files
-            dependencyDesc = fileDesc->dependency(i);
+            dependencyDesc = serviceFileDesc->dependency(i);
             getMessages(dependencyDesc);
         }
 
@@ -186,8 +186,8 @@ void DescDbProxy::editLocalDb(localDescDb::Host* host, std::string hostAddress,s
     //bool test = reflectionDescDb.FindAllFileNames(&fileList); //
 
    for (const auto& descFile: (descList)){
-       std::string descString = descFile.DebugString();
-       host->add_file_descriptor_proto(descFile.DebugString());
+       std::string descString = (*descFile).DebugString();
+       host->add_file_descriptor_proto((*descFile).DebugString());
    }
 
    //for (const auto fileName: (fileList)){
@@ -212,12 +212,16 @@ void DescDbProxy::getMessages(const grpc::protobuf::FileDescriptor * parentDesc)
                 todoList.push_back(parentDesc->dependency(c));
             }
             // Remove parent from Todo and add to retrun list
-            descList.push_back(*(todoList.front())); //ist das der richtige Typ?
+            // Muss ich hier Adresse verwenden, um nicht in private problem zu laufen?
+            // Use pointer / address vector to prevent forbidden copy constructor problem
+            const grpc::protobuf::FileDescriptor* test = todoList.front();
+        //    descList.push_back(todoList.front()); //ist das der richtige Typ?
+            descList.push_back(test);
+        
             todoList.pop_front();    
 
-        }
-        
-
+        }       
+}
         // Public and weak = subsets of dependencies
         // Über dependecies
         // DoneTable[]
@@ -232,7 +236,6 @@ void DescDbProxy::getMessages(const grpc::protobuf::FileDescriptor * parentDesc)
         // 
         // 
 
-}
 
 
 //void getMessagesRecursive(const grpc::protobuf::Descriptor * parentMsgDesc){
