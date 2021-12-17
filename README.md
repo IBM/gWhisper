@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/IBM/gWhisper.svg?branch=master)](https://travis-ci.org/IBM/gWhisper)
 # gWhisper - A gRPC command line tool
 A gRPC command line client.
 It allows to invoke gRPC Calls from the commandline, supports tab-completion
