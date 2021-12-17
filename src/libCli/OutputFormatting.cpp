@@ -292,6 +292,17 @@ std::string OutputFormatter::fieldValueToString(const grpc::protobuf::Message & 
             break;
         case grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE:
             {
+                // Message types are non-scalar and can be optional:
+                // NOTE: this check cannot be applied to scalar types, as those
+                // get optimized out if protobuf realizes they are set to default
+                // value. So the `HasField` method will show false even though
+                // the user set the value explicitly to the default value
+                if(not reflection->HasField(f_message, f_fieldDescriptor))
+                {
+                    result += "[NOT SET]";
+                    // no need to decode any further...
+                    return result;
+                }
                 const google::protobuf::Message & subMessage = reflection->GetMessage(f_message, f_fieldDescriptor);
                 //result += ":\n";
                 result += colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
