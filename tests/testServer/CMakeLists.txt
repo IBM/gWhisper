@@ -14,7 +14,6 @@
 
 
 set(TARGET_NAME "testServer")
-set(CMAKE_BUILD_TYPE Debug)
 set(TARGET_SRC
     testServer.cpp
     ServiceScalarTypeRpcs.cpp
