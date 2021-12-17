@@ -73,6 +73,22 @@ RPC succeeded :D
 #END_TEST
 
 ##############################################################################
+# Output format tests:
+##############################################################################
+
+#START_TEST EmptyFieldCorrectlyFormatted
+@@CMD@@ 127.0.0.1 examples.NestedTypeRpcs returnNestedMixedEmpty
+/.* Received message:
+| some_integer..... = 0 (0x00000000)
+| empty_child...... = {Empty}
+| number_and_string = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = ""
+RPC succeeded :D
+#END_TEST
+
+
+##############################################################################
 # String tests:
 ##############################################################################
 
