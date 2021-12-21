@@ -121,21 +121,7 @@ void DescDbProxy::editLocalDb(localDescDb::Host* host, std::string hostAddress,s
     static google::protobuf::util::TimeUtil timestamp;
     google::protobuf::DescriptorPool descPool(&reflectionDescDb);
  
-    //lastUpdate->set_seconds(5);
-    
-    
-    //static google::protobuf::util::TimeUtil timestamp;
-    //localDescDb::Host host2;
-    //host = &host2;
-   // google::protobuf::Timestamp currentTime = timestamp.GetCurrentTime(); // current Time in UTC 
-    //timestamp.TimeTToTimestamp(currentTime);
-  //  std::cout << "Current Time= " <<currentTime << std::endl;
-    //FromDateTime(currentTime);
-    //host->set_lastupdate
-   // *(host->mutable_lastupdate()) = timestamp.GetCurrentTime();
-     host->set_hostaddress(hostAddress);
-   // (*(host->mutable_lastupdate())).set_seconds(5) ;//= timestamp.GetCurrentTime();
-   // auto * lastUpdate = host->mutable_lastupdate(); 
+    host->set_hostaddress(hostAddress);
    
     //lastUpdate->set_seconds(5);
     (*(host->mutable_lastupdate())) = timestamp.GetCurrentTime();
@@ -149,15 +135,10 @@ void DescDbProxy::editLocalDb(localDescDb::Host* host, std::string hostAddress,s
         // Add service to loacal DB
         host->add_servicelist(serviceName); 
 
-       // google::protobuf::FileDescriptorProto methodFileDesc;
-       //check initialisation for ownership
+   
         const grpc::protobuf::FileDescriptor * serviceFileDesc;
         const grpc::protobuf::FileDescriptor * dependencyDesc;
         const grpc::protobuf::ServiceDescriptor * serviceDesc;
-       // const grpc::protobuf::FileDescriptor * methodFileDesc;
-        //const grpc::protobuf::MethodDescriptor * methodDesc;
-       // const grpc::protobuf::Descriptor * messageDescIn;
-        //const grpc::protobuf::Descriptor * messageDescOut;
 
         // Get descriptor of file, where service is defined in
         serviceDesc = descPool.FindServiceByName(serviceName);
@@ -169,33 +150,21 @@ void DescDbProxy::editLocalDb(localDescDb::Host* host, std::string hostAddress,s
             dependencyDesc = serviceFileDesc->dependency(i);
             getMessages(dependencyDesc);
         }
-
-        // Get all descriptors linked to the service
-        //for (int i; i<(*serviceDesc).method_count(); i++){
-        //    methodDesc = serviceDesc->method(i);
-        //    methodFileDesc = methodDesc->file();
-            //getMessages(methodFileDesc);
-        //    getMessages(messageDescIn);
-        //    getMessages(messageDescOut);
-        //} 
     }
 
-
+    // Add all descriptors to DB entry
+    // TODO: As tring or as pointer?
     host->clear_file_descriptor_proto();
-    //Get File Descriptor for each Service Descriptor (maybe overkill)
-    //bool test = reflectionDescDb.FindAllFileNames(&fileList); //
 
-   for (const auto& descFile: (descList)){
+    for (const auto& descFile: (descList)){
        std::string descString = (*descFile).DebugString();
        host->add_file_descriptor_proto((*descFile).DebugString());
    }
-
-   //for (const auto fileName: (fileList)){
-   //      host->add_file_descriptor_proto(fileName);
-   // }
     
     std::cout << "added new host entry" << std::endl;
 }
+
+
 
 void DescDbProxy::getMessages(const grpc::protobuf::FileDescriptor * parentDesc){
         
@@ -204,115 +173,54 @@ void DescDbProxy::getMessages(const grpc::protobuf::FileDescriptor * parentDesc)
 
         todoList.push_front(parentDesc);
 
-        //ToDo: make fpor right: toDoList not Empty
         while (not todoList.empty()){
             amountChildren = parentDesc->dependency_count();
             for (int c; c < amountChildren; c++)
             {
                 todoList.push_back(parentDesc->dependency(c));
             }
-            // Remove parent from Todo and add to retrun list
-            // Muss ich hier Adresse verwenden, um nicht in private problem zu laufen?
             // Use pointer / address vector to prevent forbidden copy constructor problem
             const grpc::protobuf::FileDescriptor* test = todoList.front();
         //    descList.push_back(todoList.front()); //ist das der richtige Typ?
-            descList.push_back(test);
-        
+            descList.push_back(test);       
             todoList.pop_front();    
 
         }       
 }
-        // Public and weak = subsets of dependencies
-        // Über dependecies
-        // DoneTable[]
-        // ToDoTable[]
-        // for (ToDoTable not empty){
-        //      for (messageFileDesc.dependencies_count)
-        //          dependencies.push_back(messageFileDesc(i))
-        //          ToDoTable.add(messageFileDesc(i))
-        //
-        // DoneTable.rm(currentDependency)y  
-        //}
-        // 
-        // 
-
-
-
-//void getMessagesRecursive(const grpc::protobuf::Descriptor * parentMsgDesc){
-//    int numberChildren = (*parentMsgDesc).nested_type_count();
-//    std::vector<grpc::protobuf::Descriptor> children;
-//   for (int c; c<numberChildren; c++){
-//       children.push_back((*parentMsgDesc).nested_type(c));
-//   }
-
-    // Add Children todo
-    // RM parent Todo to done
-
-    // int numberChildren = (*parentMsgDesc).message_type_count();
-    //std::vector<grpc::protobuf::FileDescriptor> messageList;
-
-    //if (numberChildren = 0){
-        //TODO: Duplicte Check
-        // Possible Problem: always adds itself
-    //    descList.push_back(*parentMsgDesc);
-    //}
-
-    //evtl. liste der Kinder aanlegen
-    //for (int c; c<numberChildren; c++){
-        //getChildrenDesc
-    //    currentChild = (*parentMsgDesc).message_type(i);
-        //messageList.push_back(getMessages(childrenDesc))
-
-    //}
-
-    //if (no children)
-    //      return MethodFileDesc
-
-    //for (int i, i < MethodFileDesc.message_type_count(), i++)
-    //          children = childrenList.push_back(message_type(i));
-
-    //MessageList[] //1st level
-    
-    // for i in children
-    //      MessageList.push_back(getMessages(childrenDesc))
-
-//}
 
 
 // Instead of loading descriptors from ReflectionDB on the gRPC server, load them from local DB, if the local DB is not outdated..
 void DescDbProxy::loadDbFromFile(std::string dbFileName, std::string hostAddress, std::shared_ptr<grpc::Channel> channel){
-    google::protobuf::FileDescriptorProto descriptor;
     //Use dbFile from .prot file
     localDescDb::DescriptorDb dbFile;
     std::string serviceName;
-
+    
     // Read the existing db (should be serialized)
     std::fstream input;
     input.open(dbFileName);
-    dbFile.ParseFromIstream(&input);
+    dbFile.ParseFromIstream(&input); // Todo: evtl anders parsen
 
     //Add/Update DB entry for new/outdated host (via Reflection)
+    bool servicesRetrieved = false;
     if(!isValidHostEntry(dbFile, hostAddress)){
         editLocalDb(dbFile.add_hosts(), hostAddress, channel);
+        servicesRetrieved = true;
         std::cout << dbFile.DebugString();
 
     }
 
-
-    //Write service names from DB into variable
-    for (int i = 0; i < dbFile.hosts_size(); i++){
-
-        const localDescDb::Host host = dbFile.hosts(i); //Todo this access proceess evtl in own method
-        if (host.hostaddress() == hostAddress){
-            // get Services from DB entry for host  --> ist das redundantt? S. editEntry
-            for(int j=0; j < host.servicelist_size(); j++){
-                serviceName = host.servicelist(i);
-                // Save services in memeber variable
-                (serviceList).push_back(serviceName);
-            }
-        }     
+    //Write service names from DB into variable if not happened in editLocalDB
+    if (!servicesRetrieved){
+        for (int i = 0; i < dbFile.hosts_size(); i++){
+            const localDescDb::Host host = dbFile.hosts(i); 
+            if (host.hostaddress() == hostAddress){
+                for(int j=0; j < host.servicelist_size(); j++){
+                    serviceName = host.servicelist(i); 
+                    (serviceList).push_back(serviceName);
+                }
+            }     
+        }
     }
-
 
     // Get Desc for Host and add them to localDB
     for (int i=0; i < dbFile.hosts_size(); i++){
@@ -320,10 +228,16 @@ void DescDbProxy::loadDbFromFile(std::string dbFileName, std::string hostAddress
         if (host.hostaddress() == hostAddress)
         {
             for (int i=0; i < host.file_descriptor_proto_size(); i++){
+                google::protobuf::FileDescriptorProto descriptor;
                 //std::string descriptor =  host.file_descriptor_proto(i);
                 //TODO: steht in descriptor jetzt schon der Wert? Ist ein i = ein Descriptor?
                 descriptor.ParseFromString(host.file_descriptor_proto(i));
                 //google::protobuf::FileDescriptorProto descriptor =  host.file_descriptor_proto(i);
+                //Here: Error "File already exists in DB", google/protobuf/descriptor_database.cc:120
+                std::cout<<descriptor.DebugString()<<std::endl;
+                std::cout<<descriptor.name()<<std::endl;
+                std::cout<<descriptor.package()<<std::endl;
+                std::cout<<descriptor.dependency_size()<<std::endl;
                 localDB.Add(descriptor); //localDB is nonstatic
             }                              
         }
