@@ -388,11 +388,16 @@ namespace cli
             {
                 auto childAlt = m_grammar.createElement<FixedString>(service);
                 const std::shared_ptr<google::protobuf::DescriptorPool> pool = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree);
-                const grpc::protobuf::ServiceDescriptor *m_service = (*pool).FindServiceByName(service);
+                //const grpc::protobuf::ServiceDescriptor *m_service = (*pool).FindServiceByName(service);
+                //const grpc::protobuf::ServiceDescriptor *m_service = pool->FindServiceByName(service)
 
-                //const grpc::protobuf::ServiceDescriptor *m_service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(service);
-                childAlt->setDocument(m_service->options().GetExtension(service_doc));
-                result->addChild(childAlt);
+                const grpc::protobuf::ServiceDescriptor *m_service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(service);
+                if(m_service){  // check if m_service is nullpointer
+                    childAlt->setDocument(m_service->options().GetExtension(service_doc));
+                    result->addChild(childAlt);
+                }else{
+                    std::cerr<<"Failed to retrieve services!"<<std::endl;
+                }
             }
             //std::cout << "result = " << result <<std::endl;
             return result;
