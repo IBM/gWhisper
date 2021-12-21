@@ -155,5 +155,28 @@ prefix 2.675000 postfix
 RPC succeeded :D
 #END_TEST
 
+##############################################################################
+# JSON output
+##############################################################################
+#START_TEST json_output_number_map
+@@CMD@@ --jsonOutput 127.0.0.1 examples.ComplexTypeRpcs mapNumbersToString numbers=:5, 6:
+/.* Received message:
+{"numberToString":{"5":"5","6":"6"}}
+RPC succeeded :D
+#END_TEST
 
+#START_TEST json_output_number_map
+@@CMD@@ --jsonOutput 127.0.0.1 examples.NestedTypeRpcs returnNestedMixedEmpty
+/.* Received message:
+{"emptyChild":{}}
+RPC succeeded :D
+#END_TEST
+
+#START_TEST json_output_number_map
+--jsonOutput 127.0.0.1 examples.ComplexTypeRpcs getLastColor colors=:blue, black:
+@@CMD@@ ./gwhisper --jsonOutput 127.0.0.1 examples.ComplexTypeRpcs getLastColor colors=:blue, black:
+/.* Received message:
+{"color":"black"}
+RPC succeeded :D
+#END_TEST
 

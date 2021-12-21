@@ -72,6 +72,7 @@ RPC succeeded :D
 --noColor
 --color
 --version
+--jsonOutput
 --printParsedMessage
 --noSimpleMapOutput
 --connectTimeoutMilliseconds=

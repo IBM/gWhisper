@@ -502,6 +502,7 @@ namespace cli
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noColor", "NoColor"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--color", "Color"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--version", "Version"));
+        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--jsonOutput", "JsonOutput"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--printParsedMessage", "PrintParsedMessage"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSimpleMapOutput", "NoSimpleMapOutput"));
         GrammarElement *timeoutOption = f_grammarPool.createElement<Concatenation>();

@@ -19,17 +19,46 @@
 #include <iomanip>
 #include <type_traits>
 
+#include <google/protobuf/util/json_util.h>
+
 template <typename T> static void dumpBinaryIntoString(std::string &f_destination, const T& f_source);
 
 namespace cli
 {
-    /// Class with methods to format a protobuf message into human readable strings.
     class OutputFormatter
+    {
+        public:
+            virtual std::string messageToString(
+                    const grpc::protobuf::Message & f_message,
+                    const grpc::protobuf::Descriptor* f_messageDescriptor) = 0;
+
+    };
+
+    class OutputFormatterJson : public OutputFormatter
+    {
+        public:
+            virtual std::string messageToString(
+                    const grpc::protobuf::Message & f_message,
+                    const grpc::protobuf::Descriptor* f_messageDescriptor) override
+            {
+                std::string resultString;
+                google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(f_message, &resultString);
+                if(not status.ok())
+                {
+                    resultString = std::string("Json encoding of Message failed: ") + status.ToString();
+                }
+                return resultString;
+            }
+
+    };
+
+    /// Class with methods to format a protobuf message into human readable strings.
+    class OutputFormatterOptimizedForHumans : public OutputFormatter
     {
         public:
             /// Initializes the OutputFormatter with default settings.
             /// Includes initialization of the default color theme.
-            OutputFormatter();
+            OutputFormatterOptimizedForHumans();
 
             /// Enum containing all possible elements for colorization.
             enum class ColorClass
@@ -62,14 +91,13 @@ namespace cli
             /// Formats a protobuf message into a human readable string.
             /// @param f_message the protobuf message to be formatted
             /// @param f_messageDescriptor descriptor describing the message type
-            /// @param f_initPrefix Each new line in formatted output will be prefixed with 0 or more instances of this string corresponding to the indentation level.
-            /// @param f_currentPrefix Each new line in formatted output will be prefixed with this sting. May be used for an initial prefix/indentation of output text.
-            std::string messageToString(
+            virtual inline std::string messageToString(
                     const grpc::protobuf::Message & f_message,
-                    const grpc::protobuf::Descriptor* f_messageDescriptor,
-                    const std::string & f_initPrefix = " ",
-                    const std::string & f_currentPrefix = ""
-                    );
+                    const grpc::protobuf::Descriptor* f_messageDescriptor
+                    ) override
+            {
+                return messageToStringInternal(f_message, f_messageDescriptor, "| ", "| ");
+            }
 
             /// Clears the color map.
             /// Causes all output to be generated with default font (no terminal control characters).
@@ -92,6 +120,19 @@ namespace cli
         private:
             bool m_isSimpleMapOutput;
             std::map<ColorClass, std::string> m_colorMap;
+
+
+            /// Formats a protobuf message into a human readable string.
+            /// @param f_message the protobuf message to be formatted
+            /// @param f_messageDescriptor descriptor describing the message type
+            /// @param f_initPrefix Each new line in formatted output will be prefixed with 0 or more instances of this string corresponding to the indentation level.
+            /// @param f_currentPrefix Each new line in formatted output will be prefixed with this sting. May be used for an initial prefix/indentation of output text.
+            std::string messageToStringInternal(
+                    const grpc::protobuf::Message & f_message,
+                    const grpc::protobuf::Descriptor* f_messageDescriptor,
+                    const std::string & f_initPrefix = " ",
+                    const std::string & f_currentPrefix = ""
+                    );
             std::string generateHorizontalGuide(size_t f_currentSize, size_t f_targetSize);
             std::string getColor(ColorClass f_colorClass);
             std::string colorize(ColorClass f_colorClass, const std::string & f_string);

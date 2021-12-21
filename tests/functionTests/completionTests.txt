@@ -28,6 +28,7 @@ Possible Candidates:
   '--noColor '
   '--color '
   '--version '
+  '--jsonOutput '
   '--printParsedMessage '
   '--noSimpleMapOutput '
   '--connectTimeoutMilliseconds='

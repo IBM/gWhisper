@@ -126,6 +126,11 @@ OPTION:
        NOTE: This is an experimental feature and will be documented in detail,
        once finished.
 
+    --jsonOutput
+       Print the reply-message in JSON format, instead of using the gwhisper
+       human readable format. (All output options listed above do not apply)
+       NOTE: This uses the libprotobuf provided JSON conversion functions.
+
  Debug options:
 
    --dot

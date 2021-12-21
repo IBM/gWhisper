@@ -26,15 +26,47 @@
 // for detecting if we are writing stdout to terminal or to pipe/file
 #include <stdio.h>
 #include <unistd.h>
+#include <memory>
 
 #include <libCli/cliUtils.hpp>
 
 using namespace ArgParse;
 
-static cli::OutputFormatter::CustomStringModifier getModifier(ArgParse::ParsedElement &f_optionalModifier);
+static cli::OutputFormatterOptimizedForHumans::CustomStringModifier getModifier(ArgParse::ParsedElement &f_optionalModifier);
 
 namespace cli
 {
+    std::unique_ptr<OutputFormatter> createOutputFormatter(ParsedElement &parseTree)
+    {
+        if(parseTree.findFirstChild("JsonOutput") != "")
+        {
+            return std::make_unique<OutputFormatterJson>();
+        }
+
+        auto humanFormatter = std::make_unique<OutputFormatterOptimizedForHumans>();
+
+        // disable colored output if explicitly specified:
+        if (parseTree.findFirstChild("NoColor") != "")
+        {
+            humanFormatter->clearColorMap();
+        }
+
+        // disable map output as key => value if explicitly specified:
+        if (parseTree.findFirstChild("NoSimpleMapOutput") != "")
+        {
+            humanFormatter->disableSimpleMapOutput();
+        }
+
+        // automatically disable colored output, when outputting to something
+        // else than a terminal (pipes, files, etc.), except we explicitly
+        // request color mode:
+        if ((not isatty(fileno(stdout))) and (parseTree.findFirstChild("Color") == ""))
+        {
+            humanFormatter->clearColorMap();
+        }
+
+        return humanFormatter;
+    }
 
     // TODO: move this to OutputFormatting code
     std::string customMessageFormat(const grpc::protobuf::Message &f_message, const grpc::protobuf::Descriptor *f_messageDescriptor, ParsedElement &f_customFormatParseTree, size_t startChild = 0)
@@ -102,7 +134,7 @@ namespace cli
         // context in which to evaluate field references :)
 
         //std::cout << "have field\n";
-        OutputFormatter myOutputFormatter;
+        OutputFormatterOptimizedForHumans myOutputFormatter;
         myOutputFormatter.clearColorMap();
 
         bool haveFormatString = false;
@@ -117,7 +149,7 @@ namespace cli
             auto fieldReference = outputStatement->findFirstSubTree("OutputFieldReference", foundFieldReference);
             if (foundFieldReference)
             {
-                OutputFormatter::CustomStringModifier modifier = getModifier(*outputStatement);
+                OutputFormatterOptimizedForHumans::CustomStringModifier modifier = getModifier(*outputStatement);
 
                 //std::cout << "  have field ref " <<  fieldReference.getMatchedString() << "\n";
                 // need to lookup the field:
@@ -215,9 +247,9 @@ namespace cli
             if (parseTree.findFirstChild("PrintParsedMessage") != "")
             {
                 // use built-in human readable output format
-                cli::OutputFormatter imessageFormatter;
+                cli::OutputFormatterOptimizedForHumans imessageFormatter;
                 std::cout << "Request message:" << std::endl
-                          << imessageFormatter.messageToString(*message, method->input_type(), "| ", "| ") << std::endl;
+                          << imessageFormatter.messageToString(*message, method->input_type()) << std::endl;
             }
 
             if (not message)
@@ -263,29 +295,9 @@ namespace cli
             if (not customOutputFormatRequested)
             {
                 // use built-in human readable output format
-                cli::OutputFormatter messageFormatter;
+                auto messageFormatter = createOutputFormatter(parseTree);
 
-                // disable colored output if explicitly specified:
-                if (parseTree.findFirstChild("NoColor") != "")
-                {
-                    messageFormatter.clearColorMap();
-                }
-
-                // disable map output as key => value if explicitly specified:
-                if (parseTree.findFirstChild("NoSimpleMapOutput") != "")
-                {
-                    messageFormatter.disableSimpleMapOutput();
-                }
-
-                // automatically disable colored output, when outputting to something
-                // else than a terminal (pipes, files, etc.), except we explicitly
-                // request color mode:
-                if ((not isatty(fileno(stdout))) and (parseTree.findFirstChild("Color") == ""))
-                {
-                    messageFormatter.clearColorMap();
-                }
-
-                msgString = messageFormatter.messageToString(*replyMessage, method->output_type(), "| ", "| ");
+                msgString = messageFormatter->messageToString(*replyMessage, method->output_type());
                 std::cout << msgString << std::endl;
             }
             else
@@ -318,9 +330,9 @@ namespace cli
 ///
 /// @param f_optionalModifier A single child of "OutputFormatString"
 /// @return                   Returns the appropriate modifier or 'Default' if non-existent
-static cli::OutputFormatter::CustomStringModifier getModifier(ArgParse::ParsedElement &f_optionalModifier)
+static cli::OutputFormatterOptimizedForHumans::CustomStringModifier getModifier(ArgParse::ParsedElement &f_optionalModifier)
 {
-    cli::OutputFormatter::CustomStringModifier modifier = cli::OutputFormatter::CustomStringModifier::Default;
+    cli::OutputFormatterOptimizedForHumans::CustomStringModifier modifier = cli::OutputFormatterOptimizedForHumans::CustomStringModifier::Default;
     bool foundModifier = false;
 
     auto modifierNode = f_optionalModifier.findFirstSubTree("ModifierType", foundModifier);
@@ -328,19 +340,19 @@ static cli::OutputFormatter::CustomStringModifier getModifier(ArgParse::ParsedEl
     {
         if (modifierNode.getMatchedString() == "raw")
         {
-            modifier = cli::OutputFormatter::CustomStringModifier::Raw;
+            modifier = cli::OutputFormatterOptimizedForHumans::CustomStringModifier::Raw;
         }
         else if (modifierNode.getMatchedString() == "dec")
         {
-            modifier = cli::OutputFormatter::CustomStringModifier::Dec;
+            modifier = cli::OutputFormatterOptimizedForHumans::CustomStringModifier::Dec;
         }
         else if (modifierNode.getMatchedString() == "default")
         {
-            modifier = cli::OutputFormatter::CustomStringModifier::Default;
+            modifier = cli::OutputFormatterOptimizedForHumans::CustomStringModifier::Default;
         }
         else if (modifierNode.getMatchedString() == "hex")
         {
-            modifier = cli::OutputFormatter::CustomStringModifier::Hex;
+            modifier = cli::OutputFormatterOptimizedForHumans::CustomStringModifier::Hex;
         }
     }
 
