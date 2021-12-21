@@ -21,12 +21,8 @@
 @@CMD@@ localhost:50051 examples.NestedTypeRpcs echoNestedMaps
 Warning: no Fields found in parseTree for message 'NestedMaps'
 /.* Received message:
-| number_and_string..... = {NumberAndString}
-| | number = 0 (0x00000000)
-| | str... = ""
-| sub_message........... = {SubMessage}
-| | simple_map_int[0/0]... = {}
-| | simple_map_string[0/0] = {}
+| number_and_string..... = [NOT SET]
+| sub_message........... = [NOT SET]
 | simple_map_int[0/0]... = {}
 | simple_map_string[0/0] = {}
 RPC succeeded :D
@@ -51,12 +47,8 @@ Grammar could not be fetched from the server address: 'localhost:50443'
 @@CMD@@ --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50051 examples.NestedTypeRpcs echoNestedMaps
 Warning: no Fields found in parseTree for message 'NestedMaps'
 /.* Received message:
-| number_and_string..... = {NumberAndString}
-| | number = 0 (0x00000000)
-| | str... = ""
-| sub_message........... = {SubMessage}
-| | simple_map_int[0/0]... = {}
-| | simple_map_string[0/0] = {}
+| number_and_string..... = [NOT SET]
+| sub_message........... = [NOT SET]
 | simple_map_int[0/0]... = {}
 | simple_map_string[0/0] = {}
 RPC succeeded :D
@@ -95,12 +87,8 @@ ipv6:
 @@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
 Warning: no Fields found in parseTree for message 'NestedMaps'
 /.* Received message:
-| number_and_string..... = {NumberAndString}
-| | number = 0 (0x00000000)
-| | str... = ""
-| sub_message........... = {SubMessage}
-| | simple_map_int[0/0]... = {}
-| | simple_map_string[0/0] = {}
+| number_and_string..... = [NOT SET]
+| sub_message........... = [NOT SET]
 | simple_map_int[0/0]... = {}
 | simple_map_string[0/0] = {}
 RPC succeeded :D
@@ -114,12 +102,8 @@ RPC succeeded :D
 @@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50052 examples.NestedTypeRpcs echoNestedMaps
 Warning: no Fields found in parseTree for message 'NestedMaps'
 /.* Received message:
-| number_and_string..... = {NumberAndString}
-| | number = 0 (0x00000000)
-| | str... = ""
-| sub_message........... = {SubMessage}
-| | simple_map_int[0/0]... = {}
-| | simple_map_string[0/0] = {}
+| number_and_string..... = [NOT SET]
+| sub_message........... = [NOT SET]
 | simple_map_int[0/0]... = {}
 | simple_map_string[0/0] = {}
 RPC succeeded :D

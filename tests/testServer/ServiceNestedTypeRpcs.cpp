@@ -53,6 +53,15 @@
 {
     return grpc::Status();
 }
+::grpc::Status ServiceNestedTypeRpcs::returnNestedMixedEmpty(
+        ::grpc::ServerContext* context,
+        const ::google::protobuf::Empty* request,
+        ::examples::NestedMixedEmpty* response
+        )
+{
+    response->mutable_empty_child();
+    return grpc::Status();
+}
 
 ::grpc::Status ServiceNestedTypeRpcs::getTime(
         ::grpc::ServerContext* context,

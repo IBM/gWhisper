@@ -13,6 +13,34 @@
 # limitations under the License.
 
 ##############################################################################
+# Default values / uninitialized fields test
+##############################################################################
+#START_TEST defaultValueInOutputMessage
+@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs negateBool m_bool=true
+/.* Received message:
+| m_bool = false
+RPC succeeded :D
+#END_TEST
+
+#START_TEST DefaultValueInInputMessage
+@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs negateBool
+/.* Received message:
+| m_bool = true
+RPC succeeded :D
+#END_TEST
+
+#START_TEST NoneSetSubMessage
+@@CMD@@  127.0.0.1 examples.NestedTypeRpcs echoNestedMaps
+Warning: no Fields found in parseTree for message 'NestedMaps'
+2021-10-13 15:48:06: Received message:
+| number_and_string..... = [NOT SET]
+| sub_message........... = [NOT SET]
+| simple_map_int[0/0] = {}
+| simple_map_string[0/0] = {}
+RPC succeeded :D
+#END_TEST
+
+##############################################################################
 # Client streaming RPCs
 ##############################################################################
 
@@ -43,6 +71,22 @@ RPC succeeded :D
 @@CMD@@ 127.0.0.1 examples.StreamingRpcs bidirectionalStreamNegateNumbers
 RPC succeeded :D
 #END_TEST
+
+##############################################################################
+# Output format tests:
+##############################################################################
+
+#START_TEST EmptyFieldCorrectlyFormatted
+@@CMD@@ 127.0.0.1 examples.NestedTypeRpcs returnNestedMixedEmpty
+/.* Received message:
+| some_integer..... = 0 (0x00000000)
+| empty_child...... = {Empty}
+| number_and_string = {NumberAndString}
+| | number = 0 (0x00000000)
+| | str... = ""
+RPC succeeded :D
+#END_TEST
+
 
 ##############################################################################
 # String tests:

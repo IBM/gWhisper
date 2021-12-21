@@ -90,6 +90,9 @@ service NestedTypeRpcs
     rpc nestedEmpty (NestedEmpty) returns (google.protobuf.Empty){
         option (rpc_doc) = "Takes a message with empty sub-message, does nothing";
         };
+    rpc returnNestedMixedEmpty (google.protobuf.Empty) returns (NestedMixedEmpty){
+        option (rpc_doc) = "Returns am message containing an empty field";
+        };
     rpc getTime (google.protobuf.Empty) returns (google.protobuf.Timestamp){
         option (rpc_doc) = "Returns current time";
         };
@@ -285,4 +288,12 @@ message NestedEmpty
 {
     option (message_doc) = "Message containing an empty sub-message";
     google.protobuf.Empty emptyChild = 1;
+}
+
+message NestedMixedEmpty
+{
+    option (message_doc) = "Empty field togehter with some other things";
+    uint32 some_integer = 1;
+    google.protobuf.Empty empty_child = 2;
+    NumberAndString number_and_string = 3;
 }
