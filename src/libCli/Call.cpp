@@ -244,18 +244,18 @@ namespace cli
             // read data from the parse tree into the protobuf message:
             std::unique_ptr<grpc::protobuf::Message> message = cli::parseMessage(*messageParseTree, dynamicFactory, inputType);
 
+            if (not message)
+            {
+                std::cerr << "Error: Error parsing method arguments -> aborting the call :-(" << std::endl;
+                return -1;
+            }
+
             if (parseTree.findFirstChild("PrintParsedMessage") != "")
             {
                 // use built-in human readable output format
                 cli::OutputFormatterOptimizedForHumans imessageFormatter;
                 std::cout << "Request message:" << std::endl
                           << imessageFormatter.messageToString(*message, method->input_type()) << std::endl;
-            }
-
-            if (not message)
-            {
-                std::cerr << "Error: Error parsing method arguments -> aborting the call :-(" << std::endl;
-                return -1;
             }
 
             // now we serialize the message:
