@@ -245,6 +245,12 @@ namespace cli
             return -1;
         }
 
+        if(not method->client_streaming() and requestMessages.size() > 1)
+        {
+            std::cerr << "Error: For Unary calls only one request message is allowed. -> aborting the call :-(" << std::endl;
+            return -1;
+        }
+
         // Write all request messages (multiple in case of request stream)
         for (auto & message : requestMessages)
         {
