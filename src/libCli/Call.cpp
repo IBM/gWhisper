@@ -68,6 +68,19 @@ namespace cli
         return humanFormatter;
     }
 
+    std::unique_ptr<MessageParser> createMessageParser(ParsedElement &parseTree)
+    {
+        if(parseTree.findFirstChild("JsonInput") != "")
+        {
+            // TODO: once json parser is implemented, return correct one here:
+            return std::make_unique<MessageParserCli>();
+        }
+        else
+        {
+            return std::make_unique<MessageParserCli>();
+        }
+    }
+
     // TODO: move this to OutputFormatting code
     std::string customMessageFormat(const grpc::protobuf::Message &f_message, const grpc::protobuf::Descriptor *f_messageDescriptor, ParsedElement &f_customFormatParseTree, size_t startChild = 0)
     {
@@ -214,48 +227,31 @@ namespace cli
         }
 
         const grpc::protobuf::Descriptor *inputType = method->input_type();
-
         // now we have to construct a protobuf from the parsed argument, which corresponds to the inputType
         google::protobuf::DynamicMessageFactory dynamicFactory;
 
-        std::vector<ArgParse::ParsedElement *> requestMessages;
-        // search all passed messages: (true flag prevents searching sub-messages)
-        parseTree.findAllSubTrees("Message", requestMessages, true);
-
-        if (not method->client_streaming() and requestMessages.size() == 0)
-        {
-            // User did not give any message arguments for non-streaming RPC
-            // In this case we just add the parseTree, which causes a default message to be cunstructed:
-            requestMessages.push_back(&parseTree);
-        }
-
         // Prepare the RPC call:
         std::multimap<grpc::string, grpc::string> clientMetadata;
-        grpc::string serializedResponse;
-        std::multimap<grpc::string_ref, grpc::string_ref> serverMetadataA;
-        std::multimap<grpc::string_ref, grpc::string_ref> serverMetadataB;
-
         std::string methodStr = "/" + serviceName + "/" + methodName;
         grpc::testing::CliCall call(channel, methodStr, clientMetadata);
+        auto messageFormatter = createOutputFormatter(parseTree);
+        auto messageParser = createMessageParser(parseTree);
+
+        // Parse request messages given by the user:
+        auto requestMessages = messageParser->parseMessages(parseTree, dynamicFactory, inputType, method->client_streaming());
+        if(requestMessages.size() == 0)
+        {
+            std::cerr << "Error: Error parsing method arguments -> aborting the call :-(" << std::endl;
+            return -1;
+        }
 
         // Write all request messages (multiple in case of request stream)
-        for (ArgParse::ParsedElement *messageParseTree : requestMessages)
+        for (auto & message : requestMessages)
         {
-            // read data from the parse tree into the protobuf message:
-            std::unique_ptr<grpc::protobuf::Message> message = cli::parseMessage(*messageParseTree, dynamicFactory, inputType);
-
-            if (not message)
-            {
-                std::cerr << "Error: Error parsing method arguments -> aborting the call :-(" << std::endl;
-                return -1;
-            }
-
             if (parseTree.findFirstChild("PrintParsedMessage") != "")
             {
-                // use built-in human readable output format
-                cli::OutputFormatterOptimizedForHumans imessageFormatter;
                 std::cout << "Request message:" << std::endl
-                          << imessageFormatter.messageToString(*message, method->input_type()) << std::endl;
+                          << messageFormatter->messageToString(*message, method->input_type()) << std::endl;
             }
 
             // now we serialize the message:
@@ -276,6 +272,8 @@ namespace cli
         // In a loop we read reply data from the reply stream:
         // NOTE: in gRPC every RPC can be considered "streaming". Non-streaming RPCs
         //  merely return one reply message.
+        grpc::string serializedResponse;
+        std::multimap<grpc::string_ref, grpc::string_ref> serverMetadataA;
         bool init = true;
         for (init = true; call.Read(&serializedResponse, init ? &serverMetadataA : nullptr); init = false)
         {
@@ -294,8 +292,6 @@ namespace cli
             ParsedElement customFormatParseTree = parseTree.findFirstSubTree("CustomOutputFormat", customOutputFormatRequested);
             if (not customOutputFormatRequested)
             {
-                // use built-in human readable output format
-                auto messageFormatter = createOutputFormatter(parseTree);
 
                 msgString = messageFormatter->messageToString(*replyMessage, method->output_type());
                 std::cout << msgString << std::endl;
@@ -311,6 +307,7 @@ namespace cli
         }
 
         // reply stream finished -> finish the RPC:
+        std::multimap<grpc::string_ref, grpc::string_ref> serverMetadataB;
         grpc::Status status = call.Finish(&serverMetadataB);
 
         if (not status.ok())

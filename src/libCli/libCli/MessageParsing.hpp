@@ -19,17 +19,41 @@
 
 namespace cli
 {
-    /// Constructs a gRPC message from a given parseTree.
-    /// From a given parse tree, this function constructs a protobuf message and fills
-    /// it with all data available from the parse tree.
-    /// @param f_parseTree The parse tree containing all information which should be "parsed" into the protobuf message.
-    /// @param f_factory Required to construct messages.
-    /// @param f_messageDescriptor Message descriptor describing the type of the messache whoch should be constructed.
-    /// @returns unique_ptr pointing to a newly created message if parse succedded,
-    ///      or an unassociated unique_ptr if parse failed.
-    std::unique_ptr<google::protobuf::Message> parseMessage(
-            ArgParse::ParsedElement & f_parseTree,
-            google::protobuf::DynamicMessageFactory & f_factory,
-            const google::protobuf::Descriptor* f_messageDescriptor
-            );
+
+    class MessageParser
+    {
+        public:
+            /// Constructs a gRPC messages from a given parseTree.
+            /// From a given parse tree, this function constructs a protobuf message and fills
+            /// it with all data available from the parse tree.
+            /// @param f_parseTree The parse tree containing all information which should be "parsed" into the protobuf messages.
+            /// @param f_factory Required to construct messages.
+            /// @param f_messageDescriptor Message descriptor describing the type of the messache whoch should be constructed.
+            /// @returns unique_ptr pointing to a newly created message if parse succedded,
+            ///      or an unassociated unique_ptr if parse failed.
+            virtual std::vector<std::unique_ptr<google::protobuf::Message>> parseMessages(
+                ArgParse::ParsedElement & f_parseTree,
+                google::protobuf::DynamicMessageFactory & f_factory,
+                const google::protobuf::Descriptor* f_messageDescriptor,
+                bool f_isClientStreamingRpc
+                ) = 0;
+    };
+
+    class MessageParserCli : public MessageParser
+    {
+        public:
+            virtual std::vector<std::unique_ptr<google::protobuf::Message>> parseMessages(
+                ArgParse::ParsedElement & f_parseTree,
+                google::protobuf::DynamicMessageFactory & f_factory,
+                const google::protobuf::Descriptor* f_messageDescriptor,
+                bool f_isClientStreamingRpc
+                ) override;
+        private:
+            std::unique_ptr<google::protobuf::Message> parseMessage(
+                    ArgParse::ParsedElement & f_parseTree,
+                    google::protobuf::DynamicMessageFactory & f_factory,
+                    const google::protobuf::Descriptor* f_messageDescriptor
+                    );
+            int parseFieldValue(ArgParse::ParsedElement & f_parseTree, google::protobuf::Message * f_message, google::protobuf::DynamicMessageFactory & f_factory, const google::protobuf::FieldDescriptor * f_fieldDescriptor, bool f_isRepeated = false);
+    };
 }

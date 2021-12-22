@@ -33,7 +33,7 @@ namespace cli
 /// @param f_isRepeated if true, field value will be added as a repeated field value.
 ///        (protobuf reflection api unfortunately does not provide a combined API for setting unique fields and adding to repeated fields)
 /// @returns 0 if field value could be added to the message. -1 otherwise.
-int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_message, google::protobuf::DynamicMessageFactory & f_factory, const google::protobuf::FieldDescriptor * f_fieldDescriptor, bool f_isRepeated = false)
+int MessageParserCli::parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_message, google::protobuf::DynamicMessageFactory & f_factory, const google::protobuf::FieldDescriptor * f_fieldDescriptor, bool f_isRepeated)
 {
     const google::protobuf::Reflection *reflection = f_message->GetReflection();
     std::string valueString = f_parseTree.findFirstChild("FieldValue");
@@ -290,7 +290,7 @@ int parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_m
     return 0;
 }
 
-std::unique_ptr<google::protobuf::Message> parseMessage(ParsedElement & f_parseTree, google::protobuf::DynamicMessageFactory & f_factory, const google::protobuf::Descriptor* f_messageDescriptor)
+std::unique_ptr<google::protobuf::Message> MessageParserCli::parseMessage(ParsedElement & f_parseTree, google::protobuf::DynamicMessageFactory & f_factory, const google::protobuf::Descriptor* f_messageDescriptor)
 {
     std::unique_ptr<google::protobuf::Message> message(f_factory.GetPrototype(f_messageDescriptor)->New());
 
@@ -351,6 +351,41 @@ std::unique_ptr<google::protobuf::Message> parseMessage(ParsedElement & f_parseT
     }
 
     return std::move(message);
+}
+
+std::vector<std::unique_ptr<google::protobuf::Message>> MessageParserCli::parseMessages(
+        ArgParse::ParsedElement & f_parseTree,
+        google::protobuf::DynamicMessageFactory & f_factory,
+        const google::protobuf::Descriptor* f_messageDescriptor,
+        bool f_isClientStreamingRpc
+        )
+{
+        std::vector<ArgParse::ParsedElement *> requestMessages;
+        // search all passed messages: (true flag prevents searching sub-messages)
+        f_parseTree.findAllSubTrees("Message", requestMessages, true);
+
+        if (not f_isClientStreamingRpc and requestMessages.size() == 0)
+        {
+            // User did not give any message arguments for non-streaming RPC
+            // In this case we just add the parseTree, which causes a default message to be cunstructed:
+            requestMessages.push_back(&f_parseTree);
+        }
+
+        std::vector<std::unique_ptr<google::protobuf::Message>> result;
+        // Write all request messages (multiple in case of request stream)
+        for (ArgParse::ParsedElement *messageParseTree : requestMessages)
+        {
+            // read data from the parse tree into the protobuf message:
+            std::unique_ptr<google::protobuf::Message> message = parseMessage(*messageParseTree, f_factory, f_messageDescriptor);
+
+            if (not message)
+            {
+                result.clear();
+                return result;
+            }
+            result.push_back(std::move(message));
+        }
+        return result;
 }
 
 }
