@@ -56,4 +56,21 @@ namespace cli
                     );
             int parseFieldValue(ArgParse::ParsedElement & f_parseTree, google::protobuf::Message * f_message, google::protobuf::DynamicMessageFactory & f_factory, const google::protobuf::FieldDescriptor * f_fieldDescriptor, bool f_isRepeated = false);
     };
+
+    class MessageParserJson : public MessageParser
+    {
+        public:
+            virtual std::vector<std::unique_ptr<google::protobuf::Message>> parseMessages(
+                ArgParse::ParsedElement & f_parseTree,
+                google::protobuf::DynamicMessageFactory & f_factory,
+                const google::protobuf::Descriptor* f_messageDescriptor,
+                bool f_isClientStreamingRpc
+                ) override;
+        private:
+            std::unique_ptr<google::protobuf::Message> parseMessage(
+                    ArgParse::ParsedElement & f_parseTree,
+                    google::protobuf::DynamicMessageFactory & f_factory,
+                    const google::protobuf::Descriptor* f_messageDescriptor
+                    );
+    };
 }

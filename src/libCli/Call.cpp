@@ -73,7 +73,7 @@ namespace cli
         if(parseTree.findFirstChild("JsonInput") != "")
         {
             // TODO: once json parser is implemented, return correct one here:
-            return std::make_unique<MessageParserCli>();
+            return std::make_unique<MessageParserJson>();
         }
         else
         {

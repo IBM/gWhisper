@@ -470,17 +470,17 @@ namespace cli
 
         GrammarElement *clientCert = f_grammarPool.createElement<Concatenation>();
         clientCert->addChild(f_grammarPool.createElement<FixedString>("--clientCert=", "OptionClientCert"));
-        clientCert->addChild(f_grammarPool.createElement<EscapedString>(":, %", '%', "FileClientCert"));
+        clientCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileClientCert"));
         optionsalt->addChild(clientCert);
 
         GrammarElement *clientKey = f_grammarPool.createElement<Concatenation>();
         clientKey->addChild(f_grammarPool.createElement<FixedString>("--clientKey=", "OptionClientKey"));
-        clientKey->addChild(f_grammarPool.createElement<EscapedString>(":, %", '%', "FileClientKey"));
+        clientKey->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileClientKey"));
         optionsalt->addChild(clientKey);
 
         GrammarElement *serverCert = f_grammarPool.createElement<Concatenation>();
         serverCert->addChild(f_grammarPool.createElement<FixedString>("--serverCert=", "OptionServerCert"));
-        serverCert->addChild(f_grammarPool.createElement<EscapedString>(":, %", '%', "FileServerCert"));
+        serverCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileServerCert"));
         optionsalt->addChild(serverCert);
 
         GrammarElement *completeOption = f_grammarPool.createElement<Concatenation>();
@@ -495,6 +495,11 @@ namespace cli
         completeDialectChoice->addChild(f_grammarPool.createElement<FixedString>("bash", "bash"));
         completeDialectChoice->addChild(f_grammarPool.createElement<FixedString>("fish", "fish"));
         optionsalt->addChild(completeOption);
+
+        GrammarElement *jsonInput = f_grammarPool.createElement<Concatenation>("JsonInput");
+        jsonInput->addChild(f_grammarPool.createElement<FixedString>("--jsonInput=", "JsonInputTag"));
+        jsonInput->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "JsonInputFile"));
+        optionsalt->addChild(jsonInput);
 
         //completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--debugComplete", "CompleteDebug"));
