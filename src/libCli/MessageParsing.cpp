@@ -429,7 +429,7 @@ std::vector<std::unique_ptr<google::protobuf::Message>> MessageParserJson::parse
                     google::protobuf::util::JsonParseOptions());
             if(not status.ok())
             {
-                std::cerr << "Warning: Failed to parse JSON file '" << jsonFileName << "'." << std::endl;
+                std::cerr << "Warning: Failed to parse JSON file '" << jsonFileName << "': " << status.ToString() << std::endl;
                 continue;
             }
             result.push_back(std::move(message));
