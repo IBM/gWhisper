@@ -36,6 +36,13 @@ static cli::OutputFormatterOptimizedForHumans::CustomStringModifier getModifier(
 
 namespace cli
 {
+    /// Construct an OutputFormatter, which can be used to format protobuf messages.
+    /// Depending on the given parseTree an OutputFormatter is selected.
+    /// E.g. if user passed --jsonOutput, a formatter which is formatting messages
+    /// to Json is created. Otherwise the default "Human Readable" formatter is
+    /// created.
+    /// @param parseTree CLI argument parse tree, which will be used to detemrine
+    ///        which OputputFormatter to create.
     std::unique_ptr<OutputFormatter> createOutputFormatter(ParsedElement &parseTree)
     {
         if(parseTree.findFirstChild("JsonOutput") != "")
@@ -68,6 +75,13 @@ namespace cli
         return humanFormatter;
     }
 
+    /// Construct a Message parser, which can be used to construct protobuf messages.
+    /// Depending on the given parseTree a Parser is selected.
+    /// E.g. depending on user given Option --jsonInput parser from JSOn is created.
+    /// Otherwise parser from CLI args is created, which parses message fields
+    /// directly from CLI arguments.
+    /// @param parseTree CLI argument parse tree, which will be used to detemrine
+    ///        which Parser to create.
     std::unique_ptr<MessageParser> createMessageParser(ParsedElement &parseTree)
     {
         if(parseTree.findFirstChild("JsonInput") != "")
