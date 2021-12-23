@@ -19,7 +19,6 @@
 #include <iomanip>
 #include <type_traits>
 
-#include <google/protobuf/util/json_util.h>
 
 template <typename T> static void dumpBinaryIntoString(std::string &f_destination, const T& f_source);
 
@@ -39,16 +38,7 @@ namespace cli
         public:
             virtual std::string messageToString(
                     const grpc::protobuf::Message & f_message,
-                    const grpc::protobuf::Descriptor* f_messageDescriptor) override
-            {
-                std::string resultString;
-                google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(f_message, &resultString);
-                if(not status.ok())
-                {
-                    resultString = std::string("Json encoding of Message failed: ") + status.ToString();
-                }
-                return resultString;
-            }
+                    const grpc::protobuf::Descriptor* f_messageDescriptor) override;
 
     };
 

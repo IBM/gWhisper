@@ -137,13 +137,13 @@ OPTION:
        Prints the parsed request message before calling the remote procedure.
    
    --jsonInput=[FILENAME ]...
-       NOTE: This is a planned feature, which is not yet implemented
        Read the request message from a file containing a JSON representation,
        instead of parsing it from commandline arguments.
        If filename is set to the reserved name "-", JSON content is read from
        stdin. Note that in this case the whole stdin is consumed until EOF.
        In case of a client-side streaming RPC, you may specify multiple JSON
        files, each containing a single message.
+       Whitespaces in filenames need to be escaped using '%'.
 
 
  Debug options:

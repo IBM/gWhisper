@@ -23,7 +23,7 @@ namespace cli
     class MessageParser
     {
         public:
-            /// Constructs a gRPC messages from a given parseTree.
+            /// Constructs gRPC messages from a given parseTree.
             /// From a given parse tree, this function constructs a protobuf message and fills
             /// it with all data available from the parse tree.
             /// @param f_parseTree The parse tree containing all information which should be "parsed" into the protobuf messages.
