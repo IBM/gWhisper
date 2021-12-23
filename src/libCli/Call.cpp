@@ -239,9 +239,9 @@ namespace cli
 
         // Parse request messages given by the user:
         auto requestMessages = messageParser->parseMessages(parseTree, dynamicFactory, inputType, method->client_streaming());
-        if(requestMessages.size() == 0)
+        if(requestMessages.size() == 0 and not method->client_streaming())
         {
-            std::cerr << "Error: Error parsing method arguments -> aborting the call :-(" << std::endl;
+            std::cerr << "Error parsing method arguments -> aborting the call :-(" << std::endl;
             return -1;
         }
 

@@ -22,7 +22,9 @@ namespace cli
             const grpc::protobuf::Descriptor* f_messageDescriptor)
     {
         std::string resultString;
-        google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(f_message, &resultString);
+        google::protobuf::util::JsonPrintOptions printOptions;
+        printOptions.preserve_proto_field_names = true;
+        google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(f_message, &resultString, printOptions);
         if(not status.ok())
         {
             resultString = std::string("Json encoding of Message failed: ") + status.ToString();

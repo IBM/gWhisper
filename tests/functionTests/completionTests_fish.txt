@@ -30,6 +30,7 @@ Possible Candidates:
   '--color '
   '--version '
   '--jsonOutput '
+  '--jsonInput='
   '--printParsedMessage '
   '--noSimpleMapOutput '
   '--connectTimeoutMilliseconds='

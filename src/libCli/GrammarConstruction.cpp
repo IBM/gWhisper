@@ -496,11 +496,6 @@ namespace cli
         completeDialectChoice->addChild(f_grammarPool.createElement<FixedString>("fish", "fish"));
         optionsalt->addChild(completeOption);
 
-        GrammarElement *jsonInput = f_grammarPool.createElement<Concatenation>("JsonInput");
-        jsonInput->addChild(f_grammarPool.createElement<FixedString>("--jsonInput=", "JsonInputTag"));
-        jsonInput->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "JsonInputFile"));
-        optionsalt->addChild(jsonInput);
-
         //completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--debugComplete", "CompleteDebug"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--dot", "DotExport"));
@@ -508,6 +503,10 @@ namespace cli
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--color", "Color"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--version", "Version"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--jsonOutput", "JsonOutput"));
+        GrammarElement *jsonInput = f_grammarPool.createElement<Concatenation>("JsonInput");
+        jsonInput->addChild(f_grammarPool.createElement<FixedString>("--jsonInput=", "JsonInputTag"));
+        jsonInput->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "JsonInputFile"));
+        optionsalt->addChild(jsonInput);
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--printParsedMessage", "PrintParsedMessage"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSimpleMapOutput", "NoSimpleMapOutput"));
         GrammarElement *timeoutOption = f_grammarPool.createElement<Concatenation>();
