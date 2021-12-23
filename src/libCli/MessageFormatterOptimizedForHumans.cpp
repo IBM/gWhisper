@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <libCli/OutputFormatting.hpp>
+#include <libCli/MessageFormatter.hpp>
 
 namespace cli
 {
 
     template <typename T>
-    std::string OutputFormatterOptimizedForHumans::intToHexString(T f_value)
+    std::string MessageFormatterOptimizedForHumans::intToHexString(T f_value)
     {
         std::stringstream sstream;
 
@@ -31,7 +31,7 @@ namespace cli
         return sstream.str();
     }
 
-    OutputFormatterOptimizedForHumans::OutputFormatterOptimizedForHumans() :
+    MessageFormatterOptimizedForHumans::MessageFormatterOptimizedForHumans() :
         m_isSimpleMapOutput(true),
         m_colorMap{
             {ColorClass::Normal, "\e[0m\e[39m"},
@@ -52,17 +52,17 @@ namespace cli
 
     }
 
-    void OutputFormatterOptimizedForHumans::clearColorMap()
+    void MessageFormatterOptimizedForHumans::clearColorMap()
     {
         m_colorMap.clear();
     }
 
-    void OutputFormatterOptimizedForHumans::disableSimpleMapOutput()
+    void MessageFormatterOptimizedForHumans::disableSimpleMapOutput()
     {
         m_isSimpleMapOutput = false;
     }
 
-    std::string OutputFormatterOptimizedForHumans::getColor(OutputFormatterOptimizedForHumans::ColorClass f_colorClass)
+    std::string MessageFormatterOptimizedForHumans::getColor(MessageFormatterOptimizedForHumans::ColorClass f_colorClass)
     {
         auto resultIt = m_colorMap.find(f_colorClass);
         if(resultIt != m_colorMap.end())
@@ -75,12 +75,12 @@ namespace cli
         }
     }
 
-    std::string OutputFormatterOptimizedForHumans::colorize(OutputFormatterOptimizedForHumans::ColorClass f_colorClass, const std::string & f_string)
+    std::string MessageFormatterOptimizedForHumans::colorize(MessageFormatterOptimizedForHumans::ColorClass f_colorClass, const std::string & f_string)
     {
         return getColor(f_colorClass) + f_string + getColor(ColorClass::Normal);
     }
 
-    std::string OutputFormatterOptimizedForHumans::generateHorizontalGuide(size_t f_currentSize, size_t f_targetSize)
+    std::string MessageFormatterOptimizedForHumans::generateHorizontalGuide(size_t f_currentSize, size_t f_targetSize)
     {
         std::string result = getColor(ColorClass::HorizontalGuides);
         for(;f_currentSize<f_targetSize; f_currentSize++)
@@ -91,7 +91,7 @@ namespace cli
         return result;
     }
 
-std::string OutputFormatterOptimizedForHumans::repeatedFieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, int f_fieldIndex, CustomStringModifier f_modifier)
+std::string MessageFormatterOptimizedForHumans::repeatedFieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, int f_fieldIndex, CustomStringModifier f_modifier)
 {
     const google::protobuf::Reflection * reflection = f_message.GetReflection();
     std::string result;
@@ -185,7 +185,7 @@ std::string OutputFormatterOptimizedForHumans::repeatedFieldValueToString(const 
     return result;
 }
 
-bool OutputFormatterOptimizedForHumans::isMapEntryPrimitive(const grpc::protobuf::Descriptor* f_messageDescriptor)
+bool MessageFormatterOptimizedForHumans::isMapEntryPrimitive(const grpc::protobuf::Descriptor* f_messageDescriptor)
 {
     if(f_messageDescriptor->field_count() == 2)
     {
@@ -201,7 +201,7 @@ bool OutputFormatterOptimizedForHumans::isMapEntryPrimitive(const grpc::protobuf
     return false;
 }
 
-std::string OutputFormatterOptimizedForHumans::fieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, CustomStringModifier f_modifier)
+std::string MessageFormatterOptimizedForHumans::fieldValueToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, CustomStringModifier f_modifier)
 {
     const google::protobuf::Reflection * reflection = f_message.GetReflection();
     std::string result;
@@ -322,7 +322,7 @@ std::string OutputFormatterOptimizedForHumans::fieldValueToString(const grpc::pr
     return result;
 }
 
-std::string OutputFormatterOptimizedForHumans::fieldToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, size_t maxFieldNameSize)
+std::string MessageFormatterOptimizedForHumans::fieldToString(const grpc::protobuf::Message & f_message, const google::protobuf::FieldDescriptor * f_fieldDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix, size_t maxFieldNameSize)
 {
     std::string result;
     const google::protobuf::Reflection * reflection = f_message.GetReflection();
@@ -469,7 +469,7 @@ std::string OutputFormatterOptimizedForHumans::fieldToString(const grpc::protobu
     return result;
 }
 
-std::string OutputFormatterOptimizedForHumans::messageToStringInternal(const grpc::protobuf::Message & f_message, const grpc::protobuf::Descriptor* f_messageDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix)
+std::string MessageFormatterOptimizedForHumans::messageToStringInternal(const grpc::protobuf::Message & f_message, const grpc::protobuf::Descriptor* f_messageDescriptor, const std::string & f_initPrefix, const std::string & f_currentPrefix)
 {
     std::string result;
     // first determine field name length maximum (for aligned formatting)
@@ -506,7 +506,7 @@ std::string OutputFormatterOptimizedForHumans::messageToStringInternal(const grp
     return result;
 }
 
-std::string OutputFormatterOptimizedForHumans::stringFromBytes(const std::string & f_value, const CustomStringModifier & f_modifier, const std::string & f_prefix)
+std::string MessageFormatterOptimizedForHumans::stringFromBytes(const std::string & f_value, const CustomStringModifier & f_modifier, const std::string & f_prefix)
 {
     std::string result;
 
@@ -594,7 +594,7 @@ std::string OutputFormatterOptimizedForHumans::stringFromBytes(const std::string
     }
     return result;
 }
-OutputFormatterOptimizedForHumans::CustomStringModifier OutputFormatterOptimizedForHumans::getModifier(ArgParse::ParsedElement &f_optionalModifier)
+MessageFormatterOptimizedForHumans::CustomStringModifier MessageFormatterOptimizedForHumans::getModifier(ArgParse::ParsedElement &f_optionalModifier)
 {
     CustomStringModifier modifier = CustomStringModifier::Default;
     bool foundModifier = false;

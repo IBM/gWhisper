@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <libCli/OutputFormatting.hpp>
+#include <libCli/MessageFormatter.hpp>
 #include <google/protobuf/util/json_util.h>
 
 namespace cli
 {
-    OutputFormatterCustom::OutputFormatterCustom(ArgParse::ParsedElement & f_parseTree) :
+    MessageFormatterCustom::MessageFormatterCustom(ArgParse::ParsedElement & f_parseTree) :
         m_parseTree(f_parseTree)
     {
     }
 
-    std::string OutputFormatterCustom::messageToString(
+    std::string MessageFormatterCustom::messageToString(
             const grpc::protobuf::Message & f_message,
             const grpc::protobuf::Descriptor* f_messageDescriptor)
     {
@@ -41,7 +41,7 @@ namespace cli
         return resultString;
     }
 
-    std::string OutputFormatterCustom::customMessageFormat(const grpc::protobuf::Message &f_message, const grpc::protobuf::Descriptor *f_messageDescriptor, ArgParse::ParsedElement &f_customFormatParseTree, size_t startChild)
+    std::string MessageFormatterCustom::customMessageFormat(const grpc::protobuf::Message &f_message, const grpc::protobuf::Descriptor *f_messageDescriptor, ArgParse::ParsedElement &f_customFormatParseTree, size_t startChild)
     {
         std::string result;
         const google::protobuf::Reflection *reflection = f_message.GetReflection();
@@ -106,8 +106,8 @@ namespace cli
         // context in which to evaluate field references :)
 
         //std::cout << "have field\n";
-        OutputFormatterOptimizedForHumans myOutputFormatter;
-        myOutputFormatter.clearColorMap();
+        MessageFormatterOptimizedForHumans myMessageFormatter;
+        myMessageFormatter.clearColorMap();
 
         bool haveFormatString = false;
         auto formatString = f_customFormatParseTree.findFirstSubTree("OutputFormatString", haveFormatString);
@@ -121,7 +121,7 @@ namespace cli
             auto fieldReference = outputStatement->findFirstSubTree("OutputFieldReference", foundFieldReference);
             if (foundFieldReference)
             {
-                OutputFormatterOptimizedForHumans::CustomStringModifier modifier = OutputFormatterOptimizedForHumans::getModifier(*outputStatement);
+                MessageFormatterOptimizedForHumans::CustomStringModifier modifier = MessageFormatterOptimizedForHumans::getModifier(*outputStatement);
 
                 //std::cout << "  have field ref " <<  fieldReference.getMatchedString() << "\n";
                 // need to lookup the field:
@@ -132,7 +132,7 @@ namespace cli
                 }
                 else
                 {
-                    result += myOutputFormatter.fieldValueToString(f_message, fieldRef, "", "", modifier);
+                    result += myMessageFormatter.fieldValueToString(f_message, fieldRef, "", "", modifier);
                 }
             }
             else

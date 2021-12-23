@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <libCli/OutputFormatting.hpp>
+#include <libCli/MessageFormatter.hpp>
 #include <google/protobuf/util/json_util.h>
 
 namespace cli
 {
-    std::string OutputFormatterJson::messageToString(
+    std::string MessageFormatterJson::messageToString(
             const grpc::protobuf::Message & f_message,
             const grpc::protobuf::Descriptor* f_messageDescriptor)
     {

@@ -15,11 +15,11 @@
 
 set(TARGET_NAME "cli")
 set(TARGET_SRC
-    MessageParsingCli.cpp
-    MessageParsingJson.cpp
-    OutputFormattingOptimizedForHumans.cpp
-    OutputFormattingJson.cpp
-    OutputFormattingCustom.cpp
+    MessageParserCli.cpp
+    MessageParserJson.cpp
+    MessageFormatterOptimizedForHumans.cpp
+    MessageFormatterJson.cpp
+    MessageFormatterCustom.cpp
     GrammarConstruction.cpp
     Completion.cpp
     Call.cpp

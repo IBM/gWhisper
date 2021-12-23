@@ -25,7 +25,7 @@ template <typename T> static void dumpBinaryIntoString(std::string &f_destinatio
 
 namespace cli
 {
-    class OutputFormatter
+    class MessageFormatter
     {
         public:
             virtual std::string messageToString(
@@ -34,7 +34,7 @@ namespace cli
 
     };
 
-    class OutputFormatterJson : public OutputFormatter
+    class MessageFormatterJson : public MessageFormatter
     {
         public:
             virtual std::string messageToString(
@@ -43,10 +43,10 @@ namespace cli
 
     };
 
-    class OutputFormatterCustom : public OutputFormatter
+    class MessageFormatterCustom : public MessageFormatter
     {
         public:
-            OutputFormatterCustom(ArgParse::ParsedElement & f_parseTree);
+            MessageFormatterCustom(ArgParse::ParsedElement & f_parseTree);
             virtual std::string messageToString(
                     const grpc::protobuf::Message & f_message,
                     const grpc::protobuf::Descriptor* f_messageDescriptor) override;
@@ -57,12 +57,12 @@ namespace cli
     };
 
     /// Class with methods to format a protobuf message into human readable strings.
-    class OutputFormatterOptimizedForHumans : public OutputFormatter
+    class MessageFormatterOptimizedForHumans : public MessageFormatter
     {
         public:
-            /// Initializes the OutputFormatter with default settings.
+            /// Initializes the MessageFormatter with default settings.
             /// Includes initialization of the default color theme.
-            OutputFormatterOptimizedForHumans();
+            MessageFormatterOptimizedForHumans();
 
             /// Enum containing all possible elements for colorization.
             enum class ColorClass

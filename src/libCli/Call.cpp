@@ -15,9 +15,9 @@
 #include <libCli/Call.hpp>
 #include <gRPC_utils/cli_call.h>
 #include <google/protobuf/dynamic_message.h>
-#include <libCli/OutputFormatting.hpp>
 #include <libCli/ConnectionManager.hpp>
-#include <libCli/MessageParsing.hpp>
+#include <libCli/MessageFormatter.hpp>
+#include <libCli/MessageParser.hpp>
 #include "libCli/GrammarConstruction.hpp"
 #include <chrono>
 #include <ctime>
@@ -34,28 +34,28 @@ using namespace ArgParse;
 
 namespace cli
 {
-    /// Construct an OutputFormatter, which can be used to format protobuf messages.
-    /// Depending on the given parseTree an OutputFormatter is selected.
+    /// Construct an MessageFormatter, which can be used to format protobuf messages.
+    /// Depending on the given parseTree an MessageFormatter is selected.
     /// E.g. if user passed --jsonOutput, a formatter which is formatting messages
     /// to Json is created. Otherwise the default "Human Readable" formatter is
     /// created.
     /// @param parseTree CLI argument parse tree, which will be used to detemrine
     ///        which OputputFormatter to create.
-    std::unique_ptr<OutputFormatter> createOutputFormatter(ParsedElement &parseTree)
+    std::unique_ptr<MessageFormatter> createMessageFormatter(ParsedElement &parseTree)
     {
         if(parseTree.findFirstChild("JsonOutput") != "")
         {
-            return std::make_unique<OutputFormatterJson>();
+            return std::make_unique<MessageFormatterJson>();
         }
 
         bool customOutputFormatRequested = false;
         auto ignored = parseTree.findFirstSubTree("CustomOutputFormat", customOutputFormatRequested);
         if(customOutputFormatRequested)
         {
-            return std::make_unique<OutputFormatterCustom>(parseTree);
+            return std::make_unique<MessageFormatterCustom>(parseTree);
         }
 
-        auto humanFormatter = std::make_unique<OutputFormatterOptimizedForHumans>();
+        auto humanFormatter = std::make_unique<MessageFormatterOptimizedForHumans>();
 
         // disable colored output if explicitly specified:
         if (parseTree.findFirstChild("NoColor") != "")
@@ -147,11 +147,16 @@ namespace cli
         std::multimap<grpc::string, grpc::string> clientMetadata;
         std::string methodStr = "/" + serviceName + "/" + methodName;
         grpc::testing::CliCall call(channel, methodStr, clientMetadata);
-        auto messageFormatter = createOutputFormatter(parseTree);
+        auto messageFormatter = createMessageFormatter(parseTree);
         auto messageParser = createMessageParser(parseTree);
 
+        // NOTE: need to create and hold message factory here, as it holds
+        // information required by created message objects.
+        // If Factory gets destroyed, messages create dby it are unusable.
+        google::protobuf::DynamicMessageFactory dynamicFactory;
+
         // Parse request messages given by the user:
-        auto requestMessages = messageParser->parseMessages(parseTree, inputType, method->client_streaming());
+        auto requestMessages = messageParser->parseMessages(parseTree, dynamicFactory, inputType, method->client_streaming());
         if(requestMessages.size() == 0 and not method->client_streaming())
         {
             std::cerr << "Error parsing method arguments -> aborting the call :-(" << std::endl;
@@ -197,7 +202,6 @@ namespace cli
         for (init = true; call.Read(&serializedResponse, init ? &serverMetadataA : nullptr); init = false)
         {
             // convert data received from stream into a message:
-            google::protobuf::DynamicMessageFactory dynamicFactory;
             std::unique_ptr<grpc::protobuf::Message> replyMessage(dynamicFactory.GetPrototype(method->output_type())->New());
             replyMessage->ParseFromString(serializedResponse);
 

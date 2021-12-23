@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <libCli/MessageParsing.hpp>
+#include <libCli/MessageParser.hpp>
 #include <fstream>
 #include <exception>
 
@@ -359,6 +359,7 @@ std::unique_ptr<google::protobuf::Message> MessageParserCli::parseMessage(Parsed
 
 std::vector<std::unique_ptr<google::protobuf::Message>> MessageParserCli::parseMessages(
         ArgParse::ParsedElement & f_parseTree,
+        google::protobuf::DynamicMessageFactory & f_factory,
         const google::protobuf::Descriptor* f_messageDescriptor,
         bool f_isClientStreamingRpc
         )
@@ -374,13 +375,12 @@ std::vector<std::unique_ptr<google::protobuf::Message>> MessageParserCli::parseM
             requestMessages.push_back(&f_parseTree);
         }
 
-        google::protobuf::DynamicMessageFactory dynamicFactory;
         std::vector<std::unique_ptr<google::protobuf::Message>> result;
         // Write all request messages (multiple in case of request stream)
         for (ArgParse::ParsedElement *messageParseTree : requestMessages)
         {
             // read data from the parse tree into the protobuf message:
-            std::unique_ptr<google::protobuf::Message> message = parseMessage(*messageParseTree, dynamicFactory, f_messageDescriptor);
+            std::unique_ptr<google::protobuf::Message> message = parseMessage(*messageParseTree, f_factory, f_messageDescriptor);
 
             if (not message)
             {
