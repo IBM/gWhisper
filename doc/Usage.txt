@@ -69,7 +69,7 @@ OPTION:
 	      gwhisper --ssl <host>
 	      gwhisper --ssl --serverPath=<path> <host>
 
-   --clienCert=<path to client-certificate>
+   --clientCert=<path to client certificate>
 	   Set location to client certificate file.
 	   The certificate should be in .pem or .crt format.
 	   Use this optional parameter, if you want to specify a client certificate.
@@ -80,7 +80,7 @@ OPTION:
 	   If this option is used without using --ssl on a secure server,
 	   building the connection fails.
 
-   --clientKey=[Path to Client-Private-Key]
+   --clientKey=<path to client private key>
 	   Set location to client private key file.
 	   The key should be in .pem or .key format.
 	   Use this optional parameter, if you want to specify a client key.
@@ -92,8 +92,8 @@ OPTION:
 	   If this option is used without using --ssl on a secure server,
 	   building the connection fails.
 
-   --serverCert
-	   Set location to client certificate file.
+   --serverCert=<path to server certificate>
+	   Set location to server certificate file.
 	   The certificate should be in .pem or .crt format.
 	   Use this optional parameter, if you want to specify a server certificate.
 	   If this option is not set, the default-roots will be used.
@@ -126,15 +126,31 @@ OPTION:
        NOTE: This is an experimental feature and will be documented in detail,
        once finished.
 
+    --jsonOutput
+       Print the reply-message in JSON format, instead of using the gwhisper
+       human readable format. (All output options listed above do not apply)
+
+
+ Input options:
+
+   --printParsedMessage
+       Prints the parsed request message before calling the remote procedure.
+   
+   --jsonInput=[FILENAME ]...
+       Read the request message from a file containing a JSON representation,
+       instead of parsing it from commandline arguments.
+       If filename is set to the reserved name "-", JSON content is read from
+       stdin. Note that in this case the whole stdin is consumed until EOF.
+       In case of a client-side streaming RPC, you may specify multiple JSON
+       files, each containing a single message.
+       Whitespaces in filenames need to be escaped using '%'.
+
+
  Debug options:
 
    --dot
        Prints a graphviz digraph, representing the current grammar of the
        parser.
-
-   --printParsedMessage
-       Prints the parsed request message in a human readable format before
-       calling the remote procedure.
 
    --debugComplete
        Prints debug information about completion (might only be useful if

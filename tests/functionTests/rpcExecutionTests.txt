@@ -24,6 +24,7 @@ RPC succeeded :D
 
 #START_TEST DefaultValueInInputMessage
 @@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs negateBool
+Warning: no Fields found in parseTree for message 'Bool'
 /.* Received message:
 | m_bool = true
 RPC succeeded :D
@@ -32,10 +33,10 @@ RPC succeeded :D
 #START_TEST NoneSetSubMessage
 @@CMD@@  127.0.0.1 examples.NestedTypeRpcs echoNestedMaps
 Warning: no Fields found in parseTree for message 'NestedMaps'
-2021-10-13 15:48:06: Received message:
+/.* Received message:
 | number_and_string..... = [NOT SET]
 | sub_message........... = [NOT SET]
-| simple_map_int[0/0] = {}
+| simple_map_int[0/0]... = {}
 | simple_map_string[0/0] = {}
 RPC succeeded :D
 #END_TEST
@@ -81,9 +82,7 @@ RPC succeeded :D
 /.* Received message:
 | some_integer..... = 0 (0x00000000)
 | empty_child...... = {Empty}
-| number_and_string = {NumberAndString}
-| | number = 0 (0x00000000)
-| | str... = ""
+| number_and_string = [NOT SET]
 RPC succeeded :D
 #END_TEST
 
@@ -155,5 +154,70 @@ prefix 2.675000 postfix
 RPC succeeded :D
 #END_TEST
 
+##############################################################################
+# JSON output
+##############################################################################
+#START_TEST json_output_number_map
+@@CMD@@ --jsonOutput 127.0.0.1 examples.ComplexTypeRpcs mapNumbersToString numbers=:5:
+/.* Received message:
+{"number_to_string":{"5":"5"}}
+RPC succeeded :D
+#END_TEST
 
+#START_TEST json_output_number_map
+@@CMD@@ --jsonOutput 127.0.0.1 examples.NestedTypeRpcs returnNestedMixedEmpty
+/.* Received message:
+{"empty_child":{}}
+RPC succeeded :D
+#END_TEST
 
+#START_TEST json_output_number_map
+@@CMD@@ --jsonOutput 127.0.0.1 examples.ComplexTypeRpcs getLastColor colors=:blue, black:
+/.* Received message:
+{"color":"black"}
+RPC succeeded :D
+#END_TEST
+
+##############################################################################
+# JSON input
+##############################################################################
+#START_TEST json_input_stdin
+cat ${testResources}/duplicateEverything1d.json | @@CMD@@ --jsonInput=- 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
+/.* Received message:
+| some_numbers..... = {Numbers}
+| | m_double = 15.800000
+| | m_float. = 0.000000
+| | m_int32. = 0
+| | m_int64. = 17864
+| | m_uint32 = 0 (0x00000000)
+| | m_uint64 = 0 (0x0000000000000000)
+| number_and_string = {NumberAndString}
+| | number = 10 (0x0000000a)
+| | str... = "hallohallo"
+| str.............. = "Top Level String"
+RPC succeeded :D
+#END_TEST
+
+#START_TEST json_input_stdin_malformed
+cat ${testResources}/duplicateEverything1d_malformed.json | @@CMD@@ --jsonInput=- 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
+Warning: Failed to parse JSON file '-': INVALID_ARGUMENT:Unexpected end of string. Expected , or } after key:value pair.
+^
+Error parsing method arguments -> aborting the call :-(
+#END_TEST
+
+#START_TEST json_input_file
+@@CMD@@ --jsonInput=${testResources}/duplicateEverything1d.json 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
+/.* Received message:
+| some_numbers..... = {Numbers}
+| | m_double = 15.800000
+| | m_float. = 0.000000
+| | m_int32. = 0
+| | m_int64. = 17864
+| | m_uint32 = 0 (0x00000000)
+| | m_uint64 = 0 (0x0000000000000000)
+| number_and_string = {NumberAndString}
+| | number = 10 (0x0000000a)
+| | str... = "hallohallo"
+| str.............. = "Top Level String"
+RPC succeeded :D
+#END_TEST
