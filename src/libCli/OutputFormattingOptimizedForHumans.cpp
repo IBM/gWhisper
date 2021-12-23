@@ -594,4 +594,33 @@ std::string OutputFormatterOptimizedForHumans::stringFromBytes(const std::string
     }
     return result;
 }
+OutputFormatterOptimizedForHumans::CustomStringModifier OutputFormatterOptimizedForHumans::getModifier(ArgParse::ParsedElement &f_optionalModifier)
+{
+    CustomStringModifier modifier = CustomStringModifier::Default;
+    bool foundModifier = false;
+
+    auto modifierNode = f_optionalModifier.findFirstSubTree("ModifierType", foundModifier);
+    if (foundModifier)
+    {
+        if (modifierNode.getMatchedString() == "raw")
+        {
+            modifier = CustomStringModifier::Raw;
+        }
+        else if (modifierNode.getMatchedString() == "dec")
+        {
+            modifier = CustomStringModifier::Dec;
+        }
+        else if (modifierNode.getMatchedString() == "default")
+        {
+            modifier = CustomStringModifier::Default;
+        }
+        else if (modifierNode.getMatchedString() == "hex")
+        {
+            modifier = CustomStringModifier::Hex;
+        }
+    }
+
+    return modifier;
+}
+
 }

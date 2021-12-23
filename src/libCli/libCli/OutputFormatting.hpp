@@ -18,6 +18,7 @@
 #include <sstream>
 #include <iomanip>
 #include <type_traits>
+#include <libArgParse/ArgParse.hpp>
 
 
 template <typename T> static void dumpBinaryIntoString(std::string &f_destination, const T& f_source);
@@ -39,6 +40,19 @@ namespace cli
             virtual std::string messageToString(
                     const grpc::protobuf::Message & f_message,
                     const grpc::protobuf::Descriptor* f_messageDescriptor) override;
+
+    };
+
+    class OutputFormatterCustom : public OutputFormatter
+    {
+        public:
+            OutputFormatterCustom(ArgParse::ParsedElement & f_parseTree);
+            virtual std::string messageToString(
+                    const grpc::protobuf::Message & f_message,
+                    const grpc::protobuf::Descriptor* f_messageDescriptor) override;
+        private:
+            std::string customMessageFormat(const grpc::protobuf::Message &f_message, const grpc::protobuf::Descriptor *f_messageDescriptor, ArgParse::ParsedElement &f_customFormatParseTree, size_t startChild = 0);
+            ArgParse::ParsedElement & m_parseTree;
 
     };
 
@@ -77,6 +91,12 @@ namespace cli
                 Raw,
                 DecAndHex,
             };
+
+            /// Converts a Parsed CLI argument into a output formatting modifier.
+            /// @param f_optionalModifier A single child of "OutputFormatString"
+            /// @return                   Returns the appropriate modifier or 'Default' if non-existent
+            static CustomStringModifier getModifier(ArgParse::ParsedElement &f_optionalModifier);
+
 
             /// Formats a protobuf message into a human readable string.
             /// @param f_message the protobuf message to be formatted

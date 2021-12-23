@@ -50,6 +50,13 @@ namespace cli
             return std::make_unique<OutputFormatterJson>();
         }
 
+        bool customOutputFormatRequested = false;
+        auto ignored = parseTree.findFirstSubTree("CustomOutputFormat", customOutputFormatRequested);
+        if(customOutputFormatRequested)
+        {
+            return std::make_unique<OutputFormatterCustom>(parseTree);
+        }
+
         auto humanFormatter = std::make_unique<OutputFormatterOptimizedForHumans>();
 
         // disable colored output if explicitly specified:
@@ -86,7 +93,6 @@ namespace cli
     {
         if(parseTree.findFirstChild("JsonInput") != "")
         {
-            // TODO: once json parser is implemented, return correct one here:
             return std::make_unique<MessageParserJson>();
         }
         else
@@ -95,110 +101,6 @@ namespace cli
         }
     }
 
-    // TODO: move this to OutputFormatting code
-    std::string customMessageFormat(const grpc::protobuf::Message &f_message, const grpc::protobuf::Descriptor *f_messageDescriptor, ParsedElement &f_customFormatParseTree, size_t startChild = 0)
-    {
-        std::string result;
-        const google::protobuf::Reflection *reflection = f_message.GetReflection();
-
-        // first look for target fields to format:
-        bool found = false;
-        ParsedElement targetList = f_customFormatParseTree.findFirstSubTree("TargetSpecifier", found);
-
-        if ((targetList.getChildren().size() > startChild) && (targetList.getChildren()[startChild] != nullptr))
-        {
-            std::string partialTarget = targetList.getChildren()[startChild]->findFirstChild("PartialTarget");
-            //std::cout << "looking at '" << partialTarget << "'\n";
-            if (partialTarget != "")
-            {
-                // empty target addresses the current message
-                const google::protobuf::FieldDescriptor *partialField = f_messageDescriptor->FindFieldByName(partialTarget);
-                if (partialField == nullptr)
-                {
-                    return "No such field: " + partialTarget;
-                }
-
-                // now we have three possibilities:
-                // 1. repeated field
-                //  -> iterate over all instances + call recursive + return
-                // 2. message type field
-                //  -> call recursive + return
-                // 3. normal field (terminal)
-                //  -> continue looping
-
-                if (partialField->is_repeated())
-                {
-                    //std::cout << "have repeated\n";
-                    switch (partialField->type())
-                    {
-                    case grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE:
-                    {
-                    }
-                    break;
-                    default:
-                        return "repeated-" + std::string(partialField->type_name()) + " is not yet supported :(\n";
-                        break;
-                    }
-                    int numberOfRepetitions = reflection->FieldSize(f_message, partialField);
-                    for (int j = 0; j < numberOfRepetitions; j++)
-                    {
-                        //std::cout << " have repeated entry\n";
-                        const google::protobuf::Message &subMessage = reflection->GetRepeatedMessage(f_message, partialField, j);
-                        result += customMessageFormat(subMessage, partialField->message_type(), f_customFormatParseTree, startChild + 1);
-                    }
-                    return result;
-                }
-                if (partialField->type() == grpc::protobuf::FieldDescriptor::Type::TYPE_MESSAGE)
-                {
-                    //std::cout << "have message\n";
-                    const google::protobuf::Message &subMessage = reflection->GetMessage(f_message, partialField);
-                    return customMessageFormat(subMessage, partialField->message_type(), f_customFormatParseTree, startChild + 1);
-                }
-            }
-        }
-
-        // now we know we are not repeated and now f_message contains the correct
-        // context in which to evaluate field references :)
-
-        //std::cout << "have field\n";
-        OutputFormatterOptimizedForHumans myOutputFormatter;
-        myOutputFormatter.clearColorMap();
-
-        bool haveFormatString = false;
-        auto formatString = f_customFormatParseTree.findFirstSubTree("OutputFormatString", haveFormatString);
-        if (not haveFormatString)
-        {
-            return "Error: no format string given\n";
-        }
-        for (auto outputStatement : formatString.getChildren())
-        {
-            bool foundFieldReference = false;
-            auto fieldReference = outputStatement->findFirstSubTree("OutputFieldReference", foundFieldReference);
-            if (foundFieldReference)
-            {
-                OutputFormatterOptimizedForHumans::CustomStringModifier modifier = getModifier(*outputStatement);
-
-                //std::cout << "  have field ref " <<  fieldReference.getMatchedString() << "\n";
-                // need to lookup the field:
-                const google::protobuf::FieldDescriptor *fieldRef = f_messageDescriptor->FindFieldByName(fieldReference.getMatchedString());
-                if (fieldRef == nullptr)
-                {
-                    result += "???";
-                }
-                else
-                {
-                    result += myOutputFormatter.fieldValueToString(f_message, fieldRef, "", "", modifier);
-                }
-            }
-            else
-            {
-                //std::cout << "  have string " <<  outputStatement->getMatchedString() << "\n";
-                result += outputStatement->getMatchedString();
-            }
-        }
-
-        return result;
-    }
 
     std::string getTimeString()
     {
@@ -306,23 +208,20 @@ namespace cli
             std::cerr << ": Received message:\n";
 
             // print out string representation of the message:
-            std::string msgString;
-            // decide on message formatting method to use:
-            bool customOutputFormatRequested = false;
-            ParsedElement customFormatParseTree = parseTree.findFirstSubTree("CustomOutputFormat", customOutputFormatRequested);
-            if (not customOutputFormatRequested)
-            {
+            std::cout << messageFormatter->messageToString(*replyMessage, method->output_type());
 
-                msgString = messageFormatter->messageToString(*replyMessage, method->output_type());
-                std::cout << msgString << std::endl;
+            // Print newline after the message.
+            bool customOutputFormatRequested = false;
+            ArgParse::ParsedElement customFormatParseTree = parseTree.findFirstSubTree("CustomOutputFormat", customOutputFormatRequested);
+            if(customOutputFormatRequested)
+            {
+                // in case of custom message format to cerr (to not add additional chars in case of raw/binary output):
+                std::cerr << std::endl;
             }
             else
             {
-                //std::cout << customFormatParseTree.getDebugString();
-                // use user provided output format string
-                msgString = customMessageFormat(*replyMessage, method->output_type(), customFormatParseTree);
-                std::cout << msgString; // Omit endline here. This is an unwanted char when binary data is directed into a file.
-                std::cerr << std::endl; // ... but put and endline into stderr to keep the console output nice again.
+                // in case of normal json or huma readable output to stdout
+                std::cout << std::endl;
             }
         }
 
@@ -343,35 +242,3 @@ namespace cli
 
 }
 
-/// getModifier()
-///
-/// @param f_optionalModifier A single child of "OutputFormatString"
-/// @return                   Returns the appropriate modifier or 'Default' if non-existent
-static cli::OutputFormatterOptimizedForHumans::CustomStringModifier getModifier(ArgParse::ParsedElement &f_optionalModifier)
-{
-    cli::OutputFormatterOptimizedForHumans::CustomStringModifier modifier = cli::OutputFormatterOptimizedForHumans::CustomStringModifier::Default;
-    bool foundModifier = false;
-
-    auto modifierNode = f_optionalModifier.findFirstSubTree("ModifierType", foundModifier);
-    if (foundModifier)
-    {
-        if (modifierNode.getMatchedString() == "raw")
-        {
-            modifier = cli::OutputFormatterOptimizedForHumans::CustomStringModifier::Raw;
-        }
-        else if (modifierNode.getMatchedString() == "dec")
-        {
-            modifier = cli::OutputFormatterOptimizedForHumans::CustomStringModifier::Dec;
-        }
-        else if (modifierNode.getMatchedString() == "default")
-        {
-            modifier = cli::OutputFormatterOptimizedForHumans::CustomStringModifier::Default;
-        }
-        else if (modifierNode.getMatchedString() == "hex")
-        {
-            modifier = cli::OutputFormatterOptimizedForHumans::CustomStringModifier::Hex;
-        }
-    }
-
-    return modifier;
-}

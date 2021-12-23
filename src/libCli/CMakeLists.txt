@@ -19,6 +19,7 @@ set(TARGET_SRC
     MessageParsingJson.cpp
     OutputFormattingOptimizedForHumans.cpp
     OutputFormattingJson.cpp
+    OutputFormattingCustom.cpp
     GrammarConstruction.cpp
     Completion.cpp
     Call.cpp
