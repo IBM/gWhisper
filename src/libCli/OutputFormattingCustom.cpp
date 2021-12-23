@@ -41,9 +41,6 @@ namespace cli
         return resultString;
     }
 
-
-
-    // TODO: move this to OutputFormatting code
     std::string OutputFormatterCustom::customMessageFormat(const grpc::protobuf::Message &f_message, const grpc::protobuf::Descriptor *f_messageDescriptor, ArgParse::ParsedElement &f_customFormatParseTree, size_t startChild)
     {
         std::string result;

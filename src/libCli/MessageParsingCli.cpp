@@ -32,7 +32,12 @@ namespace cli
 /// @param f_isRepeated if true, field value will be added as a repeated field value.
 ///        (protobuf reflection api unfortunately does not provide a combined API for setting unique fields and adding to repeated fields)
 /// @returns 0 if field value could be added to the message. -1 otherwise.
-int MessageParserCli::parseFieldValue(ParsedElement & f_parseTree, google::protobuf::Message * f_message, google::protobuf::DynamicMessageFactory & f_factory, const google::protobuf::FieldDescriptor * f_fieldDescriptor, bool f_isRepeated)
+int MessageParserCli::parseFieldValue(
+        ParsedElement & f_parseTree, google::protobuf::Message * f_message,
+        google::protobuf::DynamicMessageFactory & f_factory,
+        const google::protobuf::FieldDescriptor * f_fieldDescriptor,
+        bool f_isRepeated
+        )
 {
     const google::protobuf::Reflection *reflection = f_message->GetReflection();
     std::string valueString = f_parseTree.findFirstChild("FieldValue");
@@ -354,7 +359,6 @@ std::unique_ptr<google::protobuf::Message> MessageParserCli::parseMessage(Parsed
 
 std::vector<std::unique_ptr<google::protobuf::Message>> MessageParserCli::parseMessages(
         ArgParse::ParsedElement & f_parseTree,
-        google::protobuf::DynamicMessageFactory & f_factory,
         const google::protobuf::Descriptor* f_messageDescriptor,
         bool f_isClientStreamingRpc
         )
@@ -370,12 +374,13 @@ std::vector<std::unique_ptr<google::protobuf::Message>> MessageParserCli::parseM
             requestMessages.push_back(&f_parseTree);
         }
 
+        google::protobuf::DynamicMessageFactory dynamicFactory;
         std::vector<std::unique_ptr<google::protobuf::Message>> result;
         // Write all request messages (multiple in case of request stream)
         for (ArgParse::ParsedElement *messageParseTree : requestMessages)
         {
             // read data from the parse tree into the protobuf message:
-            std::unique_ptr<google::protobuf::Message> message = parseMessage(*messageParseTree, f_factory, f_messageDescriptor);
+            std::unique_ptr<google::protobuf::Message> message = parseMessage(*messageParseTree, dynamicFactory, f_messageDescriptor);
 
             if (not message)
             {

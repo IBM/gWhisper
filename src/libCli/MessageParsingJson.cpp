@@ -24,7 +24,6 @@ namespace cli
 
 std::vector<std::unique_ptr<google::protobuf::Message>> MessageParserJson::parseMessages(
         ArgParse::ParsedElement & f_parseTree,
-        google::protobuf::DynamicMessageFactory & f_factory,
         const google::protobuf::Descriptor* f_messageDescriptor,
         bool f_isClientStreamingRpc
         )
@@ -33,11 +32,13 @@ std::vector<std::unique_ptr<google::protobuf::Message>> MessageParserJson::parse
         // search all passed messages: (true flag prevents searching sub-messages)
         f_parseTree.findAllSubTrees("JsonInput", jsonInputs, true);
 
+        google::protobuf::DynamicMessageFactory dynamicFactory;
+
         std::vector<std::unique_ptr<google::protobuf::Message>> result;
         // Write all request messages (multiple in case of request stream)
         for (ArgParse::ParsedElement *jsonInputParseTree : jsonInputs)
         {
-            std::unique_ptr<google::protobuf::Message> message(f_factory.GetPrototype(f_messageDescriptor)->New());
+            std::unique_ptr<google::protobuf::Message> message(dynamicFactory.GetPrototype(f_messageDescriptor)->New());
             std::string jsonFileName = jsonInputParseTree->findFirstChild("JsonInputFile");
 
             std::ifstream file;

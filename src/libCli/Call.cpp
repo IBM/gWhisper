@@ -32,8 +32,6 @@
 
 using namespace ArgParse;
 
-static cli::OutputFormatterOptimizedForHumans::CustomStringModifier getModifier(ArgParse::ParsedElement &f_optionalModifier);
-
 namespace cli
 {
     /// Construct an OutputFormatter, which can be used to format protobuf messages.
@@ -144,7 +142,6 @@ namespace cli
 
         const grpc::protobuf::Descriptor *inputType = method->input_type();
         // now we have to construct a protobuf from the parsed argument, which corresponds to the inputType
-        google::protobuf::DynamicMessageFactory dynamicFactory;
 
         // Prepare the RPC call:
         std::multimap<grpc::string, grpc::string> clientMetadata;
@@ -154,7 +151,7 @@ namespace cli
         auto messageParser = createMessageParser(parseTree);
 
         // Parse request messages given by the user:
-        auto requestMessages = messageParser->parseMessages(parseTree, dynamicFactory, inputType, method->client_streaming());
+        auto requestMessages = messageParser->parseMessages(parseTree, inputType, method->client_streaming());
         if(requestMessages.size() == 0 and not method->client_streaming())
         {
             std::cerr << "Error parsing method arguments -> aborting the call :-(" << std::endl;
@@ -200,6 +197,7 @@ namespace cli
         for (init = true; call.Read(&serializedResponse, init ? &serverMetadataA : nullptr); init = false)
         {
             // convert data received from stream into a message:
+            google::protobuf::DynamicMessageFactory dynamicFactory;
             std::unique_ptr<grpc::protobuf::Message> replyMessage(dynamicFactory.GetPrototype(method->output_type())->New());
             replyMessage->ParseFromString(serializedResponse);
 
