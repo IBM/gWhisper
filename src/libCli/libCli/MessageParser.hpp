@@ -33,7 +33,7 @@ namespace cli
             ///      or an unassociated unique_ptr if parse failed.
             virtual std::vector<std::unique_ptr<google::protobuf::Message>> parseMessages(
                 ArgParse::ParsedElement & f_parseTree,
-                    google::protobuf::DynamicMessageFactory & f_factory,
+                google::protobuf::DynamicMessageFactory & f_factory,
                 const google::protobuf::Descriptor* f_messageDescriptor,
                 bool f_isClientStreamingRpc
                 ) = 0;
@@ -44,7 +44,7 @@ namespace cli
         public:
             virtual std::vector<std::unique_ptr<google::protobuf::Message>> parseMessages(
                 ArgParse::ParsedElement & f_parseTree,
-                    google::protobuf::DynamicMessageFactory & f_factory,
+                google::protobuf::DynamicMessageFactory & f_factory,
                 const google::protobuf::Descriptor* f_messageDescriptor,
                 bool f_isClientStreamingRpc
                 ) override;
@@ -62,7 +62,7 @@ namespace cli
         public:
             virtual std::vector<std::unique_ptr<google::protobuf::Message>> parseMessages(
                 ArgParse::ParsedElement & f_parseTree,
-                    google::protobuf::DynamicMessageFactory & f_factory,
+                google::protobuf::DynamicMessageFactory & f_factory,
                 const google::protobuf::Descriptor* f_messageDescriptor,
                 bool f_isClientStreamingRpc
                 ) override;
