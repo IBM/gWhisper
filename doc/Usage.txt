@@ -95,12 +95,12 @@ OPTION:
    --serverCert=<path to server certificate>
 	   Set location to server certificate file.
 	   The certificate should be in .pem or .crt format.
-	   Use this optional parameter, if you want to specify a server certificate.
+	   While clientCert and clientKey are not always needed, either the default certificate 
+	   or a certificate provided by the user is mandatory for building a connection.
+	   Use this optional parameter, if you want to provide an own  server certificate.
 	   If this option is not set, the default-roots will be used.
 	   The default location is the system cert path, which can be overridden by
 	   gRPC environment GRPC_DEFAULT_SSL_ROOTS_FILE_PATH.
-	   While clientCert and clientKey are not always needed, the serverCert
-	   is mandatory for building a connection.
 	   The connection will fail if no cert is found at the provided location.
 	   If this option is used without using --ssl on a secure server,
 	   building the connection fails.
