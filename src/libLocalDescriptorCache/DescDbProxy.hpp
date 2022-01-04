@@ -97,6 +97,8 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     //Sinnvoll als Member?
     // TODO: should I use shared pointer?
     std::vector<const grpc::protobuf::FileDescriptor*>descList;
+    std::vector<std::string> descNames;
+   // std::vector<grpc::protobuf::FileDescriptorProto>* descProtoList;
     
     //TODO: think about pointer
     std::vector<grpc::string> serviceList;

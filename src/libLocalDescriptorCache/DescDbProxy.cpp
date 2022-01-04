@@ -125,7 +125,7 @@ void DescDbProxy::editLocalDb(localDescDb::Host* host, std::string hostAddress,s
    
     //lastUpdate->set_seconds(5);
     (*(host->mutable_lastupdate())) = timestamp.GetCurrentTime();
-    std::cout << "setted last update" << std::endl;
+    //std::cout << "setted last update" << std::endl;
 
 
     host->clear_servicelist(); //evtl. abfangen wenn liste leer
@@ -139,6 +139,9 @@ void DescDbProxy::editLocalDb(localDescDb::Host* host, std::string hostAddress,s
         const grpc::protobuf::FileDescriptor * serviceFileDesc;
         const grpc::protobuf::FileDescriptor * dependencyDesc;
         const grpc::protobuf::ServiceDescriptor * serviceDesc;
+
+        //Get File Names  through services in Desc Pool
+        // Use filenames to retrieve Descriptors form ReflectionDB
 
         // Get descriptor of file, where service is defined in
         serviceDesc = descPool.FindServiceByName(serviceName);
@@ -156,12 +159,26 @@ void DescDbProxy::editLocalDb(localDescDb::Host* host, std::string hostAddress,s
     // TODO: As tring or as pointer?
     host->clear_file_descriptor_proto();
 
-    for (const auto& descFile: (descList)){
-       std::string descString = (*descFile).DebugString();
-       host->add_file_descriptor_proto((*descFile).DebugString());
-   }
+   // for (const auto& descFile: (descList)){
+       //std::string descString = (*descFile).DebugString();
+      // std::vector<std::byte> descData;
+     // std::vector<char> descData = host->ParseFromArray(descFile);// = descFile is a filedescriptor
+     // host->add_file_descriptor_proto(descData);
+
+
+     //  host->add_file_descriptor_proto((*descFile).DebugString());
+  // }
+
+    for (const auto& fileName: (descNames)){
+        grpc::protobuf::FileDescriptorProto * output;
+        reflectionDescDb.FindFileByName(fileName, output);
+       // output->SerializeToFileDescriptor(3);
+        //Todo: Parse From output?
+       //output->
+        host->add_file_descriptor_proto((*output).SerializeAsString());
+    }
     
-    std::cout << "added new host entry" << std::endl;
+    //std::cout << "added new host entry" << std::endl;
 }
 
 
@@ -179,10 +196,11 @@ void DescDbProxy::getMessages(const grpc::protobuf::FileDescriptor * parentDesc)
             {
                 todoList.push_back(parentDesc->dependency(c));
             }
-            // Use pointer / address vector to prevent forbidden copy constructor problem
-            const grpc::protobuf::FileDescriptor* test = todoList.front();
+           //const grpc::protobuf::FileDescriptor* test = todoList.front();
+           std::string currentFileName = todoList.front()->name();
         //    descList.push_back(todoList.front()); //ist das der richtige Typ?
-            descList.push_back(test);       
+            //descList.push_back(test);       
+            descNames.push_back(currentFileName);
             todoList.pop_front();    
 
         }       
@@ -205,7 +223,7 @@ void DescDbProxy::loadDbFromFile(std::string dbFileName, std::string hostAddress
     if(!isValidHostEntry(dbFile, hostAddress)){
         editLocalDb(dbFile.add_hosts(), hostAddress, channel);
         servicesRetrieved = true;
-        std::cout << dbFile.DebugString();
+        //std::cout << dbFile.DebugString();
 
     }
 
@@ -232,12 +250,13 @@ void DescDbProxy::loadDbFromFile(std::string dbFileName, std::string hostAddress
                 //std::string descriptor =  host.file_descriptor_proto(i);
                 //TODO: steht in descriptor jetzt schon der Wert? Ist ein i = ein Descriptor?
                 descriptor.ParseFromString(host.file_descriptor_proto(i));
+            
                 //google::protobuf::FileDescriptorProto descriptor =  host.file_descriptor_proto(i);
                 //Here: Error "File already exists in DB", google/protobuf/descriptor_database.cc:120
-                std::cout<<descriptor.DebugString()<<std::endl;
-                std::cout<<descriptor.name()<<std::endl;
-                std::cout<<descriptor.package()<<std::endl;
-                std::cout<<descriptor.dependency_size()<<std::endl;
+               //std::cout<<descriptor.DebugString()<<std::endl;
+                //std::cout<<descriptor.name()<<std::endl;
+                //std::cout<<descriptor.package()<<std::endl;
+                //std::cout<<descriptor.dependency_size()<<std::endl;
                 localDB.Add(descriptor); //localDB is nonstatic
             }                              
         }
