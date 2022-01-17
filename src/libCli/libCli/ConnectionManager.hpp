@@ -25,13 +25,13 @@
 
 namespace cli
 {
-    static std::string localDescDbPath = "../../libLocalDescriptorCache/libLocalDescriptorCache";
+    static std::string localDescDbPath = "../../src/libLocalDescriptorCache/LocalDescDb.bin";
     /// List of gRpc connection infomation
     typedef struct ConnList
     {
         std::shared_ptr<grpc::Channel> channel = nullptr;
         //std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> descDb = nullptr;
-        std::shared_ptr<DescDbProxy> localDescDb;
+        std::shared_ptr<DescDbProxy> localDescDb = nullptr;
         std::shared_ptr<grpc::protobuf::DescriptorPool> descPool = nullptr;
 
     } ConnList;
