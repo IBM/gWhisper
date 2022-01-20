@@ -16,6 +16,10 @@
 
 #include "gwhisperUtils.hpp"
 #include <fstream>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 namespace gwhisper
 {
     namespace util
@@ -39,6 +43,32 @@ namespace gwhisper
 
                 //std::cerr << "File not found at: " << f_path << std::endl;
             }
+        }
+
+        void createFile(const std::string f_filePath, const std::string f_fileName){ //Lieber nur filePath? (inkl FileName)
+            std::ofstream newFile(f_filePath);
+            newFile.close();
+
+            //Todo: what if File already exists? --> add _new or something
+        }
+
+        void createFolder(const std::string f_dirLocation, const std::string f_dirName) //evtl. use filesystem path instead of string
+        {
+            //Check if  folder exits
+            const std::filesystem::path path = f_dirLocation;
+            if (!(fs::is_directory(path))){
+                //Create path for folder (from root)
+                fs::create_directories(path); //evtl. mi
+            }
+
+            
+
+            //TODO: Check, if .cache exists
+            //If not: create .cache
+            //Create folder "foldername"
+            //const std::string command = "./createFolder.sh " + f_dirLocation + " " + f_dirName ; // eachte spaceafter scriptname
+            //std::system(command.c_str());
+            
         }
     }
 }

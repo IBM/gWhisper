@@ -23,6 +23,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <versionDefine.h> // generated during build
+
 #include <google/protobuf/descriptor.h>
 #include <grpcpp/grpcpp.h>
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
@@ -175,7 +177,6 @@ void DescDbProxy::editLocalDb(localDescDb::Host* host, std::string hostAddress,s
 }
 
 
-
 void DescDbProxy::getMessages(const grpc::protobuf::FileDescriptor * parentDesc){
         
         std::deque<const grpc::protobuf::FileDescriptor*> todoList;
@@ -210,14 +211,23 @@ void DescDbProxy::loadDbFromFile(std::string dbFileName, std::string hostAddress
     input.open(dbFileName);
     dbFile.ParseFromIstream(&input); 
 
+
     //Add/Update DB entry for new/outdated host (via Reflection)
+     std::string gwhisperBuildVersion = GWHISPER_BUILD_VERSION;
     bool servicesRetrieved = false;
     if(!isValidHostEntry(dbFile, hostAddress)){
         //TODO: Delete host Entry before writing new
+        dbFile.set_gwhisper_version(gwhisperBuildVersion); //Correct Place to set version?
         editLocalDb(dbFile.add_hosts(), hostAddress, channel);
         servicesRetrieved = true;
         //std::cout << dbFile.DebugString();
 
+    }
+
+   
+    if (dbFile.gwhisper_version() != gwhisperBuildVersion){
+        // What if wrong version?
+        //
     }
 
     std::string serviceName;
