@@ -24,6 +24,7 @@
 
 int main(int argc, char **argv)
 {
+    grpc::EnableDefaultHealthCheckService(true);
 
     if(argc >= 2 and (std::string(argv[1]) == "-h" or std::string(argv[1]) == "--help"))
     {
