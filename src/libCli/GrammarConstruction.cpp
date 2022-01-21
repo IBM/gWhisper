@@ -387,6 +387,16 @@ namespace cli
             {
                 auto childAlt = m_grammar.createElement<FixedString>(service);
                 const grpc::protobuf::ServiceDescriptor *m_service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(service);
+                if(m_service == nullptr)
+                {
+                    // if this is null, it means there is a service in the service list,
+                    // for which we could not retrieve service descriptors via
+                    // reflection.
+                    // In this case we just ignore the service. It is not usable
+                    // with gWhisper.
+                    // In most cases this will be the DefaultHealthCheckService.
+                    continue;
+                }
                 childAlt->setDocument(m_service->options().GetExtension(service_doc));
                 result->addChild(childAlt);
             }
