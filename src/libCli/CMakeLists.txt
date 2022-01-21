@@ -30,7 +30,7 @@ add_library(${TARGET_NAME} ${TARGET_SRC})
 # need to link against gpr to be able to use GPR in cliUtils
 
 target_link_libraries ( ${TARGET_NAME}
-PRIVATE
+    PRIVATE
     reflection
     ArgParse
     protoDoc
@@ -43,6 +43,7 @@ target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(BUILD_CONFIG_USE_BOOST_REGEX)
     target_link_libraries (${TARGET_NAME}
+        PRIVATE
         boost_regex
     )
 endif()
