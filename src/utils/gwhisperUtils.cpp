@@ -17,8 +17,9 @@
 #include "gwhisperUtils.hpp"
 #include <fstream>
 #include <filesystem>
+#include <experimental/filesystem>
 
-namespace fs = std::filesystem;
+//namespace fs = std::experimental::filesystem;
 
 namespace gwhisper
 {
@@ -45,20 +46,30 @@ namespace gwhisper
             }
         }
 
-        void createFile(const std::string f_filePath, const std::string f_fileName){ //Lieber nur filePath? (inkl FileName)
-            std::ofstream newFile(f_filePath);
-            newFile.close();
+        void createFile(const std::string f_filePath){ //Lieber nur filePath? (inkl FileName)
+            
 
-            //Todo: what if File already exists? --> add _new or something
+            if(std::filesystem::exists(f_filePath)){
+                // find last . // What if no dot?
+                // Insert "_copy" before dot
+                // filepath = modified name
+
+            }
+            else{
+                std::ofstream newFile(f_filePath);
+                newFile.close();
+            }
+
+            //Todo: What if creating file fails?
         }
 
         void createFolder(const std::string f_dirLocation, const std::string f_dirName) //evtl. use filesystem path instead of string
         {
             //Check if  folder exits
-            const std::filesystem::path path = f_dirLocation;
-            if (!(fs::is_directory(path))){
+            const std::filesystem::path path = f_dirLocation + f_dirName;
+            if (!(std::filesystem::is_directory(path))){
                 //Create path for folder (from root)
-                fs::create_directories(path); //evtl. mi
+                std::filesystem::create_directories(path); //evtl. mi
             }
 
             

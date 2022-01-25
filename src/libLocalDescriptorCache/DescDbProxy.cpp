@@ -17,6 +17,7 @@
 /// Input: server Adress, connection List (or 1 Param if possible with connections.[server_adress])
 /// Output: Db either of type local or type refectoin. Local should have same interface as reflection (take reflection as reference)
 #include "DescDbProxy.hpp"
+#include "../utils/gwhisperUtils.hpp"
 
 #include<string>
 #include <deque>
@@ -213,9 +214,9 @@ void DescDbProxy::loadDbFromFile(std::string dbFileName, std::string hostAddress
 
 
     //Add/Update DB entry for new/outdated host (via Reflection)
-     std::string gwhisperBuildVersion = GWHISPER_BUILD_VERSION;
+    std::string gwhisperBuildVersion = GWHISPER_BUILD_VERSION;
     bool servicesRetrieved = false;
-    if(!isValidHostEntry(dbFile, hostAddress)){
+    if((!isValidHostEntry(dbFile, hostAddress)) || (dbFile.gwhisper_version() != gwhisperBuildVersion)){
         //TODO: Delete host Entry before writing new
         dbFile.set_gwhisper_version(gwhisperBuildVersion); //Correct Place to set version?
         editLocalDb(dbFile.add_hosts(), hostAddress, channel);
@@ -223,12 +224,11 @@ void DescDbProxy::loadDbFromFile(std::string dbFileName, std::string hostAddress
         //std::cout << dbFile.DebugString();
 
     }
-
-   
-    if (dbFile.gwhisper_version() != gwhisperBuildVersion){
-        // What if wrong version?
-        //
-    }
+  
+    //if (dbFile.gwhisper_version() != gwhisperBuildVersion){
+        // What if wrong version? --> Cache DB löschen
+        // Und über Reflection gehen, bzw nwu Aufbaueny<
+    //}
 
     std::string serviceName;
     //Write service names from DB into variable if not happened in editLocalDB
