@@ -140,10 +140,10 @@ What is working:
 - Tab Completion (bash and fish only)
 - Calling RPCs (unary + streaming)
 - Input and output of all protocol buffer types
+- Security: SSL is supported
 
 Some notable things which are not yet working:
 
-- Security: Authentication / Encryption of channels __(Planned in >=v4.0)__
 - Using Proto files instead of Reflection API (currently gWhisper only works with servers which have reflection enabled)
 - Performance: Caching of reflection queries
 

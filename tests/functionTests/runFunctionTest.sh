@@ -123,7 +123,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
             fi
             ((idx=idx+1))
         done
-        if [ ${#received[@]} -ne $idx ]; then
+        if [ ${#received[@]} -ne $idx ] && [ $fail = false ]; then
             fail=true
             failtext="expected number of lines ${idx} (of ${#expected[@]}) and received number of lines ${#received[@]} do not match!"
         fi;

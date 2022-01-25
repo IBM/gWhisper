@@ -28,6 +28,8 @@ Possible Candidates:
   '--noColor '
   '--color '
   '--version '
+  '--jsonOutput '
+  '--jsonInput='
   '--printParsedMessage '
   '--noSimpleMapOutput '
   '--connectTimeoutMilliseconds='
@@ -305,6 +307,6 @@ RPC succeeded :D
 #START_TEST Byte field from input file with invalid filename
 @@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes data=file://thisFilenameDoesNotExist.iHope
 /Error.*
-Error: Error parsing method arguments -> aborting the call :-(
+Error parsing method arguments -> aborting the call :-(
 #END_TEST
 

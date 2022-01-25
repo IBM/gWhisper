@@ -120,8 +120,10 @@ function (_generate_protobuf_grpc_source _proto_source _includes _cpp_headers _c
     set(${_cpp_sources} ${${_cpp_sources}} ${_sources} PARENT_SCOPE)
     list(APPEND _includes ${CMAKE_CURRENT_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIR})
     list(REMOVE_DUPLICATES _includes)
-    file(GENERATE OUTPUT debug.txt CONTENT "$<$<BOOL:${_includes}>:-I$<JOIN:${_includes}, -I>>")
-    file(GENERATE OUTPUT debug2.txt CONTENT "$<$<BOOL:$<GENEX_EVAL:${_includes}>>:-I$<JOIN:${_includes}, -I>>")
+    # TODO: I uncommented this, do not really understand whay this does,
+    #       Does not seem to be used anywhere.
+    #file(GENERATE OUTPUT debug.txt CONTENT "$<$<BOOL:${_includes}>:-I$<JOIN:${_includes}, -I>>")
+    #file(GENERATE OUTPUT debug2.txt CONTENT "$<$<BOOL:$<GENEX_EVAL:${_includes}>>:-I$<JOIN:${_includes}, -I>>")
     set(_include_commands $<$<BOOL:${_includes}>:-I$<JOIN:${_includes}, -I>>)
 
     add_custom_command(

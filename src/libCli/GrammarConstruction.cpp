@@ -402,10 +402,18 @@ namespace cli
                 //const grpc::protobuf::ServiceDescriptor *m_service = pool->FindServiceByName(service)
 
                 const grpc::protobuf::ServiceDescriptor *m_service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(service);
-                if(m_service){  // check if m_service is nullpointer
-                    childAlt->setDocument(m_service->options().GetExtension(service_doc));
-                    result->addChild(childAlt);
+                if(m_service == nullptr)
+                {
+                    // if this is null, it means there is a service in the service list,
+                    // for which we could not retrieve service descriptors via
+                    // reflection.
+                    // In this case we just ignore the service. It is not usable
+                    // with gWhisper.
+                    // In most cases this will be the DefaultHealthCheckService.
+                    continue;
                 }
+                childAlt->setDocument(m_service->options().GetExtension(service_doc));
+                result->addChild(childAlt);
             }
             //std::cout << "result = " << result <<std::endl;
             return result;
@@ -487,17 +495,17 @@ namespace cli
 
         GrammarElement *clientCert = f_grammarPool.createElement<Concatenation>();
         clientCert->addChild(f_grammarPool.createElement<FixedString>("--clientCert=", "OptionClientCert"));
-        clientCert->addChild(f_grammarPool.createElement<EscapedString>(":, %", '%', "FileClientCert"));
+        clientCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileClientCert"));
         optionsalt->addChild(clientCert);
 
         GrammarElement *clientKey = f_grammarPool.createElement<Concatenation>();
         clientKey->addChild(f_grammarPool.createElement<FixedString>("--clientKey=", "OptionClientKey"));
-        clientKey->addChild(f_grammarPool.createElement<EscapedString>(":, %", '%', "FileClientKey"));
+        clientKey->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileClientKey"));
         optionsalt->addChild(clientKey);
 
         GrammarElement *serverCert = f_grammarPool.createElement<Concatenation>();
         serverCert->addChild(f_grammarPool.createElement<FixedString>("--serverCert=", "OptionServerCert"));
-        serverCert->addChild(f_grammarPool.createElement<EscapedString>(":, %", '%', "FileServerCert"));
+        serverCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileServerCert"));
         optionsalt->addChild(serverCert);
 
         GrammarElement *completeOption = f_grammarPool.createElement<Concatenation>();
@@ -519,6 +527,11 @@ namespace cli
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noColor", "NoColor"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--color", "Color"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--version", "Version"));
+        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--jsonOutput", "JsonOutput"));
+        GrammarElement *jsonInput = f_grammarPool.createElement<Concatenation>("JsonInput");
+        jsonInput->addChild(f_grammarPool.createElement<FixedString>("--jsonInput=", "JsonInputTag"));
+        jsonInput->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "JsonInputFile"));
+        optionsalt->addChild(jsonInput);
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--printParsedMessage", "PrintParsedMessage"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSimpleMapOutput", "NoSimpleMapOutput"));
         GrammarElement *timeoutOption = f_grammarPool.createElement<Concatenation>();
