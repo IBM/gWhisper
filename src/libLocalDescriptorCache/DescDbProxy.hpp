@@ -58,15 +58,21 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     // Checks, if local DB contains valid descriptorDB entries for host
     bool isValidHostEntry(const localDescDb::DescriptorDb& descDb, const std::string hostAddress);
 
-    void getMessages(const grpc::protobuf::FileDescriptor * parentDesc);
+    void getDependencies(const grpc::protobuf::FileDescriptor * parentDesc);
 
     // Add new entry on local DB for new host address or update outdated entries
     void editLocalDb(localDescDb::Host* host, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
-    
+
+    // Retrieves Names of service descriptors as well as the names of descriptors the service descriptors depend on
+    // TODO: Better Docu
+    void fetchDescNamesFromReflection();
+
+    // Writes representation of proto host message in memory into SimpleDescDb object. 
+    void convertHostEntryToSimpleDescDb(bool accessedReflectionDb, localDescDb::DescriptorDb dbProtoFile, std::string hostAddress);
     
     // Instead of loading descriptors from ReflectionDB on the gRPC server, load them from local DB, if the local DB is not outdated..
     // std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> loadDbFromFile(std::string dbFileName, std::string hostAddress);
-    void loadDbFromFile(std::string dbFileName, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
+    void getDescriptors(std::string dbFileName, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
     //std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> loadDbFromFile(std::string dbFileName, std::string hostAddress);
 
 
@@ -96,11 +102,8 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     // TODO: should I use shared pointer?
     std::vector<const grpc::protobuf::FileDescriptor*>m_descList;
     std::vector<std::string> m_descNames;
-   // std::vector<grpc::protobuf::FileDescriptorProto>* descProtoList;
-    
-    //TODO: think about pointer
     std::vector<grpc::string> m_serviceList;
-    std::vector<grpc::string> m_fileList;
+    //std::vector<grpc::string> m_fileList;
 
 
 };
