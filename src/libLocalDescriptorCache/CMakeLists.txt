@@ -48,5 +48,8 @@ target_link_libraries(${TARGET_NAME}
 
     gwhisperUtils
     reflection
+    
+    PRIVATE
+    version
     )
 

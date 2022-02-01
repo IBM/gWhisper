@@ -23,11 +23,9 @@
 
 #include <grpcpp/grpcpp.h>
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
-//#include "gRPC_utils/reflection.grpc.pb.h"
+
 #include "LocalDescDb.pb.h"
 #include <grpcpp/impl/codegen/config_protobuf.h>
-//#include <libCli/ConnectionManager.hpp>
-//#TODO: Generate with protoc: include "LocalDescDb.pb.h"
 
 class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     public:
@@ -91,18 +89,18 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
 
 
     //std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> localDB;
-    grpc::protobuf::SimpleDescriptorDatabase localDB;
-    grpc::ProtoReflectionDescriptorDatabase reflectionDescDb;
+    grpc::protobuf::SimpleDescriptorDatabase m_localDB;
+    grpc::ProtoReflectionDescriptorDatabase m_reflectionDescDb;
 
     //Sinnvoll als Member?
     // TODO: should I use shared pointer?
-    std::vector<const grpc::protobuf::FileDescriptor*>descList;
-    std::vector<std::string> descNames;
+    std::vector<const grpc::protobuf::FileDescriptor*>m_descList;
+    std::vector<std::string> m_descNames;
    // std::vector<grpc::protobuf::FileDescriptorProto>* descProtoList;
     
     //TODO: think about pointer
-    std::vector<grpc::string> serviceList;
-    std::vector<grpc::string> fileList;
+    std::vector<grpc::string> m_serviceList;
+    std::vector<grpc::string> m_fileList;
 
 
 };
