@@ -20,6 +20,7 @@
 
 #include<string>
 #include<time.h>
+#include<set>
 
 #include <grpcpp/grpcpp.h>
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
@@ -61,7 +62,7 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     void getDependencies(const grpc::protobuf::FileDescriptor * parentDesc);
 
     // Add new entry on local DB for new host address or update outdated entries
-    void editLocalDb(localDescDb::Host* host, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
+    void repopulateLocalDb(localDescDb::Host* host, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
 
     // Retrieves Names of service descriptors as well as the names of descriptors the service descriptors depend on
     // TODO: Better Docu
@@ -103,6 +104,7 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     std::vector<const grpc::protobuf::FileDescriptor*>m_descList;
     std::vector<std::string> m_descNames;
     std::vector<grpc::string> m_serviceList;
+    std::set<std::string>m_testList;
     //std::vector<grpc::string> m_fileList;
 
 

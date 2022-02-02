@@ -85,6 +85,8 @@ namespace cli
                     registerConnection(f_serverAddress, f_parseTree);
                 }
             }
+            gwhisper::util::createFolder("../../", "testFolder1");
+            gwhisper::util::createFolder("./", "testFolder2");
             return connections[f_serverAddress].localDescDb;
             //return connections[f_serverAddress].pdescDb;
         }
