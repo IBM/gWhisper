@@ -15,6 +15,7 @@
 #include <libCli/MessageParser.hpp>
 #include <fstream>
 #include <exception>
+#include <sstream>
 
 using namespace ArgParse;
 
