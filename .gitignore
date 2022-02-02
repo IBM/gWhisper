@@ -3,3 +3,4 @@ build/
 compile_commands.json
 # IDEs
 .idea
+.vscode
