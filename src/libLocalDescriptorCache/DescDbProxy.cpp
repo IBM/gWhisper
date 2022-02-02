@@ -132,7 +132,7 @@ void DescDbProxy::repopulateLocalDb(localDescDb::Host* host, std::string f_hostA
 
     // Add all descriptors to DB entry
     // m_ vor membern
-    for (const auto& fileName: (m_testList)){
+    for (const auto& fileName: (m_descNames)){
         grpc::protobuf::FileDescriptorProto  output;
         m_reflectionDescDb.FindFileByName(fileName, &output);
         std::string dbDescEntry = output.SerializeAsString();
@@ -164,7 +164,8 @@ void DescDbProxy::fetchDescNamesFromReflection(){
         // Retrieve all proto files used by the service
         int dependencyCounter = serviceFileDesc->dependency_count();
 
-        m_descNames.push_back(serviceFileDesc->name());
+        //m_descNames.push_back(serviceFileDesc->name());
+        m_descNames.insert(serviceFileDesc->name());
 
         //TODO: Loop only, if dependencies weren't already fetched (If parent not yet in descNames)?
         for (int i=0; i<dependencyCounter; i++){
@@ -197,7 +198,7 @@ void DescDbProxy::getDependencies(const grpc::protobuf::FileDescriptor * f_paren
                 //const grpc::protobuf::FileDescriptor* test = todoList.front();
                 std::string currentFileName = todoList.front()->name();  
                 //m_descNames.push_back(currentFileName);
-                m_testList.insert(currentFileName);
+                m_descNames.insert(currentFileName);
                 doneList.push_back(todoList.front());
                 todoList.pop_front();    
             }          

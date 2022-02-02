@@ -94,19 +94,13 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     std::string m_serverAddress;
     //cli::ConnList m_connList;
 
-
     //std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> localDB;
     grpc::protobuf::SimpleDescriptorDatabase m_localDB;
     grpc::ProtoReflectionDescriptorDatabase m_reflectionDescDb;
 
-    //Sinnvoll als Member?
-    // TODO: should I use shared pointer?
     std::vector<const grpc::protobuf::FileDescriptor*>m_descList;
-    std::vector<std::string> m_descNames;
+    std::set<std::string> m_descNames;
     std::vector<grpc::string> m_serviceList;
-    std::set<std::string>m_testList;
-    //std::vector<grpc::string> m_fileList;
-
-
+    //std::vector<std::string> m_descNames;
 };
 
