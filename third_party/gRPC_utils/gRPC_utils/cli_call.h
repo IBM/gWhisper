@@ -20,6 +20,10 @@
 #define GRPC_TEST_CPP_UTIL_CLI_CALL_H
 
 #include <map>
+// MODIFIED by IBM (Anna Riesch)
+// original: no #include <chrono>"
+#include <chrono>
+// END MODIFIED
 
 #include <grpcpp/channel.h>
 #include <grpcpp/completion_queue.h>
@@ -48,7 +52,9 @@ class CliCall final {
 
   CliCall(const std::shared_ptr<grpc::Channel>& channel,
           const grpc::string& method,
-          const OutgoingMetadataContainer& metadata);
+          const OutgoingMetadataContainer& metadata,
+          const int timeout);
+          //const std::chrono::time_point timeout);
   ~CliCall();
 
   // Perform an unary generic RPC.

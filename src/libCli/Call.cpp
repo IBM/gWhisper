@@ -146,7 +146,32 @@ namespace cli
         // Prepare the RPC call:
         std::multimap<grpc::string, grpc::string> clientMetadata;
         std::string methodStr = "/" + serviceName + "/" + methodName;
-        grpc::testing::CliCall call(channel, methodStr, clientMetadata);
+
+        // Get deadline for RPC from input or use custom
+        //std::chrono::time_point timeout;
+        //std::chrono::time_point defaultTimeout = std::chrono::system_clock::now() + std::chrono::milliseconds(100);
+        //std::chrono::time_point defaultTimeoutStreaming = std::chrono::system_clock::now() + std::chrono::milliseconds::max();
+
+        int timeout;
+        int defaultTimeoutMs = 100;
+        int defaultTimeoutStreamingMs= std::chrono::milliseconds::max();
+
+        bool setTimeout = (parseTree.findFirstChild("rpcTimeout") != "");
+
+        if(!setTimeout){
+            if(method->client_streaming() || method->server_streaming()){
+                timeout = defaultTimeoutStreaming;
+            }else{
+                timeout = defaultTimeout;
+            }
+        }
+
+        std::string customTimeout = std::stoi(parseTree.findFirstChild("rpcTimeoutInMs"));
+        timeout = customTimeout;
+        //timeout = std::chrono::system_clock::now() + std::chrono::milliseconds(customTimeout);
+        
+        grpc::testing::CliCall call(channel, methodStr, clientMetadata, timeout);
+        
         auto messageFormatter = createMessageFormatter(parseTree);
         auto messageParser = createMessageParser(parseTree);
 

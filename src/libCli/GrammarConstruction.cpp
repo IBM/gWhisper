@@ -478,6 +478,11 @@ namespace cli
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--help", "Help"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--ssl", "ssl"));
 
+        GrammarElement *timeout = f_grammarPool.createElement<Concatenation>();
+        timeout->addChild(f_grammarPool.createElement<FixedString>("--timeout=", "rpcTimeout"));
+        timeout->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "rpcTimeoutInMs"));
+        optionsalt->addChild(timeout);
+
         GrammarElement *clientCert = f_grammarPool.createElement<Concatenation>();
         clientCert->addChild(f_grammarPool.createElement<FixedString>("--clientCert=", "OptionClientCert"));
         clientCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileClientCert"));
