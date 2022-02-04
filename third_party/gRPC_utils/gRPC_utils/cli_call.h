@@ -53,8 +53,8 @@ class CliCall final {
   CliCall(const std::shared_ptr<grpc::Channel>& channel,
           const grpc::string& method,
           const OutgoingMetadataContainer& metadata,
-          const int timeout);
-          //const std::chrono::time_point timeout);
+          //const int timeout);
+          const std::chrono::time_point<std::chrono::system_clock> timeout);
   ~CliCall();
 
   // Perform an unary generic RPC.
