@@ -77,11 +77,17 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
     # As we do not want to install whole gRPC and its depdendencies to the system.
     # We do not want to build any tests from grpc
     set(BUILD_TESTING OFF)
+
     # The zlib module is not intended to be included as sub directory
     # Building tests without the neded dependencies, making
     # a regression run fail
     # zlib can be expected to be systemwide available
     set(gRPC_ZLIB_PROVIDER "package" CACHE STRING "force overwritten by gWhisper" FORCE )
+
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "s390x")
+        set(gRPC_SSL_PROVIDER "package" CACHE STRING "force overwritten by gWhisper, as boringSSL does not support s390x -> need to fall-back to system installed libssl" FORCE )
+    endif()
+
     add_subdirectory(${grpc_SOURCE_DIR} ${grpc_BINARY_DIR} EXCLUDE_FROM_ALL)
 
     # Since FetchContent uses add_subdirectory under the hood, we can use

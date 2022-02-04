@@ -156,20 +156,20 @@ int main(int argc, char **argv)
 
 
         // Default port: 50052, Server does not require key-cert-pair
-        std::string dfltServerAddr = "localhost:" + std::to_string(dfltPort);
+        std::string dfltServerAddr = "[::]:" + std::to_string(dfltPort);
         std::cout << "Starting secure server without required client cert listening on " << dfltServerAddr << std::endl;
         builder.AddListeningPort(dfltServerAddr, defaultCreds);
         std::cout << "DEFAULT CREATED " << dfltServerAddr << std::endl;
 
         // SSL Port: 50443, server requires all credentials
-        std::string secureServerAddr = "localhost:" + std::to_string(securePort);
+        std::string secureServerAddr = "[::]:" + std::to_string(securePort);
         std::cout << "Starting secure server with required valid client cert-key pair listening on " << secureServerAddr << std::endl;
         builder.AddListeningPort(secureServerAddr, sslCreds);
         std::cout << "SECURE CREATED " << secureServerAddr << std::endl;
     }
 
     //Insecure Port: 50051. no credentials required
-    std::string insecureServerAddr = "localhost:" + std::to_string(insecurePort);
+    std::string insecureServerAddr = "[::]:" + std::to_string(insecurePort);
     std::cout << "Starting insecure server listening on " << insecureServerAddr << std::endl;
     builder.AddListeningPort(insecureServerAddr, grpc::InsecureServerCredentials());
     std::cout << "INSECURE CREATED " << insecureServerAddr << std::endl;
