@@ -168,7 +168,8 @@ namespace cli
 
         //std::string customTimeout = std::stoi(parseTree.findFirstChild("rpcTimeoutInMs"));
         std::string customTimeout = parseTree.findFirstChild("rpcTimeoutInMs");
-        timeout = std::chrono::system_clock::now() + std::chrono::milliseconds(std::stoi(customTimeout));
+        int customTimeoutMs = std::stoi(customTimeout);
+        timeout = std::chrono::system_clock::now() + std::chrono::milliseconds(customTimeoutMs);
         
         grpc::testing::CliCall call(channel, methodStr, clientMetadata, timeout);
         

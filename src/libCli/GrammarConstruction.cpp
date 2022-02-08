@@ -479,9 +479,8 @@ namespace cli
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--ssl", "ssl"));
 
         GrammarElement *timeout = f_grammarPool.createElement<Concatenation>();
-        timeout->addChild(f_grammarPool.createElement<FixedString>("--timeout=", "rpcTimeout"));
+        timeout->addChild(f_grammarPool.createElement<FixedString>("--rpcTimeoutMilliseconds==", "rpcTimeout"));
         timeout->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "rpcTimeoutInMs"));
-        //timeout->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "rpcTimeoutInMs"));
         optionsalt->addChild(timeout);
 
         GrammarElement *clientCert = f_grammarPool.createElement<Concatenation>();

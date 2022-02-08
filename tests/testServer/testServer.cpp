@@ -190,6 +190,11 @@ int main(int argc, char **argv)
     ServiceStatusHandling statusHandling;
     builder.RegisterService(&statusHandling);
 
+    
+           // If(slow!="")
+        //{
+        // sWait 5 seconds
+        //}
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
 
     if (server != nullptr)

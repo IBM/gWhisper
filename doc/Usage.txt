@@ -53,6 +53,12 @@ OPTION:
        channel is not in connected state after the specified timeout, the gRPC
        call and reflection-based completion attempts are aborted.
 
+    --rpcTimeoutMilliseconds=TIMEOUT_VALUE
+        Defailt for unary RPC: 100
+        Default for streaming RPCs: infinite (max chronos time)
+        Sets a limit for the client to wait for response form server to an RPC.
+        If this limit is exeeded...
+
  SSL connection options:
 
    --ssl
