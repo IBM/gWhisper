@@ -22,8 +22,9 @@
 // END MODIFIED
 
 // MODIFIED by IBM (Anna Riesch)
-// original: no #include <chrono>"
+// original: no #include <chrono> and #include <optional>"
 #include <chrono>
+#include <optional>
 // END MODIFIED
 
 #include <iostream>
@@ -52,6 +53,7 @@ Status CliCall::Call(std::shared_ptr<grpc::Channel> channel,
   // original: no deadline
   std::chrono::time_point<std::chrono::system_clock> timeout = std::chrono::system_clock::now() + std::chrono::milliseconds(100);
   //int timeout = 100;
+  // std::optional? 
   CliCall call(std::move(channel), method, metadata, timeout);
   // END MODIFIED
   call.Write(request);
@@ -65,15 +67,19 @@ Status CliCall::Call(std::shared_ptr<grpc::Channel> channel,
 CliCall::CliCall(const std::shared_ptr<grpc::Channel>& channel,
                  const grpc::string& method,
                  const OutgoingMetadataContainer& metadata,
-                 const std::chrono::time_point<std::chrono::system_clock> timeout)
+                 std::optional<std::chrono::time_point<std::chrono::system_clock>> timeout)
                 // const int timeout)
     : stub_(new grpc::GenericStub(channel)) {
   gpr_mu_init(&write_mu_);
   gpr_cv_init(&write_cv_);
   // MODIFIED by IBM (Anna Riesch)
   // original: no deadline
-  //std::chrono::time_point<std::chrono::system_clock> deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(timeout);
-  ctx_.set_deadline(timeout);
+  if(timeout.has_value()){
+    // Set timelout if optional parameter has a value. Otherwise don't set timeout = infinite deadline
+    auto timeoutMs = timeout.value();
+    ctx_.set_deadline(timeoutMs);
+  }
+  
   // END MODIDFIED
   if (!metadata.empty()) {
     for (OutgoingMetadataContainer::const_iterator iter = metadata.begin();

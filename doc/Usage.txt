@@ -55,9 +55,9 @@ OPTION:
 
     --rpcTimeoutMilliseconds=TIMEOUT_VALUE
         Defailt for unary RPC: 100
-        Default for streaming RPCs: infinite (max chronos time)
-        Sets a limit for the client to wait for response form server to an RPC.
-        If this limit is exeeded...
+        Default for streaming RPCs: infinite (no deadline set)
+        Defines a limit for the client to wait for the server's response to an RPC.
+        If this limit is exeeded, the RPC will abort with "deadline_exeeded".
 
  SSL connection options:
 

@@ -21,8 +21,9 @@
 
 #include <map>
 // MODIFIED by IBM (Anna Riesch)
-// original: no #include <chrono>"
+// original: no #include <chrono> and #include <optional>
 #include <chrono>
+#include <optional>
 // END MODIFIED
 
 #include <grpcpp/channel.h>
@@ -54,7 +55,7 @@ class CliCall final {
           const grpc::string& method,
           const OutgoingMetadataContainer& metadata,
           //const int timeout);
-          const std::chrono::time_point<std::chrono::system_clock> timeout);
+          std::optional<std::chrono::time_point<std::chrono::system_clock>> timeout);
   ~CliCall();
 
   // Perform an unary generic RPC.
