@@ -33,6 +33,7 @@ Possible Candidates:
   '--jsonInput='
   '--printParsedMessage '
   '--noSimpleMapOutput '
+  '--rpcTimeoutMilliseconds='
   '--connectTimeoutMilliseconds='
   '--customOutput '
   'unix:'

@@ -478,11 +478,6 @@ namespace cli
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--help", "Help"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--ssl", "ssl"));
 
-        GrammarElement *timeout = f_grammarPool.createElement<Concatenation>();
-        timeout->addChild(f_grammarPool.createElement<FixedString>("--rpcTimeoutMilliseconds==", "rpcTimeout"));
-        timeout->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "rpcTimeoutInMs"));
-        optionsalt->addChild(timeout);
-
         GrammarElement *clientCert = f_grammarPool.createElement<Concatenation>();
         clientCert->addChild(f_grammarPool.createElement<FixedString>("--clientCert=", "OptionClientCert"));
         clientCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileClientCert"));
@@ -524,6 +519,10 @@ namespace cli
         optionsalt->addChild(jsonInput);
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--printParsedMessage", "PrintParsedMessage"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSimpleMapOutput", "NoSimpleMapOutput"));
+        GrammarElement *timeout = f_grammarPool.createElement<Concatenation>();
+        timeout->addChild(f_grammarPool.createElement<FixedString>("--rpcTimeoutMilliseconds=", "rpcTimeout"));
+        timeout->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "rpcTimeoutInMs"));
+        optionsalt->addChild(timeout);
         GrammarElement *timeoutOption = f_grammarPool.createElement<Concatenation>();
         timeoutOption->addChild(f_grammarPool.createElement<FixedString>("--connectTimeoutMilliseconds="));
         timeoutOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "connectTimeout"));
