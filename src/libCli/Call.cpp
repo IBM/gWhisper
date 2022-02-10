@@ -151,18 +151,13 @@ namespace cli
         // Get deadline for RPC from input or use custom
         std::optional<std::chrono::time_point<std::chrono::system_clock>> timeout;
         std::chrono::time_point<std::chrono::system_clock> defaultTimeout = std::chrono::system_clock::now() + std::chrono::milliseconds(100);
-        //std::chrono::time_point<std::chrono::system_clock> defaultTimeoutStreaming = std::chrono::system_clock::now() + std::chrono::milliseconds::max();
 
-        //int timeout;
-        //int defaultTimeoutMs = 100;
-        //int defaultTimeoutStreamingMs= std::chrono::milliseconds::max();
 
         bool setTimeout = (parseTree.findFirstChild("rpcTimeout") != "");
 
         if(!setTimeout){
             if(method->client_streaming() || method->server_streaming()){
                 // Pass no timeout
-                //timeout.reset();
                 timeout = std::nullopt;
             }else{
                 timeout = defaultTimeout;

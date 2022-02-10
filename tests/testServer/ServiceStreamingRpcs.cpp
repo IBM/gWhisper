@@ -116,3 +116,36 @@
     }
     return grpc::Status();
 }
+
+//::grpc::Status ServiceStreamingRpcs::longRunningStream(
+//            ::grpc::ServerContext* context,
+//            ::grpc::ServerReaderWriter<::examples::String, ::examples::Uint32>* stream
+//            )
+//{
+//    ::examples::Uint32 message;
+//    while (stream->Read(&message))
+//    {
+//        int time = static_cast<u_int32_t>(message);
+//        /* code */
+//    }
+//}
+
+::grpc::Status ServiceStreamingRpcs::bidirectionalStreamInfiniteRpc(
+            ::grpc::ServerContext* context,
+            //const ::google::protobuf::Empty* request,
+            ::grpc::ServerReaderWriter<::google::protobuf::Empty, ::google::protobuf::Empty>* stream
+            )
+{
+    ::google::protobuf::Empty message;
+    u_int64_t i = 0;
+
+    while(not context->IsCancelled()){
+        sleep(1);
+        i++;        
+    }
+    ::google::protobuf::Empty reply;
+    stream->Write(reply);
+
+    std::cout<< "RPCs was cancelled after " << i << " seconds." << std::endl;
+    return grpc::Status();   
+}

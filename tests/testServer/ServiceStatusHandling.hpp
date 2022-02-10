@@ -29,5 +29,6 @@ class ServiceStatusHandling final : public examples::StatusHandling::Service
             const ::google::protobuf::Empty* request,
             ::google::protobuf::Empty* response
             ) override;
+            
 };
 

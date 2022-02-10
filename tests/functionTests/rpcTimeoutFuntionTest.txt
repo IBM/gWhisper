@@ -74,12 +74,6 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST streaming RPC exeeding custom timeout
-@@CMD@@ localhost:50051 examples.NestedTypeRpcs echoNestedMaps
-Warning: no Fields found in parseTree for message 'NestedMaps'
-/.* Received message:
-| number_and_string..... = [NOT SET]
-| sub_message........... = [NOT SET]
-| simple_map_int[0/0]... = {}
-| simple_map_string[0/0] = {}
-RPC succeeded :D
+@@CMD@@ --rpcTimeoutMilliseconds=500 localhost:50051 examples.StreamingRpcs bidirectionalStreamInfiniteRpc
+/.* Deadline Exceeded
 #END_TEST

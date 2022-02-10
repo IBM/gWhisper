@@ -51,11 +51,13 @@ class CliCall final {
   typedef std::multimap<grpc::string_ref, grpc::string_ref>
       IncomingMetadataContainer;
 
+  // MODIFIED by IBM (Anna Riesch)
+  // original: no argument "timeout"
   CliCall(const std::shared_ptr<grpc::Channel>& channel,
           const grpc::string& method,
           const OutgoingMetadataContainer& metadata,
-          //const int timeout);
           std::optional<std::chrono::time_point<std::chrono::system_clock>> timeout);
+// END MODIFIED
   ~CliCall();
 
   // Perform an unary generic RPC.

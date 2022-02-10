@@ -51,9 +51,8 @@ Status CliCall::Call(std::shared_ptr<grpc::Channel> channel,
                      IncomingMetadataContainer* server_trailing_metadata) {
   // MODIFIED by IBM (Anna Riesch)
   // original: no deadline
-  std::chrono::time_point<std::chrono::system_clock> timeout = std::chrono::system_clock::now() + std::chrono::milliseconds(100);
-  //int timeout = 100;
-  // std::optional? 
+  std::optional<std::chrono::time_point<std::chrono::system_clock>> timeout;
+  timeout =  std::nullopt;
   CliCall call(std::move(channel), method, metadata, timeout);
   // END MODIFIED
   call.Write(request);
