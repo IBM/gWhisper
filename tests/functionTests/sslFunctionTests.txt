@@ -76,6 +76,7 @@ RPC succeeded :D
 --jsonInput=
 --printParsedMessage
 --noSimpleMapOutput
+--rpcTimeoutMilliseconds=
 --connectTimeoutMilliseconds=
 --customOutput
 unix:

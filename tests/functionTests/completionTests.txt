@@ -32,6 +32,7 @@ Possible Candidates:
   '--jsonInput='
   '--printParsedMessage '
   '--noSimpleMapOutput '
+  '--rpcTimeoutMilliseconds='
   '--connectTimeoutMilliseconds='
   '--customOutput '
   'unix:'
@@ -61,6 +62,12 @@ Possible Candidates:
 127.0.0.1 examples.StreamingRpcs        (uni- and bi-directional streams)
 127.0.0.1 examples.StatusHandling                   (gRPC error handling)
 /^127.0.0.1 grpc.reflection.*$
+#END_TEST
+
+#START_TEST complete rpcTimeout 
+@@CMD@@ --complete --rpcTimeoutMilliseconds
+--rpcTimeoutMilliseconds=None
+--rpcTimeoutMilliseconds=
 #END_TEST
 
 ##############################################################################
