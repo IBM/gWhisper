@@ -22,6 +22,7 @@
 #include <chrono>
 #include <ctime>
 #include <iomanip>
+#include <optional>
 
 // for detecting if we are writing stdout to terminal or to pipe/file
 #include <stdio.h>
@@ -198,6 +199,48 @@ int call(ParsedElement & parseTree)
         requestMessages.push_back(&parseTree);
     }
 
+    // Get deadline for RPC from input or use custom
+    std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline;
+    std::chrono::time_point<std::chrono::system_clock> defaultDeadline = std::chrono::system_clock::now() + std::chrono::milliseconds(10000);
+
+
+    bool setTimeout = (parseTree.findFirstChild("rpcTimeout") != "");
+
+    if(!setTimeout)
+    {
+        if(method->client_streaming() || method->server_streaming())
+        {
+            // Pass no timeout
+            deadline = std::nullopt;
+        }
+        else
+        {
+            deadline = defaultDeadline;
+        }
+    }
+
+    if(setTimeout)
+    {
+        if (parseTree.findFirstChild("manualInfiniteTimeout") != ""){
+            deadline = std::nullopt;
+        }
+        else
+        {
+            std::string customTimeout = parseTree.findFirstChild("rpcTimeoutInMs");
+            unsigned long customTimeoutMs;
+            try
+            {
+                customTimeoutMs = std::stoul(customTimeout, nullptr, 0);
+            }
+            catch(std::exception& e)
+            {
+                std::cerr << "Error parsing rpc timeout value" << std::endl;
+                return -1;
+            }
+            deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(customTimeoutMs);
+        }           
+    }
+
     // Prepare the RPC call:
     std::multimap<grpc::string, grpc::string> clientMetadata;
     grpc::string serializedResponse;
@@ -205,7 +248,7 @@ int call(ParsedElement & parseTree)
     std::multimap<grpc::string_ref, grpc::string_ref> serverMetadataB;
 
     std::string methodStr =  "/" + serviceName + "/" + methodName;
-    grpc::testing::CliCall call(channel, methodStr, clientMetadata);
+    grpc::testing::CliCall call(channel, methodStr, clientMetadata, deadline);
 
     // Write all request messages (multiple in case of request stream)
     for(ArgParse::ParsedElement * messageParseTree : requestMessages)
@@ -304,6 +347,10 @@ int call(ParsedElement & parseTree)
     if(not status.ok())
     {
         std::cerr << "RPC failed ;( Status code: " << std::to_string(status.error_code()) << " " << cli::getGrpcStatusCodeAsString(status.error_code())  << ", error message: " << status.error_message() << std::endl;
+        if(status.error_code() == grpc::StatusCode::DEADLINE_EXCEEDED)
+        {
+            std::cerr << "Note: You can increase the deadline by setting the --rpcTimeoutInMs option to a number or 'None'." << std::endl;
+        }
         return -1;
     }
 
@@ -347,3 +394,4 @@ static cli::OutputFormatter::CustomStringModifier getModifier(ArgParse::ParsedEl
 
     return modifier;
 }
+s

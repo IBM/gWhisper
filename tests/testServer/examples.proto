@@ -120,6 +120,10 @@ service StreamingRpcs
 
     // Received numbers are negated and streamed back.
     rpc bidirectionalStreamNegateNumbers (stream Int32) returns (stream Int32);
+
+    rpc bidirectionalStreamEchoNumberOrString (stream NumberOrStringOneOf) returns (stream NumberOrStringOneOf);
+
+    rpc bidirectionalStreamInfiniteRpc (stream google.protobuf.Empty) returns (stream google.protobuf.Empty);
 }
 
 service StatusHandling
@@ -129,6 +133,7 @@ service StatusHandling
     rpc neverEndingRpc (google.protobuf.Empty) returns (google.protobuf.Empty);
     rpc giveStatusAborted (google.protobuf.Empty) returns (google.protobuf.Empty);
     rpc notImplementedRpc (google.protobuf.Empty) returns (google.protobuf.Empty);
+    rpc rpcSleepForSeconds (Uint32) returns (google.protobuf.Empty);
 }
 
 // TODO: packages, namespaces

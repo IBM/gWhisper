@@ -544,6 +544,16 @@ GrammarElement * constructGrammar(Grammar & f_grammarPool)
     timeoutOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "connectTimeout"));
     optionsalt->addChild(timeoutOption);
     optionsalt->addChild(customOutputFormat);
+    GrammarElement *timeout = f_grammarPool.createElement<Concatenation>();
+    timeout->addChild(f_grammarPool.createElement<FixedString>("--rpcTimeoutMilliseconds", "rpcTimeout"));
+    timeout->addChild(f_grammarPool.createElement<FixedString>("="));
+    GrammarElement *timeoutTime = f_grammarPool.createElement<Alternation>();
+    timeout->addChild(timeoutTime);
+    timeoutTime->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "rpcTimeoutInMs"));
+    GrammarElement *manualInfiniteTimeout = f_grammarPool.createElement<Optional>();
+    timeoutTime->addChild(manualInfiniteTimeout);
+    manualInfiniteTimeout->addChild(f_grammarPool.createElement<FixedString>("None", "manualInfiniteTimeout"));
+    optionsalt->addChild(timeout);
     // FIXME FIXME FIXME: we cannot distinguish between --complete and --completeDebug.. this is a problem for arguments too, as we cannot guarantee, that we do not have an argument starting with the name of an other argument.
     // -> could solve by makeing FixedString greedy
     optionsconcat->addChild(optionsalt);

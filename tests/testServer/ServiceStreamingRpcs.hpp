@@ -47,4 +47,15 @@ class ServiceStreamingRpcs final : public examples::StreamingRpcs::Service
             ::grpc::ServerReaderWriter< ::examples::Int32,
             ::examples::Int32>* stream
             ) override;
+
+    virtual  ::grpc::Status bidirectionalStreamEchoNumberOrString(
+            ::grpc::ServerContext* context,
+            ::grpc::ServerReaderWriter< ::examples::NumberOrStringOneOf,
+            ::examples::NumberOrStringOneOf>* stream
+            ) override;
+
+    virtual  ::grpc::Status bidirectionalStreamInfiniteRpc(
+            ::grpc::ServerContext* context,
+            ::grpc::ServerReaderWriter<::google::protobuf::Empty, ::google::protobuf::Empty>* stream
+            ) override;
 };
