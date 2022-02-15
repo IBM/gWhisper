@@ -66,13 +66,16 @@ Status CliCall::Call(std::shared_ptr<grpc::Channel> channel,
 CliCall::CliCall(const std::shared_ptr<grpc::Channel>& channel,
                  const grpc::string& method,
                  const OutgoingMetadataContainer& metadata,
+                 // MODIFIED by IBM (Anna Riesch)
+                 // original: no argument "deadline"
                  std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline)
+                 //END MODIFIED
     : stub_(new grpc::GenericStub(channel)) {
   gpr_mu_init(&write_mu_);
   gpr_cv_init(&write_cv_);
   // MODIFIED by IBM (Anna Riesch)
   // original: no deadline
-  if(deadline.has_value()){
+  if (deadline.has_value()) {
     // Set timelout if optional parameter has a value. Otherwise don't set timeout = infinite deadline
     auto deadlineMs = deadline.value();
     ctx_.set_deadline(deadlineMs);

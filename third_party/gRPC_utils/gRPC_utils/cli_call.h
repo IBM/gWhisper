@@ -52,11 +52,11 @@ class CliCall final {
       IncomingMetadataContainer;
 
   // MODIFIED by IBM (Anna Riesch)
-  // original: no argument "timeout"
+  // original: no argument "deadline"
   CliCall(const std::shared_ptr<grpc::Channel>& channel,
           const grpc::string& method,
           const OutgoingMetadataContainer& metadata,
-          std::optional<std::chrono::time_point<std::chrono::system_clock>> timeout);
+          std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline);
 // END MODIFIED
   ~CliCall();
 
