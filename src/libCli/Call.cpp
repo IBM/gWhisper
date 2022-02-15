@@ -171,7 +171,16 @@ namespace cli
                 deadline = std::nullopt;
             }else{
                 std::string customTimeout = parseTree.findFirstChild("rpcTimeoutInMs");
-                int customTimeoutMs = std::stoi(customTimeout);
+                unsigned long customTimeoutMs;
+                 try
+                {
+                    customTimeoutMs = std::stoul(customTimeout, nullptr, 0);
+                }
+                catch(std::exception& e)
+                {
+                    std::cerr << "Error parsing rpc timeout value" << std::endl;
+                    return -1;
+                }
                 deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(customTimeoutMs);
             }           
         }
@@ -265,6 +274,9 @@ namespace cli
         if (not status.ok())
         {
             std::cerr << "RPC failed ;( Status code: " << std::to_string(status.error_code()) << " " << cli::getGrpcStatusCodeAsString(status.error_code()) << ", error message: " << status.error_message() << std::endl;
+            if(status.error_code() == grpc::StatusCode::DEADLINE_EXCEEDED){
+                std::cerr << "Note: You can increase the deadline by setting the --rpcTimeoutInMs option to a number or 'None'." << std::endl;
+            }
             return -1;
         }
 
