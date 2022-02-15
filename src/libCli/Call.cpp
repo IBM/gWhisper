@@ -394,4 +394,3 @@ static cli::OutputFormatter::CustomStringModifier getModifier(ArgParse::ParsedEl
 
     return modifier;
 }
-s
