@@ -29,6 +29,16 @@ class ServiceStatusHandling final : public examples::StatusHandling::Service
             const ::google::protobuf::Empty* request,
             ::google::protobuf::Empty* response
             ) override;
-            
+
+   // virtual ::grpc::Status rpcSleepFor(
+    //        ::grpc::ServerContext* context,
+    //        ::examples::Uint32* request,
+    //        ::google::protobuf::Empty* response
+     //       ) override; 
+     virtual ::grpc::Status rpcSleepForSeconds(
+             ::grpc::ServerContext* context,
+             const examples::Uint32* request,
+             ::google::protobuf::Empty* response
+     ) override;      
 };
 

@@ -149,8 +149,8 @@ namespace cli
         std::string methodStr = "/" + serviceName + "/" + methodName;
 
         // Get deadline for RPC from input or use custom
-        std::optional<std::chrono::time_point<std::chrono::system_clock>> timeout;
-        std::chrono::time_point<std::chrono::system_clock> defaultTimeout = std::chrono::system_clock::now() + std::chrono::milliseconds(100);
+        std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline;
+        std::chrono::time_point<std::chrono::system_clock> defaultDeadline = std::chrono::system_clock::now() + std::chrono::milliseconds(10000);
 
 
         bool setTimeout = (parseTree.findFirstChild("rpcTimeout") != "");
@@ -158,19 +158,25 @@ namespace cli
         if(!setTimeout){
             if(method->client_streaming() || method->server_streaming()){
                 // Pass no timeout
-                timeout = std::nullopt;
+                deadline = std::nullopt;
             }else{
-                timeout = defaultTimeout;
+                deadline = defaultDeadline;
             }
         }
 
         if(setTimeout){
-            std::string customTimeout = parseTree.findFirstChild("rpcTimeoutInMs");
-            int customTimeoutMs = std::stoi(customTimeout);
-            timeout = std::chrono::system_clock::now() + std::chrono::milliseconds(customTimeoutMs);
+            
+
+            if (parseTree.findFirstChild("manualInfiniteTimeout") != ""){
+                deadline = std::nullopt;
+            }else{
+                std::string customTimeout = parseTree.findFirstChild("rpcTimeoutInMs");
+                int customTimeoutMs = std::stoi(customTimeout);
+                deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(customTimeoutMs);
+            }           
         }
               
-        grpc::testing::CliCall call(channel, methodStr, clientMetadata, timeout);
+        grpc::testing::CliCall call(channel, methodStr, clientMetadata, deadline);
         
         auto messageFormatter = createMessageFormatter(parseTree);
         auto messageParser = createMessageParser(parseTree);

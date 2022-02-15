@@ -136,6 +136,7 @@ service StatusHandling
     rpc neverEndingRpc (google.protobuf.Empty) returns (google.protobuf.Empty);
     rpc giveStatusAborted (google.protobuf.Empty) returns (google.protobuf.Empty);
     rpc notImplementedRpc (google.protobuf.Empty) returns (google.protobuf.Empty);
+    rpc rpcSleepForSeconds (Uint32) returns (google.protobuf.Empty);
 }
 
 // TODO: packages, namespaces

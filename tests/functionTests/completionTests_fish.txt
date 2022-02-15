@@ -65,6 +65,12 @@ Possible Candidates:
 /^127.0.0.1 grpc.reflection.*$
 #END_TEST
 
+#START_TEST complete rpcTimeout 
+@@CMD@@ --complete=fish --rpcTimeoutMilliseconds
+--rpcTimeoutMilliseconds=None
+--rpcTimeoutMilliseconds=
+#END_TEST
+
 ##############################################################################
 # SSL RPCs
 ##############################################################################

@@ -117,22 +117,8 @@
     return grpc::Status();
 }
 
-//::grpc::Status ServiceStreamingRpcs::longRunningStream(
-//            ::grpc::ServerContext* context,
-//            ::grpc::ServerReaderWriter<::examples::String, ::examples::Uint32>* stream
-//            )
-//{
-//    ::examples::Uint32 message;
-//    while (stream->Read(&message))
-//    {
-//        int time = static_cast<u_int32_t>(message);
-//        /* code */
-//    }
-//}
-
 ::grpc::Status ServiceStreamingRpcs::bidirectionalStreamInfiniteRpc(
             ::grpc::ServerContext* context,
-            //const ::google::protobuf::Empty* request,
             ::grpc::ServerReaderWriter<::google::protobuf::Empty, ::google::protobuf::Empty>* stream
             )
 {
