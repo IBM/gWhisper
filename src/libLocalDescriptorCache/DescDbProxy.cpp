@@ -136,7 +136,7 @@ void DescDbProxy::repopulateLocalDb(localDescDb::Host* host, std::string f_hostA
         grpc::protobuf::FileDescriptorProto  output;
         m_reflectionDescDb.FindFileByName(fileName, &output);
         std::string dbDescEntry = output.SerializeAsString();
-        host->add_file_descriptor_proto(dbDescEntry);
+        host->add_file_descriptor_proto(dbDescEntry); 
     }
 }
 
@@ -221,6 +221,7 @@ void DescDbProxy::convertHostEntryToSimpleDescDb(bool f_accessedReflectionDb, lo
     }
 
     // Get Desc for Host and add them to simpleDescDb object m_localDB
+    // !! host 50043 wird nicht dazugepackt! --> steht och nicht drin (warum nicht? die 50053 schaffens ja auch rein)
     for (int i=0; i < f_dbProtoFile.hosts_size(); i++){
         const localDescDb::Host host = f_dbProtoFile.hosts(i);
         if (host.hostaddress() == f_hostAddress)
@@ -235,9 +236,9 @@ void DescDbProxy::convertHostEntryToSimpleDescDb(bool f_accessedReflectionDb, lo
                 if (!m_localDB.FindFileByName(descriptor.name(), &output)){
                     m_localDB.Add(descriptor);
                 }
-            }                       
+            }   
+            break;                    
         }
-        break;
     }
 }
 
