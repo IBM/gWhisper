@@ -61,3 +61,15 @@ std::mutex rpcCountMutex;
 {
     return grpc::Status(grpc::StatusCode::ABORTED, "Call was aborted as intended by this example.");
 }
+
+::grpc::Status ServiceStatusHandling::rpcSleepForSeconds(
+        ::grpc::ServerContext* context,
+        const examples::Uint32* request,
+        ::google::protobuf::Empty* response
+        )
+{
+    int sleepTime = request->number();
+    sleep(sleepTime);
+    
+    return grpc::Status();
+}

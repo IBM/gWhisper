@@ -534,6 +534,18 @@ namespace cli
         optionsalt->addChild(jsonInput);
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--printParsedMessage", "PrintParsedMessage"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSimpleMapOutput", "NoSimpleMapOutput"));
+
+        GrammarElement *timeout = f_grammarPool.createElement<Concatenation>();
+        timeout->addChild(f_grammarPool.createElement<FixedString>("--rpcTimeoutMilliseconds", "rpcTimeout"));
+        timeout->addChild(f_grammarPool.createElement<FixedString>("="));
+        GrammarElement *timeoutTime = f_grammarPool.createElement<Alternation>();
+        timeout->addChild(timeoutTime);
+        timeoutTime->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "rpcTimeoutInMs"));
+        GrammarElement *manualInfiniteTimeout = f_grammarPool.createElement<Optional>();
+        timeoutTime->addChild(manualInfiniteTimeout);
+        manualInfiniteTimeout->addChild(f_grammarPool.createElement<FixedString>("None", "manualInfiniteTimeout"));
+        optionsalt->addChild(timeout);
+
         GrammarElement *timeoutOption = f_grammarPool.createElement<Concatenation>();
         timeoutOption->addChild(f_grammarPool.createElement<FixedString>("--connectTimeoutMilliseconds="));
         timeoutOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "connectTimeout"));

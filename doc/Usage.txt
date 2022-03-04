@@ -53,6 +53,16 @@ OPTION:
        channel is not in connected state after the specified timeout, the gRPC
        call and reflection-based completion attempts are aborted.
 
+    --rpcTimeoutMilliseconds=TIMEOUT_VALUE
+        Default for unary RPC: 10000 (10 sec)
+        Default for streaming RPCs: infinite (no deadline set)
+        Defines a limit for the client to wait for the server's response to an RPC.
+        If this limit is exeeded, the RPC will abort with 'deadline_exeeded'.
+        To set an infinite timeout for unary RPCs, set the TIMEOUT_VALUE to 'None'.
+        Example:
+          gwhisper --rpcTimeoutMilliseconds=None
+          gwhisper --rpcTimeoutMilliseconds=100
+
  SSL connection options:
 
    --ssl
