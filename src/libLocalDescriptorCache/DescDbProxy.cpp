@@ -89,7 +89,8 @@ bool DescDbProxy::isValidHostEntry(const localDescDb::DescriptorDb& f_descDb, co
             // Calculate time in seconds btw. lastUpdate and currentTime
             timeDiff = secCurrentTime - secLastUpdate;
 
-            if (timeDiff <= 120){
+            // TODO: Change back to 120
+            if (timeDiff <= 12){
                 validHostEntry = true;
             }      
         }
@@ -98,18 +99,62 @@ bool DescDbProxy::isValidHostEntry(const localDescDb::DescriptorDb& f_descDb, co
     return validHostEntry;
 }
 
-void deleteDuplicateHostEntries(const localDescDb::DescriptorDb& descDb, const std::string f_hostAddress){
+void deleteDuplicateHostEntries(localDescDb::DescriptorDb& descDb, const std::string f_hostAddress, const std::string f_dbFile){
+    localDescDb::DescriptorDb newDescDb;
     for(int i=0; i<descDb.hosts_size(); i++){
         localDescDb::Host host = descDb.hosts(i);
-        if(host.hostaddress() == f_hostAddress){
-            host.clear_hostaddress();
-            host.clear_lastupdate();
-            host.clear_servicelist();
-            host.clear_file_descriptor_proto();
-        }
+        if(host.hostaddress() != f_hostAddress){
+            //newDescDb.hosts().Add(host);
+            //int messageSize = host.ByteSize();
+           // newDescDb.hosts().Add(host);//
+            localDescDb::Host* newHost = newDescDb.add_hosts(); //returns host
+            newHost->CopyFrom(host);
 
+            //newDescDb.hosts(i) = newDescDb.CopyFrom(host);
+            //host.clear_hostaddress();
+            //host.clear_lastupdate();
+            //host.clear_servicelist();
+            //host.clear_file_descriptor_proto();
+            //TODO here: simply delete host entry from file --> write new DB with deleted entries here
+            // Clear: just in memory not on db --> write before repopulate db
+            // Findhost entry on DB in Memory
+            // With that: Find host entry on DB on disk (pointer?)
+            // delete host entry on disk.
+        }
     }
 
+    descDb = newDescDb;
+
+    google::protobuf::RepeatedPtrField<localDescDb::Host> hosts = descDb.hosts();
+    google::protobuf::RepeatedPtrField<const localDescDb::Host>::iterator it = descDb.hosts().begin();
+    //int index = 0;
+    /*for(it; it!=descDb.hosts().end();){
+       localDescDb::Host host = *it;
+       if(it->hostaddress() == f_hostAddress){
+           it = hosts.erase(it);
+       }
+       else{
+           it ++;
+       }
+    }*/ 
+
+    /*while (it!=descDb.hosts().end())
+    {
+        //localDescDb::Host host = *it;
+       if(it->hostaddress() == f_hostAddress){
+           it = hosts.erase(it);
+       }
+       else{
+           it ++;
+       }
+    }*/
+    
+    
+        std::fstream emptyDB(f_dbFile, std::ios::out | std::ios::trunc | std::ios::binary);
+        //TODO: How to overwrite compete file?
+        if (!descDb.SerializeToOstream(&emptyDB)){
+            std::cerr << "Failed to write DB." << std::endl;
+        }
 }
 
 void DescDbProxy::repopulateLocalDb(localDescDb::Host* host, std::string f_hostAddress,std::shared_ptr<grpc::Channel> f_channel){
@@ -131,7 +176,6 @@ void DescDbProxy::repopulateLocalDb(localDescDb::Host* host, std::string f_hostA
     }
 
     // Add all descriptors to DB entry
-    // m_ vor membern
     for (const auto& fileName: (m_descNames)){
         grpc::protobuf::FileDescriptorProto  output;
         m_reflectionDescDb.FindFileByName(fileName, &output);
@@ -221,7 +265,6 @@ void DescDbProxy::convertHostEntryToSimpleDescDb(bool f_accessedReflectionDb, lo
     }
 
     // Get Desc for Host and add them to simpleDescDb object m_localDB
-    // !! host 50043 wird nicht dazugepackt! --> steht och nicht drin (warum nicht? die 50053 schaffens ja auch rein)
     for (int i=0; i < f_dbProtoFile.hosts_size(); i++){
         const localDescDb::Host host = f_dbProtoFile.hosts(i);
         if (host.hostaddress() == f_hostAddress)
@@ -257,9 +300,14 @@ void DescDbProxy::getDescriptors(std::string f_dbFileName, std::string f_hostAdd
     bool accessedReflectionDb = false;
     if(!isValidHostEntry(dbFile, f_hostAddress) || (dbFile.gwhisper_version() != gwhisperBuildVersion)){
         //TODO: Delete host Entry before writing new
+        deleteDuplicateHostEntries(dbFile, f_hostAddress, f_dbFileName);
         dbFile.clear_gwhisper_version();
         dbFile.set_gwhisper_version(gwhisperBuildVersion); //Correct Place to set version?
-        deleteDuplicateHostEntries(dbFile, f_hostAddress);
+        //std::fstream emptyDB(f_dbFileName, std::ios::out | std::ios::trunc | std::ios::binary);
+        //TODO: How to overwrite compete file?
+        //if (!dbFile.SerializeToOstream(&emptyDB)){
+        //    std::cerr << "Failed to write DB." << std::endl;
+        //}
         repopulateLocalDb(dbFile.add_hosts(), f_hostAddress, f_channel);
         accessedReflectionDb = true;
         //std::cout << dbFile.DebugString();
