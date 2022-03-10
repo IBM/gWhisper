@@ -48,34 +48,32 @@ bool DescDbProxy::FindFileContainingExtension(const std::string& containing_type
     return m_localDB.FindFileContainingExtension(containing_type, f_field_number, output);                 
 }       
 
-bool DescDbProxy::GetServices(std::vector<grpc::string>* output){ //
-
-   if(! m_serviceList.empty()){
-      // output = serviceList; TODO here:pushback?
-      (*output) = m_serviceList;
-       return true;
-
-   } else {
-        //Wie loggen wir?
+bool DescDbProxy::GetServices(std::vector<grpc::string>* output)
+{
+    if(! m_serviceList.empty())
+    { 
+        (*output) = m_serviceList;
+        return true;
+    } 
+    else
+    {
         std::cout << "Error while fetching services from localDB entry for host "  << std::endl;
         return false;    
-   }
+    }
 }  
 
-
-
-bool DescDbProxy::isValidHostEntry(const localDescDb::DescriptorDb& f_descDb, const std::string f_hostAddress){
-    
+bool DescDbProxy::isValidHostEntry(const localDescDb::DescriptorDb& f_descDb, const std::string f_hostAddress)
+{    
     bool validHostEntry=false; //TODO: Maybe rename in something with Reflection
     static google::protobuf::util::TimeUtil timestamp;
-    //static google::protobuf::util::TimeUtil lastUpdateTime;
     google::protobuf::Timestamp currentTime;
     google::protobuf::Timestamp lastUpdate;
     int secCurrentTime;
     int secLastUpdate;
     int timeDiff;
 
-    for (int i=0; i < f_descDb.hosts_size(); i++){
+    for (int i=0; i < f_descDb.hosts_size(); i++)
+    {
         const localDescDb::Host host = f_descDb.hosts(i);
         if (host.hostaddress() == f_hostAddress)
         {
@@ -86,97 +84,62 @@ bool DescDbProxy::isValidHostEntry(const localDescDb::DescriptorDb& f_descDb, co
             lastUpdate = host.lastupdate();
             secLastUpdate = timestamp.TimestampToSeconds(lastUpdate);
 
-            // Calculate time in seconds btw. lastUpdate and currentTime
             timeDiff = secCurrentTime - secLastUpdate;
 
             // TODO: Change back to 120
-            if (timeDiff <= 12){
+            // Expiry for validity of an entry
+            if (timeDiff <= 12)
+            {
                 validHostEntry = true;
             }      
         }
-
     }
+
     return validHostEntry;
 }
 
+// Remove all instances in DB od same host
+// Writes all other hosts in new messages and retuns this new message into descDb variable
+// Updates Db-file on disc.
 void deleteDuplicateHostEntries(localDescDb::DescriptorDb& descDb, const std::string f_hostAddress, const std::string f_dbFile){
     localDescDb::DescriptorDb newDescDb;
-    for(int i=0; i<descDb.hosts_size(); i++){
+    for(int i=0; i<descDb.hosts_size(); i++)
+    {
         localDescDb::Host host = descDb.hosts(i);
-        if(host.hostaddress() != f_hostAddress){
-            //newDescDb.hosts().Add(host);
-            //int messageSize = host.ByteSize();
-           // newDescDb.hosts().Add(host);//
+        if(host.hostaddress() != f_hostAddress)
+        {
             localDescDb::Host* newHost = newDescDb.add_hosts(); //returns host
             newHost->CopyFrom(host);
-
-            //newDescDb.hosts(i) = newDescDb.CopyFrom(host);
-            //host.clear_hostaddress();
-            //host.clear_lastupdate();
-            //host.clear_servicelist();
-            //host.clear_file_descriptor_proto();
-            //TODO here: simply delete host entry from file --> write new DB with deleted entries here
-            // Clear: just in memory not on db --> write before repopulate db
-            // Findhost entry on DB in Memory
-            // With that: Find host entry on DB on disk (pointer?)
-            // delete host entry on disk.
         }
     }
 
     descDb = newDescDb;
 
-    google::protobuf::RepeatedPtrField<localDescDb::Host> hosts = descDb.hosts();
-    google::protobuf::RepeatedPtrField<const localDescDb::Host>::iterator it = descDb.hosts().begin();
-    //int index = 0;
-    /*for(it; it!=descDb.hosts().end();){
-       localDescDb::Host host = *it;
-       if(it->hostaddress() == f_hostAddress){
-           it = hosts.erase(it);
-       }
-       else{
-           it ++;
-       }
-    }*/ 
-
-    /*while (it!=descDb.hosts().end())
-    {
-        //localDescDb::Host host = *it;
-       if(it->hostaddress() == f_hostAddress){
-           it = hosts.erase(it);
-       }
-       else{
-           it ++;
-       }
-    }*/
-    
-    
-        std::fstream emptyDB(f_dbFile, std::ios::out | std::ios::trunc | std::ios::binary);
-        //TODO: How to overwrite compete file?
-        if (!descDb.SerializeToOstream(&emptyDB)){
-            std::cerr << "Failed to write DB." << std::endl;
-        }
+    // Overwrite DB-file on disc
+    std::fstream emptyDB(f_dbFile, std::ios::out | std::ios::trunc | std::ios::binary);
+    if (!descDb.SerializeToOstream(&emptyDB)){
+        std::cerr << "Failed to clean DB." << std::endl;
+    }
 }
 
-void DescDbProxy::repopulateLocalDb(localDescDb::Host* host, std::string f_hostAddress,std::shared_ptr<grpc::Channel> f_channel){
-
+void DescDbProxy::repopulateLocalDb(localDescDb::Host* host, std::string f_hostAddress,std::shared_ptr<grpc::Channel> f_channel)
+{
     static google::protobuf::util::TimeUtil timestamp;
 
-    //TODO: Duplicates during fetching or as post-processing 
-    //(when write into DB variable, before writing to disk)
     fetchDescNamesFromReflection();
 
-    //TODO Neue Funktion: AddEntry():
+    //TODO Neue Funktion: AddEntry()? Ginge das dann mit Auslagerung in neue Klasse?
     host->set_hostaddress(f_hostAddress);
-    //lastUpdate->set_seconds(5); 
     (*(host->mutable_lastupdate())) = timestamp.GetCurrentTime();
-    // Add service Naems to DB entry
-    for(const auto& serviceName: (m_serviceList)){
-        // Add service to loacal DB
+    // Add service to loacal DB
+    for(const auto& serviceName: (m_serviceList))
+    { 
         host->add_servicelist(serviceName); 
     }
 
     // Add all descriptors to DB entry
-    for (const auto& fileName: (m_descNames)){
+    for (const auto& fileName: (m_descNames))
+    {
         grpc::protobuf::FileDescriptorProto  output;
         m_reflectionDescDb.FindFileByName(fileName, &output);
         std::string dbDescEntry = output.SerializeAsString();
@@ -184,9 +147,8 @@ void DescDbProxy::repopulateLocalDb(localDescDb::Host* host, std::string f_hostA
     }
 }
 
-void DescDbProxy::fetchDescNamesFromReflection(){
-
-    // TODO: Wie weiß Reflection DB auf welchen Host sie muss?
+void DescDbProxy::fetchDescNamesFromReflection()
+{
     m_reflectionDescDb.GetServices(&m_serviceList);
     google::protobuf::DescriptorPool descPool(&m_reflectionDescDb);
      
@@ -196,67 +158,71 @@ void DescDbProxy::fetchDescNamesFromReflection(){
         const grpc::protobuf::ServiceDescriptor * serviceDesc;
 
         // Get service file names through services in descPool
-        // Use filenames to retrieve service descriptors from ReflectionDB
         serviceDesc = descPool.FindServiceByName(serviceName);
-        if (! serviceDesc){
-            // Catching Nullpointer wenn service keinen desc hat
+        // Catch nullptr, if services does not have a descriptor
+        if (! serviceDesc)
+        {
             continue;
         }
 
+        // Use filenames to retrieve service descriptors from ReflectionDB
         serviceFileDesc = serviceDesc->file();
 
         // Retrieve all proto files used by the service
         int dependencyCounter = serviceFileDesc->dependency_count();
-
-        //m_descNames.push_back(serviceFileDesc->name());
         m_descNames.insert(serviceFileDesc->name());
 
         //TODO: Loop only, if dependencies weren't already fetched (If parent not yet in descNames)?
         for (int i=0; i<dependencyCounter; i++){
             dependencyDesc = serviceFileDesc->dependency(i);
-            // Get file of imported files used in this service and search for more files
+            // Get file descriptor of imported files used in this service and search for more files
             getDependencies(dependencyDesc);
         }
     }
 }
 
-void DescDbProxy::getDependencies(const grpc::protobuf::FileDescriptor * f_parentDesc){
-        
-        std::deque<const grpc::protobuf::FileDescriptor*> todoList;
-        std::vector<const grpc::protobuf::FileDescriptor*> doneList;
-        int amountChildren;
+void DescDbProxy::getDependencies(const grpc::protobuf::FileDescriptor * f_parentDesc)
+{       
+    std::deque<const grpc::protobuf::FileDescriptor*> todoList;
+    std::vector<const grpc::protobuf::FileDescriptor*> doneList;
+    int amountChildren;
 
-        todoList.push_front(f_parentDesc);
+    todoList.push_front(f_parentDesc);
 
-        while (not todoList.empty()){
-            if(std::find(doneList.begin(), doneList.end(),todoList.front()) != doneList.end()){
-                // Discard already processed descriptors
-                todoList.pop_front();
-            }else{
-                amountChildren = todoList.front()->dependency_count();
-                for (int c=0; c < amountChildren; c++)
-                {    
-                    todoList.push_back(todoList.front()->dependency(c));
-                }
-        
-                //const grpc::protobuf::FileDescriptor* test = todoList.front();
-                std::string currentFileName = todoList.front()->name();  
-                //m_descNames.push_back(currentFileName);
-                m_descNames.insert(currentFileName);
-                doneList.push_back(todoList.front());
-                todoList.pop_front();    
-            }          
-        }       
+    while (not todoList.empty())
+    {
+        if(std::find(doneList.begin(), doneList.end(),todoList.front()) != doneList.end()){
+            // Discard already processed descriptors
+            todoList.pop_front();
+        }
+        else
+        {
+            amountChildren = todoList.front()->dependency_count();
+            for (int c=0; c < amountChildren; c++)
+            {    
+                todoList.push_back(todoList.front()->dependency(c));
+            }
+            std::string currentFileName = todoList.front()->name();  
+            m_descNames.insert(currentFileName);
+            doneList.push_back(todoList.front());
+            todoList.pop_front();    
+        }          
+    }       
 }
 
-void DescDbProxy::convertHostEntryToSimpleDescDb(bool f_accessedReflectionDb, localDescDb::DescriptorDb f_dbProtoFile, std::string f_hostAddress){
-    // Add services to localDB variable if not happened in editLocalDB
+void DescDbProxy::convertHostEntryToSimpleDescDb(bool f_accessedReflectionDb, localDescDb::DescriptorDb f_dbProtoFile, std::string f_hostAddress)
+{
+    // Add services to localDB variable if DescDb on file was valid
     std::string serviceName;
-    if (!f_accessedReflectionDb){
-        for (int i = 0; i < f_dbProtoFile.hosts_size(); i++){
+    if (!f_accessedReflectionDb)
+    {
+        for (int i = 0; i < f_dbProtoFile.hosts_size(); i++)
+        {
             const localDescDb::Host host = f_dbProtoFile.hosts(i); 
-            if (host.hostaddress() == f_hostAddress){
-                for(int j=0; j < host.servicelist_size(); j++){
+            if (host.hostaddress() == f_hostAddress)
+            {
+                for(int j=0; j < host.servicelist_size(); j++)
+                {
                     serviceName = host.servicelist(j); 
                     (m_serviceList).push_back(serviceName);
                 }
@@ -264,20 +230,20 @@ void DescDbProxy::convertHostEntryToSimpleDescDb(bool f_accessedReflectionDb, lo
         }
     }
 
-    // Get Desc for Host and add them to simpleDescDb object m_localDB
-    for (int i=0; i < f_dbProtoFile.hosts_size(); i++){
+    // Get descriptors for host entry and add them to simpleDescDb object m_localDB
+    for (int i=0; i < f_dbProtoFile.hosts_size(); i++)
+    {
         const localDescDb::Host host = f_dbProtoFile.hosts(i);
         if (host.hostaddress() == f_hostAddress)
         {
-            for (int i=0; i < host.file_descriptor_proto_size(); i++){
+            for (int i=0; i < host.file_descriptor_proto_size(); i++)
+            {
                 google::protobuf::FileDescriptorProto descriptor;
                 google::protobuf::FileDescriptorProto output;
-                //std::string descriptor =  host.file_descriptor_proto(i);
-                //Here: Error "File already exists in DB", google/protobuf/descriptor_database.cc:120
-                //TODO: prevent Duplicates here! (File-already exists-Error) --> better prevent Duplicates in reflection
                 descriptor.ParseFromString(host.file_descriptor_proto(i));
-                if (!m_localDB.FindFileByName(descriptor.name(), &output)){
-                    m_localDB.Add(descriptor);
+                if (!m_localDB.FindFileByName(descriptor.name(), &output))
+                {
+                    m_localDB.Add(descriptor); // Add() prevents duplicates
                 }
             }   
             break;                    
@@ -285,53 +251,41 @@ void DescDbProxy::convertHostEntryToSimpleDescDb(bool f_accessedReflectionDb, lo
     }
 }
 
-
-void DescDbProxy::getDescriptors(std::string f_dbFileName, std::string f_hostAddress, std::shared_ptr<grpc::Channel> f_channel){
-    
-    //Use dbFile from .prot file
+void DescDbProxy::getDescriptors(std::string f_dbFileName, std::string f_hostAddress, std::shared_ptr<grpc::Channel> f_channel)
+{  
+    // Import .prot file
     localDescDb::DescriptorDb dbFile;
-    // Read the existing DB on disk
     std::fstream input;
     input.open(f_dbFileName);
     dbFile.ParseFromIstream(&input); 
 
-    //Add/Update DB entry for new/outdated host (via Reflection)
     std::string gwhisperBuildVersion = GWHISPER_BUILD_VERSION;
     bool accessedReflectionDb = false;
-    if(!isValidHostEntry(dbFile, f_hostAddress) || (dbFile.gwhisper_version() != gwhisperBuildVersion)){
-        //TODO: Delete host Entry before writing new
+
+    // Add/Update DB entry for new/outdated host (via Reflection)
+    if(!isValidHostEntry(dbFile, f_hostAddress) || (dbFile.gwhisper_version() != gwhisperBuildVersion))
+    {
         deleteDuplicateHostEntries(dbFile, f_hostAddress, f_dbFileName);
         dbFile.clear_gwhisper_version();
-        dbFile.set_gwhisper_version(gwhisperBuildVersion); //Correct Place to set version?
-        //std::fstream emptyDB(f_dbFileName, std::ios::out | std::ios::trunc | std::ios::binary);
-        //TODO: How to overwrite compete file?
-        //if (!dbFile.SerializeToOstream(&emptyDB)){
-        //    std::cerr << "Failed to write DB." << std::endl;
-        //}
+        dbFile.set_gwhisper_version(gwhisperBuildVersion);
         repopulateLocalDb(dbFile.add_hosts(), f_hostAddress, f_channel);
         accessedReflectionDb = true;
-        //std::cout << dbFile.DebugString();
     }
 
     convertHostEntryToSimpleDescDb(accessedReflectionDb, dbFile, f_hostAddress);
 
-   // writeCacheToFile(dbFileName, dbFile, localDescDb);
-    //Write updated Db to disc --> new function: write Cahce to File
+    // Overwrite DB file on disc
     std::fstream output(f_dbFileName, std::ios::out | std::ios::trunc | std::ios::binary);
-    if (!dbFile.SerializeToOstream(&output)){
+    if (!dbFile.SerializeToOstream(&output))
+    {
         std::cerr << "Failed to write DB." << std::endl;
     }
 }
 
-
 DescDbProxy::DescDbProxy(std::string dbFileName, std::string hostAddress, std::shared_ptr<grpc::Channel> channel) :
     m_reflectionDescDb(channel)
 {
-    getDescriptors(dbFileName, hostAddress, channel);   //sollte localDB returnen?
+    getDescriptors(dbFileName, hostAddress, channel); 
 }
 
-DescDbProxy::~DescDbProxy(){
-        //writeCachetoFile(); //Über Desc iterieren --> bekommt man wie in GrammarConstruction
-        //  const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(serviceName);
-
-}
+DescDbProxy::~DescDbProxy(){ }

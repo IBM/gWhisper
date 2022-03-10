@@ -33,10 +33,8 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
 
     // Find a file by file name.  Fills in in *output and returns true if found.
     // Otherwise, returns false, leaving the contents of *output undefined.
-    // TODO: At function call, iterate over all servives in service list. Call function in getDbFromFile()
     virtual bool FindFileByName(const std::string& filename, grpc::protobuf::FileDescriptorProto* output) override;
 
-    // const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(serviceName);
     // Find the file that declares the given fully-qualified symbol name.
     // If found, fills in *output and returns true, otherwise returns false
     // and leaves *output undefined.
@@ -52,13 +50,15 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
 
     // Lookup Services in Local DescDB. Services have been written into local DescDB
     // at first creation or at the update of DB entry for host. 
-    // If services are found, fills in *output and returns true, , otherwise returns
+    // If services are found, fills in *output and returns true, otherwise returns
     // false and leaves *output undefined.
-    bool GetServices(std::vector<grpc::string>* output); //, const std::string hostAddress
+    bool GetServices(std::vector<grpc::string>* output); 
     
-    // Checks, if local DB contains valid descriptorDB entries for host
+    // Check freshness of local DB file (cache), i.e. if it contains valid descriptor
+    // entries for a host
     bool isValidHostEntry(const localDescDb::DescriptorDb& descDb, const std::string hostAddress);
 
+    // TODO: evtl. not member function?
     void getDependencies(const grpc::protobuf::FileDescriptor * parentDesc);
 
     // Add new entry on local DB for new host address or update outdated entries
@@ -70,20 +70,13 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
 
     // Writes representation of proto host message in memory into SimpleDescDb object. 
     void convertHostEntryToSimpleDescDb(bool accessedReflectionDb, localDescDb::DescriptorDb dbProtoFile, std::string hostAddress);
-    
-    // Instead of loading descriptors from ReflectionDB on the gRPC server, load them from local DB, if the local DB is not outdated..
-    // std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> loadDbFromFile(std::string dbFileName, std::string hostAddress);
+
+    // Acts as an Proxy, that loads descriptors from local DB file, if the local DB is not outdated, 
+    // instead of  fetching them via reflection on the gRPC server.
+    // Add/Update host entry to local DB file, if the entry does not exist / is outdated.
+    // Stores DescDB acquired via sever reflection locally as a DB file in proto3 structure.
     void getDescriptors(std::string dbFileName, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
-    //std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> loadDbFromFile(std::string dbFileName, std::string hostAddress);
-
-
-    // Stores DescDB acquired via sever reflection locally as protofile (proto3) (might be serialized i.e. not human readable)
-    // For each host one protofile
-    // Timestamp needed for validity / freshness of this local cache
-    std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> writeCacheToFile (std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> f_descDB);
-
-
-    
+   
     DescDbProxy(std::string dbFileName, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
 
     ~DescDbProxy();
@@ -92,15 +85,11 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     private:
 
     std::string m_serverAddress;
-    //cli::ConnList m_connList;
-
-    //std::shared_ptr<grpc::protobuf::SimpleDescriptorDatabase> localDB;
     grpc::protobuf::SimpleDescriptorDatabase m_localDB;
     grpc::ProtoReflectionDescriptorDatabase m_reflectionDescDb;
 
     std::vector<const grpc::protobuf::FileDescriptor*>m_descList;
     std::set<std::string> m_descNames;
     std::vector<grpc::string> m_serviceList;
-    //std::vector<std::string> m_descNames;
 };
 
