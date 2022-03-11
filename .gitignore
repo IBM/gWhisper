@@ -1,5 +1,4 @@
-build/
-build2/
+build*
 *.swp
 compile_commands.json
 # IDEs
