@@ -26,13 +26,16 @@
 
 namespace cli
 {
-    static std::string localDescDbPath = "../../src/libLocalDescriptorCache/LocalDescDb.bin";
+   // static std::string gWhisperAppDataFolder;
+    //static std::string localDescDbPath = "~/.cache/gwhisper/localDescDb.bin";
+   // static std::string localDescDbPath = "../../src/libLocalDescriptorCache/LocalDescDb.bin";
+
     /// List of gRpc connection infomation
     typedef struct ConnList
     {
         std::shared_ptr<grpc::Channel> channel = nullptr;
-        //std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> descDb = nullptr;
-        std::shared_ptr<DescDbProxy> localDescDb = nullptr;
+        std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> descDb = nullptr;
+        std::shared_ptr<DescDbProxy> descDbProxy = nullptr;
         std::shared_ptr<grpc::protobuf::DescriptorPool> descPool = nullptr;
 
     } ConnList;
@@ -77,40 +80,51 @@ namespace cli
             {
                 if (connections[f_serverAddress].channel)
                 {
-                    //connections[f_serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[f_serverAddress].channel);
-                    connections[f_serverAddress].localDescDb = std::make_shared<DescDbProxy>(cli::localDescDbPath, f_serverAddress, connections[f_serverAddress].channel);
-                    connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[f_serverAddress].localDescDb.get());
+                    // TODO: Refactor getDescDB! Before FunctionCall it has to be known, if use Cache or not! --> maybe Easier to do this check in proxy
+                   ensureDescDbProxyAndDescPoolIsAvailable(f_serverAddress,f_parseTree);
                 }
                 else
                 {
                     registerConnection(f_serverAddress, f_parseTree);
                 }
             }
-            gwhisper::util::createFolder("../../", "testFolder1");
-            gwhisper::util::createFolder("./", "testFolder2");
-            return connections[f_serverAddress].localDescDb;
+            return connections[f_serverAddress].descDbProxy;
             //return connections[f_serverAddress].pdescDb;
         }
+        
         /// To get the gRpc DescriptorPool according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
         /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
         /// @returns the gRpc DescriptorPool of the corresponding server address.
         std::shared_ptr<grpc::protobuf::DescriptorPool> getDescPool(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree)
         {
-
             if (!findDescPoolByAddress(f_serverAddress))
             {
-                if (connections[f_serverAddress].channel)
-                {
-                    //connections[f_serverAddress].descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connections[f_serverAddress].channel);
-                    connections[f_serverAddress].localDescDb = std::make_shared<DescDbProxy>(cli::localDescDbPath, f_serverAddress, connections[f_serverAddress].channel);
-                    connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[f_serverAddress].localDescDb.get());
-                }
-                else
-                {
-                    registerConnection(f_serverAddress, f_parseTree);
-                }
+               ensureDescDbProxyAndDescPoolIsAvailable(f_serverAddress, f_parseTree);
             }
             return connections[f_serverAddress].descPool;
+        }
+
+        void ensureDescDbProxyAndDescPoolIsAvailable(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree) //ensureDescDbProxyAndDescPoolIsKnown
+        {
+            //std::string gWhisperAppDataFolder = gwhisper::util::createFolder("~", ".cache");
+            //std::string localDescDbPath = gwhisper::util::createFile(gWhisperAppDataFolder, "localDescDb.bin");//"../../src/libLocalDescriptorCache/LocalDescDb.bin";
+            if (connections[f_serverAddress].channel)
+            {
+                chooseDBType(f_serverAddress, f_parseTree);
+            }
+            else
+            {
+                registerConnection(f_serverAddress, f_parseTree);
+            }
+        }
+
+        void chooseDBType(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree)
+        {
+            bool disableCache = (f_parseTree.findFirstChild("DisableCache") != ""); //kann ich auf == "" suchen?
+
+            connections[f_serverAddress].descDbProxy = std::make_shared<DescDbProxy>(disableCache, f_serverAddress, connections[f_serverAddress].channel);
+            connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[f_serverAddress].descDbProxy.get()); //Pointer in DB
+
         }
 
     private:
@@ -133,7 +147,7 @@ namespace cli
         {
             if (connections.find(f_serverAddress) != connections.end())
             {
-                if (connections[f_serverAddress].localDescDb != nullptr)
+                if (connections[f_serverAddress].descDbProxy != nullptr)
                 {
                     return true;
                 }
@@ -186,9 +200,11 @@ namespace cli
 
             //std::cout << "Created Channel: " << connection.channel << std::endl;
             //connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
-            connection.localDescDb = std::make_shared<DescDbProxy>(cli::localDescDbPath, f_serverAddress, connection.channel);
+            bool disableCache = (f_parseTree.findFirstChild("DisableCache") != ""); //kann ich auf == "" suchen?
 
-            connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.localDescDb.get());
+            connection.descDbProxy = std::make_shared<DescDbProxy>(disableCache, f_serverAddress, connection.channel);
+            connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDbProxy.get());
+           // chooseDBType(f_serverAddress, f_parseTree);
             connections[f_serverAddress] = connection;
         }
 
