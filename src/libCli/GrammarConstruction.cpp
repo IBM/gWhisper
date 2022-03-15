@@ -387,20 +387,7 @@ namespace cli
             for (auto service : serviceList)
             {
                 auto childAlt = m_grammar.createElement<FixedString>(service);
-                const std::shared_ptr<google::protobuf::DescriptorPool> pool = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree);
-
-                //retruns serviceDescriptor
-                //const std::shared_ptr<DescDbProxy> descriptorDB = ConnectionManager::getInstance().getDescDb(serverAddress, *f_parseTree);
-                //std::vector<std::string> *output;
-                //descriptorDB->FindAllFileNames(output);
-                //std::vector<std::string> *outputServices;
-                //descriptorDB->GetServices(outputServices);
-            
-                
-                //const google::protobuf::ServiceDescriptor *test = pool->FindServiceByName(service);
-                //const grpc::protobuf::ServiceDescriptor *m_service = (*pool).FindServiceByName(service);
-                //const grpc::protobuf::ServiceDescriptor *m_service = pool->FindServiceByName(service)
-
+              
                 const grpc::protobuf::ServiceDescriptor *m_service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(service);
                 if(m_service == nullptr)
                 {
@@ -523,6 +510,7 @@ namespace cli
 
         //completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--debugComplete", "CompleteDebug"));
+        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--disableCache", "DisableCache"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--dot", "DotExport"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noColor", "NoColor"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--color", "Color"));

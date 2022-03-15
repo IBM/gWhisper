@@ -22,19 +22,22 @@ namespace gwhisper
     {
         /// Utility function for reading contents of a file and returning them as a string
         /// This function terminates the program, if file not found
-        /// @param f_path Location of the file to read from as a string
-        /// @return File content as simple string. If file cannot be opened, this function returns the status "FAIL" as as string.
-        std::string readFromFile(const std::string f_path);
+        /// @param path Location of the file to read from as a string
+        /// @return File content as simple string. If file cannot be opened, this function returns the status "FAIL" as string.
+        std::string readFromFile(const std::string path);
 
-        /// Utility function for creating a folder at given location under Linux
+        /// Utility function for creating a folder at given location.
         /// This function skips creating the folder, if it already exists.
-        /// @param f_dirLocation Location, where folder should be created
-        /// @param f_dirName Name for new folder
-        /// @return 
-        void createFolder(const std::string f_dirPath, const std::string f_dirName);
+        /// @param pathToNewFolder Location, where new folder should is created.
+        /// @return Status "OK" if creating Folder was successful. Else returns "FAIL".
+        std::string createFolder(const std::string pathToNewFolder);
 
-        void createFile(const std::string f_filePath, const std::string f_fileName);
-
+        /// Utility function for creating a new file at given location.
+        /// This function creates a new file filename_copy, if file already exists.
+        /// @param filePath Location, where new file should be created.
+        /// @param fileName Name of the new file
+        /// @return Status "OK" if creating File was successful. Else returns "FAIL".
+        std::string createFile(std::string filePath, const std::string fileName);
     }
 
 }

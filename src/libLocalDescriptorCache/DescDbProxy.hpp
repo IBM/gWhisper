@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-/// Check wether get DescDB from local location or via server reflection
-/// Input: server Adress, connection List (or 1 Param if possible with connections.[server_adress])
-/// Output: Db either of type local or type refectoin. Local should have same interface as reflection (take reflection as reference)
 #pragma once
 
 #include<string>
@@ -28,25 +24,27 @@
 #include "LocalDescDb.pb.h"
 #include <grpcpp/impl/codegen/config_protobuf.h>
 
+/// This class acts as an wrapper around the ReflectionDescDb
+/// It implements local caching to reduce fetching data via reflection,
+/// by writing in a local file.
 class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     public:
 
-    // Find a file by file name.  Fills in in *output and returns true if found.
-    // Otherwise, returns false, leaving the contents of *output undefined.
+    /// Find a file by file name.  Fills in in *output and returns true if found.
+    /// Otherwise, returns false, leaving the contents of *output undefined.
     virtual bool FindFileByName(const std::string& filename, grpc::protobuf::FileDescriptorProto* output) override;
 
-    // Find the file that declares the given fully-qualified symbol name.
-    // If found, fills in *output and returns true, otherwise returns false
-    // and leaves *output undefined.
+    /// Find the file that declares the given fully-qualified symbol name.
+    /// If found, fills in *output and returns true, otherwise returns false
+    /// and leaves *output undefined.
     virtual bool FindFileContainingSymbol(const std::string& symbol_name,  grpc::protobuf::FileDescriptorProto* output) override;
 
-    // Find the file which defines an extension extending the given message type
+    /// Find the file which defines an extension extending the given message type
     // with the given field number.  If found, fills in *output and returns true,
     // otherwise returns false and leaves *output undefined.  containing_type
     // must be a fully-qualified type name.
     virtual bool FindFileContainingExtension(const std::string& containing_type, int field_number,
                                             grpc::protobuf::FileDescriptorProto* output) override;
-
 
     // Lookup Services in Local DescDB. Services have been written into local DescDB
     // at first creation or at the update of DB entry for host. 
@@ -54,37 +52,44 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     // false and leaves *output undefined.
     bool GetServices(std::vector<grpc::string>* output); 
     
-    // Check freshness of local DB file (cache), i.e. if it contains valid descriptor
-    // entries for a host
-    bool isValidHostEntry(const localDescDb::DescriptorDb& descDb, const std::string hostAddress);
-
-    // TODO: evtl. not member function?
-    void getDependencies(const grpc::protobuf::FileDescriptor * parentDesc);
-
-    // Add new entry on local DB for new host address or update outdated entries
-    void repopulateLocalDb(localDescDb::Host* host, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
-
-    // Retrieves Names of service descriptors as well as the names of descriptors the service descriptors depend on
-    // TODO: Better Docu
-    void fetchDescNamesFromReflection();
-
-    // Writes representation of proto host message in memory into SimpleDescDb object. 
-    void convertHostEntryToSimpleDescDb(bool accessedReflectionDb, localDescDb::DescriptorDb dbProtoFile, std::string hostAddress);
-
-    // Acts as an Proxy, that loads descriptors from local DB file, if the local DB is not outdated, 
-    // instead of  fetching them via reflection on the gRPC server.
-    // Add/Update host entry to local DB file, if the entry does not exist / is outdated.
-    // Stores DescDB acquired via sever reflection locally as a DB file in proto3 structure.
-    void getDescriptors(std::string dbFileName, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
+    /// Acts as an Proxy, that loads descriptors from local DB file, if the local DB is not outdated, 
+    /// instead of  fetching them via reflection on the gRPC server.
+    /// Add/Update host entry to local DB file, if the entry does not exist / is outdated.
+    /// Stores DescDB acquired via sever reflection locally as a DB file in proto3 structure.
+    /// @param dbFileName Name of file that serves as local chache
+    /// @param hostAdress Address to the current host 
+    /// @param channel
+    void getDescriptors(const std::string &hostAddress); //std::shared_ptr<grpc::Channel> channel);
    
-    DescDbProxy(std::string dbFileName, std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
+    DescDbProxy(bool disableCache,  std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
 
     ~DescDbProxy();
 
-
     private:
 
-    std::string m_serverAddress;
+    /// Check freshness of local DB file (cache), i.e. if it contains valid descriptor
+    /// entries for a host
+    bool isValidHostEntry(const localDescDb::DescriptorDb& descDb, const std::string hostAddress);
+
+    /// 
+    void getDependencies(const grpc::protobuf::FileDescriptor * parentDesc);
+
+    /// Add new/updated host entry for new/outdated entries to cache
+    /// @param host Host entry, that is filled in this function
+    /// @param hostAddress
+    void repopulateLocalDb(localDescDb::Host* host, const std::string &hostAddress);// std::shared_ptr<grpc::Channel> channel);
+
+    /// Retrieves Names of service descriptors as well as the names of descriptors the service descriptors depend on
+    /// TODO: Better Docu
+    void fetchDescNamesFromReflection();
+
+    /// Writes representation of proto host message in memory into SimpleDescDb object. 
+    /// @param accessedReflectionDb Flag to show, whether data was accessed via reflection or not
+    /// @param dbProtoFile Representation of cache in memory
+    /// @param hostAddress 
+    void convertHostEntryToSimpleDescDb(bool accessedReflectionDb, localDescDb::DescriptorDb dbProtoFile, std::string hostAddress);
+
+    // std::string m_serverAddress;
     grpc::protobuf::SimpleDescriptorDatabase m_localDB;
     grpc::ProtoReflectionDescriptorDatabase m_reflectionDescDb;
 

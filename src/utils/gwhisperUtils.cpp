@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
-
 #include "gwhisperUtils.hpp"
 #include <fstream>
+#include <iostream>
 #include <filesystem>
-#include <experimental/filesystem>
-
-//namespace fs = std::experimental::filesystem;
+#include<string>
 
 namespace gwhisper
 {
@@ -32,6 +29,7 @@ namespace gwhisper
 
             if (!credFile)
             {
+                std::cerr << "File not found at: " << f_path << std::endl; //error message here?
                 return ("FAIL");
             }
 
@@ -41,45 +39,47 @@ namespace gwhisper
                 std::string str{std::istreambuf_iterator<char>(credFile),
                                 std::istreambuf_iterator<char>()};
                 return str;
-
-                //std::cerr << "File not found at: " << f_path << std::endl;
             }
         }
 
-        void createFile(const std::string f_filePath){ //Lieber nur filePath? (inkl FileName)
-            
+        std::string createFile(std::string f_filePath) //TODO What if folder fails?
+        {   
+            if(std::filesystem::exists(f_filePath))
+            {
+                //TODO: TEST!!
+                size_t pos = f_filePath.find_last_of('.');
+                std::string substr1 = f_filePath.substr(0, pos);
+                std::string substr2 = f_filePath.substr(pos+1);
 
-            if(std::filesystem::exists(f_filePath)){
-                // find last . // What if no dot?
-                // Insert "_copy" before dot
-                // filepath = modified name
-
+                substr1.append("_copy");
+                f_filePath = substr1 + substr2;
             }
-            else{
-                std::ofstream newFile(f_filePath);
-                newFile.close();
-            }
 
-            //Todo: What if creating file fails?
+            std::ofstream newFile(f_filePath);
+            if(!newFile)
+            {
+                std::cerr << "Error while creating new file "<<f_filePath<< std::endl; //Error message here?
+                return "FAIL";
+            }
+            newFile.close();
+            return "OK";
         }
 
-        void createFolder(const std::string f_dirLocation, const std::string f_dirName) //evtl. use filesystem path instead of string
+        std::string createFolder(const std::string f_pathToNewFolder)
         {
-            //Check if  folder exits
-            const std::filesystem::path path = f_dirLocation + f_dirName;
-            if (!(std::filesystem::is_directory(path))){
-                //Create path for folder (from root)
-                std::filesystem::create_directories(path); //evtl. mi
+            if (!(std::filesystem::is_directory(f_pathToNewFolder)))
+            {
+                try
+                {
+                    std::filesystem::create_directories(f_pathToNewFolder); //creates all missing directories
+                }
+                catch(std::filesystem::filesystem_error e)
+                {
+                    std::cerr<<e.what()<<std::endl;
+                    return "FAIL";
+                }
             }
-
-            
-
-            //TODO: Check, if .cache exists
-            //If not: create .cache
-            //Create folder "foldername"
-            //const std::string command = "./createFolder.sh " + f_dirLocation + " " + f_dirName ; // eachte spaceafter scriptname
-            //std::system(command.c_str());
-            
+            return "OK"; //or better path to new Folder?
         }
     }
 }

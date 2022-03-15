@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-/// Check wether get DescDB from local location or via server reflection
-/// Input: server Adress, connection List (or 1 Param if possible with connections.[server_adress])
-/// Output: Db either of type local or type refectoin. Local should have same interface as reflection (take reflection as reference)
 #include "DescDbProxy.hpp"
 #include "../utils/gwhisperUtils.hpp"
 #include "LocalDescDb.pb.h"
@@ -33,18 +29,21 @@
 #include <google/protobuf/util/time_util.h>
 #include <grpcpp/impl/codegen/config_protobuf.h>
 
-bool DescDbProxy::FindFileByName(const std::string& filename, grpc::protobuf::FileDescriptorProto* output){
+bool DescDbProxy::FindFileByName(const std::string& filename, grpc::protobuf::FileDescriptorProto* output)
+{
     return m_localDB.FindFileByName(filename, output);                 
 }
 
 bool DescDbProxy::FindFileContainingSymbol(const std::string& symbol_name,
-                                        grpc::protobuf::FileDescriptorProto* output){
+                                        grpc::protobuf::FileDescriptorProto* output)
+{
     return m_localDB.FindFileContainingSymbol(symbol_name, output);                 
 }                              
 
 bool DescDbProxy::FindFileContainingExtension(const std::string& containing_type,
                                         int f_field_number,
-                                        grpc::protobuf::FileDescriptorProto* output){
+                                        grpc::protobuf::FileDescriptorProto* output)
+{
     return m_localDB.FindFileContainingExtension(containing_type, f_field_number, output);                 
 }       
 
@@ -57,7 +56,7 @@ bool DescDbProxy::GetServices(std::vector<grpc::string>* output)
     } 
     else
     {
-        std::cout << "Error while fetching services from localDB entry for host "  << std::endl;
+        std::cerr << "Error while fetching services from localDB entry for host "  << std::endl;
         return false;    
     }
 }  
@@ -101,7 +100,8 @@ bool DescDbProxy::isValidHostEntry(const localDescDb::DescriptorDb& f_descDb, co
 // Remove all instances in DB od same host
 // Writes all other hosts in new messages and retuns this new message into descDb variable
 // Updates Db-file on disc.
-void deleteDuplicateHostEntries(localDescDb::DescriptorDb& descDb, const std::string f_hostAddress, const std::string f_dbFile){
+void deleteDuplicateHostEntries(localDescDb::DescriptorDb& descDb, const std::string f_hostAddress, const std::string f_dbFile)
+{
     localDescDb::DescriptorDb newDescDb;
     for(int i=0; i<descDb.hosts_size(); i++)
     {
@@ -122,7 +122,7 @@ void deleteDuplicateHostEntries(localDescDb::DescriptorDb& descDb, const std::st
     }
 }
 
-void DescDbProxy::repopulateLocalDb(localDescDb::Host* host, std::string f_hostAddress,std::shared_ptr<grpc::Channel> f_channel)
+void DescDbProxy::repopulateLocalDb(localDescDb::Host* host, const std::string &f_hostAddress)//,std::shared_ptr<grpc::Channel> f_channel)
 {
     static google::protobuf::util::TimeUtil timestamp;
 
@@ -251,12 +251,24 @@ void DescDbProxy::convertHostEntryToSimpleDescDb(bool f_accessedReflectionDb, lo
     }
 }
 
-void DescDbProxy::getDescriptors(std::string f_dbFileName, std::string f_hostAddress, std::shared_ptr<grpc::Channel> f_channel)
+void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
 {  
+    // Prepare DB-File
+    std::string homeFolder = getenv("HOME");
+    std::string cacheFolderPath = homeFolder + "/.cache/gwhisper";
+    std::string dbFileName = "LocalDescDb.bin";
+    std::string dbStatus = gwhisper::util::createFolder(cacheFolderPath);
+    if(dbStatus == "FAIL")
+    {
+        std::cerr << "Failed to access folder to store cache at "<<cacheFolderPath << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
     // Import .prot file
     localDescDb::DescriptorDb dbFile;
+    std::string dbFilePath = cacheFolderPath + "/" + dbFileName;
     std::fstream input;
-    input.open(f_dbFileName);
+    input.open(dbFilePath);
     dbFile.ParseFromIstream(&input); 
 
     std::string gwhisperBuildVersion = GWHISPER_BUILD_VERSION;
@@ -265,27 +277,43 @@ void DescDbProxy::getDescriptors(std::string f_dbFileName, std::string f_hostAdd
     // Add/Update DB entry for new/outdated host (via Reflection)
     if(!isValidHostEntry(dbFile, f_hostAddress) || (dbFile.gwhisper_version() != gwhisperBuildVersion))
     {
-        deleteDuplicateHostEntries(dbFile, f_hostAddress, f_dbFileName);
+        deleteDuplicateHostEntries(dbFile, f_hostAddress, dbFileName);
         dbFile.clear_gwhisper_version();
         dbFile.set_gwhisper_version(gwhisperBuildVersion);
-        repopulateLocalDb(dbFile.add_hosts(), f_hostAddress, f_channel);
+        repopulateLocalDb(dbFile.add_hosts(), f_hostAddress);// f_channel);
         accessedReflectionDb = true;
     }
 
     convertHostEntryToSimpleDescDb(accessedReflectionDb, dbFile, f_hostAddress);
 
     // Overwrite DB file on disc
-    std::fstream output(f_dbFileName, std::ios::out | std::ios::trunc | std::ios::binary);
+    std::fstream output(dbFilePath, std::ios::out | std::ios::trunc | std::ios::binary);
     if (!dbFile.SerializeToOstream(&output))
     {
         std::cerr << "Failed to write DB." << std::endl;
     }
 }
 
-DescDbProxy::DescDbProxy(std::string dbFileName, std::string hostAddress, std::shared_ptr<grpc::Channel> channel) :
+DescDbProxy::DescDbProxy(bool disableCache, std::string hostAddress, std::shared_ptr<grpc::Channel> channel) :
     m_reflectionDescDb(channel)
 {
-    getDescriptors(dbFileName, hostAddress, channel); 
+    if(disableCache)
+    {
+        // Get Desc directly via reflection without touching localDB
+        fetchDescNamesFromReflection();
+        for(auto &name:(m_descNames))
+        {
+            google::protobuf::FileDescriptorProto descriptor;
+            m_reflectionDescDb.FindFileByName(name, &descriptor);
+            m_localDB.Add(descriptor);
+        }     
+
+    }
+    else
+    {
+        getDescriptors(hostAddress); //channel); 
+    }
+    
 }
 
-DescDbProxy::~DescDbProxy(){ }
+DescDbProxy::~DescDbProxy(){}
