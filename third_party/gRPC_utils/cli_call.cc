@@ -76,7 +76,7 @@ CliCall::CliCall(const std::shared_ptr<grpc::Channel>& channel,
   // MODIFIED by IBM (Anna Riesch)
   // original: no deadline
   if (deadline.has_value()) {
-    // Set timelout if optional parameter has a value. Otherwise don't set timeout = infinite deadline
+    // Set timeout if optional parameter has a value. Otherwise don't set timeout = infinite deadline
     auto deadlineMs = deadline.value();
     ctx_.set_deadline(deadlineMs);
   }
