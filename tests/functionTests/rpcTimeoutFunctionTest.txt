@@ -73,7 +73,7 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST default timeout for unary RPCs exeeded
-@@CMD@@ localhost:50051 examples.StatusHandling rpcSleepForSeconds number=11
+@@CMD@@ localhost:50051 examples.StatusHandling rpcSleepForSeconds number=31
 /.* Deadline Exceeded
 /Note:.*
 #END_TEST
