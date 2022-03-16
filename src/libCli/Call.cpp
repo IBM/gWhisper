@@ -150,7 +150,7 @@ namespace cli
 
         // Get deadline for RPC from input or use custom
         std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline;
-        std::chrono::time_point<std::chrono::system_clock> defaultDeadline = std::chrono::system_clock::now() + std::chrono::milliseconds(10000);
+        std::chrono::time_point<std::chrono::system_clock> defaultDeadline = std::chrono::system_clock::now() + std::chrono::milliseconds(30000);
 
 
         bool setTimeout = (parseTree.findFirstChild("rpcTimeout") != "");
