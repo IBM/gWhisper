@@ -377,7 +377,7 @@ namespace cli
             }
 
             std::vector<grpc::string> serviceList;
-            if (not ConnectionManager::getInstance().getDescDb(serverAddress, *f_parseTree)->GetServices(&serviceList)) // We don'need host address anymore
+            if (not ConnectionManager::getInstance().getDescDb(serverAddress, *f_parseTree)->GetServices(serviceList)) // We don'need host address anymore
             {
                 f_ErrorMessage = "Error: Could not retrieve service list.";
                 return nullptr;

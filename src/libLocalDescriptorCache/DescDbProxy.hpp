@@ -46,11 +46,11 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     virtual bool FindFileContainingExtension(const std::string& containing_type, int field_number,
                                             grpc::protobuf::FileDescriptorProto* output) override;
 
-    // Lookup Services in Local DescDB. Services have been written into local DescDB
+    // Lookup Services. Services have been written into local DescDB
     // at first creation or at the update of DB entry for host. 
     // If services are found, fills in *output and returns true, otherwise returns
     // false and leaves *output undefined.
-    bool GetServices(std::vector<grpc::string>* output); 
+    bool GetServices(std::vector<grpc::string>& output); 
     
     /// Acts as an Proxy, that loads descriptors from local DB file, if the local DB is not outdated, 
     /// instead of  fetching them via reflection on the gRPC server.
@@ -68,19 +68,21 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     private:
 
     /// Check freshness of local DB file (cache), i.e. if it contains valid descriptor
-    /// entries for a host
+    /// entries for a host. A host etry if valid, if an entry for the hostadress which
+    // is not older than 120 seconds exists.
     bool isValidHostEntry(const localDescDb::DescriptorDb& descDb, const std::string hostAddress);
 
-    /// 
-    void getDependencies(const grpc::protobuf::FileDescriptor * parentDesc);
+    /// Recursevly(?) lookup all file descriptors that are imported by the parentDesc and add their 
+    /// names to m_descNames
+    /// @param parentDesc
+    void getDependencies(const grpc::protobuf::FileDescriptor& parentDesc);
 
     /// Add new/updated host entry for new/outdated entries to cache
     /// @param host Host entry, that is filled in this function
     /// @param hostAddress
-    void repopulateLocalDb(localDescDb::Host* host, const std::string &hostAddress);// std::shared_ptr<grpc::Channel> channel);
+    void repopulateLocalDb(localDescDb::Host& host, const std::string &hostAddress);// std::shared_ptr<grpc::Channel> channel);
 
-    /// Retrieves Names of service descriptors as well as the names of descriptors the service descriptors depend on
-    /// TODO: Better Docu
+    /// Retrieves Names of service descriptors from reflectionDb and write them to m_descNames.
     void fetchDescNamesFromReflection();
 
     /// Writes representation of proto host message in memory into SimpleDescDb object. 
