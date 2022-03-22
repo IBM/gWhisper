@@ -40,17 +40,14 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     virtual bool FindFileContainingSymbol(const std::string& symbol_name,  grpc::protobuf::FileDescriptorProto* output) override;
 
     /// Find the file which defines an extension extending the given message type
-    // with the given field number.  If found, fills in *output and returns true,
-    // otherwise returns false and leaves *output undefined.  containing_type
-    // must be a fully-qualified type name.
+    /// with the given field number.  If found, fills in *output and returns true,
+    /// otherwise returns false and leaves *output undefined.  containing_type
+    /// must be a fully-qualified type name.
     virtual bool FindFileContainingExtension(const std::string& containing_type, int field_number,
                                             grpc::protobuf::FileDescriptorProto* output) override;
 
-    // Lookup Services. Services have been written into local DescDB
-    // at first creation or at the update of DB entry for host. 
-    // If services are found, fills in *output and returns true, otherwise returns
-    // false and leaves *output undefined.
-    bool GetServices(std::vector<grpc::string>& output); 
+    ///
+    std::vector<grpc::string> GetServices(void); 
     
     /// Acts as an Proxy, that loads descriptors from local DB file, if the local DB is not outdated, 
     /// instead of  fetching them via reflection on the gRPC server.
@@ -65,31 +62,38 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
 
     ~DescDbProxy();
 
+    static inline google::protobuf::int64 const m_cacheTimeoutInSeconds = 120;
+
     private:
 
     /// Check freshness of local DB file (cache), i.e. if it contains valid descriptor
     /// entries for a host. A host etry if valid, if an entry for the hostadress which
     // is not older than 120 seconds exists.
-    bool isValidHostEntry(const localDescDb::DescriptorDb& descDb, const std::string hostAddress);
+    bool isValidHostEntry(const localDescDb::DescriptorDb &descDb, const std::string hostAddress);
 
-    /// Recursevly(?) lookup all file descriptors that are imported by the parentDesc and add their 
+    /// Recursively lookup all file descriptors that are imported by the parentDesc and add their 
     /// names to m_descNames
     /// @param parentDesc
-    void getDependencies(const grpc::protobuf::FileDescriptor& parentDesc);
+    void getDependencies(const grpc::protobuf::FileDescriptor &parentDesc);
 
     /// Add new/updated host entry for new/outdated entries to cache
     /// @param host Host entry, that is filled in this function
     /// @param hostAddress
     void repopulateLocalDb(localDescDb::Host& host, const std::string &hostAddress);// std::shared_ptr<grpc::Channel> channel);
 
-    /// Retrieves Names of service descriptors from reflectionDb and write them to m_descNames.
+    /// Retrieves Names of all file descriptors related to any available service 
+    /// provided by a grpc server and writes them to m_descNames.
     void fetchDescNamesFromReflection();
 
     /// Writes representation of proto host message in memory into SimpleDescDb object. 
-    /// @param accessedReflectionDb Flag to show, whether data was accessed via reflection or not
     /// @param dbProtoFile Representation of cache in memory
     /// @param hostAddress 
-    void convertHostEntryToSimpleDescDb(bool accessedReflectionDb, localDescDb::DescriptorDb dbProtoFile, std::string hostAddress);
+    void convertHostEntryToSimpleDescDb(localDescDb::DescriptorDb dbProtoFile, const std::string &hostAddress);
+
+    /// Fetches service Names from local cache and adds the names to m_serviceList.
+    /// @param dbProtoFile Representation of cache in memory
+    /// @param hostAddress 
+    void addServicNamesToserviceList(localDescDb::DescriptorDb dbProtoFile, const std::string &hostAddress);
 
     // std::string m_serverAddress;
     grpc::protobuf::SimpleDescriptorDatabase m_localDB;
