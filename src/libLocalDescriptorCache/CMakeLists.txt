@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+
 set(TARGET_NAME "DescDbProxy")
 set(TARGET_SRC
     DescDbProxy.cpp
@@ -30,5 +31,6 @@ target_link_libraries(${TARGET_NAME}
     gwhisperUtils
     version
     reflection
+    cli
     )
 

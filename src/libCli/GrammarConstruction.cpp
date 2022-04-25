@@ -59,11 +59,11 @@ namespace cli
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
             std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *f_parseTree);
 
-            if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
+           /* if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
                 f_ErrorMessage = "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.";
                 return nullptr;
-            }
+            }*/
 
             const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(serviceName);
 
@@ -321,11 +321,12 @@ namespace cli
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << std::endl;
             std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *f_parseTree);
 
-            if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
+            /*if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
                 f_ErrorMessage = "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.";
                 return nullptr;
             }
+            */
 
             const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(serviceName);
             auto result = m_grammar.createElement<Alternation>();
@@ -370,11 +371,12 @@ namespace cli
             //std::cout << "Injecting Service grammar for " << serverAddress << std::endl;
             std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *f_parseTree);
 
-            if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
+            /*if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
             {
                 f_ErrorMessage = "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.";
                 return nullptr;
             }
+            */
 
             std::vector<grpc::string> serviceList = ConnectionManager::getInstance().getDescDb(serverAddress, *f_parseTree)->GetServices(); // We don'need host address anymore
 
