@@ -18,252 +18,82 @@
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
 
 #include "utils/gwhisperUtils.hpp"
+// TODO: Solve Circular dependency! Forward declaration? Or inline (orefer first bc understanding)?
 #include "libLocalDescriptorCache/DescDbProxy.hpp"
 
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/security/credentials.h>
 #include <libArgParse/ArgParse.hpp>
 
+class DescDbProxy; // Forward Declaration to avoid cirular dependencies.
 namespace cli
 {
-   // static std::string gWhisperAppDataFolder;
-    //static std::string localDescDbPath = "~/.cache/gwhisper/localDescDb.bin";
-   // static std::string localDescDbPath = "../../src/libLocalDescriptorCache/LocalDescDb.bin";
-
-    /// List of gRpc connection infomation
-    typedef struct ConnList
-    {
-        std::shared_ptr<grpc::Channel> channel = nullptr;
-        std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> descDb = nullptr;
-        std::shared_ptr<DescDbProxy> descDbProxy = nullptr;
-        std::shared_ptr<grpc::protobuf::DescriptorPool> descPool = nullptr;
-
-    } ConnList;
-
-    /// Class to manage and resuse connection information, singleton pattern.
+    /// Class to manage and reuse connection information, singleton pattern.
     class ConnectionManager
     {
     public:
         ConnectionManager(const ConnectionManager &) = delete;
         ConnectionManager &operator=(const ConnectionManager &) = delete;
 
-    private:
-        ConnectionManager() {}
-        ~ConnectionManager() {}
-
-    public:
-        /// Only use a single connection instance
-        static ConnectionManager &getInstance()
-        {
-            static ConnectionManager connectionManager;
-            return connectionManager;
-        }
+         /// Only use a single connection instance
+        static ConnectionManager &getInstance();
 
         /// To get the channel according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
         /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
         /// @returns the channel of the corresponding server address.
-        std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree)
-        {
-            if (!findChannelByAddress(f_serverAddress))
-            {
-                registerConnection(f_serverAddress, f_parseTree);
-            }
-            return connections[f_serverAddress].channel;
-        }
+        std::shared_ptr<grpc::Channel> getChannel(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree);
 
         /// To get the gRpc DescriptorDatabase according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
         /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
         /// @returns the gRpc DescriptorDatabase of the corresponding server address.
-        std::shared_ptr<DescDbProxy> getDescDb(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree)
-        {
-            if (!findDescDbByAddress(f_serverAddress))
-            {
-                if (connections[f_serverAddress].channel)
-                {
-                    // TODO: Refactor getDescDB! Before FunctionCall it has to be known, if use Cache or not! --> maybe Easier to do this check in proxy
-                   ensureDescDbProxyAndDescPoolIsAvailable(f_serverAddress,f_parseTree);
-                }
-                else
-                {
-                    registerConnection(f_serverAddress, f_parseTree);
-                }
-            }
-            return connections[f_serverAddress].descDbProxy;
-            //return connections[f_serverAddress].pdescDb;
-        }
-        
+        std::shared_ptr<DescDbProxy> getDescDb(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree);
+
         /// To get the gRpc DescriptorPool according to the server address. If the cached map doesn't contain the channel, create the connection list and update the map.
         /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port".
         /// @returns the gRpc DescriptorPool of the corresponding server address.
-        std::shared_ptr<grpc::protobuf::DescriptorPool> getDescPool(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree)
-        {
-            if (!findDescPoolByAddress(f_serverAddress))
-            {
-               ensureDescDbProxyAndDescPoolIsAvailable(f_serverAddress, f_parseTree);
-            }
-            return connections[f_serverAddress].descPool;
-        }
-
-        void ensureDescDbProxyAndDescPoolIsAvailable(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree) //ensureDescDbProxyAndDescPoolIsKnown
-        {
-            //std::string gWhisperAppDataFolder = gwhisper::util::createFolder("~", ".cache");
-            //std::string localDescDbPath = gwhisper::util::createFile(gWhisperAppDataFolder, "localDescDb.bin");//"../../src/libLocalDescriptorCache/LocalDescDb.bin";
-            if (connections[f_serverAddress].channel)
-            {
-                chooseDBType(f_serverAddress, f_parseTree);
-            }
-            else
-            {
-                registerConnection(f_serverAddress, f_parseTree);
-            }
-        }
-
-        void chooseDBType(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree)
-        {
-            bool disableCache = (f_parseTree.findFirstChild("DisableCache") != ""); //kann ich auf == "" suchen?
-
-            connections[f_serverAddress].descDbProxy = std::make_shared<DescDbProxy>(disableCache, f_serverAddress, connections[f_serverAddress].channel);
-            connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connections[f_serverAddress].descDbProxy.get()); //Pointer in DB
-
-        }
+        std::shared_ptr<grpc::protobuf::DescriptorPool> getDescPool(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree);
 
     private:
-        // Cached map of the gRpc connection information for resuing the channel, descriptor Database and DatabasePool
-        std::unordered_map<std::string, ConnList> connections;
-        // Check if the cached map contains the channel of the given server address or not.
-        bool findChannelByAddress(std::string f_serverAddress)
-        {
-            if (connections.find(f_serverAddress) != connections.end())
-            {
-                if (connections[f_serverAddress].channel != nullptr)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        // Check if the cached map contains the gRpc DescriptorDatabase of given the server address or not.
-        bool findDescDbByAddress(std::string f_serverAddress)
-        {
-            if (connections.find(f_serverAddress) != connections.end())
-            {
-                if (connections[f_serverAddress].descDbProxy != nullptr)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        // Check if the cached map contains the gRpc DescriptorPool of the given server address or not.
-        bool findDescPoolByAddress(std::string f_serverAddress)
-        {
-            if (connections.find(f_serverAddress) != connections.end())
-            {
-                if (connections[f_serverAddress].descPool != nullptr)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+        ConnectionManager() {}
+        ~ConnectionManager() {}
+
+        void ensureDescDbProxyAndDescPoolIsAvailable(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree); 
+
+        /// Check if the cached map contains the channel of the given server address or not.
+        bool findChannelByAddress(std::string &f_serverAddress);
+
+        /// Check if the cached map contains the gRpc DescriptorDatabase of given the server address or not.
+        bool findDescDbByAddress(std::string &f_serverAddress);
+
+        /// Check if the cached map contains the gRpc DescriptorPool of the given server address or not.
+        bool findDescPoolByAddress(std::string &f_serverAddress);
 
         /// To register the gRpc connection information of a given server address.
         /// Connection List contains: Channel, DescriptorDatabase and DescriptorPool as value.
         /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port" as key of the cached map.
         /// @param f_parseTree Tree of the recent gWhisper command. Used to lookup which connection type should be opened (SSL or not).
-        void registerConnection(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree)
-        {
-            ConnList connection;
-            std::shared_ptr<grpc::ChannelCredentials> creds;
-            std::shared_ptr<grpc::ChannelCredentials> channelCreds;
-
-            if (f_parseTree.findFirstChild("ssl") != "")
-            {
-                // if --ssl set is set, check if user provides keys/ certs
-                bool clientCertOption = (f_parseTree.findFirstChild("OptionClientCert") != "");
-                bool clientKeyOption = (f_parseTree.findFirstChild("OptionClientKey") != "");
-                bool serverCertOption = (f_parseTree.findFirstChild("OptionServerCert") != "");
-
-                std::string sslClientCertPath = f_parseTree.findFirstChild("FileClientCert");
-                std::string sslClientKeyPath = f_parseTree.findFirstChild("FileClientKey");
-                std::string sslServerCertPath = f_parseTree.findFirstChild("FileServerCert");
-
-                // debugString = "CREATE SECURE CAHNNEL WITH USER-PROVIDED CREDENTIALS";
-                channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);
-                connection.channel = grpc::CreateChannel(f_serverAddress, channelCreds);
-            }
-            else
-            {
-                // create insecure channel by default
-                connection.channel = grpc::CreateChannel(f_serverAddress, grpc::InsecureChannelCredentials());
-            }
-
-            //std::cout << "Created Channel: " << connection.channel << std::endl;
-            //connection.descDb = std::make_shared<grpc::ProtoReflectionDescriptorDatabase>(connection.channel);
-            bool disableCache = (f_parseTree.findFirstChild("DisableCache") != ""); //kann ich auf == "" suchen?
-
-            connection.descDbProxy = std::make_shared<DescDbProxy>(disableCache, f_serverAddress, connection.channel);
-            connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDbProxy.get());
-           // chooseDBType(f_serverAddress, f_parseTree);
-            connections[f_serverAddress] = connection;
-        }
+        void registerConnection(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree);
 
         /// @param f_sslClientCertPath Path to client certificate. Provide certificate as .pem or .crt
         /// @param f_sslClientKeyPath Path to client private key. Provide key as .pem or .key
         /// @param f_sslServerCretPath Path to server certificate. Provide Certificate as .pem or .crt
         /// @return std::shared_ptr<grpc::ChannelCredentials> gRPC credentials as used for creating an SSL/TLS channel
-        std::shared_ptr<grpc::ChannelCredentials> generateSSLCredentials(const std::string f_sslClientCertPath, const std::string f_sslClientKeyPath, const std::string f_sslServerCertPath)
+        std::shared_ptr<grpc::ChannelCredentials> generateSSLCredentials(const std::string f_sslClientCertPath, 
+                                                const std::string f_sslClientKeyPath, const std::string f_sslServerCertPath);
+
+        /// List of gRpc connection infomation
+        typedef struct ConnList
         {
+            std::shared_ptr<grpc::Channel> channel = nullptr;
+            std::shared_ptr<grpc::ProtoReflectionDescriptorDatabase> descDb = nullptr;
+            std::shared_ptr<DescDbProxy> descDbProxy = nullptr;
+            //DescDbProxy descDbProxy;
+            std::shared_ptr<grpc::protobuf::DescriptorPool> descPool = nullptr;
 
-            std::string clientCert = "";
-            std::string clientKey = "";
-            std::string serverCert = "";
+        } ConnList;
 
-            grpc::SslCredentialsOptions sslOpts;
-
-            // Read credentials from files. If file is not found / cannot be opened terminate
-            // If no client key / cert were specified and a valid client key-cert pair is not required, continue without these files.
-            if (f_sslClientKeyPath != "")
-            {
-                clientKey = gwhisper::util::readFromFile(f_sslClientKeyPath);
-
-                if (clientKey == "FAIL")
-                {
-                    std::cerr << "Error while fetching clientKey from: " << f_sslClientKeyPath << std::endl;
-                    std::cerr << "Failed to build secure channel" << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-                sslOpts.pem_private_key = clientKey;
-            }
-
-            if (f_sslClientCertPath != "")
-            {
-                clientCert = gwhisper::util::readFromFile(f_sslClientCertPath);
-
-                if (clientCert == "FAIL")
-                {
-                    std::cerr << "Error while fetching clientCert from: " << f_sslClientCertPath << std::endl;
-                    std::cerr << "Failed to build secure channel" << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-                sslOpts.pem_cert_chain = clientCert;
-            }
-
-            if (f_sslServerCertPath != "")
-                serverCert = gwhisper::util::readFromFile(f_sslServerCertPath);
-            {
-                if (serverCert == "FAIL")
-                {
-                    std::cerr << "Error while fetching serverCert from: " << f_sslServerCertPath << std::endl;
-                    std::cerr << "Failed to build secure channel" << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-                sslOpts.pem_root_certs = serverCert;
-            }
-
-            std::shared_ptr<grpc::ChannelCredentials> creds = grpc::SslCredentials(sslOpts);
-
-            return creds;
-        }
+        /// Cached map of the gRpc connection information for resuing the channel, descriptor Database and DatabasePool
+        std::unordered_map<std::string, ConnList> m_connections; //needed typedef for this.
+      
     };
 }

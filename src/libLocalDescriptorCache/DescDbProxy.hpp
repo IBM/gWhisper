@@ -20,6 +20,9 @@
 
 #include <grpcpp/grpcpp.h>
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
+#include "libCli/libCli/ConnectionManager.hpp"
+#include "libArgParse/ArgParse.hpp"
+//#include <libCli/ConnectionManager.hpp>
 
 #include "LocalDescDb.pb.h"
 #include <grpcpp/impl/codegen/config_protobuf.h>
@@ -41,8 +44,7 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
 
     /// Find the file which defines an extension extending the given message type
     /// with the given field number.  If found, fills in *output and returns true,
-    /// otherwise returns false and leaves *output undefined.  containing_type
-    /// must be a fully-qualified type name.
+    /// otherwise returns false and leaves *output undefined.
     virtual bool FindFileContainingExtension(const std::string& containing_type, int field_number,
                                             grpc::protobuf::FileDescriptorProto* output) override;
 
@@ -55,10 +57,11 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     /// Stores DescDB acquired via sever reflection locally as a DB file in proto3 structure.
     /// @param dbFileName Name of file that serves as local chache
     /// @param hostAdress Address to the current host 
-    /// @param channel
-    void getDescriptors(const std::string &hostAddress); //std::shared_ptr<grpc::Channel> channel);
+    void getDescriptors(const std::string &hostAddress);
    
-    DescDbProxy(bool disableCache,  std::string hostAddress, std::shared_ptr<grpc::Channel> channel);
+    DescDbProxy(bool disableCache, const std::string &hostAddress, std::shared_ptr<grpc::Channel> channel); //TODO: evtl. pass reflectionDB instead of channel or even more high level (mocking / stubbing)
+
+    DescDbProxy(bool disableCache, std::string hostAddress, ArgParse::ParsedElement &f_parseTree); //TODO: evtl. pass reflectionDB instead of channel or even more high level (mocking / stubbing)
 
     ~DescDbProxy();
 
@@ -71,33 +74,39 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     // is not older than 120 seconds exists.
     bool isValidHostEntry(const localDescDb::DescriptorDb &descDb, const std::string hostAddress);
 
-    /// Recursively lookup all file descriptors that are imported by the parentDesc and add their 
-    /// names to m_descNames
-    /// @param parentDesc
-    void getDependencies(const grpc::protobuf::FileDescriptor &parentDesc);
-
-    /// Add new/updated host entry for new/outdated entries to cache
-    /// @param host Host entry, that is filled in this function
-    /// @param hostAddress
-    void repopulateLocalDb(localDescDb::Host& host, const std::string &hostAddress);// std::shared_ptr<grpc::Channel> channel);
+    /// Add new/updated host entry for new/outdated entries to cache representation in memory.
+    /// @param out_host Host entry, that is filled in this function.
+    /// @param hostAddress Address used for new host entry.
+    void repopulateLocalDb(localDescDb::Host& out_host, const std::string &hostAddress);
 
     /// Retrieves Names of all file descriptors related to any available service 
     /// provided by a grpc server and writes them to m_descNames.
-    void fetchDescNamesFromReflection();
+    void fetchDescNamesFromReflection(const std::string &hostAddress);
+
+    /// Recursively looks up all file descriptors that are imported by the parentDesc and add their 
+    /// names to m_descNames.
+    /// @param parentDesc Root file descriptor to start the lookup from.
+    void getDependencies(const grpc::protobuf::FileDescriptor &parentDesc);
 
     /// Writes representation of proto host message in memory into SimpleDescDb object. 
-    /// @param dbProtoFile Representation of cache in memory
-    /// @param hostAddress 
+    /// @param dbProtoFile Representation of cache in memory.
+    /// @param hostAddress Address of host that is to be converted into a SimpleDescDb object.
     void convertHostEntryToSimpleDescDb(localDescDb::DescriptorDb dbProtoFile, const std::string &hostAddress);
 
-    /// Fetches service Names from local cache and adds the names to m_serviceList.
-    /// @param dbProtoFile Representation of cache in memory
-    /// @param hostAddress 
+    /// Fetches service Names from local cache (not reflection!) and adds the names to m_serviceList.
+    /// @param dbProtoFile proto representation of cache in memory.
+    /// @param hostAddress Address of host whose services are retrieved.
     void addServicNamesToserviceList(localDescDb::DescriptorDb dbProtoFile, const std::string &hostAddress);
 
-    // std::string m_serverAddress;
+    /// Checks, if location for cache exists.
+    /// If not, creates new folder 'gwhisper' at home/.cache 
+    /// @return Path to cache file on file system
+    static std::string prepareCacheFile();
+
     grpc::protobuf::SimpleDescriptorDatabase m_localDB;
-    grpc::ProtoReflectionDescriptorDatabase m_reflectionDescDb;
+    std::unique_ptr<grpc::ProtoReflectionDescriptorDatabase> m_reflectionDescDb = nullptr; //std_unique und nullptr
+    std::shared_ptr<grpc::Channel> m_channel = nullptr;
+    ArgParse::ParsedElement m_parseTree; //TODO: Oder lieber durchreichen?
 
     std::vector<const grpc::protobuf::FileDescriptor*>m_descList;
     std::set<std::string> m_descNames;
