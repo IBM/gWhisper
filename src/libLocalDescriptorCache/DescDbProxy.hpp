@@ -59,9 +59,7 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     /// @param hostAdress Address to the current host 
     void getDescriptors(const std::string &hostAddress);
    
-    DescDbProxy(bool disableCache, const std::string &hostAddress, std::shared_ptr<grpc::Channel> channel); //TODO: evtl. pass reflectionDB instead of channel or even more high level (mocking / stubbing)
-
-    DescDbProxy(bool disableCache, std::string hostAddress, ArgParse::ParsedElement &f_parseTree); //TODO: evtl. pass reflectionDB instead of channel or even more high level (mocking / stubbing)
+    DescDbProxy(bool disableCache, const std::string &hostAddress, std::shared_ptr<grpc::Channel> channel);
 
     ~DescDbProxy();
 
@@ -72,7 +70,7 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     /// Check freshness of local DB file (cache), i.e. if it contains valid descriptor
     /// entries for a host. A host etry if valid, if an entry for the hostadress which
     // is not older than 120 seconds exists.
-    bool isValidHostEntry(const localDescDb::DescriptorDb &descDb, const std::string hostAddress);
+    bool isValidHostEntry(const localDescDb::DescriptorDb &descDb, const std::string &hostAddress);
 
     /// Add new/updated host entry for new/outdated entries to cache representation in memory.
     /// @param out_host Host entry, that is filled in this function.

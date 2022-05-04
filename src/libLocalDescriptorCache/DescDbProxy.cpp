@@ -56,7 +56,7 @@ std::vector<grpc::string> DescDbProxy::GetServices()
     return m_serviceList;
 }  
 
-bool DescDbProxy::isValidHostEntry(const localDescDb::DescriptorDb& f_descDb, const std::string f_hostAddress)
+bool DescDbProxy::isValidHostEntry(const localDescDb::DescriptorDb& f_descDb, const std::string &f_hostAddress)
 {    
 
     for (int i=0; i < f_descDb.hosts_size(); i++)
@@ -377,38 +377,8 @@ DescDbProxy::DescDbProxy(bool disableCache, const std::string &hostAddress, std:
     }
     else
     {
-        getDescriptors(hostAddress); //channel); 
+        getDescriptors(hostAddress);
     }
-    
 }
-
-DescDbProxy::DescDbProxy(bool disableCache, std::string hostAddress, ArgParse::ParsedElement &parseTree)
-{
-    m_parseTree = parseTree; 
-    if(disableCache)
-    {
-        // Connect to reflection and Get Desc directly via reflection without touching localDB.
-        fetchDescNamesFromReflection(hostAddress);
-        for(auto &name:(m_descNames))
-        {
-            google::protobuf::FileDescriptorProto descriptor;
-            // channel = m_reflectionDescDb(channel);
-            if (m_reflectionDescDb == nullptr)
-            {
-                std::cerr<<"Exit in DescDb constr"<<std::endl;
-                exit(EXIT_FAILURE);
-            }
-            m_reflectionDescDb->FindFileByName(name, &descriptor);
-            m_localDB.Add(descriptor);
-        }     
-
-    }
-    else
-    {
-        getDescriptors(hostAddress); 
-    }
-    
-}
-
 
 DescDbProxy::~DescDbProxy(){}

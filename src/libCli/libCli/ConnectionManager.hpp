@@ -57,7 +57,7 @@ namespace cli
         ConnectionManager() {}
         ~ConnectionManager() {}
 
-        void ensureDescDbProxyAndDescPoolIsAvailable(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree); 
+        void ensureDescDbProxyAndDescPoolIsAvailable(std::string &f_serverAddress, ArgParse::ParsedElement &f_parseTree); 
 
         /// Check if the cached map contains the channel of the given server address or not.
         bool findChannelByAddress(std::string &f_serverAddress);
@@ -72,7 +72,7 @@ namespace cli
         /// Connection List contains: Channel, DescriptorDatabase and DescriptorPool as value.
         /// @param f_serverAddress Service Addresses with Port, described in gRPC string format "hostname:port" as key of the cached map.
         /// @param f_parseTree Tree of the recent gWhisper command. Used to lookup which connection type should be opened (SSL or not).
-        void registerConnection(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree);
+        void registerConnection(std::string &f_serverAddress, ArgParse::ParsedElement &f_parseTree);
 
         /// @param f_sslClientCertPath Path to client certificate. Provide certificate as .pem or .crt
         /// @param f_sslClientKeyPath Path to client private key. Provide key as .pem or .key
