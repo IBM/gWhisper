@@ -1,9 +1,45 @@
-from ntpath import join
-import os
+#!/bin/bash
+# Copyright 2019 IBM Corporation
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# this is a very simple testcase executing script.
+# it receives two mandatory arguments:
+# 1. the path to the build directory of gWhisper
+# 2. a file containing test cases
+# the script will start a grpc test server against wich tests can be run.
+# All test cases described in the given file are executed.
+# If one or more fails the script exits with return code 1. otherwise with 0.
+#
+# The test case file is formatted as follows:
+# After a line beginning with "#START_TEST" followed by a space and a test case description
+# a SINGLE line containing command is expected which will be executed in a sub-shell.
+# If a test case requires MULTIPLE independent commands, every command
+# is to be nested between "#EXEC_CMD" and "#END_CMD"
+# If a command line contains the string "@@CMD@@" it will be replaced with a path to
+# the gwhisper executable.
+# If this line contains the string "@@PTC@@" it will be replaced with a path to 
+# the certificate directory
+# All following lines until a line starting with "#END_TEST" or "#END_CMD" respectively
+# are the expected command output.
+# If one of those lines starts with a "/" the line is interpreted as a regex.
+# If one of those lines starts with a "?" the line is interpreted as a regex,
+# but is optional. This means, if the regex does not match, the next expected
+# line is tried.
+# 
 import sys
 import subprocess
 import time
-
 import re
 
 # colors
@@ -18,20 +54,16 @@ certs = sys.argv[4]
 testFile = sys.argv[5]
 
 # starting test server
-print('Blib')
 print('Starting server: \'{} --certBasePath {} ...\''.format(testServer, certs))
-#startCmd = "{} --certBasePath {}".format(testServer, certs)
-#startProcess = subprocess.Popen(startCmd.split())
-startProcess = subprocess.Popen([testServer,"--certBase", certs, "&"], stdout=subprocess.PIPE)
-print('Blub')
-#serverPID = startProcess.pid
+startProcess = subprocess.Popen([testServer,"--certBasePath", certs], stdout=subprocess.PIPE)
+#for out in startProcess.stdout:
+#    print(out)
 time.sleep(0.2)
 
 print('Starting server: \'{}\' ...done'.format(testServer))
 print('Running Completion tests...')
 
 # state machine for parser
-# Todo: Think about DataStructure for ()
 state = "FIND_TEST"
 pathToBuild = ""
 received = []
@@ -41,20 +73,19 @@ testline = 0
 testname = ""
 failedTests = []
 numTests = 0
+multiCmd = False
 
 # parse testcase file and execute tests
-#file = open(testFile, 'r')
-#fileLines = file.readlines()
-#while (fileLine in fileLines):
 line = " "
 with open(testFile) as file:
-    while True: # alt: for fileLine in file
+    while True:
         line  = file.readline()
         curline += 1
+        if (line.startswith("#END_CMD")):
+            parse_end = False
 
         if ((line.startswith("#START_TEST")) and (state == "FIND_TEST")):
             testline = curline
-            received = []
             testname = line[12:]
             testname = testname.replace("\n", "")
             state = "PARSE_CMD"
@@ -62,27 +93,27 @@ with open(testFile) as file:
             print ("Executing test '{}' at line {}".format(testname, testline))
             continue
         # end-if
+        if ((line.startswith("#EXEC_CMD")) and (state == "PARSE_CMD")):
+            multiCmd = True
+            continue
 
-        if ((line.startswith("#END_TEST")) or (line.startswith("#EXEC_CMD")) and (state == "PARSE_RESULT")):
+        if ((line.startswith("#END_TEST") and state == "PARSE_RESULT") or (line.startswith("#END_CMD") and state == "PARSE_CMD_RESULT")):
             numTests += 1
             fail = False
             failtext = ""
             idx = 0
-
-            print(f'EXPECTED: {expected}')
+            #print(f'EXLEN: {len(expected)}')
+            #print(f'RECLEN; {len(received)}')
+            #print(expected)
+            #print('_______________')
+            #print(received)
 
             for expectedLine in expected:
-                expectedLine.encode("UTF-8")
-                print('--------------------------------------------------------')
-                print(f'EXPECTEDLIST: {expected}')
-                print(f'RECEIVEDLIST:{received}')
-                print(f'EXPECTEDLINE: {expectedLine}')
-                print(f'RECEIVEDLINE: {received[idx]}')
-                print(f'IDX: {idx}') #Warum sprongt er hier aus dem for raus und geht ins with?
-
-
-                # TODO: print /n as newline
-                if(len(expected) <= idx): # -le = less or equal
+                if len(expected)>len(received):
+                    fail = True
+                    failtext = "Test '{}' at line received not enough lines.".format(testname, testline)
+                    break
+                if(len(expected) <= idx):
                     if(expectedLine.startswith("?")):
                         # prevent over reading the received array
                         continue
@@ -93,26 +124,28 @@ with open(testFile) as file:
                     # end-if
                 # end-if
                 if (expectedLine.startswith("?")):
-                    # optional regex --> line starts with "?""
-                    expectedLine = expectedLine[1:] # TODO: Muss die line dann an der ersten pos anfangen?
-                    regex = re.compile(expectedLine)
-                    match = regex.search(received[idx]) # match with incoming output
-                    if (not match):
-                    #if (not received[idx] == expectedLine): # Wo wird received befüllt?
-                        continue
-                elif(expectedLine.startswith("/")):
-                    # mandatory regex
-                    expectedLine = expectedLine[1:] # TODO: Muss die line dann an der ersten pos aufhören? Ist der 1. Teil dann der Regex?
-                    print(f'NEW EXPECTED: {expectedLine}')
+                    # optional regex
+                    expectedLine = expectedLine[1:].replace('\n','')
                     try:
-                        regex = re.compile(expectedLine) # regex is not escaped
+                        regex = re.compile(expectedLine)
                     except re.error:
-                        print(f'Invalid REGEX at line {curline}. Check your testfile')
+                        print(f'Invalid REGEX at line {curline}. Check your testfile.')
+                        
                     match = regex.search(received[idx]) # match with incoming output
                     if match:
                         print(f'MATCHED CHARACTERS: {match.group()}')
                     if (not match):
-                    #if (not(received[idx] == re.match('\b',expectedLine) )):
+                        continue
+                elif(expectedLine.startswith("/")):
+                    # mandatory regex
+                    expectedLine = expectedLine[1:].replace('\n','')
+                    try:
+                        regex = re.compile(expectedLine) # regex is not escaped
+                    except re.error:
+                        print(f'Invalid REGEX at line {curline}. Check your testfile.')
+
+                    match = regex.search(received[idx]) # match with incoming output
+                    if (not match):
                         fail = True
                         failtext = "line {} received text '{}' does not match expected regex '{}'.".format(idx+1, received[idx], expectedLine)
                         break
@@ -125,61 +158,66 @@ with open(testFile) as file:
                     # end-if
                 # end-if
                 idx+=1
-                # done?
             # end-for
-            if ((len(received) != idx) and (not fail)): # and [ ${#received[@]} -ne $idx ]
+            if ((len(received) != idx) and (not fail)):
                 fail = True
-                # TODO What to do wih #received[@] ?
                 failtext = "expected number of lines {} (of {}) and received number of lines {} do not match!".format(idx, len(expected), len(received))
-                #break #TODO: Wrong break?
             # end-if
             if (fail):
                 failedTests.append(f'line: {testline}, name: \'{testname}\'')
+                failtext = failtext.replace('\n', '')
                 prRed('FAIL: ')
                 print(failtext)
-                # TODO echo -e " ${RED}FAIL:${NC} $failtext"
             else:
                 prGreen('OK!')
             # end-if
-            if (line.startswith("#EXEC_CMD")):
+            if (line.startswith("#END_CMD")):
                 state = "PARSE_CMD"
                 continue
             # end-if
             if (line.startswith("#END_TEST")):
                 state = "FIND_TEST"
+                multiCmd = False
                 continue
             # end-if
         # end-if
 
         if (state == "PARSE_CMD"):
-            cmd = line.replace("@@CMD@@", gwhisper)
+            if(line.startswith("#END_TEST")):
+                state = "FIND_TEST"
+                multiCmd = False
+                continue
+            # Disable cache to avoid output depending on cache
+            if "cacheFunctionTests" in testFile:
+                cmd = line.replace("@@CMD@@", gwhisper)
+            else:
+                gwhisperCmd = gwhisper + '--disableCache'
+                cmd = line.replace("@@CMD@@", "{} --disableCache".format(gwhisper))
             cmd = cmd.replace('\n', '')
             print(f'Resolve cmd \'{cmd}\'')
             newCmd = cmd.replace("@@PTC@@", certs)
+            newCmd = newCmd.replace("@@testResources@@", testResources)
             newCmd = newCmd.replace('\n', '')
             print(f"Execute new command '{newCmd}'")
-            readProcess = subprocess.Popen(newCmd.split(), stdout = subprocess.PIPE, stderr = subprocess.STDOUT) # redirect stderr to stdout
-            # TODO Ist das synchron?
-            print("SOMETHING")
-            #received = out.stdout
+            #TODO: Document why using bash here
+            readProcess = subprocess.Popen(['bash', '-c', newCmd], stdout = subprocess.PIPE, stderr = subprocess.STDOUT) # redirect stderr to stdout
+            received = []
+            #print (re.split('(?<!") | (?!")', newCmd))
             for outLine in readProcess.stdout:
-                # each newline  = new entry in received list
                 received.append(outLine.decode("UTF-8"))
-            # TODO: Security implications!! What happens, if we pass sth. like rm -f?
-            # TODO: Maybe hide error code?
-            state = "PARSE_RESULT"
-            expected = [] # TODO: expected list komplett leeren?
-
+            if multiCmd:
+                state = "PARSE_CMD_RESULT"
+            else:
+                state = "PARSE_RESULT"
+            expected = []
             continue
         # end-if
 
-        if (state == "PARSE_RESULT"):
-            #expected += line
+        if (state == "PARSE_RESULT" or state == "PARSE_CMD_RESULT"):
             expected.append(line)
             continue
         # end-if
         if not line:
-              # TODO: done < "$testFile"
             break
     # end-while
 # end-with
@@ -207,7 +245,6 @@ else:
 
 # stopping test server
 print('Stopping server...')
-#subprocess.run(['kill', serverPID])
 startProcess.terminate()
 
 # return test result

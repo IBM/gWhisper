@@ -170,8 +170,8 @@ void DescDbProxy::fetchDescNamesFromReflection(const std::string &f_hostAddress)
     
     if(!(m_reflectionDescDb->GetServices(&m_serviceList)))
     {
-        std::cerr << "Error while fetching services from reflection " << std::endl;
-        exit(EXIT_FAILURE);        
+        std::cerr << "Error while fetching services from reflection" << std::endl;
+        exit(EXIT_FAILURE);      
     }
 
     google::protobuf::DescriptorPool descPool(m_reflectionDescDb.get());

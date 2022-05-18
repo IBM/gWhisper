@@ -173,27 +173,36 @@ int main(int argc, char **argv)
     std::cout << "Starting insecure server listening on " << insecureServerAddr << std::endl;
     builder.AddListeningPort(insecureServerAddr, grpc::InsecureServerCredentials());
     std::cout << "INSECURE CREATED " << insecureServerAddr << std::endl;
+    std::cout << "1" << std::endl;
 
     // register all services:
     ServiceScalarTypeRpcs scalarTypeRpcs;
     builder.RegisterService(&scalarTypeRpcs);
+    std::cout << "2" << std::endl;
 
     ServiceNestedTypeRpcs nestedTypeRpcs;
     builder.RegisterService(&nestedTypeRpcs);
+    std::cout << "3" << std::endl;
 
     ServiceComplexTypeRpcs complexTypeRpcs;
     builder.RegisterService(&complexTypeRpcs);
+    std::cout << "4" << std::endl;
 
     ServiceStreamingRpcs streamingRpcs;
     builder.RegisterService(&streamingRpcs);
+    std::cout << "5" << std::endl;
 
     ServiceStatusHandling statusHandling;
     builder.RegisterService(&statusHandling);
+    std::cout << "6" << std::endl;
 
+    std::cout << "Services Registered" << std::endl;
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+    std::cout << "Built and Started" << std::endl;
 
     if (server != nullptr)
     {
+         std::cout << "Went to wait" << std::endl;
         server->Wait();
     }
     else
@@ -201,5 +210,6 @@ int main(int argc, char **argv)
         std::cout << "Server failed to start. exiting." << std::endl;
         return -1;
     }
+    std::cout << "Soon to exit start server script" << std::endl;
     return 0;
 }

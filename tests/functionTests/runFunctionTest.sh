@@ -27,7 +27,7 @@
 # If this line contains the string "@@CMD@@" it will be replaced with a path to
 # the gwhisper executable.
 # If this line contains the string "@@PTC@@" it will be replaced with a path to 
-# the certificate directory directory
+# the certificate directory
 # All following lines until a line Starting with "#END_TEST" are the expected command
 # output.
 # If one of those lines starts with a "/" the line is interpreted as a regex.
@@ -82,7 +82,8 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         echo "Executing test '$testname' at line $testline"
         continue
     fi
-    if [[ "$line" =~ ^#END_TEST ]] && [[ $state = "PARSE_RESULT" ]]; then
+
+    if [[ ("$line" =~ ^#END_TEST || "$line" =~ ^#EXEC_CMD) && $state = "PARSE_RESULT" ]]; then
         ((numTests=numTests+1))
         fail=false
         failtext=""
@@ -90,7 +91,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         for expectedLine in "${expected[@]}"
         do
             if [ ${#received[@]} -le $idx ]; then
-                # prevent over reading the received arrwy
+                # prevent over reading the received array
                 if [ ${expectedLine:0:1} = "?" ]; then
                     continue;
                 else
@@ -137,8 +138,16 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         else
             echo -e " ${GREEN}OK${NC}"
         fi
-        state="FIND_TEST"
-        continue
+
+        if [[ "$line" =~ ^#EXEC_CMD ]]; then
+            state="PARSE_CMD"
+            continue
+        fi
+
+        if [[ "$line" =~ ^#END_TEST ]]; then
+            state="FIND_TEST"
+            continue
+        fi
     fi
 
     if [[ $state = "PARSE_CMD" ]]; then
@@ -146,8 +155,9 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         echo " resolve cmd '$cmd'"
         newLine=${cmd//@@PTC@@/$certs}
         echo " execute new command '$newLine'"
-        out=$(eval "$newLine 2>&1") # use eval here to correctly split args into arg array
+        out=$(eval "$newLine 2>&1") # use eval here to correctly split args into arg array --> std::error to std::out
         IFS=$'\n' received=($out)
+        #maybe here: if newline = "EXEC_CMD" state="EXEC_CMD"
         state="PARSE_RESULT"
         expected=()
         continue

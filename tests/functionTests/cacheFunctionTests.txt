@@ -1,0 +1,37 @@
+##############################################################################
+# RPC with caching
+# TODO: Adjust / Extend test framework
+##############################################################################
+#START_TEST RPC without existing cache
+@@CMD@@ --rpcTimeoutMilliseconds=125000 localhost:50051 examples.StatusHandling examples.ScalarTypeRpcs negateBool m_bool=0
+/.* Received message:
+RPC succeeded :D
+#END_TEST
+
+#START_TEST RPC with valid cache
+@@CMD@@ --rpcTimeoutMilliseconds=125000 localhost:50051 examples.StatusHandling rpcSleepForSeconds number=120
+/.* Received message:
+RPC succeeded :D
+#END_TEST
+
+#START_TEST RPC with invalid cache
+@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.ScalarTypeRpcs negateBool m_bool=0
+/.* Received message:
+| m_bool = true
+RPC succeeded :D
+#END_TEST
+
+
+##############################################################################
+# RPC without caching (reflection)
+##############################################################################
+#START_TEST Disable caching
+@@CMD@@ --disableCache localhost:50051 examples.NestedTypeRpcs echoNestedMaps 
+Warning: no Fields found in parseTree for message 'NestedMaps'
+/.* Received message:
+| number_and_string..... = [NOT SET]  
+| sub_message........... = [NOT SET]
+| simple_map_int[0/0] = {}
+| simple_map_string[0/0] = {}
+RPC succeeded :D
+#END_TEST

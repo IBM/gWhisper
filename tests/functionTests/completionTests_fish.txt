@@ -25,6 +25,7 @@ Possible Candidates:
   '--serverCert='
   '--complete'
   '--debugComplete '
+  '--disableCache '
   '--dot '
   '--noColor '
   '--color '

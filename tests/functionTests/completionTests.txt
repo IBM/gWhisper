@@ -24,6 +24,7 @@ Possible Candidates:
   '--serverCert='
   '--complete'
   '--debugComplete '
+  '--disableCache '
   '--dot '
   '--noColor '
   '--color '
@@ -305,7 +306,7 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST Byte field from input file
-@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes data=file://${testResources}/data.bin
+@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes data=file://@@testResources@@/data.bin
 /.*Received message:
 /| data = hex[3] = aa 55 a5.*
 RPC succeeded :D
@@ -316,4 +317,3 @@ RPC succeeded :D
 /Error.*
 Error parsing method arguments -> aborting the call :-(
 #END_TEST
-
