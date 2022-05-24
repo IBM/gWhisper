@@ -182,7 +182,7 @@ RPC succeeded :D
 # JSON input
 ##############################################################################
 #START_TEST json_input_stdin
-cat ${testResources}/duplicateEverything1d.json | @@CMD@@ --jsonInput=- 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
+cat @@testResources@@/duplicateEverything1d.json | @@CMD@@ --jsonInput=- 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
 /.* Received message:
 | some_numbers..... = {Numbers}
 | | m_double = 15.800000
@@ -199,14 +199,15 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST json_input_stdin_malformed
-cat ${testResources}/duplicateEverything1d_malformed.json | @@CMD@@ --jsonInput=- 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
+cat @@testResources@@/duplicateEverything1d_malformed.json | @@CMD@@ --jsonInput=- 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
 Warning: Failed to parse JSON file '-': INVALID_ARGUMENT:Unexpected end of string. Expected , or } after key:value pair.
+
 ^
 Error parsing method arguments -> aborting the call :-(
 #END_TEST
 
 #START_TEST json_input_file
-@@CMD@@ --jsonInput=${testResources}/duplicateEverything1d.json 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
+@@CMD@@ --jsonInput=@@testResources@@/duplicateEverything1d.json 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
 /.* Received message:
 | some_numbers..... = {Numbers}
 | | m_double = 15.800000

@@ -1,25 +1,68 @@
 ##############################################################################
 # RPC with caching
-# TODO: Adjust / Extend test framework
 ##############################################################################
 #START_TEST RPC without existing cache
-@@CMD@@ --rpcTimeoutMilliseconds=125000 localhost:50051 examples.StatusHandling examples.ScalarTypeRpcs negateBool m_bool=0
+#EXEC_CMD
+rm ~/.cache/gwhisper/DescriptorCache.bin
+#END_CMD
+#EXEC_CMD
+@@CMD@@ --rpcTimeoutMilliseconds=125000 localhost:50051 examples.ScalarTypeRpcs negateBool m_bool=0
 /.* Received message:
+| m_bool = true
 RPC succeeded :D
+#END_CMD
 #END_TEST
 
-#START_TEST RPC with valid cache
-@@CMD@@ --rpcTimeoutMilliseconds=125000 localhost:50051 examples.StatusHandling rpcSleepForSeconds number=120
+#START_TEST create cache and run RPC with new cache
+#EXEC_CMD
+rm ~/.cache/gwhisper/DescriptorCache.bin
+#END_CMD
+#EXEC_CMD
+@@CMD@@ localhost:50051 examples.ComplexTypeRpcs addAllNumbers numbers=:2, 3:
 /.* Received message:
+/.*| number = 5
 RPC succeeded :D
+#END_CMD
+#EXEC_CMD
+ls ~/.cache/gwhisper/
+DescriptorCache.bin
+#END_CMD
+#END_TEST
+
+#START_TEST RPC with existing cache
+#EXEC_CMD
+ls ~/.cache/gwhisper/
+DescriptorCache.bin
+#END_CMD
+#EXEC_CMDcd
+@@CMD@@ localhost:50051 examples.ComplexTypeRpcs addAllNumbers numbers=:2, 3:
+/.* Received message:
+/.*| number = 5
+RPC succeeded :D
+#END_CMD
 #END_TEST
 
 #START_TEST RPC with invalid cache
+#EXEC_CMD
+@@CMD@@ localhost:50051 examples.StatusHandling rpcSleepForSeconds number=0
+/.* Received message
+
+RPC succeeded :D
+#END_CMD
+#EXEC_CMD
+sleep 120
+#END_CMD
+#EXEC_CMD
 @@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.ScalarTypeRpcs negateBool m_bool=0
 /.* Received message:
 | m_bool = true
 RPC succeeded :D
+#END_CMD
 #END_TEST
+
+##############################################################################
+# secure RPC with cache
+##############################################################################
 
 
 ##############################################################################
@@ -29,9 +72,9 @@ RPC succeeded :D
 @@CMD@@ --disableCache localhost:50051 examples.NestedTypeRpcs echoNestedMaps 
 Warning: no Fields found in parseTree for message 'NestedMaps'
 /.* Received message:
-| number_and_string..... = [NOT SET]  
+| number_and_string..... = [NOT SET]
 | sub_message........... = [NOT SET]
-| simple_map_int[0/0] = {}
+| simple_map_int[0/0]... = {}
 | simple_map_string[0/0] = {}
 RPC succeeded :D
 #END_TEST

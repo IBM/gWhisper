@@ -111,7 +111,7 @@ with open(testFile) as file:
             for expectedLine in expected:
                 if len(expected)>len(received):
                     fail = True
-                    failtext = "Test '{}' at line received not enough lines.".format(testname, testline)
+                    failtext = "Test '{}' at line {} received not enough lines.".format(testname, testline)
                     break
                 if(len(expected) <= idx):
                     if(expectedLine.startswith("?")):
@@ -129,7 +129,7 @@ with open(testFile) as file:
                     try:
                         regex = re.compile(expectedLine)
                     except re.error:
-                        print(f'Invalid REGEX at line {curline}. Check your testfile.')
+                        print(f'Invalid REGEX at line {idx+1}. Check your testfile.')
                         
                     match = regex.search(received[idx]) # match with incoming output
                     if match:
@@ -188,7 +188,7 @@ with open(testFile) as file:
                 multiCmd = False
                 continue
             # Disable cache to avoid output depending on cache
-            if "cacheFunctionTests" in testFile:
+            if ("cacheFunctionTests" in testFile) or ("no arguments" in testname):
                 cmd = line.replace("@@CMD@@", gwhisper)
             else:
                 gwhisperCmd = gwhisper + '--disableCache'
