@@ -17,29 +17,21 @@ set( testserver_exec $<TARGET_FILE:testServer> )
 #add_test(NAME CompletionFunctionTests
 #    COMMAND python3 ${PROJECT_SOURCE_DIR}/tests/functionTests/testScript.py  ${gwhisper_exec} ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests.txt)
 add_test(NAME CompletionFunctionTests
-    COMMAND python3 ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py ${gwhisper_exec} ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests.txt)
+    COMMAND python ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py ${gwhisper_exec} ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests.txt)
 
 add_test(NAME CompletionFunctionTests_fish 
-    COMMAND python3 ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests_fish.txt)
+    COMMAND python ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests_fish.txt)
 
 add_test(NAME RpcExecutionTests 
-    COMMAND python3 ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/rpcExecutionTests.txt)
-
-add_test(NAME RpcTimeoutTests
-    COMMAND python3 ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py  ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/rpcTimeoutFunctionTests.txt)
+    COMMAND python ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/rpcExecutionTests.txt)
 
 add_test(NAME SslFunctionTests 
-    COMMAND python3 ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py  ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/sslFunctionTests.txt)
+    COMMAND python ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py  ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/sslFunctionTests.txt)
+
+add_test(NAME RpcTimeoutTests
+    COMMAND python ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py  ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/rpcTimeoutFunctionTests.txt)
 
 add_test(NAME CacheTests
-    COMMAND python3 ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py  ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/cacheFunctionTests.txt)
-
-
-
-#add_test(NAME RpcTimeoutFunctionTests 
-#    COMMAND python3 ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py  ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/rpcTimeoutFunctionTests.txt)
-
-#add_test(NAME CacheTests
-#    COMMAND python3 ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py  ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/cacheFunctionTests.txt)
+    COMMAND python ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py  ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/cacheFunctionTests.txt)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/data.bin DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)

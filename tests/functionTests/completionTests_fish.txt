@@ -55,7 +55,7 @@ Possible Candidates:
 #END_TEST
 
 #START_TEST Complete port or services
-@@CMD@@ --complete 127.0.0.1 
+@@CMD@@ --complete --disableCache 127.0.0.1 
 127.0.0.1:
 127.0.0.1
 127.0.0.1 examples.ScalarTypeRpcs              (int, bool, string, bytes)
@@ -77,7 +77,7 @@ Possible Candidates:
 ##############################################################################
 
 #START_TEST complete Secure-gRPC with all Credentials
-@@CMD@@ --complete --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps" "
+@@CMD@@ --complete --disableCache  --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps" "
 number_and_string=           (Simple sub-message)
 sub_message=        (Sub-message containing maps)
 simple_map_int=            (map uint32 -> uint32)
@@ -85,7 +85,7 @@ simple_map_string=         (Map string -> uint32)
 #END_TEST
 
 #START_TEST complete Secure-gRPC without key-cert pair
-@@CMD@@ --complete --ssl --serverCert=@@PTC@@/server_crt.pem localhost:50052 examples.NestedTypeRpcs echoNestedMaps" "
+@@CMD@@ --complete  --disableCache --ssl --serverCert=@@PTC@@/server_crt.pem localhost:50052 examples.NestedTypeRpcs echoNestedMaps" "
 number_and_string=           (Simple sub-message)
 sub_message=        (Sub-message containing maps)
 simple_map_int=            (map uint32 -> uint32)
@@ -97,7 +97,7 @@ simple_map_string=         (Map string -> uint32)
 ##############################################################################
 
 #START_TEST complete RPCs
-@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.ScalarTypeRpcs
 examples.ScalarTypeRpcs incrementNumbers
 examples.ScalarTypeRpcs negateBool
 examples.ScalarTypeRpcs capitalizeString
@@ -105,7 +105,7 @@ examples.ScalarTypeRpcs bitwiseInvertBytes
 #END_TEST
 
 #START_TEST l1 number fields
-@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs incrementNumbers
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.ScalarTypeRpcs incrementNumbers
 incrementNumbers m_double=  (double type of Numbers)
 incrementNumbers m_float=                    (float)
 incrementNumbers m_int32=                    (int32)
@@ -116,20 +116,20 @@ incrementNumbers
 #END_TEST
 
 #START_TEST l1 bytes field
-@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes
 bitwiseInvertBytes data=0x       (bytes)
 bitwiseInvertBytes data=file://  (bytes)
 bitwiseInvertBytes
 #END_TEST
 
 #START_TEST l1 bytes field no docstring for single completion
-@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs capitalizeString 
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.ScalarTypeRpcs capitalizeString 
 capitalizeString text=  (String field)
 capitalizeString
 #END_TEST
 
 #START_TEST l1 bool field
-@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs negateBool
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.ScalarTypeRpcs negateBool
 negateBool m_bool=true   (bool)
 negateBool m_bool=false  (bool)
 negateBool m_bool=1      (bool)
@@ -138,7 +138,7 @@ negateBool
 #END_TEST
 
 #START_TEST l1 bool field only value
-@@CMD@@ --complete 127.0.0.1 examples.ScalarTypeRpcs negateBool m_bool=
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.ScalarTypeRpcs negateBool m_bool=
 true   (bool)
 false  (bool)
 1      (bool)
@@ -151,29 +151,29 @@ false  (bool)
 ##############################################################################
 
 #START_TEST repeated number field no docstring for single completion
-@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers
 addAllNumbers numbers=:  (List of uint32)
 addAllNumbers
 #END_TEST
 
 #START_TEST repeated number field numbers cannot be completed
-@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:
 #END_TEST
 
 #START_TEST repeated number field After number choide: colon or comma
-@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:324
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:324
 324,  (List of uint32)
 324:  (List of uint32)
 #END_TEST
 
 #START_TEST repeated number field After number choide: colon or comma
-@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:123, 324
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.ComplexTypeRpcs addAllNumbers numbers=:123, 324
 324,  (List of uint32)
 324:  (List of uint32)
 #END_TEST
 
 #START_TEST enum values
-@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs echoColorEnum color=
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.ComplexTypeRpcs echoColorEnum color=
 white  (enum)
 black  (enum)
 red    (enum)
@@ -182,20 +182,20 @@ blue   (enum)
 #END_TEST
 
 #START_TEST oneof input choices again
-@@CMD@@ --complete 127.0.0.1 examples.ComplexTypeRpcs sendNumberOrStringOneOf both=:number=5 str=5:
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.ComplexTypeRpcs sendNumberOrStringOneOf both=:number=5 str=5:
  number=                (Only a number)
  str=                   (Only a string)
  both=    (Both, a number and a string)
 #END_TEST
 
 #START_TEST recursive datastructures number_and_string
-@@CMD@@ --complete=fish 0.0.0.0:50051 examples.NestedTypeRpcs echoNestedMaps number_and_string=:number=5
+@@CMD@@ --complete=fish --disableCache 0.0.0.0:50051 examples.NestedTypeRpcs echoNestedMaps number_and_string=:number=5
 number_and_string=:number=5
 number_and_string=:number=5:
 #END_TEST
 
 #START_TEST repeated enum, complete after last element colon
-@@CMD@@ --complete=fish 0.0.0.0:50051 examples.ComplexTypeRpcs getLastColor colors=:black, white:
+@@CMD@@ --complete=fish --disableCache 0.0.0.0:50051 examples.ComplexTypeRpcs getLastColor colors=:black, white:
 white:
 #END_TEST
 

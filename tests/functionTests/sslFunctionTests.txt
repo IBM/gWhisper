@@ -13,7 +13,7 @@
 # limitations under the License.
 
 #START_TEST gRPC over Secure Channel 
-@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+@@CMD@@ --disableCache --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
 Warning: no Fields found in parseTree for message 'NestedMaps'
 /.* Received message:
 | number_and_string..... = [NOT SET]
@@ -28,7 +28,7 @@ RPC succeeded :D
 ##############################################################################
 
 #START_TEST secure gRPC with missing Certificate/Key and server does not require cert-key-pair
-@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50052 examples.NestedTypeRpcs echoNestedMaps
+@@CMD@@ --disableCache --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50052 examples.NestedTypeRpcs echoNestedMaps
 Warning: no Fields found in parseTree for message 'NestedMaps'
 /.* Received message:
 | number_and_string..... = [NOT SET]
@@ -39,17 +39,20 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST secure gRPC with missing Certificate/Key and server requires cert-key-pair
-@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+@@CMD@@ --disableCache --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
 /Error while fetching services from reflection.*
 #END_TEST
 
 #START_TEST secure gRPC with missing serverCert at default location
-@@CMD@@ --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
+@@CMD@@ --disableCache --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
 /.*SSL_ERROR_SSL.*
 ?.*SSL_ERROR_SSL.*
 /Error while fetching services from reflection.*
 #END_TEST
 
 #START TEST secure gRPC with invalid / non-existent key/cert file
-@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/blubb.bla localhost:50052 examples.NestedTypeRpcs echoNestedMaps
-
+@@CMD@@  --disableCache --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/blubb.bla localhost:50052 examples.NestedTypeRpcs echoNestedMaps
+/.*
+/Error while fetching serverCert from:.*
+Failed to build secure channel
+#END TEST

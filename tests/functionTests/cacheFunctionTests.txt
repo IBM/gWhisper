@@ -42,27 +42,75 @@ RPC succeeded :D
 #END_CMD
 #END_TEST
 
-#START_TEST RPC with invalid cache
-#EXEC_CMD
-@@CMD@@ localhost:50051 examples.StatusHandling rpcSleepForSeconds number=0
-/.* Received message
+##############################################################################
+# secure RPC with cache
+##############################################################################
 
+#START_TEST Valid secure RPC with new cache
+#EXEC_CMD
+rm ~/.cache/gwhisper/DescriptorCache.bin
+#END_CMD
+#EXEC_CMD
+@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+Warning: no Fields found in parseTree for message 'NestedMaps'
+/.* Received message:
+| number_and_string..... = [NOT SET]
+| sub_message........... = [NOT SET]
+| simple_map_int[0/0]... = {}
+| simple_map_string[0/0] = {}
 RPC succeeded :D
 #END_CMD
-#EXEC_CMD
-sleep 120
-#END_CMD
+#END_TEST
+
+#START_TEST Valid secure RPC with existing cache 
 #EXEC_CMD
 @@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.ScalarTypeRpcs negateBool m_bool=0
 /.* Received message:
 | m_bool = true
 RPC succeeded :D
 #END_CMD
+#EXEC_CMD
+ls ~/.cache/gwhisper/
+DescriptorCache.bin
+#END_CMD
+#EXEC_CMD
+@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+Warning: no Fields found in parseTree for message 'NestedMaps'
+/.* Received message:
+| number_and_string..... = [NOT SET]
+| sub_message........... = [NOT SET]
+| simple_map_int[0/0]... = {}
+| simple_map_string[0/0] = {}
+RPC succeeded :D
+#END_CMD
 #END_TEST
 
-##############################################################################
-# secure RPC with cache
-##############################################################################
+#START_TEST Invalid secure RPC with new cache
+#EXEC_CMD
+rm ~/.cache/gwhisper/DescriptorCache.bin
+#END_CMD
+#EXEC_CMD
+@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+/Error while fetching services from reflection.*
+#END_CMD
+#END_TEST
+
+#START_TEST Invalid secure RPC with existing cache
+#EXEC_CMD
+@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.ScalarTypeRpcs negateBool m_bool=0
+/.* Received message:
+| m_bool = true
+RPC succeeded :D
+#END_CMD
+#EXEC_CMD
+ls ~/.cache/gwhisper/
+DescriptorCache.bin
+#END_CMD
+#EXEC_CMD
+@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+Error: channel connection attempt timed out
+#END_CMD
+#END_TEST
 
 
 ##############################################################################

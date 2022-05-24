@@ -132,8 +132,6 @@ with open(testFile) as file:
                         print(f'Invalid REGEX at line {idx+1}. Check your testfile.')
                         
                     match = regex.search(received[idx]) # match with incoming output
-                    if match:
-                        print(f'MATCHED CHARACTERS: {match.group()}')
                     if (not match):
                         continue
                 elif(expectedLine.startswith("/")):
@@ -187,12 +185,7 @@ with open(testFile) as file:
                 state = "FIND_TEST"
                 multiCmd = False
                 continue
-            # Disable cache to avoid output depending on cache
-            if ("cacheFunctionTests" in testFile) or ("no arguments" in testname):
-                cmd = line.replace("@@CMD@@", gwhisper)
-            else:
-                gwhisperCmd = gwhisper + '--disableCache'
-                cmd = line.replace("@@CMD@@", "{} --disableCache".format(gwhisper))
+            cmd = line.replace("@@CMD@@", gwhisper)
             cmd = cmd.replace('\n', '')
             print(f'Resolve cmd \'{cmd}\'')
             newCmd = cmd.replace("@@PTC@@", certs)
