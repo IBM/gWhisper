@@ -150,7 +150,7 @@ namespace cli
 
         // Get deadline for RPC from input or use custom
         std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline;
-        std::chrono::time_point<std::chrono::system_clock> defaultDeadline = std::chrono::system_clock::now() + std::chrono::milliseconds(10000);
+        std::chrono::time_point<std::chrono::system_clock> defaultDeadline = std::chrono::system_clock::now() + std::chrono::milliseconds(30000);
 
 
         bool setTimeout = (parseTree.findFirstChild("rpcTimeout") != "");
@@ -281,7 +281,7 @@ namespace cli
             std::cerr << "RPC failed ;( Status code: " << std::to_string(status.error_code()) << " " << cli::getGrpcStatusCodeAsString(status.error_code()) << ", error message: " << status.error_message() << std::endl;
             if(status.error_code() == grpc::StatusCode::DEADLINE_EXCEEDED)
             {
-                std::cerr << "Note: You can increase the deadline by setting the --rpcTimeoutInMs option to a number or 'None'." << std::endl;
+                std::cerr << "Note: You can increase the deadline by setting the --rpcTimeoutMilliseconds option to a number or 'None'." << std::endl;
             }
             return -1;
         }
