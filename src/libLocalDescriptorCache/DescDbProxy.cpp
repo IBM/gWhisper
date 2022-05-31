@@ -117,9 +117,6 @@ void deleteDuplicateHostEntries(localDescDb::DescriptorDb& out_descDb, const std
     out_descDb = newDescDb;
 }
 
-//TODO: Evtl. helper for connection timeout befor first accessing reflection db
-
-
 void DescDbProxy::repopulateLocalDb(localDescDb::Host& f_out_host, const std::string &f_hostAddress)
 {
     useReflection(f_hostAddress);
@@ -178,8 +175,7 @@ void DescDbProxy::fetchDescNamesFromReflection(const std::string &f_hostAddress)
     }
 
     google::protobuf::DescriptorPool descPool(m_reflectionDescDb.get());
-    //google::protobuf::DescriptorPool descPool(&(*m_reflectionDescDb));
-     
+
     for(const auto& serviceName: (m_serviceList))
     {
         // Get service file names through services in descPool
@@ -203,7 +199,6 @@ void DescDbProxy::fetchDescNamesFromReflection(const std::string &f_hostAddress)
 
         m_descNames.insert(serviceFileDesc->name());
 
-        //TODO: Loop only, if dependencies weren't already fetched (If parent not yet in descNames)?
         for (int i=0; i<dependencyCounter; i++){
             const grpc::protobuf::FileDescriptor * dependencyDesc = serviceFileDesc->dependency(i);
             if(dependencyDesc==nullptr)
@@ -212,8 +207,6 @@ void DescDbProxy::fetchDescNamesFromReflection(const std::string &f_hostAddress)
                 exit(EXIT_FAILURE);
             }
 
-            // Get file descriptor of imported files used in this service and search for more files
-            // if(dependencyDesc->name() not in m_descNames) -> should I do this check? Looks like a for -> O(n)
             getDependencies(*dependencyDesc);
         }
     }

@@ -48,14 +48,13 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     virtual bool FindFileContainingExtension(const std::string& containing_type, int field_number,
                                             grpc::protobuf::FileDescriptorProto* output) override;
 
-    ///
+    /// Fetch service list offered by cache / reflection
     std::vector<grpc::string> GetServices(void); 
     
     /// Acts as an Proxy, that loads descriptors from local DB file, if the local DB is not outdated, 
     /// instead of  fetching them via reflection on the gRPC server.
     /// Add/Update host entry to local DB file, if the entry does not exist / is outdated.
     /// Stores DescDB acquired via sever reflection locally as a DB file in proto3 structure.
-    /// @param dbFileName Name of file that serves as local chache
     /// @param hostAdress Address to the current host 
     void getDescriptors(const std::string &hostAddress);
    
@@ -77,10 +76,13 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     /// @param hostAddress Address used for new host entry.
     void repopulateLocalDb(localDescDb::Host& out_host, const std::string &hostAddress);
 
+    /// Check, if channel is established when calling via reflection
+    /// @param f_hostAddress Address of host to connect to
     void useReflection(const std::string &f_hostAddress);
 
     /// Retrieves Names of all file descriptors related to any available service 
     /// provided by a grpc server and writes them to m_descNames.
+     /// @param f_hostAddress Address of host to fetch services from
     void fetchDescNamesFromReflection(const std::string &hostAddress);
 
     /// Recursively looks up all file descriptors that are imported by the parentDesc and add their 
