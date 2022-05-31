@@ -20,6 +20,11 @@
 #define GRPC_TEST_CPP_UTIL_CLI_CALL_H
 
 #include <map>
+// MODIFIED by IBM (Anna Riesch)
+// original: no #include <chrono> and #include <optional>
+#include <chrono>
+#include <optional>
+// END MODIFIED
 
 #include <grpcpp/channel.h>
 #include <grpcpp/completion_queue.h>
@@ -46,9 +51,13 @@ class CliCall final {
   typedef std::multimap<grpc::string_ref, grpc::string_ref>
       IncomingMetadataContainer;
 
+  // MODIFIED by IBM (Anna Riesch)
+  // original: no argument "deadline"
   CliCall(const std::shared_ptr<grpc::Channel>& channel,
           const grpc::string& method,
-          const OutgoingMetadataContainer& metadata);
+          const OutgoingMetadataContainer& metadata,
+          std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline);
+// END MODIFIED
   ~CliCall();
 
   // Perform an unary generic RPC.

@@ -387,6 +387,16 @@ namespace cli
             {
                 auto childAlt = m_grammar.createElement<FixedString>(service);
                 const grpc::protobuf::ServiceDescriptor *m_service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(service);
+                if(m_service == nullptr)
+                {
+                    // if this is null, it means there is a service in the service list,
+                    // for which we could not retrieve service descriptors via
+                    // reflection.
+                    // In this case we just ignore the service. It is not usable
+                    // with gWhisper.
+                    // In most cases this will be the DefaultHealthCheckService.
+                    continue;
+                }
                 childAlt->setDocument(m_service->options().GetExtension(service_doc));
                 result->addChild(childAlt);
             }
@@ -509,6 +519,18 @@ namespace cli
         optionsalt->addChild(jsonInput);
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--printParsedMessage", "PrintParsedMessage"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSimpleMapOutput", "NoSimpleMapOutput"));
+
+        GrammarElement *timeout = f_grammarPool.createElement<Concatenation>();
+        timeout->addChild(f_grammarPool.createElement<FixedString>("--rpcTimeoutMilliseconds", "rpcTimeout"));
+        timeout->addChild(f_grammarPool.createElement<FixedString>("="));
+        GrammarElement *timeoutTime = f_grammarPool.createElement<Alternation>();
+        timeout->addChild(timeoutTime);
+        timeoutTime->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "rpcTimeoutInMs"));
+        GrammarElement *manualInfiniteTimeout = f_grammarPool.createElement<Optional>();
+        timeoutTime->addChild(manualInfiniteTimeout);
+        manualInfiniteTimeout->addChild(f_grammarPool.createElement<FixedString>("None", "manualInfiniteTimeout"));
+        optionsalt->addChild(timeout);
+
         GrammarElement *timeoutOption = f_grammarPool.createElement<Concatenation>();
         timeoutOption->addChild(f_grammarPool.createElement<FixedString>("--connectTimeoutMilliseconds="));
         timeoutOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "connectTimeout"));

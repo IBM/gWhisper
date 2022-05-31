@@ -57,6 +57,7 @@ void printHelp()
 
 int main(int argc, char **argv)
 {
+    grpc::EnableDefaultHealthCheckService(true);
     std::string basePort = "50000";
     std::string certBasePath = "";
     for(int i = 1; i< argc; i++)
