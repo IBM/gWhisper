@@ -14,8 +14,7 @@
 
 set( gwhisper_exec $<TARGET_FILE:gwhisper> )
 set( testserver_exec $<TARGET_FILE:testServer> )
-#add_test(NAME CompletionFunctionTests
-#    COMMAND python3 ${PROJECT_SOURCE_DIR}/tests/functionTests/testScript.py  ${gwhisper_exec} ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests.txt)
+
 add_test(NAME CompletionFunctionTests
     COMMAND python ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py ${gwhisper_exec} ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/cert-key-pair ${PROJECT_SOURCE_DIR}/tests/functionTests/completionTests.txt)
 

@@ -1,8 +1,6 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
-//import "google/protobuf/descriptor.proto";
-
 
 package localDescDb;
 
@@ -10,20 +8,11 @@ package localDescDb;
 message DescriptorDb{
     repeated Host hosts = 1;
     string gwhisper_version = 2;
-    //TODO: gwhisper-Version
 }
 
-//evtl hier Dsc Message definieren und un ServerDb message verwenden, Muss ich service definieren, der Descriptoren holt?
-
 message Host{
-    string hostAddress = 1;
-    google.protobuf.Timestamp lastUpdate = 2;
+    string host_address = 1;
+    google.protobuf.Timestamp last_update = 2;
     repeated bytes file_descriptor_proto = 3;
-    repeated string serviceList = 4;
-    //repeated Service services = 4 
-
-    //repeated google.  repeated bytes file_descriptor_proto = 3;protobuf.FileDescriptorSet file_descriptor_proto =3; // repeated: array. bytes  = string in c++
-    //repeated google.protobuf.FileDescriptorProto file_descriptor_proto = 3;
-    //repeated google.proto3. file_descriptor_proto = 3;
-    // oder repeated bytes file_descriptor_proto = 1; (vgl. reflection.proto l.104)
+    repeated string service_list = 4;
 }

@@ -102,11 +102,6 @@ with open(testFile) as file:
             fail = False
             failtext = ""
             idx = 0
-            #print(f'EXLEN: {len(expected)}')
-            #print(f'RECLEN; {len(received)}')
-            #print(expected)
-            #print('_______________')
-            #print(received)
 
             for expectedLine in expected:
                 if len(expected)>len(received):
@@ -192,7 +187,7 @@ with open(testFile) as file:
             newCmd = newCmd.replace("@@testResources@@", testResources)
             newCmd = newCmd.replace('\n', '')
             print(f"Execute new command '{newCmd}'")
-            #TODO: Document why using bash here
+            # Use bash for space handling
             readProcess = subprocess.Popen(['bash', '-c', newCmd], stdout = subprocess.PIPE, stderr = subprocess.STDOUT) # redirect stderr to stdout
             received = []
             #print (re.split('(?<!") | (?!")', newCmd))

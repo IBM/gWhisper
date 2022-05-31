@@ -98,7 +98,6 @@ int main(int argc, char **argv)
     if(certBasePath != "")
     {
         // Only initialize ssl ports when certBasePath is given
-
         // Create a default SSL Credentials object.
         std::string serverKeyPath = certBasePath + "/server_key.pem";
         std::string serverCertPath = certBasePath + "/server_crt.pem";
@@ -190,7 +189,6 @@ int main(int argc, char **argv)
     ServiceStatusHandling statusHandling;
     builder.RegisterService(&statusHandling);
 
-    std::cout << "Services Registered" << std::endl;
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
 
     if (server != nullptr)
@@ -202,6 +200,5 @@ int main(int argc, char **argv)
         std::cout << "Server failed to start. exiting." << std::endl;
         return -1;
     }
-    std::cout << "Soon to exit start server script" << std::endl;
     return 0;
 }

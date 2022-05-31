@@ -14,15 +14,14 @@
 
 #pragma once
 
-#include<string>
-#include<time.h>
-#include<set>
+#include <string>
+#include <time.h>
+#include <set>
 
 #include <grpcpp/grpcpp.h>
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
 #include "libCli/libCli/ConnectionManager.hpp"
 #include "libArgParse/ArgParse.hpp"
-//#include <libCli/ConnectionManager.hpp>
 
 #include "LocalDescDb.pb.h"
 #include <grpcpp/impl/codegen/config_protobuf.h>
@@ -106,9 +105,9 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     static std::string prepareCacheFile();
 
     grpc::protobuf::SimpleDescriptorDatabase m_localDB;
-    std::unique_ptr<grpc::ProtoReflectionDescriptorDatabase> m_reflectionDescDb = nullptr; //std_unique und nullptr
+    std::unique_ptr<grpc::ProtoReflectionDescriptorDatabase> m_reflectionDescDb = nullptr;
     std::shared_ptr<grpc::Channel> m_channel = nullptr;
-    ArgParse::ParsedElement m_parseTree; //TODO: Oder lieber durchreichen?
+    ArgParse::ParsedElement m_parseTree;
 
     std::vector<const grpc::protobuf::FileDescriptor*>m_descList;
     std::set<std::string> m_descNames;

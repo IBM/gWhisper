@@ -63,14 +63,14 @@ bool DescDbProxy::isValidHostEntry(const localDescDb::DescriptorDb& f_descDb, co
     for (int i=0; i < f_descDb.hosts_size(); i++)
     {
         const localDescDb::Host host = f_descDb.hosts(i);
-        if (host.hostaddress() == f_hostAddress)
+        if (host.host_address() == f_hostAddress)
         {
             // Get current Time and Time of last Upate in Seconds
             using TimeUtil = google::protobuf::util::TimeUtil;
             google::protobuf::Timestamp currentTime = TimeUtil::GetCurrentTime(); // time in UTC
             google::protobuf::int64 secCurrentTime = TimeUtil::TimestampToSeconds(currentTime);
             
-            google::protobuf::Timestamp lastUpdate = host.lastupdate();
+            google::protobuf::Timestamp lastUpdate = host.last_update();
             google::protobuf::int64 secLastUpdate = TimeUtil::TimestampToSeconds(lastUpdate);
 
             google::protobuf::int64 timeDiff = secCurrentTime - secLastUpdate;
@@ -108,7 +108,7 @@ void deleteDuplicateHostEntries(localDescDb::DescriptorDb& out_descDb, const std
     for(int i=0; i<out_descDb.hosts_size(); i++)
     {
         const localDescDb::Host& host = out_descDb.hosts(i);
-        if(host.hostaddress() != f_hostAddress)
+        if(host.host_address() != f_hostAddress)
         {
             localDescDb::Host* newHost = newDescDb.add_hosts(); //returns host
             newHost->CopyFrom(host);
@@ -121,13 +121,13 @@ void DescDbProxy::repopulateLocalDb(localDescDb::Host& f_out_host, const std::st
 {
     useReflection(f_hostAddress);
 
-    f_out_host.set_hostaddress(f_hostAddress);
-    (*(f_out_host.mutable_lastupdate())) = google::protobuf::util::TimeUtil::GetCurrentTime();
+    f_out_host.set_host_address(f_hostAddress);
+    (*(f_out_host.mutable_last_update())) = google::protobuf::util::TimeUtil::GetCurrentTime();
 
     // Add service to loacal DB
     for(const auto& serviceName: (m_serviceList))
     { 
-        f_out_host.add_servicelist(serviceName); 
+        f_out_host.add_service_list(serviceName); 
     }
 
     // Add all descriptors to DB entry
@@ -149,7 +149,8 @@ void DescDbProxy::repopulateLocalDb(localDescDb::Host& f_out_host, const std::st
     }
 }
 
-void DescDbProxy::useReflection(const std::string &f_hostAddress){
+void DescDbProxy::useReflection(const std::string &f_hostAddress)
+{
     if (not cli::waitForChannelConnected(m_channel, cli::getConnectTimeoutMs(&m_parseTree)))
     {
         std::cerr << "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials." << std::endl;
@@ -231,7 +232,7 @@ void DescDbProxy::getDependencies(const grpc::protobuf::FileDescriptor& f_parent
             amountChildren = todoList.front()->dependency_count();
             for (int c=0; c < amountChildren; c++)
             {    
-                todoList.push_back(todoList.front()->dependency(c)); // cahtch nullptr?
+                todoList.push_back(todoList.front()->dependency(c));
             }
             std::string currentFileName = todoList.front()->name();  
             m_descNames.insert(currentFileName); // insert prevents duplicates
@@ -247,7 +248,7 @@ void DescDbProxy::convertHostEntryToSimpleDescDb(localDescDb::DescriptorDb f_dbP
     for (int i=0; i < f_dbProtoFile.hosts_size(); i++)
     {
         const localDescDb::Host host = f_dbProtoFile.hosts(i);
-        if (host.hostaddress() == f_hostAddress)
+        if (host.host_address() == f_hostAddress)
         {
             for (int i=0; i < host.file_descriptor_proto_size(); i++)
             {
@@ -257,7 +258,6 @@ void DescDbProxy::convertHostEntryToSimpleDescDb(localDescDb::DescriptorDb f_dbP
                 if (!m_localDB.FindFileByName(descriptor.name(), &output))
                 {
                     m_localDB.Add(descriptor); // Add() prevents duplicates
-                    // Catch false? --> we would simply continue
                 }
             }   
             break;                    
@@ -273,11 +273,11 @@ void DescDbProxy::addServicNamesToserviceList(localDescDb::DescriptorDb f_dbProt
     for (int i = 0; i < f_dbProtoFile.hosts_size(); i++)
     { 
         const localDescDb::Host host = f_dbProtoFile.hosts(i); 
-        if (host.hostaddress() == f_hostAddress)
+        if (host.host_address() == f_hostAddress)
         {
-            for(int j=0; j < host.servicelist_size(); j++)
+            for(int j=0; j < host.service_list_size(); j++)
             {
-                serviceName = host.servicelist(j); 
+                serviceName = host.service_list(j); 
                 (m_serviceList).push_back(serviceName);
             }
             break;
@@ -334,7 +334,6 @@ void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
         dbFile.set_gwhisper_version(gwhisperBuildVersion);
         repopulateLocalDb(*(dbFile.add_hosts()), f_hostAddress);
         accessedReflectionDb = true;
-        //std::cout<<"Invalid cache, used reflection"<<std::endl;
     }
 
     if(!accessedReflectionDb)
@@ -359,7 +358,7 @@ DescDbProxy::DescDbProxy(bool disableCache, const std::string &hostAddress, std:
 
     if(disableCache)
     {
-        // Get Desc directly via reflection without touching localDB
+        // Get Desc directly via reflection and without touching localDB
         useReflection(hostAddress);
         for(auto &name:(m_descNames))
         {
