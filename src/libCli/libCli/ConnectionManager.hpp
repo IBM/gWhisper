@@ -18,7 +18,6 @@
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
 
 #include "utils/gwhisperUtils.hpp"
-// TODO: Solve Circular dependency! Forward declaration? Or inline (orefer first bc understanding)?
 #include "libLocalDescriptorCache/DescDbProxy.hpp"
 
 #include <grpcpp/grpcpp.h>

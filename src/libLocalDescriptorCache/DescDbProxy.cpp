@@ -18,7 +18,7 @@
 #include "libArgParse/ArgParse.hpp"
 #include "LocalDescDb.pb.h"
 
-#include<string>
+#include <string>
 #include <deque>
 #include <iostream>
 #include <fstream>
@@ -31,6 +31,7 @@
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
 #include <google/protobuf/util/time_util.h>
 #include <grpcpp/impl/codegen/config_protobuf.h>
+#include <libCli/cliUtils.hpp>
 
 bool DescDbProxy::FindFileByName(const std::string& filename, grpc::protobuf::FileDescriptorProto* output)
 {
@@ -116,10 +117,12 @@ void deleteDuplicateHostEntries(localDescDb::DescriptorDb& out_descDb, const std
     out_descDb = newDescDb;
 }
 
+//TODO: Evtl. helper for connection timeout befor first accessing reflection db
+
 
 void DescDbProxy::repopulateLocalDb(localDescDb::Host& f_out_host, const std::string &f_hostAddress)
 {
-    fetchDescNamesFromReflection(f_hostAddress);
+    useReflection(f_hostAddress);
 
     f_out_host.set_hostaddress(f_hostAddress);
     (*(f_out_host.mutable_lastupdate())) = google::protobuf::util::TimeUtil::GetCurrentTime();
@@ -149,10 +152,17 @@ void DescDbProxy::repopulateLocalDb(localDescDb::Host& f_out_host, const std::st
     }
 }
 
+void DescDbProxy::useReflection(const std::string &f_hostAddress){
+    if (not cli::waitForChannelConnected(m_channel, cli::getConnectTimeoutMs(&m_parseTree)))
+    {
+        std::cerr << "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    fetchDescNamesFromReflection(f_hostAddress);
+}
+
 void DescDbProxy::fetchDescNamesFromReflection(const std::string &f_hostAddress)
 {
-    // Establish Connection --> Replace: INstantiate channel here
-   // m_channel = cli::ConnectionManager::getInstance().getChannel(f_hostAddress, m_parseTree);
     if (m_channel == nullptr)
     {
         std::cerr<<"Channel is nullpointer"<<std::endl;
@@ -160,13 +170,6 @@ void DescDbProxy::fetchDescNamesFromReflection(const std::string &f_hostAddress)
     }
 
     m_reflectionDescDb = std::make_unique<grpc::ProtoReflectionDescriptorDatabase>(m_channel);
-
-    // TODO: Do this in ConnectionManager?
-    /*if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
-    {
-                f_ErrorMessage = "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.";
-                //return nullptr;
-    }*/
     
     if(!(m_reflectionDescDb->GetServices(&m_serviceList)))
     {
@@ -355,13 +358,16 @@ void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
     }
 }
 
-DescDbProxy::DescDbProxy(bool disableCache, const std::string &hostAddress, std::shared_ptr<grpc::Channel> channel)
+DescDbProxy::DescDbProxy(bool disableCache, const std::string &hostAddress, std::shared_ptr<grpc::Channel> channel, 
+                                                                            ArgParse::ParsedElement &parseTree)
 {
     m_channel = channel;
+    m_parseTree = parseTree;
+
     if(disableCache)
     {
         // Get Desc directly via reflection without touching localDB
-        fetchDescNamesFromReflection(hostAddress);
+        useReflection(hostAddress);
         for(auto &name:(m_descNames))
         {
             google::protobuf::FileDescriptorProto descriptor;

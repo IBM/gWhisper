@@ -91,7 +91,7 @@ rm ~/.cache/gwhisper/DescriptorCache.bin
 #END_CMD
 #EXEC_CMD
 @@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
-/Error while fetching services from reflection.*
+/Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.*
 #END_CMD
 #END_TEST
 

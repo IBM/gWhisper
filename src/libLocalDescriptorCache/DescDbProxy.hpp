@@ -59,7 +59,7 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     /// @param hostAdress Address to the current host 
     void getDescriptors(const std::string &hostAddress);
    
-    DescDbProxy(bool disableCache, const std::string &hostAddress, std::shared_ptr<grpc::Channel> channel);
+    DescDbProxy(bool disableCache, const std::string &hostAddress, std::shared_ptr<grpc::Channel> channel, ArgParse::ParsedElement &parseTree);
 
     ~DescDbProxy();
 
@@ -76,6 +76,8 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     /// @param out_host Host entry, that is filled in this function.
     /// @param hostAddress Address used for new host entry.
     void repopulateLocalDb(localDescDb::Host& out_host, const std::string &hostAddress);
+
+    void useReflection(const std::string &f_hostAddress);
 
     /// Retrieves Names of all file descriptors related to any available service 
     /// provided by a grpc server and writes them to m_descNames.

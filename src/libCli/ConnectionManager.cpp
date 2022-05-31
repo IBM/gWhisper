@@ -25,7 +25,7 @@
 
 namespace cli
 {
-    ConnectionManager &ConnectionManager::getInstance() //Warum brauche ich static nicht mehr hier davor?
+    ConnectionManager &ConnectionManager::getInstance()
     {
         static ConnectionManager connectionManager;
         return connectionManager;
@@ -70,7 +70,7 @@ namespace cli
         if (m_connections[f_serverAddress].channel)
         {
             bool disableCache = (f_parseTree.findFirstChild("DisableCache") != "");     
-            m_connections[f_serverAddress].descDbProxy = std::make_shared<DescDbProxy>(disableCache, f_serverAddress, m_connections[f_serverAddress].channel);
+            m_connections[f_serverAddress].descDbProxy = std::make_shared<DescDbProxy>(disableCache, f_serverAddress, m_connections[f_serverAddress].channel, f_parseTree);
             m_connections[f_serverAddress].descPool = std::make_shared<grpc::protobuf::DescriptorPool>(m_connections[f_serverAddress].descDbProxy.get()); //Pointer in DB
         }
         else
@@ -144,17 +144,11 @@ namespace cli
             connection.channel = grpc::CreateChannel(f_serverAddress, grpc::InsecureChannelCredentials());
         }
 
-        bool disableCache = (f_parseTree.findFirstChild("DisableCache") != ""); //kann ich auf == "" suchen?
+        bool disableCache = (f_parseTree.findFirstChild("DisableCache") != "");
         // Timeout as chrono duration
 
-        connection.descDbProxy = std::make_shared<DescDbProxy>(disableCache, f_serverAddress, connection.channel);
+        connection.descDbProxy = std::make_shared<DescDbProxy>(disableCache, f_serverAddress, connection.channel, f_parseTree);
         connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDbProxy.get());
-
-    /*   if (not cli::waitForChannelConnected(channel, cli::getConnectTimeoutMs(f_parseTree)))
-    {
-                f_ErrorMessage = "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.";
-                //return nullptr;
-    }*/
 
         m_connections[f_serverAddress] = connection;
     }
