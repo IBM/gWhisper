@@ -98,7 +98,6 @@ int main(int argc, char **argv)
     if(certBasePath != "")
     {
         // Only initialize ssl ports when certBasePath is given
-
         // Create a default SSL Credentials object.
         std::string serverKeyPath = certBasePath + "/server_key.pem";
         std::string serverCertPath = certBasePath + "/server_crt.pem";
