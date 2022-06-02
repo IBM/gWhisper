@@ -16,14 +16,14 @@
 # Default values / uninitialized fields test
 ##############################################################################
 #START_TEST defaultValueInOutputMessage
-@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs negateBool m_bool=true
+@@CMD@@ --disableCache 127.0.0.1 examples.ScalarTypeRpcs negateBool m_bool=true
 /.* Received message:
 | m_bool = false
 RPC succeeded :D
 #END_TEST
 
 #START_TEST DefaultValueInInputMessage
-@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs negateBool
+@@CMD@@ --disableCache 127.0.0.1 examples.ScalarTypeRpcs negateBool
 Warning: no Fields found in parseTree for message 'Bool'
 /.* Received message:
 | m_bool = true
@@ -31,7 +31,7 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST NoneSetSubMessage
-@@CMD@@  127.0.0.1 examples.NestedTypeRpcs echoNestedMaps
+@@CMD@@  --disableCache 127.0.0.1 examples.NestedTypeRpcs echoNestedMaps
 Warning: no Fields found in parseTree for message 'NestedMaps'
 /.* Received message:
 | number_and_string..... = [NOT SET]
@@ -46,21 +46,21 @@ RPC succeeded :D
 ##############################################################################
 
 #START_TEST requestStream0Count
-@@CMD@@ 127.0.0.1 examples.StreamingRpcs requestStreamCountMessages
+@@CMD@@ --disableCache 127.0.0.1 examples.StreamingRpcs requestStreamCountMessages
 /.* Received message:
 | number = 0 (0x00000000)
 RPC succeeded :D
 #END_TEST
 
 #START_TEST requestStream2Count
-@@CMD@@ 127.0.0.1 examples.StreamingRpcs requestStreamCountMessages :: ::
+@@CMD@@ --disableCache 127.0.0.1 examples.StreamingRpcs requestStreamCountMessages :: ::
 /.* Received message:
 | number = 2 (0x00000002)
 RPC succeeded :D
 #END_TEST
 
 #START_TEST biStreamNegate2
-@@CMD@@ 127.0.0.1 examples.StreamingRpcs bidirectionalStreamNegateNumbers :number=5 number=3: :number=7:
+@@CMD@@ --disableCache 127.0.0.1 examples.StreamingRpcs bidirectionalStreamNegateNumbers :number=5 number=3: :number=7:
 /.* Received message:
 | number = -3
 /.* Received message:
@@ -69,7 +69,7 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST biStreamNegate0
-@@CMD@@ 127.0.0.1 examples.StreamingRpcs bidirectionalStreamNegateNumbers
+@@CMD@@ --disableCache 127.0.0.1 examples.StreamingRpcs bidirectionalStreamNegateNumbers
 RPC succeeded :D
 #END_TEST
 
@@ -78,7 +78,7 @@ RPC succeeded :D
 ##############################################################################
 
 #START_TEST EmptyFieldCorrectlyFormatted
-@@CMD@@ 127.0.0.1 examples.NestedTypeRpcs returnNestedMixedEmpty
+@@CMD@@ --disableCache 127.0.0.1 examples.NestedTypeRpcs returnNestedMixedEmpty
 /.* Received message:
 | some_integer..... = 0 (0x00000000)
 | empty_child...... = {Empty}
@@ -92,7 +92,7 @@ RPC succeeded :D
 ##############################################################################
 
 #START_TEST stringInRepeated
-@@CMD@@ 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::str=text number=0::
+@@CMD@@ --disableCache 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::str=text number=0::
 /.* Received message:
 | number_and_strings[1/1] = {NumberAndString}
 | | number = 0 (0x00000000)
@@ -101,28 +101,28 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST simpleString
-@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=asdf
+@@CMD@@ --disableCache 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=asdf
 /.* Received message:
 | text = "ASDF"
 RPC succeeded :D
 #END_TEST
 
 #START_TEST simpleEscape
-@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=%:
+@@CMD@@ --disableCache 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=%:
 /.* Received message:
 | text = ":"
 RPC succeeded :D
 #END_TEST
 
 #START_TEST complexEscape
-@@CMD@@ 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=Hello% World%,%:
+@@CMD@@ --disableCache 127.0.0.1 examples.ScalarTypeRpcs capitalizeString text=Hello% World%,%:
 /.* Received message:
 | text = "HELLO WORLD,:"
 RPC succeeded :D
 #END_TEST
 
 #START_TEST veryComplexEscape
-@@CMD@@ 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::str=text%:% %, number=0::
+@@CMD@@ --disableCache 127.0.0.1 examples.ComplexTypeRpcs echoNumberAndStrings number_and_strings=::str=text%:% %, number=0::
 /.* Received message:
 | number_and_strings[1/1] = {NumberAndString}
 | | number = 0 (0x00000000)
@@ -131,7 +131,7 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST veryComplexEscape2
-@@CMD@@ 127.0.0.1 examples.StreamingRpcs bidirectionalStreamEchoNumberOrString :str=asd: :str=asd2%:% :
+@@CMD@@ --disableCache 127.0.0.1 examples.StreamingRpcs bidirectionalStreamEchoNumberOrString :str=asd: :str=asd2%:% :
 /.* Received message:
 | number = [NOT SET]
 | str... = "asd"
@@ -147,7 +147,7 @@ RPC succeeded :D
 # Custom output tests:
 ##############################################################################
 
-#START_TEST prefix_postfix_float_output_format
+#START_TEST --disableCache prefix_postfix_float_output_format
 @@CMD@@ --customOutput @.:prefix /m_float/ postfix: 127.0.0.1 examples.ScalarTypeRpcs incrementNumbers m_float=1.675
 /.* Received message:
 prefix 2.675000 postfix
@@ -158,21 +158,21 @@ RPC succeeded :D
 # JSON output
 ##############################################################################
 #START_TEST json_output_number_map
-@@CMD@@ --jsonOutput 127.0.0.1 examples.ComplexTypeRpcs mapNumbersToString numbers=:5:
+@@CMD@@ --jsonOutput --disableCache 127.0.0.1 examples.ComplexTypeRpcs mapNumbersToString numbers=:5:
 /.* Received message:
 {"number_to_string":{"5":"5"}}
 RPC succeeded :D
 #END_TEST
 
 #START_TEST json_output_number_map
-@@CMD@@ --jsonOutput 127.0.0.1 examples.NestedTypeRpcs returnNestedMixedEmpty
+@@CMD@@ --jsonOutput --disableCache 127.0.0.1 examples.NestedTypeRpcs returnNestedMixedEmpty
 /.* Received message:
 {"empty_child":{}}
 RPC succeeded :D
 #END_TEST
 
 #START_TEST json_output_number_map
-@@CMD@@ --jsonOutput 127.0.0.1 examples.ComplexTypeRpcs getLastColor colors=:blue, black:
+@@CMD@@ --jsonOutput --disableCache 127.0.0.1 examples.ComplexTypeRpcs getLastColor colors=:blue, black:
 /.* Received message:
 {"color":"black"}
 RPC succeeded :D
@@ -182,7 +182,7 @@ RPC succeeded :D
 # JSON input
 ##############################################################################
 #START_TEST json_input_stdin
-cat ${testResources}/duplicateEverything1d.json | @@CMD@@ --jsonInput=- 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
+cat @@testResources@@/duplicateEverything1d.json | @@CMD@@ --disableCache --jsonInput=- 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
 /.* Received message:
 | some_numbers..... = {Numbers}
 | | m_double = 15.800000
@@ -199,14 +199,15 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST json_input_stdin_malformed
-cat ${testResources}/duplicateEverything1d_malformed.json | @@CMD@@ --jsonInput=- 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
+cat @@testResources@@/duplicateEverything1d_malformed.json | @@CMD@@ --disableCache --jsonInput=- 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
 Warning: Failed to parse JSON file '-': INVALID_ARGUMENT:Unexpected end of string. Expected , or } after key:value pair.
+
 ^
 Error parsing method arguments -> aborting the call :-(
 #END_TEST
 
 #START_TEST json_input_file
-@@CMD@@ --jsonInput=${testResources}/duplicateEverything1d.json 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
+@@CMD@@ --disableCache --jsonInput=@@testResources@@/duplicateEverything1d.json 127.0.0.1 examples.NestedTypeRpcs duplicateEverything1d
 /.* Received message:
 | some_numbers..... = {Numbers}
 | | m_double = 15.800000

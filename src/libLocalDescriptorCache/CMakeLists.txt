@@ -12,16 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(TARGET_NAME "gwhisperUtils")
+
+
+set(TARGET_NAME "DescDbProxy")
 set(TARGET_SRC
-    ./gwhisperUtils.cpp
+    DescDbProxy.cpp
     )
-add_library(${TARGET_NAME} ${TARGET_SRC})
-target_include_directories(${TARGET_NAME}
-    INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/..
+
+add_protobuf_grpc_lib( ${TARGET_NAME}_protobuf PROTO_SOURCES LocalDescDb.proto)
+
+add_library(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
+
+target_link_libraries(${TARGET_NAME}
+    PUBLIC
+    ${TARGET_NAME}_protobuf
+     
+    PRIVATE
+    gwhisperUtils
+    version
+    reflection
+    cli
     )
- 
-
-
 
