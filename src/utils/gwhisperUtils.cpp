@@ -12,7 +12,7 @@ namespace gwhisper
         {
             std::ifstream credFile;
 
-            if (f_path.at(0) == '~')
+            if (f_path.length() > 0  and f_path.at(0) == '~')
             {
                 const char* home = std::getenv("HOME");
                 if (!home)
