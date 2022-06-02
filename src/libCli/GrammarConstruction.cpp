@@ -14,6 +14,7 @@
 
 #include <libCli/GrammarConstruction.hpp>
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
+#include "libLocalDescriptorCache/DescDbProxy.hpp"
 #include <libCli/cliUtils.hpp>
 #include <libCli/ConnectionManager.hpp>
 #include <protoDoc.pb.h>
@@ -57,12 +58,6 @@ namespace cli
             //std::cout << f_parseTree->getDebugString() << std::endl;
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << " " << methodName << std::endl;
             std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *f_parseTree);
-
-            if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
-            {
-                f_ErrorMessage = "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.";
-                return nullptr;
-            }
 
             const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(serviceName);
 
@@ -320,12 +315,6 @@ namespace cli
             //std::cout << "Injecting grammar for " << serverAddress << ":" << serverPort << " " << serviceName << std::endl;
             std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *f_parseTree);
 
-            if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
-            {
-                f_ErrorMessage = "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.";
-                return nullptr;
-            }
-
             const grpc::protobuf::ServiceDescriptor *service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(serviceName);
             auto result = m_grammar.createElement<Alternation>();
             if (service != nullptr)
@@ -369,23 +358,13 @@ namespace cli
             //std::cout << "Injecting Service grammar for " << serverAddress << std::endl;
             std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, *f_parseTree);
 
-            if (not waitForChannelConnected(channel, getConnectTimeoutMs(f_parseTree)))
-            {
-                f_ErrorMessage = "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.";
-                return nullptr;
-            }
-
-            std::vector<grpc::string> serviceList;
-            if (not ConnectionManager::getInstance().getDescDb(serverAddress, *f_parseTree)->GetServices(&serviceList))
-            {
-                f_ErrorMessage = "Error: Could not retrieve service list.";
-                return nullptr;
-            }
+            std::vector<grpc::string> serviceList = ConnectionManager::getInstance().getDescDb(serverAddress, *f_parseTree)->GetServices(); // We don'need host address anymore
 
             auto result = m_grammar.createElement<Alternation>();
             for (auto service : serviceList)
             {
                 auto childAlt = m_grammar.createElement<FixedString>(service);
+              
                 const grpc::protobuf::ServiceDescriptor *m_service = ConnectionManager::getInstance().getDescPool(serverAddress, *f_parseTree)->FindServiceByName(service);
                 if(m_service == nullptr)
                 {
@@ -508,6 +487,7 @@ namespace cli
 
         //completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--debugComplete", "CompleteDebug"));
+        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--disableCache", "DisableCache"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--dot", "DotExport"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noColor", "NoColor"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--color", "Color"));

@@ -1,6 +1,6 @@
-build/
+build*
 *.swp
 compile_commands.json
 # IDEs
 .idea
-.vscode
+.vscode*
