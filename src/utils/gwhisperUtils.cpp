@@ -12,8 +12,7 @@ namespace gwhisper
         {
             std::ifstream credFile;
 
-            std::size_t foundTilde = f_path.find_first_of("~");
-            if(foundTilde != std::string::npos)
+            if (f_path.at(0) == '~')
             {
                 const char* home = std::getenv("HOME");
                 if (!home)
@@ -21,7 +20,7 @@ namespace gwhisper
                     std::cerr << "Error while fetching home envoronment. Try checking your home environment variable." << std::endl;
                     exit(EXIT_FAILURE);
                 }
-                std::string subPath = f_path.substr(foundTilde+1);
+                std::string subPath = f_path.substr(1); // take everything after '~'
                 f_path = home + subPath;
             }
 
