@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package localDescDb;
+
+// Array of hosts
+message DescriptorDb{
+    repeated Host hosts = 1;
+    string gwhisper_version = 2;
+}
+
+message Host{
+    string host_address = 1;
+    google.protobuf.Timestamp last_update = 2;
+    repeated bytes file_descriptor_proto = 3;
+    repeated string service_list = 4;
+}
