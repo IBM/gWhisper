@@ -24,7 +24,7 @@ namespace gwhisper
         /// This function terminates the program, if file not found
         /// @param path Location of the file to read from as a string
         /// @return File content as simple string. If file cannot be opened, this function returns the status "FAIL" as string.
-        std::string readFromFile(const std::string path);
+        std::string readFromFile(std::string path);
 
         /// Utility function for creating a folder at given location.
         /// This function skips creating the folder, if it already exists.

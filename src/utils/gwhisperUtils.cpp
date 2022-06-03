@@ -15,18 +15,30 @@
 #include "gwhisperUtils.hpp"
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <filesystem>
-#include<string>
 
 namespace gwhisper
 {
     namespace util
     {
-        std::string readFromFile(const std::string f_path)
+        std::string readFromFile(std::string f_path)
         {
             std::ifstream credFile;
-            credFile.open(f_path);
 
+            if (f_path.length() > 0  and f_path.at(0) == '~')
+            {
+                const char* home = std::getenv("HOME");
+                if (!home)
+                {
+                    std::cerr << "Error while fetching home envoronment. Try checking your home environment variable." << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                std::string subPath = f_path.substr(1); // take everything after '~'
+                f_path = home + subPath;
+            }
+
+            credFile.open(f_path);
             if (!credFile)
             {
                 std::cerr << "File not found at: " << f_path << std::endl; //error message here?
