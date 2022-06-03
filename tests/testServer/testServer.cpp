@@ -99,9 +99,9 @@ int main(int argc, char **argv)
     {
         // Only initialize ssl ports when certBasePath is given
         // Create a default SSL Credentials object.
-        std::string serverKeyPath = certBasePath + "/server_key.pem";
-        std::string serverCertPath = certBasePath + "/server_crt.pem";
-        std::string clientCertPath = certBasePath + "/client_crt.pem";
+        std::string serverKeyPath = certBasePath + "server_key.pem";
+        std::string serverCertPath = certBasePath + "server_crt.pem";
+        std::string clientCertPath = certBasePath + "client_crt.pem";
 
         std::shared_ptr<grpc::ServerCredentials> sslCreds;
         std::shared_ptr<grpc::ServerCredentials> defaultCreds;
