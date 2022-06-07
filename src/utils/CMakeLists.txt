@@ -21,6 +21,9 @@ target_include_directories(${TARGET_NAME}
     INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     )
+
+#target_link_libraries(${TARGET_NAME} PRIVATE $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
+target_link_libraries(${TARGET_NAME} PRIVATE stdc++fs)
  
 
 
