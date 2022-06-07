@@ -27,5 +27,5 @@ if [ ! -f "$BUILD_DIR/Makefile" ]; then
     cd $SOURCE_DIR
 fi
 cd $BUILD_DIR
-make -j$(nproc) VERBOSE=1
+make -j$(nproc)
 exit $?
