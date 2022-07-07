@@ -51,6 +51,7 @@ int main(int argc, char **argv)
     // First we construct the initial Grammar for the CLI tool:
     Grammar grammarPool;
     GrammarElement *grammarRoot = cli::constructGrammar(grammarPool);
+    //Here: Build everything gWhisper provides. --> Config replacement here?
 
     // Now we parse the given arguments using the grammar:
     std::string args = getArgsAsString(argc, argv);
@@ -113,7 +114,7 @@ int main(int argc, char **argv)
         {
             //printf("\nchoice:\n%s", candidate->getDebugString().c_str());
             printf("\n  '%s'", candidate->getMatchedString().c_str());
-        }
+        } 
         std::cout << std::endl;
     }
 

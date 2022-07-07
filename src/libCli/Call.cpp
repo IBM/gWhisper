@@ -23,6 +23,9 @@
 #include <ctime>
 #include <iomanip>
 #include <optional>
+#include <fstream>
+//#include "single_include/nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 
 // for detecting if we are writing stdout to terminal or to pipe/file
 #include <stdio.h>
@@ -32,6 +35,7 @@
 #include <libCli/cliUtils.hpp>
 
 using namespace ArgParse;
+using json = nlohmann::json;
 
 namespace cli
 {
@@ -285,6 +289,22 @@ namespace cli
             }
             return -1;
         }
+
+        std::ifstream ifs("/home/anna/.cache/gwhisper/config.json");
+        std::string line;
+        if (!ifs.is_open()){
+            std::cout << "Error while opening file" << std::endl;
+        }
+        json j = json::parse(ifs);
+        /*while(getline(ifs, line))
+        {
+            std::cout << line <<std::endl;
+
+        }*/
+        
+        ifs.close();
+        std::string s = j.dump();
+        std::cout << s << std::endl;
 
         std::cerr << "RPC succeeded :D" << std::endl;
 

@@ -1,4 +1,4 @@
-# Copyright 2019 IBM Corporation
+# Copyright 2022 IBM Corporation
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,22 +16,11 @@ include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
-set(TARGET_NAME "cli")
+set(TARGET_NAME "config")
 set(TARGET_SRC
-    MessageParserCli.cpp
-    MessageParserJson.cpp
-    MessageFormatterOptimizedForHumans.cpp
-    MessageFormatterJson.cpp
-    MessageFormatterCustom.cpp
-    GrammarConstruction.cpp
-    Completion.cpp
-    ConnectionManager.cpp
-    Call.cpp
-    cliUtils.cpp
+    Config.cpp
     )
 add_library(${TARGET_NAME} ${TARGET_SRC})
-
-# need to link against gpr to be able to use GPR in cliUtils
 
 target_link_libraries ( ${TARGET_NAME}
     PRIVATE
@@ -46,10 +35,3 @@ target_link_libraries ( ${TARGET_NAME}
     ArgParse
 )
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-if(BUILD_CONFIG_USE_BOOST_REGEX)
-    target_link_libraries (${TARGET_NAME}
-        PRIVATE
-        boost_regex
-    )
-endif()
