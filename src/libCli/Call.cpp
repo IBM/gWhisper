@@ -157,7 +157,7 @@ namespace cli
         std::chrono::time_point<std::chrono::system_clock> defaultDeadline = std::chrono::system_clock::now() + std::chrono::milliseconds(30000);
 
 
-        bool setTimeout = (parseTree.findFirstChild("rpcTimeout") != "");
+        bool setTimeout = (parseTree.findFirstChild("RpcTimeout") != "");
 
         if(!setTimeout)
         {
@@ -179,11 +179,11 @@ namespace cli
             }
             else
             {
-                std::string customTimeout = parseTree.findFirstChild("rpcTimeoutInMs");
+                std::string customTimeout = parseTree.findFirstChild("RpcTimeoutInMs");
                 unsigned long customTimeoutMs;
                 try
                 {
-                    customTimeoutMs = std::stoul(customTimeout, nullptr, 0);
+                    customTimeoutMs = std::stoul(customTimeout, nullptr, 0); 
                 }
                 catch(std::exception& e)
                 {

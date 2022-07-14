@@ -501,7 +501,7 @@ namespace cli
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSimpleMapOutput", "NoSimpleMapOutput"));
 
         GrammarElement *timeout = f_grammarPool.createElement<Concatenation>();
-        timeout->addChild(f_grammarPool.createElement<FixedString>("--rpcTimeoutMilliseconds", "rpcTimeout"));
+        timeout->addChild(f_grammarPool.createElement<FixedString>("--rpcTimeoutMilliseconds", "RpcTimeout"));
         timeout->addChild(f_grammarPool.createElement<FixedString>("="));
         GrammarElement *timeoutTime = f_grammarPool.createElement<Alternation>();
         timeout->addChild(timeoutTime);

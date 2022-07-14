@@ -123,16 +123,16 @@ namespace cli
         std::shared_ptr<grpc::ChannelCredentials> creds;
         std::shared_ptr<grpc::ChannelCredentials> channelCreds;
 
-        if (f_parseTree.findFirstChild("ssl") != "")
+        if (f_parseTree.findFirstChild("Ssl") != "")
         {
             // if --ssl set is set, check if user provides keys/ certs
             bool clientCertOption = (f_parseTree.findFirstChild("OptionClientCert") != "");
             bool clientKeyOption = (f_parseTree.findFirstChild("OptionClientKey") != "");
             bool serverCertOption = (f_parseTree.findFirstChild("OptionServerCert") != "");
 
-            std::string sslClientCertPath = f_parseTree.findFirstChild("FileClientCert");
-            std::string sslClientKeyPath = f_parseTree.findFirstChild("FileClientKey");
-            std::string sslServerCertPath = f_parseTree.findFirstChild("FileServerCert");
+            std::string sslClientCertPath = f_parseTree.findFirstChild("ClientCertFile");
+            std::string sslClientKeyPath = f_parseTree.findFirstChild("ClientKeyFile");
+            std::string sslServerCertPath = f_parseTree.findFirstChild("ServerCertFile");
 
             // debugString = "CREATE SECURE CAHNNEL WITH USER-PROVIDED CREDENTIALS";
             channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);

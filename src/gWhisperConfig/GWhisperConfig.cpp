@@ -41,7 +41,7 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
     // check, if Parse tree includes config information
     // if so: add information to config file / override config JSON object
 
-    std::cout<<"Its nothing"<<std::endl;
+    /*std::cout<<"Its nothing"<<std::endl;
     std::string tmp_element;
     // std::string tmp_config = m_config.dump();
     //for (json::iterator it = m_config.begin();it != m_config.end(); it++){
@@ -57,45 +57,88 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
         std::cout << element << std::endl;
     }
 
-     std::cout<<"Its something"<<std::endl;
+     std::cout<<"Its something"<<std::endl;*/
 
     // Other approach: Instead of looping through json, define list of valid config parameters (= keys in JSON)
     // Check, if parameter is set via cli. If so, use value of user input (= from parse tree)
     // If not: check, if parameter is set via config file. Use this value if it is set
     // Config parameters (as labeled in GrammarConstruction):
     // --ssl, --clientCert, --serverCert, --clientKey, --disableCache, -rpcTimeoutMilliseconds=, --connectTimeoutMilliseconds=
-    std::vector<std::string> configParameters = {"ssl", "OptionClientCert", "OptionClientKey", "OptionServerCert"};
-    // for parameter in configParameters{
-        //if parseTree.findFirstChild(parameter) != ""{ clientcert
-            //get string behind parseTreeLable
-            // if _config.find(parameter)
-                // If client cert:
-                // Füge Wert von clientCert  = FileClientCert zu dem Key clientCert
-                // if server Cert: ...
-                //
-            
-
+    //std::vector<std::string> configParameters = {"ssl", "OptionClientCert", "OptionClientKey", "OptionServerCert"};
+    for (std::string parameter : m_configParameters)
+    {
+        if (f_parseTree.findFirstChild(parameter) != "" && m_config.contains(parameter))
+        {
+            updateConfig(parameter, f_parseTree);
+            // TODO: What if parameter is not in config? --> add entry to json?
+        }       
             //find string in configFile (idea: every parameter is listed in json, but maybe not set)
             //update value of parameter to value from parseTree
             //if key not in config: add new jsaon element
-        //}
+    }
 
     //}
     // "return" updated config
 
 }
 
-//something lookupParameter returns string
+void gWhisperConfig::updateConfig(std::string &f_parameter, ArgParse::ParsedElement &f_parseTree){
+    if (f_parameter == "Ssl" || f_parameter == "DisableCache" )
+    {
+        //TODO: brauchen  wir das Setting?
+        m_config.at(f_parameter) = "True";
+    } 
+    else if (f_parameter == "ClientCertFile")
+    {
+        // TODO: What when default File is used (no parameter given by user)
+        std::string newSetting = f_parseTree.findFirstChild(f_parameter);
+        m_config.at(f_parameter) = newSetting;
 
-void convertParseTree(){
+    }
+    else if (f_parameter == "ClientKeyFile")
+    {
+        
+    }
+     else if (f_parameter == "ServerCertFile")
+    {
+
+    }
+    else if (f_parameter == "DisableCache")
+    {
+        
+    }
+     else if (f_parameter == "RpcTimeout")
+    {
+
+    }
+    else if (f_parameter == "connectTimeout")
+    {
+        
+    }
+
+}
+
+std::string gWhisperConfig::lookUpSetting(std::string &f_parameter, ArgParse::ParsedElement &f_parseTree)
+{
+    //Asusmption: m_config holds the newes version of config settings, already including the overwrites by user input via cmd
+    //TODO: Kommen wir hier vom ParseTree weg?
+    std::string setting;
+    if (m_config.contains(f_parameter))
+    {
+        //get value setting = m_config.at(key)
+    }
+    else if (f_parseTree.findFirstChild(f_parameter)!= "")
+    {
+        setting = f_parseTree.findFirstChild(f_parameter);
+        
+    }
+    //else: Error
+    return setting;
+}
+
+/*void convertParseTree(){
     
-}
-
-void fetchConfig(){
-    //fetch config relevant options 
-    // return config parameters to use --> set as new grammar root
-    // todo: How to convert config  object in Grammar object?
-}
+}*/
 
 // Ersetze ParseTree beim Suchen -> f_parseTree.findFirstChild
 gWhisperConfig::gWhisperConfig(ArgParse::ParsedElement &f_parseTree){ //ParameterKey
@@ -103,7 +146,7 @@ gWhisperConfig::gWhisperConfig(ArgParse::ParsedElement &f_parseTree){ //Paramete
     {
         parseConfigFile();
     }
-    mergeParseTreeInJson(f_parseTree); // Check, if we always work with the right parse tree
+    mergeParseTreeInJson(f_parseTree); // Check, if we always work with the right parse tree. Maybe Chcek, if merge is neccessay
     //findParameter() -->either ParseTree or Config
 }
 
