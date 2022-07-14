@@ -13,16 +13,16 @@
 // limitations under the License.
 
 #pragma once
-
 #include <nlohmann/json.hpp>
 #include "libArgParse/ArgParse.hpp"
 
 using json = nlohmann::json;
 
-class Config{
+class gWhisperConfig{
     public:
-    Config();
-    ~Config();
+    gWhisperConfig(ArgParse::ParsedElement &f_parseTree);
+    ~gWhisperConfig();
+    
 
     private:
     void parseConfigFile();
