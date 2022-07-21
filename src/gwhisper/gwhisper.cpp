@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     std::string args = getArgsAsString(argc, argv);
     ParsedElement parseTree;
     ParseRc rc = grammarRoot->parse(args.c_str(), parseTree);
-    gWhisperConfig newTree(parseTree);
+    gWhisperConfig newTree(parseTree); // look up on thhis element
 
     if (parseTree.findFirstChild("DotExport") != "")
     {
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (parseTree.findFirstChild("Complete") != "")
+    if (newTree.lookUpSetting("Complete", parseTree) != "")
     {
         bool completeDebug = (parseTree.findFirstChild("CompleteDebug") != "");
         if (parseTree.findFirstChild("fish") != "")

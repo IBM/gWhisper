@@ -22,6 +22,7 @@
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/security/credentials.h>
 #include <libArgParse/ArgParse.hpp>
+#include "GWhisperConfig.hpp"
 
 namespace cli
 {
@@ -122,8 +123,10 @@ namespace cli
         ConnList connection;
         std::shared_ptr<grpc::ChannelCredentials> creds;
         std::shared_ptr<grpc::ChannelCredentials> channelCreds;
+        gWhisperConfig tree2(f_parseTree); // Todo: Replacef_parseTree with config object in signature of Connectionmanager
 
-        if (f_parseTree.findFirstChild("Ssl") != "")
+       if (tree2.lookUpSetting("Ssl", f_parseTree) != "")
+        //if (f_parseTree.findFirstChild("Ssl") != "")
         {
             // if --ssl set is set, check if user provides keys/ certs
             bool clientCertOption = (f_parseTree.findFirstChild("OptionClientCert") != "");

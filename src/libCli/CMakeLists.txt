@@ -44,6 +44,7 @@ target_link_libraries ( ${TARGET_NAME}
     gwhisperUtils
     DescDbProxy
     ArgParse
+    gWhisperConfig
 )
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

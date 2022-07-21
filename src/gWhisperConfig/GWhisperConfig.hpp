@@ -23,7 +23,7 @@ class gWhisperConfig{
     gWhisperConfig(ArgParse::ParsedElement &f_parseTree);
     ~gWhisperConfig();
 
-    std::string lookUpSetting(std::string &f_parameter, ArgParse::ParsedElement &f_parseTree); //Parse Tree als Member?
+    std::string lookUpSetting(const std::string &f_parameter, ArgParse::ParsedElement &f_parseTree); //Parse Tree als Member?
     
 
     private:
@@ -32,7 +32,7 @@ class gWhisperConfig{
     void updateConfig(std::string &f_parameter, ArgParse::ParsedElement &f_parseTree);
 
     json m_config;
-    std::vector<std::string> m_configParameters = {"ssl", "ClientCertFile", "ClientKeyFile", "ServerCertFile"};
+    std::vector<std::string> m_configParameters = {"Ssl", "ClientCertFile", "ClientKeyFile", "ServerCertFile"};
 
     // Idee: Diese Klasse als langlebiges Object --> z.B. direkt in main parse tree ersetzen und newParseTree weitergeben
     // NewParseTree: 

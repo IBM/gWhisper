@@ -24,13 +24,17 @@ using json = nlohmann::json;
 void gWhisperConfig::parseConfigFile(){
     // Parse JSON File into JSON object
     // JSON Object as member
-       std::ifstream ifs("/home/anna/.cache/gwhisper/config.json");
-        std::string line;
-        if (!ifs.is_open())
-        {
-            std::cout << "Error while opening file" << std::endl;
-        }
-        m_config = json::parse(ifs); //as member? If so: is json the right 
+    std::ifstream ifs("/home/anna/.cache/gwhisper/config.json");
+    std::string line;
+    if (!ifs.is_open())
+    {
+        std::cout << "Error while opening file" << std::endl;
+    }
+    // TODO: check for empty value with  nlohmann::isempty()
+    // m_config = JSON onbject
+    //m_config = json::parse(ifs); //as member? If so: is json the right 
+    ifs >> m_config;
+    ifs.close();
 
 }
 
@@ -41,24 +45,6 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
     // check, if Parse tree includes config information
     // if so: add information to config file / override config JSON object
 
-    /*std::cout<<"Its nothing"<<std::endl;
-    std::string tmp_element;
-    // std::string tmp_config = m_config.dump();
-    //for (json::iterator it = m_config.begin();it != m_config.end(); it++){
-    for (auto &element: m_config.items()){
-        // TODO TYPING!!
-        for(auto &val: element.value().items()){
-            std::cout << tmp_element << std::endl;
-            tmp_element = val.value().dump();
-            std::string paramKey = f_parseTree.findFirstChild(tmp_element);
-            //paramKey. -> can I somehow get value behind Grammar lable, without doing a switch case or simimlar?
-        }       
-
-        std::cout << element << std::endl;
-    }
-
-     std::cout<<"Its something"<<std::endl;*/
-
     // Other approach: Instead of looping through json, define list of valid config parameters (= keys in JSON)
     // Check, if parameter is set via cli. If so, use value of user input (= from parse tree)
     // If not: check, if parameter is set via config file. Use this value if it is set
@@ -67,7 +53,7 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
     //std::vector<std::string> configParameters = {"ssl", "OptionClientCert", "OptionClientKey", "OptionServerCert"};
     for (std::string parameter : m_configParameters)
     {
-        if (f_parseTree.findFirstChild(parameter) != "" && m_config.contains(parameter))
+        if (f_parseTree.findFirstChild(parameter) != "" || m_config.contains(parameter))
         {
             updateConfig(parameter, f_parseTree);
             // TODO: What if parameter is not in config? --> add entry to json?
@@ -86,7 +72,7 @@ void gWhisperConfig::updateConfig(std::string &f_parameter, ArgParse::ParsedElem
     if (f_parameter == "Ssl" || f_parameter == "DisableCache" )
     {
         //TODO: brauchen  wir das Setting?
-        m_config.at(f_parameter) = "True";
+        m_config.at(f_parameter) = true;
     } 
     else if (f_parameter == "ClientCertFile")
     {
@@ -118,21 +104,33 @@ void gWhisperConfig::updateConfig(std::string &f_parameter, ArgParse::ParsedElem
 
 }
 
-std::string gWhisperConfig::lookUpSetting(std::string &f_parameter, ArgParse::ParsedElement &f_parseTree)
+std::string gWhisperConfig::lookUpSetting(const std::string &f_parameter, ArgParse::ParsedElement &f_parseTree)
 {
     //Asusmption: m_config holds the newes version of config settings, already including the overwrites by user input via cmd
     //TODO: Kommen wir hier vom ParseTree weg?
     std::string setting;
-    if (m_config.contains(f_parameter))
-    {
-        //get value setting = m_config.at(key)
+
+    for (const auto& item : m_config.items()){
+        std::cout << "1nd Loop:" << std::endl;
+        std::cout << "key: " << item.key() << ", value: " << item.value() << '\n';
+        if (item.value().contains(f_parameter)){
+            std::cout << "Contain" <<std::endl;
+            setting = item.value().at(f_parameter);
+            std::cout << "SETTING: " << std::endl;
+            std::cout << setting << std::endl;
+        }
+        else if (f_parseTree.findFirstChild(f_parameter)!= "")
+        {
+            setting = f_parseTree.findFirstChild(f_parameter);
+        }
+        //else:return Error
+
+        /*for (const auto& val : item.value().items()){
+            std::cout << "2nd Loop:" << std::endl;
+            std::cout << "key: " << val.key() << ", value: " << val.value() << '\n';
+
+        }*/
     }
-    else if (f_parseTree.findFirstChild(f_parameter)!= "")
-    {
-        setting = f_parseTree.findFirstChild(f_parameter);
-        
-    }
-    //else: Error
     return setting;
 }
 
@@ -142,7 +140,7 @@ std::string gWhisperConfig::lookUpSetting(std::string &f_parameter, ArgParse::Pa
 
 // Ersetze ParseTree beim Suchen -> f_parseTree.findFirstChild
 gWhisperConfig::gWhisperConfig(ArgParse::ParsedElement &f_parseTree){ //ParameterKey
-    if(not m_config)
+    if(m_config.is_null())
     {
         parseConfigFile();
     }
