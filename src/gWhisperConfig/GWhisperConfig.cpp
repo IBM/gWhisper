@@ -38,6 +38,9 @@ void gWhisperConfig::parseConfigFile(){
 
 }
 
+// Consolidate all cli or config file config parameters in one json_object
+// Config Unabhängig vom ParseTree machen
+//
 void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
     // Translate Parsetree into JSON
     // (Proxy-like structure: check where to get config infos
@@ -53,26 +56,67 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
     //std::vector<std::string> configParameters = {"ssl", "OptionClientCert", "OptionClientKey", "OptionServerCert"};
     for (std::string parameter : m_configParameters)
     {
-        if (f_parseTree.findFirstChild(parameter) != "" || m_config.contains(parameter))
+        //new method is in config
+    
+        if (f_parseTree.findFirstChild(parameter) != "" && checkParameterInConfig(parameter))
         {
+            std::cout << "IF inMergeParseTree" << std::endl;
             updateConfig(parameter, f_parseTree);
             // TODO: What if parameter is not in config? --> add entry to json?
         }       
             //find string in configFile (idea: every parameter is listed in json, but maybe not set)
             //update value of parameter to value from parseTree
             //if key not in config: add new jsaon element
+
     }
-
-    //}
     // "return" updated config
-
 }
+
+bool gWhisperConfig::checkParameterInConfig(const std::string &f_parameter)
+{
+    bool containsParameter = false;
+
+    for (const auto& item : m_config.items())
+    {
+        std::cout<< "CHECK PARAMETER:" << f_parameter<<std::endl;
+        if (item.value().contains(f_parameter))
+        {
+            std::cout << "IF in CHECK" << std::endl;
+            containsParameter = true;
+            break;
+
+        }
+
+        // If parameter is not found in 1st layer, search in 2nd layer of config file
+        for (const auto& innerElement : item.value().items())
+        {
+            std::cout<< "CHECK PARAMETER:" << f_parameter<<std::endl;
+            if(innerElement.value().contains(f_parameter)){
+                containsParameter = true;
+                break;
+            }
+            else{
+                std::cerr << "Error while setting " << f_parameter << " :No such parameter in config!" << std::endl;
+            }
+        }
+    }
+    std::cout << containsParameter << std::endl;
+    return containsParameter;
+}
+
 
 void gWhisperConfig::updateConfig(std::string &f_parameter, ArgParse::ParsedElement &f_parseTree){
     if (f_parameter == "Ssl" || f_parameter == "DisableCache" )
     {
+         for (const auto& item : m_config.items())
+         {
+             item.value().at(f_parameter) = "YES";
+         }
         //TODO: brauchen  wir das Setting?
-        m_config.at(f_parameter) = true;
+        // TODO: Richtiges überschreiben mir richtigen ebenen!!
+        //m_config.at(f_parameter) = "Yes";
+        //m_config.value().items().a
+        std::cout << "OVERRIDE CONFIG" << std::endl;
     } 
     else if (f_parameter == "ClientCertFile")
     {
@@ -101,35 +145,99 @@ void gWhisperConfig::updateConfig(std::string &f_parameter, ArgParse::ParsedElem
     {
         
     }
-
 }
 
+std::unique_ptr<std::string> gWhisperConfig::accessConfigValueAtKey(const std::string &f_key)
+{
+    //needs value as return type. Macht das Sinn?
+    bool containsParameter = checkParameterInConfig(f_key);
+
+    if(containsParameter)
+    {
+        for (const auto& item : m_config.items())
+            {
+                if (item.value().at(f_key).is_null())
+                {
+                    std::cout << "ENTERED NULL-IF"<< std::endl;
+                    //setting = "";
+                    break;
+                } 
+                else 
+                {
+                    // TODO is there a simple conversion to string for everything?
+                    //setting = item.value().at(f_parameter);
+                    break;
+                }
+                break;  
+            }
+
+    }
+    // needs to return: item.value().at(f_key)
+    return nullptr;
+}
+
+// f_paramaetr entrpricht label des Grammatik Elements in ParseTree
 std::string gWhisperConfig::lookUpSetting(const std::string &f_parameter, ArgParse::ParsedElement &f_parseTree)
 {
     //Asusmption: m_config holds the newes version of config settings, already including the overwrites by user input via cmd
     //TODO: Kommen wir hier vom ParseTree weg?
     std::string setting;
 
-    for (const auto& item : m_config.items()){
-        std::cout << "1nd Loop:" << std::endl;
+    // first layer of config file
+    for (const auto& item : m_config.items())
+    {
+        std::cout<< "PARAMETER:" << f_parameter<<std::endl;
         std::cout << "key: " << item.key() << ", value: " << item.value() << '\n';
-        if (item.value().contains(f_parameter)){
-            std::cout << "Contain" <<std::endl;
-            setting = item.value().at(f_parameter);
+
+        bool containsParameter = checkParameterInConfig(f_parameter);
+
+
+        if(containsParameter)
+        {
+            for (const auto& item : m_config.items())
+            {
+                if (item.value().at(f_parameter).is_null())
+                {
+                    std::cout << "ENTERED NULL-IF"<< std::endl;
+                    setting = "";
+                    break;
+                } 
+                else 
+                {
+                    // TODO is there a simple conversion to string for everything?
+                    setting = item.value().at(f_parameter);
+                    break;
+                }
+                break;  
+            }
+        }
+
+        // If parameter is not found in 1st layer, search in 2nd layer of config file
+        for (const auto& innerElement : item.value().items())
+            {
+            std::cout<< "PARAMETER:" << f_parameter<<std::endl;
+            if(innerElement.value().contains(f_parameter)){
+                std::cout << "SETTING IN 2nd LOOP " << std::endl;
+                setting = innerElement.value().at(f_parameter);
+                break;
+            }
+            std::cout << "2nd Loop:" << std::endl;
+            std::cout << "key: " << innerElement.key() << ", value: " << innerElement.value() << '\n';
+     
+            
             std::cout << "SETTING: " << std::endl;
             std::cout << setting << std::endl;
-        }
-        else if (f_parseTree.findFirstChild(f_parameter)!= "")
+            }
+
+
+
+        // If parameter is not founf in config file, search in parse tree
+        if (f_parseTree.findFirstChild(f_parameter)!= "")
+        //--> eigentlich brauche ich das hier doch gar nicht mehr, oder? Weg von Proxyidee
         {
             setting = f_parseTree.findFirstChild(f_parameter);
         }
         //else:return Error
-
-        /*for (const auto& val : item.value().items()){
-            std::cout << "2nd Loop:" << std::endl;
-            std::cout << "key: " << val.key() << ", value: " << val.value() << '\n';
-
-        }*/
     }
     return setting;
 }
@@ -139,11 +247,13 @@ std::string gWhisperConfig::lookUpSetting(const std::string &f_parameter, ArgPar
 }*/
 
 // Ersetze ParseTree beim Suchen -> f_parseTree.findFirstChild
+// Für Parameter, die nicht im config file stehen / keine optionen sind z.B. services
 gWhisperConfig::gWhisperConfig(ArgParse::ParsedElement &f_parseTree){ //ParameterKey
     if(m_config.is_null())
     {
         parseConfigFile();
     }
+    std::cout << "Constructor" << std::endl;
     mergeParseTreeInJson(f_parseTree); // Check, if we always work with the right parse tree. Maybe Chcek, if merge is neccessay
     //findParameter() -->either ParseTree or Config
 }

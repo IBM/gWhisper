@@ -455,7 +455,7 @@ namespace cli
         GrammarElement *optionsalt = f_grammarPool.createElement<Alternation>();
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("-h", "Help"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--help", "Help"));
-        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--ssl", "ssl"));
+        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--ssl", "Ssl"));
 
         GrammarElement *clientCert = f_grammarPool.createElement<Concatenation>();
         clientCert->addChild(f_grammarPool.createElement<FixedString>("--clientCert=", "OptionClientCert"));

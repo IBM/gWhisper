@@ -31,6 +31,12 @@ class gWhisperConfig{
     void mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree);
     void updateConfig(std::string &f_parameter, ArgParse::ParsedElement &f_parseTree);
 
+    /// Searches in all layers of config file, if config contains parameter
+    /// in
+    /// out: 
+    bool checkParameterInConfig(const std::string &f_parameter);
+    std::unique_ptr<std::string> accessConfigValueAtKey(const std::string &f_key);
+
     json m_config;
     std::vector<std::string> m_configParameters = {"Ssl", "ClientCertFile", "ClientKeyFile", "ServerCertFile"};
 

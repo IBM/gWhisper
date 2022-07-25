@@ -129,13 +129,13 @@ namespace cli
         //if (f_parseTree.findFirstChild("Ssl") != "")
         {
             // if --ssl set is set, check if user provides keys/ certs
-            bool clientCertOption = (f_parseTree.findFirstChild("OptionClientCert") != "");
+           /* bool clientCertOption = (f_parseTree.findFirstChild("OptionClientCert") != "");
             bool clientKeyOption = (f_parseTree.findFirstChild("OptionClientKey") != "");
-            bool serverCertOption = (f_parseTree.findFirstChild("OptionServerCert") != "");
+            bool serverCertOption = (f_parseTree.findFirstChild("OptionServerCert") != "");*/
 
-            std::string sslClientCertPath = f_parseTree.findFirstChild("ClientCertFile");
-            std::string sslClientKeyPath = f_parseTree.findFirstChild("ClientKeyFile");
-            std::string sslServerCertPath = f_parseTree.findFirstChild("ServerCertFile");
+            std::string sslClientCertPath = tree2.lookUpSetting("ClientCertFile", f_parseTree);
+            std::string sslClientKeyPath = tree2.lookUpSetting("ClientKeyFile", f_parseTree);
+            std::string sslServerCertPath = tree2.lookUpSetting("ServerCertFile", f_parseTree);
 
             // debugString = "CREATE SECURE CAHNNEL WITH USER-PROVIDED CREDENTIALS";
             channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);
