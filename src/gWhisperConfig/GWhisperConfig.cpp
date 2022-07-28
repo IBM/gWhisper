@@ -58,7 +58,7 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
     {
         //new method is in config
     
-        if (f_parseTree.findFirstChild(parameter) != "" && checkParameterInConfig(parameter))
+        if (f_parseTree.findFirstChild(parameter) != "" && checkParameterInConfig(parameter, m_config))
         {
             std::cout << "IF inMergeParseTree" << std::endl;
             updateConfig(parameter, f_parseTree);
@@ -72,34 +72,44 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
     // "return" updated config
 }
 
-bool gWhisperConfig::checkParameterInConfig(const std::string &f_parameter)
+bool gWhisperConfig::checkParameterInConfig(const std::string &f_parameter, json &f_startLayer)
 {
     bool containsParameter = false;
+    //json configItems = m_config.items();
 
-    for (const auto& item : m_config.items())
+    for (const auto& item : f_startLayer.items())
     {
-        std::cout<< "CHECK PARAMETER:" << f_parameter<<std::endl;
         if (item.value().contains(f_parameter))
         {
-            std::cout << "IF in CHECK" << std::endl;
+            //Abbruchkrit
+            std::cout << "IF in RECCHECK" << std::endl;
             containsParameter = true;
             break;
-
         }
-
-        // If parameter is not found in 1st layer, search in 2nd layer of config file
-        for (const auto& innerElement : item.value().items())
+        else
         {
-            std::cout<< "CHECK PARAMETER:" << f_parameter<<std::endl;
-            if(innerElement.value().contains(f_parameter)){
-                containsParameter = true;
-                break;
-            }
-            else{
-                std::cerr << "Error while setting " << f_parameter << " :No such parameter in config!" << std::endl;
+            //json tempElement = json::parse(item.value().items().begin(), item.value().items().end());
+            for(auto &innerElement : item.value().items())
+            {
+                if (innerElement.key() == "")
+                {
+                    break;
+                }
+                
+                json tempElement;
+                tempElement[innerElement.key()] = innerElement.value();
+                
+                // TODO:  convert innerElement to json object!
+                // DO i need to implement custom Data source?
+                // Hängt sich gerade am Ssl Parametrr auf, wenn er nach clientCert sucht
+                // --> 2. Abbruchbedingung? Wenn unterstes Element? Eig sollte er dann gar nicht in Schleife!
+                std::cout  << "RECURSION CALL: "<< tempElement.dump() << std::endl;
+
+                checkParameterInConfig(f_parameter, tempElement); //node als zweiten Parameter
             }
         }
     }
+
     std::cout << containsParameter << std::endl;
     return containsParameter;
 }
@@ -127,6 +137,7 @@ void gWhisperConfig::updateConfig(std::string &f_parameter, ArgParse::ParsedElem
     }
     else if (f_parameter == "ClientKeyFile")
     {
+        //hier: Nur verwenden, wenn SSL gesetzt. Ist Reihenfolge garantiert?? Oder eher in LookupSetting --> BESSER
         
     }
      else if (f_parameter == "ServerCertFile")
@@ -150,7 +161,7 @@ void gWhisperConfig::updateConfig(std::string &f_parameter, ArgParse::ParsedElem
 std::unique_ptr<std::string> gWhisperConfig::accessConfigValueAtKey(const std::string &f_key)
 {
     //needs value as return type. Macht das Sinn?
-    bool containsParameter = checkParameterInConfig(f_key);
+    bool containsParameter = checkParameterInConfig(f_key, m_config);
 
     if(containsParameter)
     {
@@ -186,10 +197,10 @@ std::string gWhisperConfig::lookUpSetting(const std::string &f_parameter, ArgPar
     // first layer of config file
     for (const auto& item : m_config.items())
     {
-        std::cout<< "PARAMETER:" << f_parameter<<std::endl;
+        std::cout<< "PARAMETER1:" << f_parameter<<std::endl;
         std::cout << "key: " << item.key() << ", value: " << item.value() << '\n';
 
-        bool containsParameter = checkParameterInConfig(f_parameter);
+        bool containsParameter = checkParameterInConfig(f_parameter, m_config);
 
 
         if(containsParameter)
@@ -214,24 +225,23 @@ std::string gWhisperConfig::lookUpSetting(const std::string &f_parameter, ArgPar
 
         // If parameter is not found in 1st layer, search in 2nd layer of config file
         for (const auto& innerElement : item.value().items())
-            {
-            std::cout<< "PARAMETER:" << f_parameter<<std::endl;
+        {
+            std::cout<< "PARAMETER2:" << f_parameter<<std::endl;
             if(innerElement.value().contains(f_parameter)){
                 std::cout << "SETTING IN 2nd LOOP " << std::endl;
+                std::cout << "key: " << innerElement.key() << ", value: " << innerElement.value() << '\n';   
+                std::cout << "SETTING: " << std::endl;
+                std::cout << setting << std::endl;
                 setting = innerElement.value().at(f_parameter);
                 break;
             }
-            std::cout << "2nd Loop:" << std::endl;
-            std::cout << "key: " << innerElement.key() << ", value: " << innerElement.value() << '\n';
-     
-            
-            std::cout << "SETTING: " << std::endl;
-            std::cout << setting << std::endl;
-            }
+            //std::cout << "2nd Loop:" << std::endl;
+
+        }
 
 
 
-        // If parameter is not founf in config file, search in parse tree
+        // If parameter is not founf in config file, search in parse tree (services, methods)
         if (f_parseTree.findFirstChild(f_parameter)!= "")
         //--> eigentlich brauche ich das hier doch gar nicht mehr, oder? Weg von Proxyidee
         {
