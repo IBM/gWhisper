@@ -58,7 +58,7 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
     {
         //new method is in config
     
-        if (f_parseTree.findFirstChild(parameter) != "" && checkParameterInConfig(parameter, m_config))
+        if (f_parseTree.findFirstChild(parameter) != "" && (!checkParameterInConfig(parameter, m_config).empty()))
         {
             std::cout << "IF inMergeParseTree" << std::endl;
             updateConfig(parameter, f_parseTree);
@@ -72,18 +72,23 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
     // "return" updated config
 }
 
-bool gWhisperConfig::checkParameterInConfig(const std::string &f_parameter, json &f_startLayer)
+json gWhisperConfig::checkParameterInConfig(const std::string &f_parameter, json &f_startElement)
 {
     bool containsParameter = false;
+    json setting;
     //json configItems = m_config.items();
 
-    for (const auto& item : f_startLayer.items())
+    for (const auto& item : f_startElement.items())
     {
         if (item.value().contains(f_parameter))
         {
             //Abbruchkrit
             std::cout << "IF in RECCHECK" << std::endl;
-            containsParameter = true;
+            setting[f_parameter] = item.value().at(f_parameter);
+            std::cout << "RECSET: " << setting.dump()<<std::endl;
+            std::cout << item.value() << std::endl;
+            //containsParameter = true;
+            return setting;
             break;
         }
         else
@@ -109,9 +114,10 @@ bool gWhisperConfig::checkParameterInConfig(const std::string &f_parameter, json
             }
         }
     }
+    return setting;
 
-    std::cout << containsParameter << std::endl;
-    return containsParameter;
+    //std::cout << containsParameter << std::endl;
+    //return containsParameter;
 }
 
 
@@ -158,97 +164,85 @@ void gWhisperConfig::updateConfig(std::string &f_parameter, ArgParse::ParsedElem
     }
 }
 
-std::unique_ptr<std::string> gWhisperConfig::accessConfigValueAtKey(const std::string &f_key)
+/*json gWhisperConfig::accessConfigValueAtKey(const std::string &f_key, json &f_startLayer)
 {
-    //needs value as return type. Macht das Sinn?
-    bool containsParameter = checkParameterInConfig(f_key, m_config);
-
-    if(containsParameter)
-    {
-        for (const auto& item : m_config.items())
+    //Doppelte implementierung von checkConfigParameter. Kann man das umgehen?
+    json parameterSetting;
+  
+    for (const auto & item: f_startLayer.items()) /// 1st startLayer= config
+    {  
+        if (item.value().contains(f_key))
+        {
+            //Abbruchkrit
+            std::cout << "IF in RECACCESS" << std::endl;
+            return parameterSetting[item.key()] = item.value();
+            break;
+        }
+        else
+        {
+            for(auto &innerElement : item.value().items())
             {
-                if (item.value().at(f_key).is_null())
+                if (innerElement.key() == "")
                 {
-                    std::cout << "ENTERED NULL-IF"<< std::endl;
-                    //setting = "";
-                    break;
-                } 
-                else 
-                {
-                    // TODO is there a simple conversion to string for everything?
-                    //setting = item.value().at(f_parameter);
                     break;
                 }
-                break;  
-            }
+                
+                json tempElement;
+                tempElement[innerElement.key()] = innerElement.value();
+                
+                // TODO:  convert innerElement to json object!
+                // DO i need to implement custom Data source?
+                // Hängt sich gerade am Ssl Parametrr auf, wenn er nach clientCert sucht
+                // --> 2. Abbruchbedingung? Wenn unterstes Element? Eig sollte er dann gar nicht in Schleife!
+                std::cout  << "RECURSION CALL: "<< tempElement.dump() << std::endl;
 
+                (f_key, tempElement); //node als zweiten Parameter
+            }
+        }
     }
     // needs to return: item.value().at(f_key)
     return nullptr;
-}
+}*/
 
 // f_paramaetr entrpricht label des Grammatik Elements in ParseTree
 std::string gWhisperConfig::lookUpSetting(const std::string &f_parameter, ArgParse::ParsedElement &f_parseTree)
 {
     //Asusmption: m_config holds the newes version of config settings, already including the overwrites by user input via cmd
     //TODO: Kommen wir hier vom ParseTree weg?
+    bool containsParameter;
+    std::cout << "Now in LOOkUP for " << f_parameter << std::endl;
     std::string setting;
+    json someJson;
+    someJson = checkParameterInConfig(f_parameter, m_config); //copy
+    // Achung: Wahrschnl. off by one: checkParameter gitbt null objekt zurück
+    //std::cout << "RECLOOKUP: " << someJson.dump()<< std::endl;
+    std::cout << "RECLOOKUP: " << someJson.dump()<< std::endl;
 
-    // first layer of config file
-    for (const auto& item : m_config.items())
+    if (!someJson.is_null())
     {
-        std::cout<< "PARAMETER1:" << f_parameter<<std::endl;
-        std::cout << "key: " << item.key() << ", value: " << item.value() << '\n';
-
-        bool containsParameter = checkParameterInConfig(f_parameter, m_config);
-
-
-        if(containsParameter)
+        
+        if (!someJson.at(f_parameter).is_null())
         {
-            for (const auto& item : m_config.items())
-            {
-                if (item.value().at(f_parameter).is_null())
-                {
-                    std::cout << "ENTERED NULL-IF"<< std::endl;
-                    setting = "";
-                    break;
-                } 
-                else 
-                {
-                    // TODO is there a simple conversion to string for everything?
-                    setting = item.value().at(f_parameter);
-                    break;
-                }
-                break;  
-            }
+            std::cout << "SUCCESS" << std::endl;
+            containsParameter = true;
+            setting = someJson.at(f_parameter);
         }
 
-        // If parameter is not found in 1st layer, search in 2nd layer of config file
-        for (const auto& innerElement : item.value().items())
+        if(someJson.at(f_parameter).is_null())
         {
-            std::cout<< "PARAMETER2:" << f_parameter<<std::endl;
-            if(innerElement.value().contains(f_parameter)){
-                std::cout << "SETTING IN 2nd LOOP " << std::endl;
-                std::cout << "key: " << innerElement.key() << ", value: " << innerElement.value() << '\n';   
-                std::cout << "SETTING: " << std::endl;
-                std::cout << setting << std::endl;
-                setting = innerElement.value().at(f_parameter);
-                break;
-            }
-            //std::cout << "2nd Loop:" << std::endl;
-
+            std::cout << "ENTERED NULL-IF"<< std::endl;
+            setting = "";
         }
-
-
-
-        // If parameter is not founf in config file, search in parse tree (services, methods)
-        if (f_parseTree.findFirstChild(f_parameter)!= "")
-        //--> eigentlich brauche ich das hier doch gar nicht mehr, oder? Weg von Proxyidee
-        {
-            setting = f_parseTree.findFirstChild(f_parameter);
-        }
-        //else:return Error
     }
+    else if (someJson.is_null() && f_parseTree.findFirstChild(f_parameter)!="")
+    {
+        // If parameter is not founf in config file, search in parse tree (services, methods)
+        setting = f_parseTree.findFirstChild(f_parameter);
+    }
+    
+    //else:return Error
+
+    std::cout << "Found setting for " << f_parameter << " : " << setting << std::endl;
     return setting;
 }
 

@@ -34,8 +34,8 @@ class gWhisperConfig{
     /// Searches in all layers of config file, if config contains parameter
     /// in
     /// out: 
-    bool checkParameterInConfig(const std::string &f_parameter, json &f_startLayer);
-    std::unique_ptr<std::string> accessConfigValueAtKey(const std::string &f_key);
+    json checkParameterInConfig(const std::string &f_parameter, json &f_startLayer);
+    json accessConfigValueAtKey(const std::string &f_key, json &f_startLayer);
 
     json m_config;
     std::vector<std::string> m_configParameters = {"Ssl", "SslSettings", "ClientCertFile", "ClientKeyFile", "ServerCertFile"};
