@@ -58,7 +58,7 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
     {
         //new method is in config
     
-        if (f_parseTree.findFirstChild(parameter) != "" && (!checkParameterInConfig(parameter, m_config).empty()))
+        if (f_parseTree.findFirstChild(parameter) != "" && (!findParameterSettingInConfig(parameter, m_config).empty()))
         {
             std::cout << "IF inMergeParseTree" << std::endl;
             updateConfig(parameter, f_parseTree);
@@ -72,52 +72,53 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
     // "return" updated config
 }
 
-json gWhisperConfig::checkParameterInConfig(const std::string &f_parameter, json &f_startElement)
+json gWhisperConfig::findParameterSettingInConfig(const std::string &f_parameter,const  json &f_startElement)
 {
     bool containsParameter = false;
+    std::cout << "REC WITH: " << f_startElement.dump()<< std::endl;
     json setting;
-    //json configItems = m_config.items();
 
     for (const auto& item : f_startElement.items())
     {
+        //std::cout << "REC WITH: " << item.key() << " : " << item.value()<< std::endl;
+        //if (f_startElement.contains(f_parameter))
         if (item.value().contains(f_parameter))
         {
             //Abbruchkrit
+            std::cout << "REC WITH: " << item.key() << " : " << item.value()<< std::endl;
             std::cout << "IF in RECCHECK" << std::endl;
             setting[f_parameter] = item.value().at(f_parameter);
             std::cout << "RECSET: " << setting.dump()<<std::endl;
             std::cout << item.value() << std::endl;
             //containsParameter = true;
-            return setting;
+            //return setting;
             break;
         }
-        else
+        
+        for(auto &innerElement : item.value().items())
+        //for (auto innerElement = f_startElement.begin(); innerElement != f_startElement.end(); ++innerElement)
         {
-            //json tempElement = json::parse(item.value().items().begin(), item.value().items().end());
-            for(auto &innerElement : item.value().items())
+            if (innerElement.key() == "")
             {
-                if (innerElement.key() == "")
-                {
-                    break;
-                }
-                
+                break;
+            }
+
+            if(innerElement.value().is_structured())
+            {
+                // Copy is expensive! Workaround?
                 json tempElement;
                 tempElement[innerElement.key()] = innerElement.value();
-                
-                // TODO:  convert innerElement to json object!
-                // DO i need to implement custom Data source?
-                // Hängt sich gerade am Ssl Parametrr auf, wenn er nach clientCert sucht
-                // --> 2. Abbruchbedingung? Wenn unterstes Element? Eig sollte er dann gar nicht in Schleife!
-                std::cout  << "RECURSION CALL: "<< tempElement.dump() << std::endl;
-
-                checkParameterInConfig(f_parameter, tempElement); //node als zweiten Parameter
+                std::cout << "RECURSION_CALL: " << innerElement.key() << " ; " << innerElement.value() << std::endl;
+                return findParameterSettingInConfig(f_parameter, tempElement); //node als zweiten Parameter
+                //return findParameterSettingInConfig(f_parameter, *innerElement); //node als zweiten Parameter
+            }
+            else
+            {
+                continue;
             }
         }
     }
     return setting;
-
-    //std::cout << containsParameter << std::endl;
-    //return containsParameter;
 }
 
 
@@ -164,63 +165,21 @@ void gWhisperConfig::updateConfig(std::string &f_parameter, ArgParse::ParsedElem
     }
 }
 
-/*json gWhisperConfig::accessConfigValueAtKey(const std::string &f_key, json &f_startLayer)
-{
-    //Doppelte implementierung von checkConfigParameter. Kann man das umgehen?
-    json parameterSetting;
-  
-    for (const auto & item: f_startLayer.items()) /// 1st startLayer= config
-    {  
-        if (item.value().contains(f_key))
-        {
-            //Abbruchkrit
-            std::cout << "IF in RECACCESS" << std::endl;
-            return parameterSetting[item.key()] = item.value();
-            break;
-        }
-        else
-        {
-            for(auto &innerElement : item.value().items())
-            {
-                if (innerElement.key() == "")
-                {
-                    break;
-                }
-                
-                json tempElement;
-                tempElement[innerElement.key()] = innerElement.value();
-                
-                // TODO:  convert innerElement to json object!
-                // DO i need to implement custom Data source?
-                // Hängt sich gerade am Ssl Parametrr auf, wenn er nach clientCert sucht
-                // --> 2. Abbruchbedingung? Wenn unterstes Element? Eig sollte er dann gar nicht in Schleife!
-                std::cout  << "RECURSION CALL: "<< tempElement.dump() << std::endl;
-
-                (f_key, tempElement); //node als zweiten Parameter
-            }
-        }
-    }
-    // needs to return: item.value().at(f_key)
-    return nullptr;
-}*/
-
 // f_paramaetr entrpricht label des Grammatik Elements in ParseTree
 std::string gWhisperConfig::lookUpSetting(const std::string &f_parameter, ArgParse::ParsedElement &f_parseTree)
 {
-    //Asusmption: m_config holds the newes version of config settings, already including the overwrites by user input via cmd
+    //Asusmption: m_config holds the newest version of config settings, already including the overwrites by user input via cmd
     //TODO: Kommen wir hier vom ParseTree weg?
     bool containsParameter;
     std::cout << "Now in LOOkUP for " << f_parameter << std::endl;
     std::string setting;
     json someJson;
-    someJson = checkParameterInConfig(f_parameter, m_config); //copy
-    // Achung: Wahrschnl. off by one: checkParameter gitbt null objekt zurück
-    //std::cout << "RECLOOKUP: " << someJson.dump()<< std::endl;
+    someJson = findParameterSettingInConfig(f_parameter, m_config); //copy
+    // Achung:checkParameter kann null objekt zurück geben! Warum? TODO: In checkParameter beheben
     std::cout << "RECLOOKUP: " << someJson.dump()<< std::endl;
 
     if (!someJson.is_null())
-    {
-        
+    {    
         if (!someJson.at(f_parameter).is_null())
         {
             std::cout << "SUCCESS" << std::endl;
@@ -245,10 +204,6 @@ std::string gWhisperConfig::lookUpSetting(const std::string &f_parameter, ArgPar
     std::cout << "Found setting for " << f_parameter << " : " << setting << std::endl;
     return setting;
 }
-
-/*void convertParseTree(){
-    
-}*/
 
 // Ersetze ParseTree beim Suchen -> f_parseTree.findFirstChild
 // Für Parameter, die nicht im config file stehen / keine optionen sind z.B. services
