@@ -54,12 +54,21 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
     // Config parameters (as labeled in GrammarConstruction):
     // --ssl, --clientCert, --serverCert, --clientKey, --disableCache, -rpcTimeoutMilliseconds=, --connectTimeoutMilliseconds=
     //std::vector<std::string> configParameters = {"ssl", "OptionClientCert", "OptionClientKey", "OptionServerCert"};
+    // is there a funtion in JSON to lookup all keys in a simple manner?
     for (std::string parameter : m_configParameters)
     {
-        //new method is in config
-    
-        if (f_parseTree.findFirstChild(parameter) != "" && (!findParameterSettingInConfig(parameter, m_config).empty()))
+        // Ersetzen
+        if (parameter == "ClientCertFile")
+            {
+                parameter = "OptionClientCert";
+            }
+        
+        std::cout << f_parseTree.findFirstChild(parameter) << std::endl;
+
+        if (f_parseTree.findFirstChild(parameter) != "") //&& (!findParameterSettingInConfig(parameter, m_config).empty()))
         {
+            
+
             std::cout << "IF inMergeParseTree" << std::endl;
             updateConfig(parameter, f_parseTree);
             // TODO: What if parameter is not in config? --> add entry to json?
@@ -75,12 +84,12 @@ void gWhisperConfig::mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree){
 json gWhisperConfig::findParameterSettingInConfig(const std::string &f_parameter,const  json &f_startElement)
 {
     bool containsParameter = false;
-    std::cout << "REC WITH: " << f_startElement.dump()<< std::endl;
+    //std::cout << "REC WITH: " << f_startElement.dump()<< std::endl;
     json setting;
 
     for (const auto& item : f_startElement.items())
     {
-        //std::cout << "REC WITH: " << item.key() << " : " << item.value()<< std::endl;
+        std::cout << "OUTER REC WITH: " << item.key() << " : " << item.value()<< std::endl;
         //if (f_startElement.contains(f_parameter))
         if (item.value().contains(f_parameter))
         {
@@ -90,27 +99,26 @@ json gWhisperConfig::findParameterSettingInConfig(const std::string &f_parameter
             setting[f_parameter] = item.value().at(f_parameter);
             std::cout << "RECSET: " << setting.dump()<<std::endl;
             std::cout << item.value() << std::endl;
-            //containsParameter = true;
-            //return setting;
             break;
         }
-        
         for(auto &innerElement : item.value().items())
         //for (auto innerElement = f_startElement.begin(); innerElement != f_startElement.end(); ++innerElement)
-        {
+        {   
+            // maybe something like this to avoid copy later: if (*innerElement->contains(f_parameter)){}
             if (innerElement.key() == "")
             {
-                break;
+                break; 
             }
 
+            // Call recursion only, if current element contains further elements
             if(innerElement.value().is_structured())
             {
                 // Copy is expensive! Workaround?
+                // Warum hier nicht auf akuteller m_config?
                 json tempElement;
                 tempElement[innerElement.key()] = innerElement.value();
                 std::cout << "RECURSION_CALL: " << innerElement.key() << " ; " << innerElement.value() << std::endl;
                 return findParameterSettingInConfig(f_parameter, tempElement); //node als zweiten Parameter
-                //return findParameterSettingInConfig(f_parameter, *innerElement); //node als zweiten Parameter
             }
             else
             {
@@ -123,6 +131,7 @@ json gWhisperConfig::findParameterSettingInConfig(const std::string &f_parameter
 
 
 void gWhisperConfig::updateConfig(std::string &f_parameter, ArgParse::ParsedElement &f_parseTree){
+    std::cout<< "UPDATE " << f_parameter << std::endl;
     if (f_parameter == "Ssl" || f_parameter == "DisableCache" )
     {
          for (const auto& item : m_config.items())
@@ -135,11 +144,15 @@ void gWhisperConfig::updateConfig(std::string &f_parameter, ArgParse::ParsedElem
         //m_config.value().items().a
         std::cout << "OVERRIDE CONFIG" << std::endl;
     } 
-    else if (f_parameter == "ClientCertFile")
+    else if (f_parameter == "OptionClientCert") //use names from parse tree
     {
         // TODO: What when default File is used (no parameter given by user)
-        std::string newSetting = f_parseTree.findFirstChild(f_parameter);
-        m_config.at(f_parameter) = newSetting;
+        // Problem: parseTree - config not 1:1 --> need to replace names somehow.
+        //f_parameter = "FileClientCert";
+        std::cout << f_parseTree.findFirstChild("FileClientCert") << std::endl;
+        std::string newSetting = f_parseTree.findFirstChild("FileClientCert");
+       // m_config.at(["SslSettings"]["ClientCertFile"]) = newSetting;
+        m_config["SslSettings"]["ClientCertFile"] = newSetting; // --> does not override!
 
     }
     else if (f_parameter == "ClientKeyFile")
@@ -168,15 +181,20 @@ void gWhisperConfig::updateConfig(std::string &f_parameter, ArgParse::ParsedElem
 // f_paramaetr entrpricht label des Grammatik Elements in ParseTree
 std::string gWhisperConfig::lookUpSetting(const std::string &f_parameter, ArgParse::ParsedElement &f_parseTree)
 {
+    // live wie in Proxy
     //Asusmption: m_config holds the newest version of config settings, already including the overwrites by user input via cmd
     //TODO: Kommen wir hier vom ParseTree weg?
     bool containsParameter;
     std::cout << "Now in LOOkUP for " << f_parameter << std::endl;
     std::string setting;
     json someJson;
+    std::cout<< "CURRENT CONFIG: " << m_config.dump() << std::endl;
+
+    // if ()sett ing in parse Tree
+    // else setting in Config 
     someJson = findParameterSettingInConfig(f_parameter, m_config); //copy
     // Achung:checkParameter kann null objekt zurück geben! Warum? TODO: In checkParameter beheben
-    std::cout << "RECLOOKUP: " << someJson.dump()<< std::endl;
+   // std::cout << "RECLOOKUP: " << someJson.dump()<< std::endl;
 
     if (!someJson.is_null())
     {    
@@ -213,7 +231,7 @@ gWhisperConfig::gWhisperConfig(ArgParse::ParsedElement &f_parseTree){ //Paramete
         parseConfigFile();
     }
     std::cout << "Constructor" << std::endl;
-    mergeParseTreeInJson(f_parseTree); // Check, if we always work with the right parse tree. Maybe Chcek, if merge is neccessay
+    // Check, if we always work with the right parse tree. Maybe Chcek, if merge is neccessay
     //findParameter() -->either ParseTree or Config
 }
 
