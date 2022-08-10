@@ -459,17 +459,17 @@ namespace cli
 
         GrammarElement *clientCert = f_grammarPool.createElement<Concatenation>();
         clientCert->addChild(f_grammarPool.createElement<FixedString>("--clientCert=", "OptionClientCert"));
-        clientCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileClientCert"));
+        clientCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "ClientCertFile"));
         optionsalt->addChild(clientCert);
 
         GrammarElement *clientKey = f_grammarPool.createElement<Concatenation>();
         clientKey->addChild(f_grammarPool.createElement<FixedString>("--clientKey=", "OptionClientKey"));
-        clientKey->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileClientKey"));
+        clientKey->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FClientKeyFile"));
         optionsalt->addChild(clientKey);
 
         GrammarElement *serverCert = f_grammarPool.createElement<Concatenation>();
         serverCert->addChild(f_grammarPool.createElement<FixedString>("--serverCert=", "OptionServerCert"));
-        serverCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileServerCert"));
+        serverCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "ServerCertFile"));
         optionsalt->addChild(serverCert);
 
         GrammarElement *completeOption = f_grammarPool.createElement<Concatenation>();

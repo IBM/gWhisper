@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     // Now we parse the given arguments using the grammar:
     std::string args = getArgsAsString(argc, argv);
     ParsedElement parseTree;
-    ParseRc rc = grammarRoot->parse(args.c_str(), parseTree);
+    ParseRc rc = grammarRoot->parse(args.c_str(), parseTree); //braucht evtl. schon die config
     gWhisperConfig newTree(parseTree); // look up on thhis element
 
     if (parseTree.findFirstChild("DotExport") != "")

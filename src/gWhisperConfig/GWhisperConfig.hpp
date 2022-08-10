@@ -28,8 +28,9 @@ class gWhisperConfig{
 
     private:
     void parseConfigFile();
-    void mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree);
-    void updateConfig(std::string &f_parameter, ArgParse::ParsedElement &f_parseTree);
+    void retrieveConfigParameters(json &f_startElement);
+    //void mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree);
+    //void updateConfig(std::string &f_parameter, ArgParse::ParsedElement &f_parseTree);
 
     /// Searches in all layers of config file, if config contains parameter
     /// in
@@ -37,7 +38,7 @@ class gWhisperConfig{
     json findParameterSettingInConfig(const std::string &f_parameter, const json &f_startLayer);
 
     json m_config;
-    std::vector<std::string> m_configParameters = {"Ssl", "SslSettings", "ClientCertFile", "ClientKeyFile", "ServerCertFile"};
+    std::vector<std::string> m_configParameters; //= {"Ssl", "SslSettings", "ClientCertFile", "ClientKeyFile", "ServerCertFile"};
 
     // Idee: Diese Klasse als langlebiges Object --> z.B. direkt in main parse tree ersetzen und newParseTree weitergeben
     // NewParseTree: 
