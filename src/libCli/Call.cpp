@@ -25,7 +25,7 @@
 #include <optional>
 #include <fstream>
 //#include "single_include/nlohmann/json.hpp"
-#include <nlohmann/json.hpp>
+#include "GWhisperConfig.hpp"
 
 // for detecting if we are writing stdout to terminal or to pipe/file
 #include <stdio.h>
@@ -156,8 +156,7 @@ namespace cli
         std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline;
         std::chrono::time_point<std::chrono::system_clock> defaultDeadline = std::chrono::system_clock::now() + std::chrono::milliseconds(30000);
 
-
-        bool setTimeout = (parseTree.findFirstChild("RpcTimeout") != "");
+        bool setTimeout = (parseTree.findFirstChild("RpcTimeoutInMs") != "");
 
         if(!setTimeout)
         {
@@ -174,12 +173,31 @@ namespace cli
 
         if(setTimeout)
         {
-            if (parseTree.findFirstChild("manualInfiniteTimeout") != ""){
+            //std::vector<std::shared_ptr<ArgParse::ParsedElement>> timeoutOptions;
+            //std::cout << "GRAMMAR: " << parseTree.getGrammarElement()->toString() << std::endl;
+            /*for (std::shared_ptr<ArgParse::ParsedElement> child : parseTree.getChildren())
+            {
+                std::cout << "CHILDREN: " << child->getMatchedString() <<std::endl;
+                std::cout << "DEBUG: " << child->getDebugString() <<std::endl;
+                std::cout << "GRAMMAR CHILD: " << child->getGrammarElement()->toString() << std::endl;
+
+                if(child->getMatchedString().find("--rpcTimeoutInMs")){
+                    // split String at =
+                    // save value behid = in var as setting
+                }
+            }*/
+            
+            std::string timeoutTime = parseTree.findFirstChild("RpcTimeoutInMs");
+            std::cout << "TIMEOUT: " << timeoutTime << std::endl;
+            if (parseTree.findFirstChild("manualInfiniteTimeout") == "None")
+            //if (std::find(timeoutOptions.begin(), timeoutOptions.end(), "None") != timeoutOptions.end())//(isInfiniteTimeout)//(parseTree.findFirstChild("manualInfiniteTimeout") != ""){
+            {
                 deadline = std::nullopt;
             }
             else
             {
-                std::string customTimeout = parseTree.findFirstChild("RpcTimeoutInMs");
+                std::string customTimeout = parseTree.findFirstChild("RpcTimeoutInMs"); //check if none or number string
+
                 unsigned long customTimeoutMs;
                 try
                 {

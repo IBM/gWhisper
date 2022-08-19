@@ -22,16 +22,13 @@
 using json = nlohmann::json;
 
 void gWhisperConfig::parseConfigFile(){
-    // Parse JSON File into JSON object
-    // JSON Object as member
+    // Parse JSON File into Jmember SON object
     std::ifstream ifs("/home/anna/.cache/gwhisper/config.json");
-    //std::string line;
     if (!ifs.is_open())
     {
         std::cout << "Error while opening file" << std::endl;
     }
     // TODO: check for empty value with  nlohmann::isempty()
-    // m_config = JSON onbject
     //m_config = json::parse(ifs); //as member? If so: is json the right 
     ifs >> m_config;
     ifs.close();
@@ -39,7 +36,7 @@ void gWhisperConfig::parseConfigFile(){
 }
 
 void gWhisperConfig::retrieveConfigParameters(json &f_startElement){
-    //recursively go over config file and retrieve all Parameterrs = Keys
+    //recursively go over config file and retrieve all parameter keys
     if(f_startElement.is_structured())
     {
          for (const auto &item : f_startElement.items())
@@ -74,26 +71,7 @@ json gWhisperConfig::findParameterSettingInConfig(const std::string &f_parameter
             std::cout << item.value() << std::endl;
             break;
         }
-        /*else --> for now neverending loop
-        {
-            if (item.key() == "")
-            {
-                break; 
-            }
 
-            if (item.value().is_structured())
-            {
-                std::cout << "RECURSION_CALL: " << item.key() << " ; " << item.value() << std::endl;
-                json innerElement;
-                innerElement[item.key()] = item.value();
-                return findParameterSettingInConfig(f_parameter, innerElement);
-            } 
-            else
-            {
-                continue;
-            }
-
-        }*/
         for(auto &innerElement : item.value().items())
         //for (auto innerElement = f_startElement.begin(); innerElement != f_startElement.end(); ++innerElement)
         {   
@@ -125,9 +103,6 @@ json gWhisperConfig::findParameterSettingInConfig(const std::string &f_parameter
 // f_paramaetr entrpricht label des Grammatik Elements in ParseTree
 std::string gWhisperConfig::lookUpSetting(const std::string &f_parameter, ArgParse::ParsedElement &f_parseTree)
 {
-    // live wie in Proxy
-    //Asusmption: m_config holds the newest version of config settings, already including the overwrites by user input via cmd
-    //TODO: Kommen wir hier vom ParseTree weg?
     bool containsParameter;
     std::cout << "Now in LOOkUP for " << f_parameter << std::endl;
     std::string setting;
@@ -156,7 +131,7 @@ std::string gWhisperConfig::lookUpSetting(const std::string &f_parameter, ArgPar
             if(someJson.at(f_parameter).is_null())
             {
                 std::cout << "ENTERED NULL-IF"<< std::endl;
-                setting = "";
+                setting = ""; // TODO: Is this the right semantic for Timeout?
             }
         }
     }

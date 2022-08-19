@@ -464,7 +464,7 @@ namespace cli
 
         GrammarElement *clientKey = f_grammarPool.createElement<Concatenation>();
         clientKey->addChild(f_grammarPool.createElement<FixedString>("--clientKey=", "OptionClientKey"));
-        clientKey->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FClientKeyFile"));
+        clientKey->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "ClientKeyFile"));
         optionsalt->addChild(clientKey);
 
         GrammarElement *serverCert = f_grammarPool.createElement<Concatenation>();
@@ -501,14 +501,14 @@ namespace cli
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSimpleMapOutput", "NoSimpleMapOutput"));
 
         GrammarElement *timeout = f_grammarPool.createElement<Concatenation>();
-        timeout->addChild(f_grammarPool.createElement<FixedString>("--rpcTimeoutMilliseconds", "RpcTimeout"));
+        timeout->addChild(f_grammarPool.createElement<FixedString>("--rpcTimeoutMilliseconds")); //RPCTimeout
         timeout->addChild(f_grammarPool.createElement<FixedString>("="));
-        GrammarElement *timeoutTime = f_grammarPool.createElement<Alternation>();
+        GrammarElement *timeoutTime = f_grammarPool.createElement<Alternation>("RpcTimeoutInMs");
         timeout->addChild(timeoutTime);
-        timeoutTime->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "rpcTimeoutInMs"));
+        timeoutTime->addChild(f_grammarPool.createElement<RegEx>("[0-9]+")); // RpcTimeoutInMs
         GrammarElement *manualInfiniteTimeout = f_grammarPool.createElement<Optional>();
         timeoutTime->addChild(manualInfiniteTimeout);
-        manualInfiniteTimeout->addChild(f_grammarPool.createElement<FixedString>("None", "manualInfiniteTimeout"));
+        manualInfiniteTimeout->addChild(f_grammarPool.createElement<FixedString>("None")); // manualInfiniteTimeout
         optionsalt->addChild(timeout);
 
         GrammarElement *timeoutOption = f_grammarPool.createElement<Concatenation>();
