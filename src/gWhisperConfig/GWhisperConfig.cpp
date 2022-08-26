@@ -21,9 +21,22 @@
 
 using json = nlohmann::json;
 
-void gWhisperConfig::parseConfigFile(){
+//gWhisperSettings
+void gWhisperConfig::parseConfigFile(const bool f_useCustomPath, const std::string &f_path){
     // Parse JSON File into Jmember SON object
-    std::ifstream ifs("/home/anna/.cache/gwhisper/config.json");
+
+    const char* home = std::getenv("HOME");
+    std::string defaultPath = "/.config/gWhisperConfig.json";
+    std::string inputFile = home + defaultPath;
+
+    if(f_useCustomPath)
+    {
+        inputFile = f_path;
+    }
+
+    std::ifstream ifs(inputFile.c_str());
+    std::cout << "PATH:" << inputFile << std::endl;
+
     if (!ifs.is_open())
     {
         std::cout << "Error while opening file" << std::endl;
@@ -145,7 +158,9 @@ std::string gWhisperConfig::lookUpSetting(const std::string &f_parameter, ArgPar
 gWhisperConfig::gWhisperConfig(ArgParse::ParsedElement &f_parseTree){ //ParameterKey
     if(m_config.is_null())
     {
-        parseConfigFile();
+        bool useCustomPath = f_parseTree.findFirstChild("ConfigFile")!= "";
+        std::cout<< "ELEMENT :" << f_parseTree.findFirstChild("ConfigFilePath") <<std::endl;
+        parseConfigFile(useCustomPath, f_parseTree.findFirstChild("ConfigFilePath"));
     }
     std::cout << "Constructor" << std::endl;
     retrieveConfigParameters(m_config);

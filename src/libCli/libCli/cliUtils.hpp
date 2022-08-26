@@ -24,10 +24,10 @@ namespace cli
     bool waitForChannelConnected(std::shared_ptr<grpc::Channel> f_channel, uint32_t f_timeoutMs);
 
     /// Retrieves the "connectTimeout" option from the parse tree
-    /// @param f_parseTree Parse-tree which should be searched for the option
+    /// @param f_connectTimeoutStr String holding the value for the timeout found in parsetree / config
     /// @param f_default default value returned, if parse-tree did not contain the option.
     /// @returns the value as an integer
-    uint32_t getConnectTimeoutMs(ArgParse::ParsedElement * f_parseTree, uint32_t f_default = 500);
+    uint32_t getConnectTimeoutMs(std::string & f_connectTimeoutStr, uint32_t f_default = 500);
 
     /// Convert a gRPC status code into a string.
     /// @param f_statusCode The status code to convert.

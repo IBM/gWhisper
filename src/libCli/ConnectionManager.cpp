@@ -123,19 +123,13 @@ namespace cli
         ConnList connection;
         std::shared_ptr<grpc::ChannelCredentials> creds;
         std::shared_ptr<grpc::ChannelCredentials> channelCreds;
-        gWhisperConfig tree2(f_parseTree); // Todo: Replacef_parseTree with config object in signature of Connectionmanager
+        gWhisperConfig settingProxy(f_parseTree); // Todo: Replacef_parseTree with config object in signature of Connectionmanager
 
-       if (tree2.lookUpSetting("Ssl", f_parseTree) != "")
-        //if (f_parseTree.findFirstChild("Ssl") != "")
+       if (settingProxy.lookUpSetting("Ssl", f_parseTree) != "")
         {
-            // if --ssl set is set, check if user provides keys/ certs
-           /* bool clientCertOption = (f_parseTree.findFirstChild("OptionClientCert") != "");
-            bool clientKeyOption = (f_parseTree.findFirstChild("OptionClientKey") != "");
-            bool serverCertOption = (f_parseTree.findFirstChild("OptionServerCert") != "");*/
-
-            std::string sslClientCertPath = tree2.lookUpSetting("ClientCertFile", f_parseTree);
-            std::string sslClientKeyPath = tree2.lookUpSetting("ClientKeyFile", f_parseTree);
-            std::string sslServerCertPath = tree2.lookUpSetting("ServerCertFile", f_parseTree);
+            std::string sslClientCertPath = settingProxy.lookUpSetting("ClientCertFile", f_parseTree);
+            std::string sslClientKeyPath = settingProxy.lookUpSetting("ClientKeyFile", f_parseTree);
+            std::string sslServerCertPath = settingProxy.lookUpSetting("ServerCertFile", f_parseTree);
 
             // debugString = "CREATE SECURE CAHNNEL WITH USER-PROVIDED CREDENTIALS";
             channelCreds = generateSSLCredentials(sslClientCertPath, sslClientKeyPath, sslServerCertPath);
@@ -148,7 +142,6 @@ namespace cli
         }
 
         bool disableCache = (f_parseTree.findFirstChild("DisableCache") != "");
-        // Timeout as chrono duration
 
         connection.descDbProxy = std::make_shared<DescDbProxy>(disableCache, f_serverAddress, connection.channel, f_parseTree);
         connection.descPool = std::make_shared<grpc::protobuf::DescriptorPool>(connection.descDbProxy.get());

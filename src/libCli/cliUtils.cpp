@@ -1,4 +1,5 @@
 #include "libCli/cliUtils.hpp"
+#include "GWhisperConfig.hpp"
 
 namespace cli
 {
@@ -9,15 +10,14 @@ namespace cli
         return result;
     }
 
-    uint32_t getConnectTimeoutMs(ArgParse::ParsedElement * f_parseTree, uint32_t f_default)
+    uint32_t getConnectTimeoutMs(std::string &f_connectTimeoutStr, uint32_t f_default)
     {
         // TODO: it would be nice to encode default values for options in the grammar
         // TODO: also it would be nice to provide grammar/parsed elements which can output c++ types other than strings (integers, etc.) 
-        std::string connectTimeoutStr = f_parseTree->findFirstChild("connectTimeout");
         uint32_t connectTimeoutMs = f_default;
-        if(connectTimeoutStr != "")
+        if(f_connectTimeoutStr != "")
         {
-            connectTimeoutMs = std::stol(connectTimeoutStr);
+            connectTimeoutMs = std::stol(f_connectTimeoutStr);
         }
         return connectTimeoutMs;
     }

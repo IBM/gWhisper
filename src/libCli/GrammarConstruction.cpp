@@ -485,6 +485,11 @@ namespace cli
         completeDialectChoice->addChild(f_grammarPool.createElement<FixedString>("fish", "fish"));
         optionsalt->addChild(completeOption);
 
+        GrammarElement *config = f_grammarPool.createElement<Concatenation>();
+        config->addChild(f_grammarPool.createElement<FixedString>("--configFile=", "ConfigFile"));
+        config->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "ConfigFilePath"));
+        optionsalt->addChild(config);
+
         //completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--debugComplete", "CompleteDebug"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--disableCache", "DisableCache"));

@@ -151,7 +151,8 @@ void DescDbProxy::repopulateLocalDb(localDescDb::Host& f_out_host, const std::st
 
 void DescDbProxy::useReflection(const std::string &f_hostAddress)
 {
-    if (not cli::waitForChannelConnected(m_channel, cli::getConnectTimeoutMs(&m_parseTree)))
+    std::string connectTimeoutStr =  m_parseTree.findFirstChild("connectTimeout");
+    if (not cli::waitForChannelConnected(m_channel, cli::getConnectTimeoutMs(connectTimeoutStr)))
     {
         std::cerr << "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials." << std::endl;
         exit(EXIT_FAILURE);
