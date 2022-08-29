@@ -19,7 +19,7 @@ import json
 from pathlib import Path # python 3.4 should i rather use os.path for compatibility with older versions?
 
 home = Path.home()
-gWhisperFolder = Path("/.cache/gwhisper") # put in .config
+gWhisperFolder = Path("/.cache/gwhisper") # put in .config/gWhsiperConfig.json
 configPath= home / ".cache/gwhisper"
 configFile = "testfile.json"
 config={
