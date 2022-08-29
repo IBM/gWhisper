@@ -53,11 +53,11 @@ RPC succeeded :D
 # Invalid config file
 ##############################################################################
 
-#START_TEST RPC using config settings with config File at default location
-@@CMD@@ --disableCache localhost:50443 examples.StatusHandling neverEndingRpc
+#START_TEST RPC finding no file
+@@CMD@@ --configFile= --complete localhost:50443 examples.StatusHandling neverEndingRpc
 /.* Deadline Exceeded
 /Note:.*
 #END_TEST
 
-#START_TEST RPC with invalid config File
+#START_TEST RPC with invalid json formatn in config File
 #END_TEST

@@ -18,19 +18,17 @@
 
 using json = nlohmann::json;
 
-class gWhisperConfig{
+class gWhisperSetting{
     public:
-    gWhisperConfig(ArgParse::ParsedElement &f_parseTree);
-    ~gWhisperConfig();
+    gWhisperSetting(ArgParse::ParsedElement &f_parseTree);
+    ~gWhisperSetting();
 
-    std::string lookUpSetting(const std::string &f_parameter, ArgParse::ParsedElement &f_parseTree); //Parse Tree als Member?
+    std::string lookUpSetting(const std::string &f_parameter, ArgParse::ParsedElement &f_parseTree);
     
 
     private:
     void parseConfigFile(const std::string &f_inputFile);
     void retrieveConfigParameters(json &f_startElement);
-    //void mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree);
-    //void updateConfig(std::string &f_parameter, ArgParse::ParsedElement &f_parseTree);
 
     /// Searches in all layers of config file, if config contains parameter
     /// in
@@ -38,10 +36,5 @@ class gWhisperConfig{
     json findParameterSettingInConfig(const std::string &f_parameter, const json &f_startLayer);
 
     json m_config;
-    std::vector<std::string> m_configParameters; //= {"Ssl", "SslSettings", "ClientCertFile", "ClientKeyFile", "ServerCertFile"};
-
-    // Idee: Diese Klasse als langlebiges Object --> z.B. direkt in main parse tree ersetzen und newParseTree weitergeben
-    // NewParseTree: 
-    // Alle Lookups auf Parse Tree ersetzen mit LookUp 
-
+    std::vector<std::string> m_configParameters; 
 };

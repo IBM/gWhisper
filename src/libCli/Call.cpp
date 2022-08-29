@@ -25,7 +25,7 @@
 #include <optional>
 #include <fstream>
 //#include "single_include/nlohmann/json.hpp"
-#include "GWhisperConfig.hpp"
+#include "GWhisperSetting.hpp"
 
 // for detecting if we are writing stdout to terminal or to pipe/file
 #include <stdio.h>
@@ -46,7 +46,7 @@ namespace cli
     /// created.
     /// @param parseTree CLI argument parse tree, which will be used to detemrine
     ///        which OputputFormatter to create.
-    std::unique_ptr<MessageFormatter> createMessageFormatter(ParsedElement &parseTree, gWhisperConfig f_settingProxy)
+    std::unique_ptr<MessageFormatter> createMessageFormatter(ParsedElement &parseTree, gWhisperSetting f_settingProxy)
     {
         if(f_settingProxy.lookUpSetting("JsonOutput", parseTree) != "")
         {
@@ -119,7 +119,7 @@ namespace cli
 
     int call(ParsedElement &parseTree)
     {
-        gWhisperConfig settingProxy(parseTree);
+        gWhisperSetting settingProxy(parseTree);
         std::string serviceName = parseTree.findFirstChild("Service");
         std::string methodName = parseTree.findFirstChild("Method");
         bool argsExist;

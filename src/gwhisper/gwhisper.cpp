@@ -20,7 +20,7 @@
 #include <libCli/Call.hpp>
 #include <libCli/Completion.hpp>
 #include <versionDefine.h> // generated during build
-#include "GWhisperConfig.hpp"
+#include "GWhisperSetting.hpp"
 
 using namespace ArgParse;
 
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     std::string args = getArgsAsString(argc, argv);
     ParsedElement parseTree;
     ParseRc rc = grammarRoot->parse(args.c_str(), parseTree); //braucht evtl. schon die config
-    gWhisperConfig newTree(parseTree); // look up on this element
+    gWhisperSetting paramProxy(parseTree); // look up on this element
 
     if (parseTree.findFirstChild("DotExport") != "")
     {
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (newTree.lookUpSetting("Complete", parseTree) != "")
+    if (paramProxy.lookUpSetting("Complete", parseTree) != "")
     {
         bool completeDebug = (parseTree.findFirstChild("CompleteDebug") != "");
         if (parseTree.findFirstChild("fish") != "")

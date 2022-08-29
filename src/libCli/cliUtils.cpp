@@ -1,5 +1,4 @@
 #include "libCli/cliUtils.hpp"
-#include "GWhisperConfig.hpp"
 
 namespace cli
 {
