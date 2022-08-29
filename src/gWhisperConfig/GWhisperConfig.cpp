@@ -29,7 +29,8 @@ void gWhisperConfig::parseConfigFile(const std::string &f_inputFile){
 
     if (!ifs.is_open())
     {
-        std::cout << "Error while opening file" << std::endl;
+        std::cout << "Error while opening config file at: " << f_inputFile << std::endl;
+        exit(EXIT_FAILURE);
     }
     // TODO: check for empty value with  nlohmann::isempty()
     //m_config = json::parse(ifs); //as member? If so: is json the right 
