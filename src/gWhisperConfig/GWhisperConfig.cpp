@@ -22,20 +22,10 @@
 using json = nlohmann::json;
 
 //gWhisperSettings
-void gWhisperConfig::parseConfigFile(const bool f_useCustomPath, const std::string &f_path){
+void gWhisperConfig::parseConfigFile(const std::string &f_inputFile){
     // Parse JSON File into Jmember SON object
-
-    const char* home = std::getenv("HOME");
-    std::string defaultPath = "/.config/gWhisperConfig.json";
-    std::string inputFile = home + defaultPath;
-
-    if(f_useCustomPath)
-    {
-        inputFile = f_path;
-    }
-
-    std::ifstream ifs(inputFile.c_str());
-    std::cout << "PATH:" << inputFile << std::endl;
+    std::ifstream ifs(f_inputFile.c_str());
+    std::cout << "PATH:" << f_inputFile << std::endl;
 
     if (!ifs.is_open())
     {
@@ -159,9 +149,19 @@ gWhisperConfig::gWhisperConfig(ArgParse::ParsedElement &f_parseTree){ //Paramete
     if(m_config.is_null())
     {
         bool useCustomPath = f_parseTree.findFirstChild("ConfigFile")!= "";
-        std::cout<< "ELEMENT :" << f_parseTree.findFirstChild("ConfigFilePath") <<std::endl;
-        parseConfigFile(useCustomPath, f_parseTree.findFirstChild("ConfigFilePath"));
+        const char* home = std::getenv("HOME");
+        std::string defaultPath = "/.config/gWhisperConfig.json";
+        std::string inputFile = home + defaultPath;
+
+        if(useCustomPath)
+        {
+            inputFile = f_parseTree.findFirstChild("ConfigFilePath");
+        }
+
+        //std::cout << "PARAMETER LIST:" << std::endl;
+        parseConfigFile(inputFile);
     }
+    
     std::cout << "Constructor" << std::endl;
     retrieveConfigParameters(m_config);
     // Check, if we always work with the right parse tree. Maybe Chcek, if merge is neccessay

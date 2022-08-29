@@ -27,7 +27,7 @@ class gWhisperConfig{
     
 
     private:
-    void parseConfigFile(const bool f_useCustomPath, const std::string &f_path);
+    void parseConfigFile(const std::string &f_inputFile);
     void retrieveConfigParameters(json &f_startElement);
     //void mergeParseTreeInJson(ArgParse::ParsedElement &f_parseTree);
     //void updateConfig(std::string &f_parameter, ArgParse::ParsedElement &f_parseTree);
