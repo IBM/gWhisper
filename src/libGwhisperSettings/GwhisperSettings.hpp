@@ -28,27 +28,24 @@ class gWhisperSettings{
 
     // /Searches setting for a parameter in the parse tree.
     /// Searches for in the config file, if parameter is not found in the parse tree.
-    /// @param f_parameter
-    /// @param f_parseTree
+    /// @param f_parameter Name of paramter to retrieve seting for.
+    /// @param f_parseTree Current grammar tree.
     /// @return Returns value of the parameter as string. Returns an empty string
     /// if the parameter is not set.
     std::string lookUpSetting(const std::string &f_parameter, ArgParse::ParsedElement &f_parseTree);
     
 
     private:
-    /// Parses a valid json file into a json object
-    /// @param f_inputFile
+    /// Parses a valid json file into a json object.
+    /// @param f_inputFile Path to input file.
     void parseConfigFile(const std::string &f_inputFile);
 
-    /// Recursively retrieves all keys from a (nested) json file
-    /// @param f_startElement
-    void retrieveConfigParameters(json &f_startElement);
-
     /// Recursively searches the value of a key in a (nested) json object
-    /// @param f_parameter
-    /// @param f_startLayer
-    /// @return returns setting for parameter, if setting is found else returns null Json object (at the moment)
-    std::string findParameterSettingInConfig(const std::string &f_parameter, const json &f_startLayer);
+    /// @param f_parameter Name of the parameter to search setting for.
+    /// @param f_startElement Node of config fike, from where the search starts. 
+    /// @return returns setting for parameter as a string. If parameter is not set via config file or
+    /// the parameter is set tu null, an empty string is returned
+    std::string findParameterSettingInConfig(const std::string &f_parameter, const json &f_startElement);
 
     json m_config;
     std::vector<std::string> m_configParameters; 

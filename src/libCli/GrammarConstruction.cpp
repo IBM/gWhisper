@@ -518,7 +518,7 @@ namespace cli
 
         GrammarElement *timeoutOption = f_grammarPool.createElement<Concatenation>();
         timeoutOption->addChild(f_grammarPool.createElement<FixedString>("--connectTimeoutMilliseconds="));
-        timeoutOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "connectTimeout"));
+        timeoutOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "ConnectTimeout"));
         optionsalt->addChild(timeoutOption);
         optionsalt->addChild(customOutputFormat);
         // FIXME FIXME FIXME: we cannot distinguish between --complete and --completeDebug.. this is a problem for arguments too, as we cannot guarantee, that we do not have an argument starting with the name of an other argument.

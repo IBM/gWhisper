@@ -12,6 +12,6 @@
          "DisableCache":null,
 
          "RpcTimeoutInMs":"100",
-         "connectTimeout":"100"
+         "ConnectTimeout":"100"
       }
 }

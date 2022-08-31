@@ -28,6 +28,7 @@ target_link_libraries(${TARGET_NAME}
     ${TARGET_NAME}_protobuf
      
     PRIVATE
+    libGwhisperSettings
     gwhisperUtils
     version
     reflection

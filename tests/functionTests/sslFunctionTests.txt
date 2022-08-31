@@ -44,7 +44,7 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST secure gRPC with missing serverCert at default location
-@@CMD@@ --disableCache --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
+@@CMD@@ --configFile=@@testResources@@/testDefaultConfig.json --disableCache --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
 /.*SSL_ERROR_SSL.*
 ?.*SSL_ERROR_SSL.*
 /Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials*

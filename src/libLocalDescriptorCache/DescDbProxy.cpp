@@ -17,6 +17,7 @@
 #include "libCli/ConnectionManager.hpp"
 #include "libArgParse/ArgParse.hpp"
 #include "LocalDescDb.pb.h"
+#include "GwhisperSettings.hpp"
 
 #include <string>
 #include <deque>
@@ -151,7 +152,8 @@ void DescDbProxy::repopulateLocalDb(localDescDb::Host& f_out_host, const std::st
 
 void DescDbProxy::useReflection(const std::string &f_hostAddress)
 {
-    std::string connectTimeoutStr =  m_parseTree.findFirstChild("connectTimeout");
+    gWhisperSettings settingProxy(m_parseTree);
+    std::string connectTimeoutStr =  settingProxy.lookUpSetting("ConnectTimeout", m_parseTree);
     if (not cli::waitForChannelConnected(m_channel, cli::getConnectTimeoutMs(connectTimeoutStr)))
     {
         std::cerr << "Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials." << std::endl;

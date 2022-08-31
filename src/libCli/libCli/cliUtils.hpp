@@ -23,7 +23,7 @@ namespace cli
     /// @returns true if channel is connected, false if timeout exceeded and channel is still not in connected state.
     bool waitForChannelConnected(std::shared_ptr<grpc::Channel> f_channel, uint32_t f_timeoutMs);
 
-    /// Retrieves the "connectTimeout" option from the parse tree
+    /// Retrieves the "ConnectTimeout" option from the parse tree
     /// @param f_connectTimeoutStr String holding the value for the timeout found in parsetree / config
     /// @param f_default default value returned, if parse-tree did not contain the option.
     /// @returns the value as an integer

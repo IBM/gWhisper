@@ -16,13 +16,13 @@
 # Valid config file (.cache/gWhisperConfigFile.json)
 ##############################################################################
 
-#START_TEST RPC using config settings with config File at default location
+#START_TEST RPC using config settings with config File location
 @@CMD@@ --configFile=@@testResources@@/validConfig.json --disableCache --ssl localhost:50443 examples.NestedTypeRpcs echoNestedMaps
 Warning: no Fields found in parseTree for message 'NestedMaps'
-/.* Received message:
+/.*Received message:
 | number_and_string..... = [NOT SET]
 | sub_message........... = [NOT SET]
-| simple_map_int[0/0]... = {}
+| simple_map_int[0/0] = {}
 | simple_map_string[0/0] = {}
 RPC succeeded :D
 #END_TEST
@@ -39,7 +39,7 @@ RPC succeeded :D
 ##############################################################################
 #START_TEST RPC cannot open config file
 @@CMD@@ --configFile=@@testResources@@/validConfig.jso --complete localhost:50443 examples.StatusHandling neverEndingRpc
-/Error while opening config file at:.*
+/File not found at:.*
 #END_TEST
 
 #START_TEST Trying to open empty json file

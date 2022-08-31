@@ -23,8 +23,6 @@
 #include <ctime>
 #include <iomanip>
 #include <optional>
-#include <fstream>
-//#include "single_include/nlohmann/json.hpp"
 #include "GwhisperSettings.hpp"
 
 // for detecting if we are writing stdout to terminal or to pipe/file
@@ -128,7 +126,7 @@ namespace cli
 
         std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, parseTree);
 
-        std::string connectTimeoutStr = settingProxy.lookUpSetting("connectTimeout", parseTree);
+        std::string connectTimeoutStr = settingProxy.lookUpSetting("ConnectTimeout", parseTree);
         if (not waitForChannelConnected(channel, getConnectTimeoutMs(connectTimeoutStr)))
         {
             std::cerr << "Error: channel connection attempt timed out" << std::endl;
