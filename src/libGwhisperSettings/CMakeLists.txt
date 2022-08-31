@@ -16,9 +16,9 @@ include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
-set(TARGET_NAME "gWhisperSetting")
+set(TARGET_NAME "libGwhisperSettings")
 set(TARGET_SRC
-    GWhisperSetting.cpp
+    GwhisperSettings.cpp
     )
 add_library(${TARGET_NAME} ${TARGET_SRC})
 

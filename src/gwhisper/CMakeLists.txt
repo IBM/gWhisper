@@ -38,7 +38,7 @@ target_link_libraries ( ${TARGET_NAME}
     reflection
     version
     generateHelpString
-    gWhisperSetting
+    libGwhisperSettings
     )
 
 set_target_properties(

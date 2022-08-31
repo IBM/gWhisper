@@ -1,0 +1,17 @@
+{
+   "configParameter":
+      {
+         "Ssl":null, 
+         "SslSettings":
+         {
+            "ServerCertFile":"/home/anna/gWhisper/build/tests/testServer/cert-key-pair/server_crt.pem",
+            "ClientCertFile":"/home/anna/gWhisper/build/tests/testServer/cert-key-pair/client_crt.pem",
+            "ClientKeyFile":"/home/anna/gWhisper/build/tests/testServer/cert-key-pair/client_key.pem"
+         },
+   
+         "DisableCache":null,
+
+         "RpcTimeoutInMs":"100",
+         "connectTimeout":"100"
+      }
+}

@@ -22,7 +22,7 @@
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/security/credentials.h>
 #include <libArgParse/ArgParse.hpp>
-#include "GWhisperSetting.hpp"
+#include "GwhisperSettings.hpp"
 
 namespace cli
 {
@@ -123,7 +123,7 @@ namespace cli
         ConnList connection;
         std::shared_ptr<grpc::ChannelCredentials> creds;
         std::shared_ptr<grpc::ChannelCredentials> channelCreds;
-        gWhisperSetting settingProxy(f_parseTree); // Todo: Replacef_parseTree with config object in signature of Connectionmanager
+        gWhisperSettings settingProxy(f_parseTree); // Todo: Replacef_parseTree with config object in signature of Connectionmanager
 
        if (settingProxy.lookUpSetting("Ssl", f_parseTree) != "")
         {

@@ -13,11 +13,11 @@
 # limitations under the License.
 
 ##############################################################################
-# Default config file (.cache/gWhisperConfigFile.json)
+# Valid config file (.cache/gWhisperConfigFile.json)
 ##############################################################################
 
 #START_TEST RPC using config settings with config File at default location
-@@CMD@@  ---disableCache localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+@@CMD@@ --configFile=@@testResources@@/validConfig.json --disableCache --ssl localhost:50443 examples.NestedTypeRpcs echoNestedMaps
 Warning: no Fields found in parseTree for message 'NestedMaps'
 /.* Received message:
 | number_and_string..... = [NOT SET]
@@ -27,37 +27,29 @@ Warning: no Fields found in parseTree for message 'NestedMaps'
 RPC succeeded :D
 #END_TEST
 
-#START_TEST RPC with cli settings that override config settings (set Timeout to 100) in config
-@@CMD@@ --disableCache --rpcTimeoutMilliseconds=300 localhost:50051 examples.StatusHandling rpcSleepForSeconds number=200
+#START_TEST RPC with cli settings that overide config settings (set Timeout to 100) in config
+@@CMD@@ --disableCache --configFile=@@testResources@@/validConfig.json --rpcTimeoutMilliseconds=2000 localhost:50051 examples.StatusHandling rpcSleepForSeconds number=1
 /.* Received message:
 
-RPC succeeded :D
-#END_TEST
-
-##############################################################################
-# Valid custom config file
-##############################################################################
-
-#START_TEST unary RPC with custom timeout
-@@CMD@@ --disableCache --configFile= localhost:50051 echoNestedMaps
-Warning: no Fields found in parseTree for message 'NestedMaps'
-/.* Received message:
-| number_and_string..... = [NOT SET]
-| sub_message........... = [NOT SET]
-| simple_map_int[0/0]... = {}
-| simple_map_string[0/0] = {}
 RPC succeeded :D
 #END_TEST
 
 ##############################################################################
 # Invalid config file
 ##############################################################################
-
-#START_TEST RPC finding no file
-@@CMD@@ --configFile= --complete localhost:50443 examples.StatusHandling neverEndingRpc
-/.* Deadline Exceeded
-/Note:.*
+#START_TEST RPC cannot open config file
+@@CMD@@ --configFile=@@testResources@@/validConfig.jso --complete localhost:50443 examples.StatusHandling neverEndingRpc
+/Error while opening config file at:.*
 #END_TEST
 
-#START_TEST RPC with invalid json formatn in config File
+#START_TEST Trying to open empty json file
+@@CMD@@ --configFile=@@testResources@@/emptyConfig.json --complete localhost:50051
+/Error while parsing config file at.*
+Try checking for JSON Syntax errors or empty JSON file.
+#END_TEST
+
+#START_TEST RPC with invalid json format in config File
+@@CMD@@ --configFile=@@testResources@@/invalidJsonConfig.json --complete localhost:50051
+/Error while parsing config file at.*
+Try checking for JSON Syntax errors or empty JSON file.
 #END_TEST

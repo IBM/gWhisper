@@ -90,14 +90,14 @@ RPC succeeded :D
 rm ~/.cache/gwhisper/DescriptorCache.bin
 #END_CMD
 #EXEC_CMD
-@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+@@CMD@@ --configFile=@@testResources@@/testDefaultConfig.json --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
 /Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.*
 #END_CMD
 #END_TEST
 
 #START_TEST Invalid secure RPC with existing cache
 #EXEC_CMD
-@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.ScalarTypeRpcs negateBool m_bool=0
+@@CMD@@ --configFile=@@testResources@@/testDefaultConfig.json --ssl --clientCert=@@PTC@@/client_crt.pem --clientKey=@@PTC@@/client_key.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.ScalarTypeRpcs negateBool m_bool=0
 /.* Received message:
 | m_bool = true
 RPC succeeded :D
@@ -107,7 +107,7 @@ ls ~/.cache/gwhisper/
 DescriptorCache.bin
 #END_CMD
 #EXEC_CMD
-@@CMD@@ --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+@@CMD@@ --configFile=@@testResources@@/testDefaultConfig.json --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
 Error: channel connection attempt timed out
 #END_CMD
 #END_TEST

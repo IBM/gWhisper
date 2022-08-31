@@ -20,7 +20,7 @@
 #include <libCli/Call.hpp>
 #include <libCli/Completion.hpp>
 #include <versionDefine.h> // generated during build
-#include "GWhisperSetting.hpp"
+#include "GwhisperSettings.hpp"
 
 using namespace ArgParse;
 
@@ -52,14 +52,12 @@ int main(int argc, char **argv)
     // First we construct the initial Grammar for the CLI tool:
     Grammar grammarPool;
     GrammarElement *grammarRoot = cli::constructGrammar(grammarPool);
-   
-    //Here: Build everything gWhisper provides. --> Config replacement here?
 
     // Now we parse the given arguments using the grammar:
     std::string args = getArgsAsString(argc, argv);
     ParsedElement parseTree;
-    ParseRc rc = grammarRoot->parse(args.c_str(), parseTree); //braucht evtl. schon die config
-    gWhisperSetting paramProxy(parseTree); // look up on this element
+    ParseRc rc = grammarRoot->parse(args.c_str(), parseTree);
+    gWhisperSettings paramProxy(parseTree);
 
     if (parseTree.findFirstChild("DotExport") != "")
     {

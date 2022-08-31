@@ -25,7 +25,7 @@
 #include <optional>
 #include <fstream>
 //#include "single_include/nlohmann/json.hpp"
-#include "GWhisperSetting.hpp"
+#include "GwhisperSettings.hpp"
 
 // for detecting if we are writing stdout to terminal or to pipe/file
 #include <stdio.h>
@@ -46,7 +46,7 @@ namespace cli
     /// created.
     /// @param parseTree CLI argument parse tree, which will be used to detemrine
     ///        which OputputFormatter to create.
-    std::unique_ptr<MessageFormatter> createMessageFormatter(ParsedElement &parseTree, gWhisperSetting f_settingProxy)
+    std::unique_ptr<MessageFormatter> createMessageFormatter(ParsedElement &parseTree, gWhisperSettings f_settingProxy)
     {
         if(f_settingProxy.lookUpSetting("JsonOutput", parseTree) != "")
         {
@@ -119,7 +119,7 @@ namespace cli
 
     int call(ParsedElement &parseTree)
     {
-        gWhisperSetting settingProxy(parseTree);
+        gWhisperSettings settingProxy(parseTree);
         std::string serviceName = parseTree.findFirstChild("Service");
         std::string methodName = parseTree.findFirstChild("Method");
         bool argsExist;
@@ -178,7 +178,6 @@ namespace cli
         if(setTimeout)
         {
             std::string timeoutTime = settingProxy.lookUpSetting("RpcTimeoutInMs", parseTree);
-            std::cout << "TIMEOUT: " << timeoutTime << std::endl;
             if (settingProxy.lookUpSetting("RpcTimeoutInMs", parseTree) == "None")
             {
                 // set infinite deadline for unary RPCs
