@@ -130,6 +130,18 @@ Feel free to use the _Test-Server_ shipped with gWhisper and try out gWhisper on
 It is located in `build/bin/testServer` and implements example RPCs which cover almost the
 complete gRPC and protocol buffers function set.
 
+## Docker
+gWhisper comes with a Dockerfile which may be used to build and run gWhisper.  
+You may also use this, to build for different platforms using dockerx/qemu.  
+To build the docker image execute (from repository root)
+```
+docker build -t gwhisper -f docker/Dockerfile .
+```
+To build for a different plattform that your host use buildx (you might need to have QEMU iinstalled):
+```
+docker buildx build --platform linux/s390x -t gwhisper -f docker/Dockerfile .
+```
+
 ## Current development status
 
 Basic functionality is implemented, but you may experience bugs.
