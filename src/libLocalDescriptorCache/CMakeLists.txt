@@ -32,5 +32,6 @@ target_link_libraries(${TARGET_NAME}
     version
     reflection
     cli
+    stdc++fs
     )
 
