@@ -42,7 +42,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ################################################################################
 option(GWHISPER_BUILD_TESTSERVER "Build a test server, which may be used to play around with gWhisper. It is also used by automated functional tests." ON)
 option(GWHISPER_BUILD_TESTS "Build unit and functional tests - needs active internet connection for googletest" OFF)
-option(GWHISPER_FORCE_BUILDING_GRPC "Fetch, build and statically link against gRPC even if gRPC is found to be installed" OFF)
+option(GWHISPER_FORCE_BUILDING_GRPC "Fetch, build and statically link against gRPC even if gRPC is found to be installed" ON)
 option(GWHISPER_USE_BOOST_REGEX "Use Boost regex library instead of c++ standard library regex" OFF)
 
 ################################################################################

@@ -68,6 +68,8 @@ completion file (for tab completion):
 
 `source ./complete.bash` or `source ./complete.fish`
 
+NOTE: By default gWhisper downloads, builds and links gRPC in a version known and tested with gWhisper as part of the build. We made this choice, as we experienced many breaking changes in gRPC and wrongly packaged gRPC installations out there. However if you like, you can also link against your system installation of gRPC to save some build time and executable size. See Chapter [Advanced Building](#advanced-building).
+
 ### Install
 
 You may use the cmake-provided `install` target:
@@ -104,7 +106,7 @@ The following are the most relevant options:
 
 - `GWHISPER_BUILD_TESTS` (default = OFF): Build unit and functional tests
 - `GWHISPER_BUILD_TESTSERVER` (default = ON): Build the testserver. This requires openssl to be installed for certificate creation.
-- `GWHISPER_FORCE_BUILDING_GRPC` (default = OFF): Do not use a system installation of gRPC even if found. Instead always download and build gRPC from source
+- `GWHISPER_FORCE_BUILDING_GRPC` (default = ON): Do not use a system installation of gRPC even if found. Instead always download and build gRPC from source
 
 You can set options in CMake with the `-D` flag. For example:
 
