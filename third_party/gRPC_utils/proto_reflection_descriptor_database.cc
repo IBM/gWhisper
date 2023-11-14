@@ -31,6 +31,7 @@ using grpc::reflection::v1alpha::ServerReflection;
 using grpc::reflection::v1alpha::ServerReflectionRequest;
 using grpc::reflection::v1alpha::ServerReflectionResponse;
 
+const uint8_t g_timeoutGrpcMainStreamSeconds = 10; //using default gwhisper timeout of 10 seconds.
 namespace grpc {
 
 ProtoReflectionDescriptorDatabase::ProtoReflectionDescriptorDatabase(
@@ -50,6 +51,16 @@ ProtoReflectionDescriptorDatabase::~ProtoReflectionDescriptorDatabase() {
         fprintf(stderr,
                 "Reflection request not implemented; "
                 "is the ServerReflection service enabled?\n");
+      }
+      else if (status.error_code() == StatusCode::DEADLINE_EXCEEDED) {
+        fprintf(stderr,
+                "ServerReflectionInfo rpc failed. Grpc Server failed to close the stream within %d seconds.\n"
+                "Error code: %d, message: %s, "
+                "debug info: %s\n",
+                g_timeoutGrpcMainStreamSeconds,
+                static_cast<int>(status.error_code()),
+                status.error_message().c_str(),
+                ctx_.debug_error_string().c_str());
       } else {
         fprintf(stderr,
                 "ServerReflectionInfo rpc failed. Error code: %d, message: %s, "
@@ -315,7 +326,11 @@ void ProtoReflectionDescriptorDatabase::AddFileFromResponse(
 
 const std::shared_ptr<ProtoReflectionDescriptorDatabase::ClientStream>
 ProtoReflectionDescriptorDatabase::GetStream() {
-  if (!stream_) {
+  if (!stream_) //only assign deadline to a unary rpc.
+  {
+    std::chrono::system_clock::time_point deadline =
+    std::chrono::system_clock::now() + std::chrono::seconds(g_timeoutGrpcMainStreamSeconds);
+    ctx_.set_deadline(deadline);
     stream_ = stub_->ServerReflectionInfo(&ctx_);
   }
   return stream_;
