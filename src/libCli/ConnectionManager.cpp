@@ -75,7 +75,7 @@ namespace cli
         }
         
         //if proxy exists close the stream with a deadline.
-        grpc::Status status = m_connections[f_serverAddress].descDbProxy->closeDbStream(deadline);
+        grpc::Status status = m_connections[f_serverAddress].descDbProxy->closeDescDbStream(deadline);
         
         //delete the proxy, findChannelByAddress() protects from accessing uninitialzed DbProxy.
         m_connections[f_serverAddress].descDbProxy.reset();

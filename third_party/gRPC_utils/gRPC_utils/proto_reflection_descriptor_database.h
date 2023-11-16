@@ -80,6 +80,9 @@ class ProtoReflectionDescriptorDatabase : public protobuf::DescriptorDatabase {
   // Provide a list of full names of registered services
   bool GetServices(std::vector<grpc::string>* output);
 
+  /// @brief close the reflection stream with a given deadline. If the dealine is not set it waits for the stream to close indefinitely.
+  /// @param deadline optional deadline to close the reflection stream.
+  /// @return return grpc status as a result of call the finish() on the reflection stream.
   grpc::Status closeStreamWithDeadline(std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline);
 
  private:

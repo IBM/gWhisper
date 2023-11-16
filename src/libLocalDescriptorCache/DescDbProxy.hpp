@@ -58,7 +58,10 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     /// @param hostAdress Address to the current host 
     void getDescriptors(const std::string &hostAddress);
 
-    grpc::Status closeDbStream(std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline);
+    /// @brief close the DescDb stream with a given deadline. If the dealine is not set it waits for the stream to close indefinitely.
+    /// @param deadline optional deadline to close the DescDb stream.
+    /// @return return grpc status as a result of call the finish() on the DescDb stream.
+    grpc::Status closeDescDbStream(std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline);
    
     DescDbProxy(bool disableCache, const std::string &hostAddress, std::shared_ptr<grpc::Channel> channel, ArgParse::ParsedElement &parseTree);
 
