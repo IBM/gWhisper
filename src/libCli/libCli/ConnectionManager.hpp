@@ -52,6 +52,9 @@ namespace cli
         /// @returns the gRpc DescriptorPool of the corresponding server address.
         std::shared_ptr<grpc::protobuf::DescriptorPool> getDescPool(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree);
 
+        grpc::Status closeDescDbWithDeadline(std::string f_serverAddress,
+                                            std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline);
+
     private:
         ConnectionManager() {}
         ~ConnectionManager() {}

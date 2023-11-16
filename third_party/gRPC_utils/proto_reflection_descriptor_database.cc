@@ -19,6 +19,7 @@
 // MODIFIED by IBM (Rainer Schoenberger)
 // original: #include "test/cpp/util/proto_reflection_descriptor_database.h"
 #include "proto_reflection_descriptor_database.h"
+// MODIFIED by IBM (Rahman Abber Tahir)
 // END MODIFIED
 
 #include <vector>
@@ -42,24 +43,7 @@ ProtoReflectionDescriptorDatabase::ProtoReflectionDescriptorDatabase(
     : stub_(ServerReflection::NewStub(channel)) {}
 
 ProtoReflectionDescriptorDatabase::~ProtoReflectionDescriptorDatabase() {
-  if (stream_) {
-    stream_->WritesDone();
-    Status status = stream_->Finish();
-    if (!status.ok()) {
-      if (status.error_code() == StatusCode::UNIMPLEMENTED) {
-        fprintf(stderr,
-                "Reflection request not implemented; "
-                "is the ServerReflection service enabled?\n");
-      } else {
-        fprintf(stderr,
-                "ServerReflectionInfo rpc failed. Error code: %d, message: %s, "
-                "debug info: %s\n",
-                static_cast<int>(status.error_code()),
-                status.error_message().c_str(),
-                ctx_.debug_error_string().c_str());
-      }
-    }
-  }
+  closeStream();
 }
 
 bool ProtoReflectionDescriptorDatabase::FindFileByName(
@@ -331,6 +315,44 @@ bool ProtoReflectionDescriptorDatabase::DoOneRequest(
   }
   stream_mutex_.unlock();
   return success;
+}
+
+grpc::Status ProtoReflectionDescriptorDatabase::closeStreamWithDeadline(std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline)
+{
+    stream_mutex_.lock();
+    if( deadline != std::nullopt )
+    {
+      ctx_.set_deadline(deadline.value());
+    }
+
+    auto status = closeStream();
+    stream_.reset();
+    stream_mutex_.unlock();
+    return status;
+}
+
+grpc::Status ProtoReflectionDescriptorDatabase::closeStream()
+{
+  Status status;
+  if (stream_) {
+    stream_->WritesDone();
+    status = stream_->Finish();
+    if (!status.ok()) {
+      if (status.error_code() == StatusCode::UNIMPLEMENTED) {
+        fprintf(stderr,
+                "Reflection request not implemented; "
+                "is the ServerReflection service enabled?\n");
+      } else {
+        fprintf(stderr,
+                "ServerReflectionInfo rpc failed. Error code: %d, message: %s, "
+                "debug info: %s\n",
+                static_cast<int>(status.error_code()),
+                status.error_message().c_str(),
+                ctx_.debug_error_string().c_str());
+      }
+    }
+  }
+  return status;
 }
 
 }  // namespace grpc

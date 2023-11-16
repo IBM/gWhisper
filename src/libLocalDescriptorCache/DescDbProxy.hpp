@@ -17,6 +17,7 @@
 #include <string>
 #include <time.h>
 #include <set>
+#include <optional>
 
 #include <grpcpp/grpcpp.h>
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
@@ -56,6 +57,8 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     /// Stores DescDB acquired via sever reflection locally as a DB file in proto3 structure.
     /// @param hostAdress Address to the current host 
     void getDescriptors(const std::string &hostAddress);
+
+    grpc::Status closeDbStream(std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline);
    
     DescDbProxy(bool disableCache, const std::string &hostAddress, std::shared_ptr<grpc::Channel> channel, ArgParse::ParsedElement &parseTree);
 
@@ -112,5 +115,6 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     std::vector<const grpc::protobuf::FileDescriptor*>m_descList;
     std::set<std::string> m_descNames;
     std::vector<grpc::string> m_serviceList;
+    bool m_disableCache;
 };
 

@@ -80,6 +80,8 @@ class ProtoReflectionDescriptorDatabase : public protobuf::DescriptorDatabase {
   // Provide a list of full names of registered services
   bool GetServices(std::vector<grpc::string>* output);
 
+  grpc::Status closeStreamWithDeadline(std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline);
+
  private:
   typedef ClientReaderWriter<
       grpc::reflection::v1alpha::ServerReflectionRequest,
@@ -97,6 +99,8 @@ class ProtoReflectionDescriptorDatabase : public protobuf::DescriptorDatabase {
   bool DoOneRequest(
       const grpc::reflection::v1alpha::ServerReflectionRequest& request,
       grpc::reflection::v1alpha::ServerReflectionResponse& response);
+
+  grpc::Status closeStream();
 
   std::shared_ptr<ClientStream> stream_;
   grpc::ClientContext ctx_;
