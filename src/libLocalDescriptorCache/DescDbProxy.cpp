@@ -352,13 +352,12 @@ void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
 
 grpc::Status DescDbProxy::closeDescDbStream(std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline)
 {
-    if( m_disableCache  == false )//cache enabled, no reflection stream required.
-    {
-        return grpc::Status::OK;
-    }
-
     if ( m_reflectionDescDb == nullptr )
     {
+        if( m_disableCache  == false )//cache enabled, no reflection stream required.
+        {
+            return grpc::Status::OK;
+        }
         std::cerr << "Exit - no reflectionDescDb initialized." <<std::endl;
         exit(EXIT_FAILURE);
     }
