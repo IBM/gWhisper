@@ -42,6 +42,28 @@ RPC succeeded :D
 #END_CMD
 #END_TEST
 
+#START_TEST RPC with invalid cache
+#EXEC_CMD
+rm ~/.cache/gwhisper/DescriptorCache.bin
+#END_CMD
+#EXEC_CMD
+touch ~/.cache/gwhisper/DescriptorCache.bin
+#END_CMD
+#EXEC_CMD
+echo "212123132yx1c56y465wad6sa4dwq7e98wq7w98e7qw89jdsakjdksal" >> ~/.cache/gwhisper/DescriptorCache.bin
+#END_CMD
+#EXEC_CMD
+cat ~/.cache/gwhisper/DescriptorCache.bin
+212123132yx1c56y465wad6sa4dwq7e98wq7w98e7qw89jdsakjdksal
+#END_CMD
+#EXEC_CMD
+@@CMD@@ --rpcTimeoutMilliseconds=125000 localhost:50051 examples.ScalarTypeRpcs negateBool m_bool=0
+/.* Received message:
+| m_bool = true
+RPC succeeded :D
+#END_CMD
+#END_TEST
+
 ##############################################################################
 # secure RPC with cache
 ##############################################################################
