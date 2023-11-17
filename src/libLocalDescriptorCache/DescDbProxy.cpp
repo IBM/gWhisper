@@ -301,10 +301,8 @@ std::string DescDbProxy::prepareCacheFile()
     return dbFilePath;
 }
 
-void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
-{  
-    std::string cacheFilePath = prepareCacheFile();
-
+static bool getDbFileFromCacheFile(const std::string& cacheFilePath, localDescDb::DescriptorDb& file)
+{
     // Import .prot file
     std::fstream input;
     input.open(cacheFilePath, std::ios::in | std::ios::binary);
@@ -317,10 +315,29 @@ void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
         }
         //std::cerr << "Cannot open file, file does not exist. Creating new file.." << std::endl;
     }
-    else if (!dbFile.ParseFromIstream(&input)) 
+    else 
     {
-      std::cerr << "Failed to parse local Descriptor Cache." << std::endl;
-      exit(EXIT_FAILURE);
+        return file.ParseFromIstream(&input);
+    }
+    return true;
+}
+
+void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
+{  
+    localDescDb::DescriptorDb dbFile;
+    std::string cacheFilePath = prepareCacheFile();
+    if( getDbFileFromCacheFile(cacheFilePath, dbFile) == false )
+    {
+        localDescDb::DescriptorDb newDbFile; //new file to ensure there are no side-effects from last parsing failure.
+        std::filesystem::remove(cacheFilePath); //remove cache file if failed and try again.
+
+        if( getDbFileFromCacheFile(cacheFilePath, dbFile) == false )
+        {
+            std::cerr << "Failed to parse local Descriptor Cache." << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        dbFile = newDbFile; //overwrite the main dbFile.
     }
 
     std::string gwhisperBuildVersion = GWHISPER_BUILD_VERSION;
