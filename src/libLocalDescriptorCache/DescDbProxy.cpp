@@ -331,7 +331,7 @@ void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
         localDescDb::DescriptorDb newDbFile; //new file to ensure there are no side-effects from last parsing failure.
         std::filesystem::remove(cacheFilePath); //remove cache file if failed and try again.
 
-        if( getDbFileFromCacheFile(cacheFilePath, dbFile) == false )
+        if( getDbFileFromCacheFile(cacheFilePath, newDbFile) == false )
         {
             std::cerr << "Failed to parse local Descriptor Cache." << std::endl;
             exit(EXIT_FAILURE);
