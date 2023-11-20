@@ -354,12 +354,7 @@ grpc::Status DescDbProxy::closeDescDbStream(std::optional<std::chrono::time_poin
 {
     if ( m_reflectionDescDb == nullptr )
     {
-        if( m_disableCache  == false )//cache enabled, no reflection stream required.
-        {
-            return grpc::Status::OK;
-        }
-        std::cerr << "Exit - no reflectionDescDb initialized." <<std::endl;
-        exit(EXIT_FAILURE);
+        return grpc::Status::OK;
     }
     return m_reflectionDescDb->closeStreamWithDeadline(deadline);
 }
