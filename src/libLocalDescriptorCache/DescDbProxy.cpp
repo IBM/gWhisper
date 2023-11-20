@@ -301,6 +301,7 @@ std::string DescDbProxy::prepareCacheFile()
     return dbFilePath;
 }
 
+/// returns false if file was found but could not be parsed. true otherwise.
 static bool getDbFileFromCacheFile(const std::string& cacheFilePath, localDescDb::DescriptorDb& file)
 {
     // Import .prot file
@@ -328,8 +329,12 @@ void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
     std::string cacheFilePath = prepareCacheFile();
     if( getDbFileFromCacheFile(cacheFilePath, dbFile) == false )
     {
-        localDescDb::DescriptorDb newDbFile; //new file to ensure there are no side-effects from last parsing failure.
-        std::filesystem::remove(cacheFilePath); //remove cache file if failed and try again.
+        // Parsing the cache file failed. re-instantiating the cache:
+        // remove cache file if failed and try again.
+        std::filesystem::remove(cacheFilePath);
+
+        // new file to ensure there are no side-effects from last parsing failure.
+        localDescDb::DescriptorDb newDbFile;
 
         if( getDbFileFromCacheFile(cacheFilePath, newDbFile) == false )
         {
