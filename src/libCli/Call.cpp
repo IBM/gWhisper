@@ -189,7 +189,19 @@ namespace cli
                 deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(customTimeoutMs);
             }           
         }
-              
+
+        //before calling the RPC, close the DescDb connection with a timeout.
+        grpc::Status dbDescStatus = ConnectionManager::getInstance().closeDescDbWithDeadline(serverAddress, deadline);
+        if (not dbDescStatus.ok())
+        {
+            std::cerr << "Failed to close reflection stream ;( Status code: " << std::to_string(dbDescStatus.error_code()) << " " << cli::getGrpcStatusCodeAsString(dbDescStatus.error_code()) << ", error message: " << dbDescStatus.error_message() << std::endl;
+            if(dbDescStatus.error_code() == grpc::StatusCode::DEADLINE_EXCEEDED)
+            {
+                std::cerr << "Note: You can increase the deadline by setting the --rpcTimeoutMilliseconds option to a number or 'None'." << std::endl;
+            }
+            return -1;
+        }
+
         grpc::testing::CliCall call(channel, methodStr, clientMetadata, deadline);
         
         auto messageFormatter = createMessageFormatter(parseTree);

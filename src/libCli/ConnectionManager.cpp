@@ -65,6 +65,24 @@ namespace cli
         return m_connections[f_serverAddress].descPool;
     }
 
+    grpc::Status ConnectionManager::closeDescDbWithDeadline(std::string f_serverAddress,
+                                                    std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline)
+    {
+        if (m_connections[f_serverAddress].descDbProxy == nullptr)
+        {
+            std::cerr << "Error: Unable to close DescDb connection!" << std::endl;
+            return grpc::Status( grpc::StatusCode::ABORTED, "descDbProxy has not been initialized.");
+        }
+        
+        //if proxy exists close the stream with a deadline.
+        grpc::Status status = m_connections[f_serverAddress].descDbProxy->closeDescDbStream(deadline);
+        
+        //delete the proxy, findChannelByAddress() protects from accessing uninitialzed DbProxy.
+        m_connections[f_serverAddress].descDbProxy.reset();
+
+        return status;
+    }
+
     void ConnectionManager::ensureDescDbProxyAndDescPoolIsAvailable(std::string &f_serverAddress, ArgParse::ParsedElement &f_parseTree)
     {
         if (m_connections[f_serverAddress].channel)

@@ -28,6 +28,8 @@
 // MODIFIED by IBM (Rainer Schoenberger)
 // original: #include "src/proto/grpc/reflection/v1alpha/reflection.grpc.pb.h"
 // MODIFIED by IBM (Fabian Pfeifroth-Brumm)
+// MODIFIED by IBM (Rahman Abber Tahir)
+#include <optional>
 #include "reflection.grpc.pb.h"
 // END MODIFIED
 
@@ -80,6 +82,11 @@ class ProtoReflectionDescriptorDatabase : public protobuf::DescriptorDatabase {
   // Provide a list of full names of registered services
   bool GetServices(std::vector<grpc::string>* output);
 
+  /// @brief close the reflection stream with a given deadline. If the dealine is not set it waits for the stream to close indefinitely.
+  /// @param deadline optional deadline to close the reflection stream.
+  /// @return return grpc status as a result of call the finish() on the reflection stream.
+  grpc::Status closeStreamWithDeadline(std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline);
+
  private:
   typedef ClientReaderWriter<
       grpc::reflection::v1alpha::ServerReflectionRequest,
@@ -97,6 +104,8 @@ class ProtoReflectionDescriptorDatabase : public protobuf::DescriptorDatabase {
   bool DoOneRequest(
       const grpc::reflection::v1alpha::ServerReflectionRequest& request,
       grpc::reflection::v1alpha::ServerReflectionResponse& response);
+
+  grpc::Status closeStream();
 
   std::shared_ptr<ClientStream> stream_;
   grpc::ClientContext ctx_;
