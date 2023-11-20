@@ -167,7 +167,7 @@ RPC succeeded :D
 #START_TEST json_output_number_map
 @@CMD@@ --jsonOutput --disableCache 127.0.0.1 examples.NestedTypeRpcs returnNestedMixedEmpty
 /.* Received message:
-{"empty_child":{}}
+{"some_integer":0,"empty_child":{}}
 RPC succeeded :D
 #END_TEST
 
