@@ -372,13 +372,13 @@ void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
     }
 }
 
-grpc::Status DescDbProxy::closeDescDbStream(std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline)
+grpc::Status DescDbProxy::closeDescDbStream()
 {
     if ( m_reflectionDescDb == nullptr )
     {
         return grpc::Status::OK;
     }
-    return m_reflectionDescDb->closeStreamWithDeadline(deadline);
+    return m_reflectionDescDb->closeDescDbStream();
 }
 
 DescDbProxy::DescDbProxy(bool disableCache, const std::string &hostAddress, std::shared_ptr<grpc::Channel> channel, 
@@ -386,7 +386,6 @@ DescDbProxy::DescDbProxy(bool disableCache, const std::string &hostAddress, std:
 {
     m_channel = channel;
     m_parseTree = parseTree;
-    m_disableCache = disableCache;
     if(disableCache)
     {
         // Get Desc directly via reflection and without touching localDB

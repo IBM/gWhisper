@@ -32,6 +32,7 @@ using grpc::reflection::v1alpha::ServerReflection;
 using grpc::reflection::v1alpha::ServerReflectionRequest;
 using grpc::reflection::v1alpha::ServerReflectionResponse;
 
+const uint8_t g_timeoutGrpcMainStreamSeconds = 10; //using default gwhisper timeout of 10 seconds.
 namespace grpc {
 
 ProtoReflectionDescriptorDatabase::ProtoReflectionDescriptorDatabase(
@@ -300,6 +301,9 @@ void ProtoReflectionDescriptorDatabase::AddFileFromResponse(
 const std::shared_ptr<ProtoReflectionDescriptorDatabase::ClientStream>
 ProtoReflectionDescriptorDatabase::GetStream() {
   if (!stream_) {
+    std::chrono::system_clock::time_point deadline =
+    std::chrono::system_clock::now() + std::chrono::seconds(g_timeoutGrpcMainStreamSeconds);
+    ctx_.set_deadline(deadline);
     stream_ = stub_->ServerReflectionInfo(&ctx_);
   }
   return stream_;
@@ -317,16 +321,13 @@ bool ProtoReflectionDescriptorDatabase::DoOneRequest(
   return success;
 }
 
-grpc::Status ProtoReflectionDescriptorDatabase::closeStreamWithDeadline(std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline)
+grpc::Status ProtoReflectionDescriptorDatabase::closeDescDbStream()
 {
     stream_mutex_.lock();
-    if( deadline != std::nullopt )
-    {
-      ctx_.set_deadline(deadline.value());
-    }
 
     auto status = closeStream();
     stream_.reset();
+    
     stream_mutex_.unlock();
     return status;
 }
@@ -342,6 +343,9 @@ grpc::Status ProtoReflectionDescriptorDatabase::closeStream()
         fprintf(stderr,
                 "Reflection request not implemented; "
                 "is the ServerReflection service enabled?\n");
+      } else if (status.error_code() == StatusCode::DEADLINE_EXCEEDED) {
+        fprintf(stderr,
+                "ServerReflectionInfo rpc failed. Grpc Server failed to close the stream within %d seconds.\n", g_timeoutGrpcMainStreamSeconds);
       } else {
         fprintf(stderr,
                 "ServerReflectionInfo rpc failed. Error code: %d, message: %s, "
