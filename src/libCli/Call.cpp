@@ -190,14 +190,9 @@ namespace cli
             }           
         }
 
-        //before calling the RPC, close the DescDb connection with a timeout.
+        //before calling the RPC, close the DescDb connection with a timeout. We still continue with rpc call
+        //but remove the cache file so fetch the reflection data again.
         grpc::Status dbDescStatus = ConnectionManager::getInstance().closeDescDbStream(serverAddress);
-        if (not dbDescStatus.ok())
-        {
-            std::cerr << "Failed to close reflection stream ;( Pls try again." << std::endl;
-            std::cerr << "Status code: " << std::to_string(dbDescStatus.error_code()) << " " << cli::getGrpcStatusCodeAsString(dbDescStatus.error_code()) << ", error message: " << dbDescStatus.error_message() << std::endl;
-            return -1;
-        }
 
         grpc::testing::CliCall call(channel, methodStr, clientMetadata, deadline);
         
