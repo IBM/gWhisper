@@ -374,11 +374,20 @@ void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
 
 grpc::Status DescDbProxy::closeDescDbStream()
 {
+    grpc::Status status;
     if ( m_reflectionDescDb == nullptr )
     {
-        return grpc::Status::OK;
+        return status;
     }
-    return m_reflectionDescDb->closeDescDbStream();
+    status = m_reflectionDescDb->closeDescDbStream();
+    if(not status.ok())
+    {
+        //failure to close stream leads to invalid cache,
+        //removing it here so it will be written again next time.
+        std::string cacheFilePath = prepareCacheFile();
+        std::filesystem::remove(cacheFilePath);
+    }
+    return status;
 }
 
 DescDbProxy::DescDbProxy(bool disableCache, const std::string &hostAddress, std::shared_ptr<grpc::Channel> channel, 
@@ -409,4 +418,8 @@ DescDbProxy::DescDbProxy(bool disableCache, const std::string &hostAddress, std:
     }
 }
 
-DescDbProxy::~DescDbProxy(){}
+DescDbProxy::~DescDbProxy()
+{
+    closeDescDbStream(); //close it here to ensure invalid cache file is removed if an error occurs.
+                         //enforcing descDb repopulation next time.
+}
