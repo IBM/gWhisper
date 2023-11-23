@@ -32,7 +32,7 @@ using grpc::reflection::v1alpha::ServerReflection;
 using grpc::reflection::v1alpha::ServerReflectionRequest;
 using grpc::reflection::v1alpha::ServerReflectionResponse;
 
-const uint8_t g_timeoutGrpcMainStreamSeconds = 10; //using default gwhisper timeout of 10 seconds.
+const uint8_t g_timeoutGrpcMainStreamSeconds = 20; //using default gwhisper timeout of 20 seconds.
 namespace grpc {
 
 ProtoReflectionDescriptorDatabase::ProtoReflectionDescriptorDatabase(
