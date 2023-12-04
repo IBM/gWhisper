@@ -52,13 +52,11 @@ namespace cli
         /// @returns the gRpc DescriptorPool of the corresponding server address.
         std::shared_ptr<grpc::protobuf::DescriptorPool> getDescPool(std::string f_serverAddress, ArgParse::ParsedElement &f_parseTree);
 
-        /// @brief closes the DescDb stream with a given deadline.
+        /// @brief closes the DescDb stream with a default deadline of 20 seconds.
         /// @param f_serverAddress server addresss to lookup the assigned DescDbProxy.
-        /// @param deadline optional dealine for closing the stream.
         /// @return returns grpc::StatusCode::ABORTED status if no DescDb proxy is attached to the server address, 
         /// otherwise grpc status as a result of stream closure.
-        grpc::Status closeDescDbWithDeadline(std::string f_serverAddress,
-                                            std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline);
+        grpc::Status closeDescDbStream(std::string f_serverAddress);
 
     private:
         ConnectionManager() {}

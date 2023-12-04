@@ -65,8 +65,7 @@ namespace cli
         return m_connections[f_serverAddress].descPool;
     }
 
-    grpc::Status ConnectionManager::closeDescDbWithDeadline(std::string f_serverAddress,
-                                                    std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline)
+    grpc::Status ConnectionManager::closeDescDbStream(std::string f_serverAddress)
     {
         if (m_connections[f_serverAddress].descDbProxy == nullptr)
         {
@@ -74,8 +73,8 @@ namespace cli
             return grpc::Status( grpc::StatusCode::ABORTED, "descDbProxy has not been initialized.");
         }
         
-        //if proxy exists close the stream with a deadline.
-        grpc::Status status = m_connections[f_serverAddress].descDbProxy->closeDescDbStream(deadline);
+        //if proxy exists close the stream.
+        grpc::Status status = m_connections[f_serverAddress].descDbProxy->closeDescDbStream();
         
         //delete the proxy, findChannelByAddress() protects from accessing uninitialzed DbProxy.
         m_connections[f_serverAddress].descDbProxy.reset();

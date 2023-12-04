@@ -372,13 +372,22 @@ void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
     }
 }
 
-grpc::Status DescDbProxy::closeDescDbStream(std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline)
+grpc::Status DescDbProxy::closeDescDbStream()
 {
+    ::grpc::Status status;
     if ( m_reflectionDescDb == nullptr )
     {
-        return grpc::Status::OK;
+        return status;
     }
-    return m_reflectionDescDb->closeStreamWithDeadline(deadline);
+    status = m_reflectionDescDb->closeDescDbStream();
+    if(not status.ok())
+    {
+        //failure to close stream leads to invalid cache,
+        //removing it here so it will be written again next time.
+        std::string cacheFilePath = prepareCacheFile();
+        std::filesystem::remove(cacheFilePath);
+    }
+    return status;
 }
 
 DescDbProxy::DescDbProxy(bool disableCache, const std::string &hostAddress, std::shared_ptr<grpc::Channel> channel, 
@@ -386,7 +395,6 @@ DescDbProxy::DescDbProxy(bool disableCache, const std::string &hostAddress, std:
 {
     m_channel = channel;
     m_parseTree = parseTree;
-    m_disableCache = disableCache;
     if(disableCache)
     {
         // Get Desc directly via reflection and without touching localDB
@@ -410,4 +418,13 @@ DescDbProxy::DescDbProxy(bool disableCache, const std::string &hostAddress, std:
     }
 }
 
-DescDbProxy::~DescDbProxy(){}
+DescDbProxy::~DescDbProxy()
+{
+    //This call is a noop if desc db stream is already closed.
+    //There are two scenarios when we close the stream here.
+    //i) Stream failed to close within a timeout. 
+    //   Our rpc may still succeed but this invalidates the cache so we remove the cache file,
+    //   to repopulate desc db on next rpc.
+    //íi) Stream successfully closed, leave the cache as it is.
+    closeDescDbStream(); 
+}
