@@ -374,7 +374,7 @@ void DescDbProxy::getDescriptors(const std::string &f_hostAddress)
 
 grpc::Status DescDbProxy::closeDescDbStream()
 {
-    grpc::Status status;
+    ::grpc::Status status;
     if ( m_reflectionDescDb == nullptr )
     {
         return status;
@@ -420,6 +420,11 @@ DescDbProxy::DescDbProxy(bool disableCache, const std::string &hostAddress, std:
 
 DescDbProxy::~DescDbProxy()
 {
-    closeDescDbStream(); //close it here to ensure invalid cache file is removed if an error occurs.
-                         //enforcing descDb repopulation next time.
+    //This call is a noop if desc db stream is already closed.
+    //There are two scenarios when we close the stream here.
+    //i) Stream failed to close within a timeout. 
+    //   Our rpc may still succeed but this invalidates the cache so we remove the cache file,
+    //   to repopulate desc db on next rpc.
+    //íi) Stream successfully closed, leave the cache as it is.
+    closeDescDbStream(); 
 }
