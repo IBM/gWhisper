@@ -192,7 +192,7 @@ namespace cli
 
         //before calling the RPC, close the DescDb connection with a default timeout. We still continue with rpc call
         //but remove the cache file if the stream was not closed gracefully so it fetches the reflection data again next time.
-        grpc::Status dbDescStatus = ConnectionManager::getInstance().closeDescDbStream(serverAddress);
+        ConnectionManager::getInstance().closeDescDbStream(serverAddress);
 
         grpc::testing::CliCall call(channel, methodStr, clientMetadata, deadline);
         

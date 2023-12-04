@@ -73,7 +73,7 @@ namespace cli
             return grpc::Status( grpc::StatusCode::ABORTED, "descDbProxy has not been initialized.");
         }
         
-        //if proxy exists close the stream with a deadline.
+        //if proxy exists close the stream.
         grpc::Status status = m_connections[f_serverAddress].descDbProxy->closeDescDbStream();
         
         //delete the proxy, findChannelByAddress() protects from accessing uninitialzed DbProxy.
