@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include(FetchContent)
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz)
+FetchContent_MakeAvailable(json)
 
 set(TARGET_NAME "cli")
 set(TARGET_SRC
@@ -34,12 +37,14 @@ target_link_libraries ( ${TARGET_NAME}
     PRIVATE
     reflection
     protoDoc
+    nlohmann_json::nlohmann_json
     )
 target_link_libraries ( ${TARGET_NAME}
     PUBLIC
     gwhisperUtils
     DescDbProxy
     ArgParse
+    libGwhisperSettings
 )
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

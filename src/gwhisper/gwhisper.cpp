@@ -20,6 +20,7 @@
 #include <libCli/Call.hpp>
 #include <libCli/Completion.hpp>
 #include <versionDefine.h> // generated during build
+#include "GwhisperSettings.hpp"
 
 using namespace ArgParse;
 
@@ -56,6 +57,7 @@ int main(int argc, char **argv)
     std::string args = getArgsAsString(argc, argv);
     ParsedElement parseTree;
     ParseRc rc = grammarRoot->parse(args.c_str(), parseTree);
+    gWhisperSettings paramProxy(parseTree);
 
     if (parseTree.findFirstChild("DotExport") != "")
     {
@@ -63,7 +65,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (parseTree.findFirstChild("Complete") != "")
+    if (paramProxy.lookUpSetting("Complete", parseTree) != "")
     {
         bool completeDebug = (parseTree.findFirstChild("CompleteDebug") != "");
         if (parseTree.findFirstChild("fish") != "")
@@ -113,7 +115,7 @@ int main(int argc, char **argv)
         {
             //printf("\nchoice:\n%s", candidate->getDebugString().c_str());
             printf("\n  '%s'", candidate->getMatchedString().c_str());
-        }
+        } 
         std::cout << std::endl;
     }
 

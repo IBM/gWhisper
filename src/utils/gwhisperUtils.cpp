@@ -31,7 +31,7 @@ namespace gwhisper
                 const char* home = std::getenv("HOME");
                 if (!home)
                 {
-                    std::cerr << "Error while fetching home envoronment. Try checking your home environment variable." << std::endl;
+                    std::cerr << "Error while fetching home environment. Try checking your home environment variable." << std::endl;
                     exit(EXIT_FAILURE);
                 }
                 std::string subPath = f_path.substr(1); // take everything after '~'

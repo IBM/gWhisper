@@ -1,0 +1,17 @@
+{
+   "configParameter":
+      {
+         "Ssl":null, 
+         "SslSettings":
+         {
+            "ServerCertFile":null,
+            "ClientCertFile":null,
+            "ClientKeyFile":null
+         },
+   
+         "DisableCache":null,
+
+         "RpcTimeoutInMs":null,
+         "ConnectTimeout":null
+      }
+}

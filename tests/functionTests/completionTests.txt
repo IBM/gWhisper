@@ -23,6 +23,7 @@ Possible Candidates:
   '--clientKey='
   '--serverCert='
   '--complete'
+  '--configFile='
   '--debugComplete '
   '--disableCache '
   '--dot '

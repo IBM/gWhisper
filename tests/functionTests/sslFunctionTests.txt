@@ -39,12 +39,12 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST secure gRPC with missing Certificate/Key and server requires cert-key-pair
-@@CMD@@ --disableCache --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
+@@CMD@@ --configFile=@@testResources@@/testDefaultConfig.json --disableCache --ssl --clientCert=@@PTC@@/client_crt.pem --serverCert=@@PTC@@/server_crt.pem localhost:50443 examples.NestedTypeRpcs echoNestedMaps
 /Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.*
 #END_TEST
 
 #START_TEST secure gRPC with missing serverCert at default location
-@@CMD@@ --disableCache --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
+@@CMD@@ --configFile=@@testResources@@/testDefaultConfig.json --disableCache --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
 /.*SSL_ERROR_SSL.*
 ?.*SSL_ERROR_SSL.*
 /Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials*

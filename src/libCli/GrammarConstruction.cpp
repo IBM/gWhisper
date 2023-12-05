@@ -455,21 +455,21 @@ namespace cli
         GrammarElement *optionsalt = f_grammarPool.createElement<Alternation>();
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("-h", "Help"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--help", "Help"));
-        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--ssl", "ssl"));
+        optionsalt->addChild(f_grammarPool.createElement<FixedString>("--ssl", "Ssl"));
 
         GrammarElement *clientCert = f_grammarPool.createElement<Concatenation>();
         clientCert->addChild(f_grammarPool.createElement<FixedString>("--clientCert=", "OptionClientCert"));
-        clientCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileClientCert"));
+        clientCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "ClientCertFile"));
         optionsalt->addChild(clientCert);
 
         GrammarElement *clientKey = f_grammarPool.createElement<Concatenation>();
         clientKey->addChild(f_grammarPool.createElement<FixedString>("--clientKey=", "OptionClientKey"));
-        clientKey->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileClientKey"));
+        clientKey->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "ClientKeyFile"));
         optionsalt->addChild(clientKey);
 
         GrammarElement *serverCert = f_grammarPool.createElement<Concatenation>();
         serverCert->addChild(f_grammarPool.createElement<FixedString>("--serverCert=", "OptionServerCert"));
-        serverCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "FileServerCert"));
+        serverCert->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "ServerCertFile"));
         optionsalt->addChild(serverCert);
 
         GrammarElement *completeOption = f_grammarPool.createElement<Concatenation>();
@@ -484,6 +484,11 @@ namespace cli
         completeDialectChoice->addChild(f_grammarPool.createElement<FixedString>("bash", "bash"));
         completeDialectChoice->addChild(f_grammarPool.createElement<FixedString>("fish", "fish"));
         optionsalt->addChild(completeOption);
+
+        GrammarElement *config = f_grammarPool.createElement<Concatenation>();
+        config->addChild(f_grammarPool.createElement<FixedString>("--configFile=", "ConfigFile"));
+        config->addChild(f_grammarPool.createElement<EscapedString>(" %", '%', "ConfigFilePath"));
+        optionsalt->addChild(config);
 
         //completeOption->addChild(f_grammarPool.createElement<FixedString>("--complete", "Complete"));
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--debugComplete", "CompleteDebug"));
@@ -501,19 +506,19 @@ namespace cli
         optionsalt->addChild(f_grammarPool.createElement<FixedString>("--noSimpleMapOutput", "NoSimpleMapOutput"));
 
         GrammarElement *timeout = f_grammarPool.createElement<Concatenation>();
-        timeout->addChild(f_grammarPool.createElement<FixedString>("--rpcTimeoutMilliseconds", "rpcTimeout"));
+        timeout->addChild(f_grammarPool.createElement<FixedString>("--rpcTimeoutMilliseconds")); //RPCTimeout
         timeout->addChild(f_grammarPool.createElement<FixedString>("="));
-        GrammarElement *timeoutTime = f_grammarPool.createElement<Alternation>();
+        GrammarElement *timeoutTime = f_grammarPool.createElement<Alternation>("RpcTimeoutInMs");
         timeout->addChild(timeoutTime);
-        timeoutTime->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "rpcTimeoutInMs"));
+        timeoutTime->addChild(f_grammarPool.createElement<RegEx>("[0-9]+")); // RpcTimeoutInMs
         GrammarElement *manualInfiniteTimeout = f_grammarPool.createElement<Optional>();
         timeoutTime->addChild(manualInfiniteTimeout);
-        manualInfiniteTimeout->addChild(f_grammarPool.createElement<FixedString>("None", "manualInfiniteTimeout"));
+        manualInfiniteTimeout->addChild(f_grammarPool.createElement<FixedString>("None")); // manualInfiniteTimeout
         optionsalt->addChild(timeout);
 
         GrammarElement *timeoutOption = f_grammarPool.createElement<Concatenation>();
         timeoutOption->addChild(f_grammarPool.createElement<FixedString>("--connectTimeoutMilliseconds="));
-        timeoutOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "connectTimeout"));
+        timeoutOption->addChild(f_grammarPool.createElement<RegEx>("[0-9]+", "ConnectTimeout"));
         optionsalt->addChild(timeoutOption);
         optionsalt->addChild(customOutputFormat);
         // FIXME FIXME FIXME: we cannot distinguish between --complete and --completeDebug.. this is a problem for arguments too, as we cannot guarantee, that we do not have an argument starting with the name of an other argument.

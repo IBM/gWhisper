@@ -23,6 +23,7 @@
 #include <ctime>
 #include <iomanip>
 #include <optional>
+#include "GwhisperSettings.hpp"
 
 // for detecting if we are writing stdout to terminal or to pipe/file
 #include <stdio.h>
@@ -32,6 +33,7 @@
 #include <libCli/cliUtils.hpp>
 
 using namespace ArgParse;
+using json = nlohmann::json;
 
 namespace cli
 {
@@ -42,9 +44,9 @@ namespace cli
     /// created.
     /// @param parseTree CLI argument parse tree, which will be used to detemrine
     ///        which OputputFormatter to create.
-    std::unique_ptr<MessageFormatter> createMessageFormatter(ParsedElement &parseTree)
+    std::unique_ptr<MessageFormatter> createMessageFormatter(ParsedElement &parseTree, gWhisperSettings f_settingProxy)
     {
-        if(parseTree.findFirstChild("JsonOutput") != "")
+        if(f_settingProxy.lookUpSetting("JsonOutput", parseTree) != "")
         {
             return std::make_unique<MessageFormatterJson>();
         }
@@ -59,13 +61,14 @@ namespace cli
         auto humanFormatter = std::make_unique<MessageFormatterOptimizedForHumans>();
 
         // disable colored output if explicitly specified:
-        if (parseTree.findFirstChild("NoColor") != "")
+        //if (parseTree.findFirstChild("NoColor") != "")
+        if (f_settingProxy.lookUpSetting("NoColor", parseTree) != "")
         {
             humanFormatter->clearColorMap();
         }
 
         // disable map output as key => value if explicitly specified:
-        if (parseTree.findFirstChild("NoSimpleMapOutput") != "")
+        if (f_settingProxy.lookUpSetting("NoSimpleMapOutput", parseTree) != "")
         {
             humanFormatter->disableSimpleMapOutput();
         }
@@ -73,7 +76,8 @@ namespace cli
         // automatically disable colored output, when outputting to something
         // else than a terminal (pipes, files, etc.), except we explicitly
         // request color mode:
-        if ((not isatty(fileno(stdout))) and (parseTree.findFirstChild("Color") == ""))
+        //if ((not isatty(fileno(stdout))) and (parseTree.findFirstChild("Color") == ""))
+        if ((not isatty(fileno(stdout))) and (f_settingProxy.lookUpSetting("Color", parseTree) == ""))
         {
             humanFormatter->clearColorMap();
         }
@@ -113,6 +117,7 @@ namespace cli
 
     int call(ParsedElement &parseTree)
     {
+        gWhisperSettings settingProxy(parseTree);
         std::string serviceName = parseTree.findFirstChild("Service");
         std::string methodName = parseTree.findFirstChild("Method");
         bool argsExist;
@@ -121,7 +126,8 @@ namespace cli
 
         std::shared_ptr<grpc::Channel> channel = ConnectionManager::getInstance().getChannel(serverAddress, parseTree);
 
-        if (not waitForChannelConnected(channel, getConnectTimeoutMs(&parseTree)))
+        std::string connectTimeoutStr = settingProxy.lookUpSetting("ConnectTimeout", parseTree);
+        if (not waitForChannelConnected(channel, getConnectTimeoutMs(connectTimeoutStr)))
         {
             std::cerr << "Error: channel connection attempt timed out" << std::endl;
             return -1;
@@ -152,8 +158,7 @@ namespace cli
         std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline;
         std::chrono::time_point<std::chrono::system_clock> defaultDeadline = std::chrono::system_clock::now() + std::chrono::milliseconds(30000);
 
-
-        bool setTimeout = (parseTree.findFirstChild("rpcTimeout") != "");
+        bool setTimeout = (settingProxy.lookUpSetting("RpcTimeoutInMs", parseTree) != "");
 
         if(!setTimeout)
         {
@@ -170,16 +175,20 @@ namespace cli
 
         if(setTimeout)
         {
-            if (parseTree.findFirstChild("manualInfiniteTimeout") != ""){
+            std::string timeoutTime = settingProxy.lookUpSetting("RpcTimeoutInMs", parseTree);
+            if (settingProxy.lookUpSetting("RpcTimeoutInMs", parseTree) == "None")
+            {
+                // set infinite deadline for unary RPCs
                 deadline = std::nullopt;
             }
             else
             {
-                std::string customTimeout = parseTree.findFirstChild("rpcTimeoutInMs");
+                std::string customTimeout = settingProxy.lookUpSetting("RpcTimeoutInMs", parseTree); //check if none or number string
+
                 unsigned long customTimeoutMs;
                 try
                 {
-                    customTimeoutMs = std::stoul(customTimeout, nullptr, 0);
+                    customTimeoutMs = std::stoul(customTimeout, nullptr, 0); 
                 }
                 catch(std::exception& e)
                 {
@@ -196,7 +205,7 @@ namespace cli
 
         grpc::testing::CliCall call(channel, methodStr, clientMetadata, deadline);
         
-        auto messageFormatter = createMessageFormatter(parseTree);
+        auto messageFormatter = createMessageFormatter(parseTree, settingProxy);
         auto messageParser = createMessageParser(parseTree);
 
         // NOTE: need to create and hold message factory here, as it holds
@@ -221,7 +230,7 @@ namespace cli
         // Write all request messages (multiple in case of request stream)
         for (auto & message : requestMessages)
         {
-            if (parseTree.findFirstChild("PrintParsedMessage") != "")
+            if (settingProxy.lookUpSetting("PrintParsedMessage", parseTree) != "")
             {
                 std::cout << "Request message:" << std::endl
                           << messageFormatter->messageToString(*message, method->input_type()) << std::endl;
