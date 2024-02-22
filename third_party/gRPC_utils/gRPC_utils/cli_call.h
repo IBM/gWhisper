@@ -1,20 +1,20 @@
-/*
- *
- * Copyright 2015 gRPC authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+//
+//
+// Copyright 2015 gRPC authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+//
 
 #ifndef GRPC_TEST_CPP_UTIL_CLI_CALL_H
 #define GRPC_TEST_CPP_UTIL_CLI_CALL_H
@@ -47,40 +47,37 @@ namespace testing {
 // and thread-unsafe methods should not be used together.
 class CliCall final {
  public:
-  typedef std::multimap<grpc::string, grpc::string> OutgoingMetadataContainer;
+  typedef std::multimap<std::string, std::string> OutgoingMetadataContainer;
   typedef std::multimap<grpc::string_ref, grpc::string_ref>
       IncomingMetadataContainer;
 
   // MODIFIED by IBM (Anna Riesch)
   // original: no argument "deadline"
   CliCall(const std::shared_ptr<grpc::Channel>& channel,
-          const grpc::string& method,
+          const std::string& method,
           const OutgoingMetadataContainer& metadata,
           std::optional<std::chrono::time_point<std::chrono::system_clock>> deadline);
 // END MODIFIED
   ~CliCall();
 
   // Perform an unary generic RPC.
-  static Status Call(std::shared_ptr<grpc::Channel> channel,
-                     const grpc::string& method, const grpc::string& request,
-                     grpc::string* response,
-                     const OutgoingMetadataContainer& metadata,
-                     IncomingMetadataContainer* server_initial_metadata,
-                     IncomingMetadataContainer* server_trailing_metadata);
+  Status Call(const std::string& request, std::string* response,
+              IncomingMetadataContainer* server_initial_metadata,
+              IncomingMetadataContainer* server_trailing_metadata);
 
   // Send a generic request message in a synchronous manner. NOT thread-safe.
-  void Write(const grpc::string& request);
+  void Write(const std::string& request);
 
   // Send a generic request message in a synchronous manner. NOT thread-safe.
   void WritesDone();
 
   // Receive a generic response message in a synchronous manner.NOT thread-safe.
-  bool Read(grpc::string* response,
+  bool Read(std::string* response,
             IncomingMetadataContainer* server_initial_metadata);
 
   // Thread-safe write. Must be used with ReadAndMaybeNotifyWrite. Send out a
   // generic request message and wait for ReadAndMaybeNotifyWrite to finish it.
-  void WriteAndWait(const grpc::string& request);
+  void WriteAndWait(const std::string& request);
 
   // Thread-safe WritesDone. Must be used with ReadAndMaybeNotifyWrite. Send out
   // WritesDone for gereneric request messages and wait for
@@ -90,18 +87,17 @@ class CliCall final {
   // Thread-safe Read. Blockingly receive a generic response message. Notify
   // writes if they are finished when this read is waiting for a resposne.
   bool ReadAndMaybeNotifyWrite(
-      grpc::string* response,
+      std::string* response,
       IncomingMetadataContainer* server_initial_metadata);
 
   // Finish the RPC.
   Status Finish(IncomingMetadataContainer* server_trailing_metadata);
 
+  std::string peer() const { return ctx_.peer(); }
+
  private:
   std::unique_ptr<grpc::GenericStub> stub_;
-  // MODIFIED by IBM (Rainer Schoenberger)
-  // original: grpc_impl::ClientContext ctx_;
   grpc::ClientContext ctx_;
-  // END MODIFIED
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
   grpc::CompletionQueue cq_;
   gpr_mu write_mu_;
