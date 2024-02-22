@@ -56,7 +56,7 @@ std::vector<std::unique_ptr<google::protobuf::Message>> MessageParserJson::parse
             buffer << source->rdbuf();
             std::string fileContent = buffer.str();
             auto status = google::protobuf::util::JsonStringToMessage(
-                    google::protobuf::StringPiece(fileContent),
+                    fileContent,
                     message.get(),
                     google::protobuf::util::JsonParseOptions());
             if(not status.ok())
