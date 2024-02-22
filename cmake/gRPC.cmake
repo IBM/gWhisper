@@ -60,7 +60,10 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
     unset(PROTC_GRPC_PLUGIN CACHE)
 
     include(FetchContent)
+
+    # Workaround for https://github.com/protocolbuffers/protobuf/issues/12185 :
     set(ABSL_ENABLE_INSTALL ON)
+
     FetchContent_Declare(
         grpc
         GIT_REPOSITORY https://github.com/grpc/grpc
