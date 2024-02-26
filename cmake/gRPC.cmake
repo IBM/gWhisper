@@ -60,10 +60,14 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
     unset(PROTC_GRPC_PLUGIN CACHE)
 
     include(FetchContent)
+
+    # Workaround for https://github.com/protocolbuffers/protobuf/issues/12185 :
+    set(ABSL_ENABLE_INSTALL ON)
+
     FetchContent_Declare(
         grpc
         GIT_REPOSITORY https://github.com/grpc/grpc
-        GIT_TAG        v1.43.0
+        GIT_TAG        v1.62.0
         GIT_PROGRESS TRUE
     )
     set(FETCHCONTENT_QUIET OFF)
@@ -87,7 +91,7 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "s390x")
         set(gRPC_SSL_PROVIDER "package" CACHE STRING "force overwritten by gWhisper, as boringSSL does not support s390x -> need to fall-back to system installed libssl" FORCE )
     endif()
-
+    set(ABSL_PROPAGATE_CXX_STD ON CACHE STRING "force overwritten by gWhisper to conform to Abseil recommendations" FORCE )
     add_subdirectory(${grpc_SOURCE_DIR} ${grpc_BINARY_DIR} EXCLUDE_FROM_ALL)
 
     # Since FetchContent uses add_subdirectory under the hood, we can use
