@@ -155,6 +155,7 @@ What is working:
 - Calling RPCs (unary + streaming)
 - Input and output of all protocol buffer types
 - Security: SSL is supported
+- Saveing parameter in a config file (see below: Working with config Files)
 
 Some notable things which are not yet working:
 
@@ -176,3 +177,50 @@ Be sure to search issues first to avoid duplicate entries.
 
 Please have a look at [CONTRIBUTE.md](CONTRIBUTING.md) for general information about contributing. 
 Some more technical documentation can be found here: [Technical Documentation for Developers](doc/Developer.md).
+
+## Working with _config_ files
+gWhisper supports config fies to save values for gWhisper parameter.
+When provideing a setting for a parameter in the config file as well as in the cli command, gWhisper will use the parameter provided via cli.
+
+Example:
+Setting the timeout for rpcs via the config `"RpcTimeoutInMs":"500"` and via the cli `--connectTimeoutMs=100`, gWhisper will use the latter.
+
+
+### Structure
+Use the following structure, if you want to create a config file:
+```sh
+{
+   "configParameter":
+      {
+         "Ssl":null, 
+         "SslSettings":
+         {
+            "ServerCertFile":"PathToFile",
+            "ClientCertFile":""PathToFile"",
+            "ClientKeyFile":""PathToFile""
+         },
+         "DisableCache":null,
+         "RpcTimeoutInMs":"TimeInMs",
+         "ConnectTimeoutBlubb":"TimeInMs"
+      }
+}
+```
+
+### Set parameter
+| Parameter | Settings |
+| ------ | ------ |
+| Ssl | "Yes" (string) : Enable a secure connection to the server <br> null: Disable secure connection |
+| SslSettings | "AbsolutePath" (string): find path with pwd<br> null:  |
+| DisableCache | "Yes" (string) : Enable a secure connection to the server <br> null: Disable secure connection |
+| RpcTimeoutInMs | "TimeInMs" (string): <br> null: |
+| ConnectTimeout | "TimeInMs" (string): <br> null:|
+
+### Where to save the config file
+gWhisper uses config file at /home/usr/.cache/gWhisperConfig.json` as default.
+To the default, name your file `gWhisperConfig`  and place it at `gWhisperConfig`
+
+
+
+Custom location
+gWhisper supports config files at locations other than the default location.
+To use custom path to the config file set the paramter `--configFile=<yourConfigPath>` when executing gwhisper.

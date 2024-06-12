@@ -1,4 +1,4 @@
-# Copyright 2021 IBM Corporation
+# Copyright 2022 IBM Corporation
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,27 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include(FetchContent)
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz)
+FetchContent_MakeAvailable(json)
 
-
-set(TARGET_NAME "DescDbProxy")
+set(TARGET_NAME "libGwhisperSettings")
 set(TARGET_SRC
-    DescDbProxy.cpp
+    GwhisperSettings.cpp
     )
+add_library(${TARGET_NAME} ${TARGET_SRC})
 
-add_protobuf_grpc_lib( ${TARGET_NAME}_protobuf PROTO_SOURCES LocalDescDb.proto)
-
-add_library(${TARGET_NAME} ${TARGET_SRC} ${PROTO_SRC})
-
-target_link_libraries(${TARGET_NAME}
-    PUBLIC
-    ${TARGET_NAME}_protobuf
-     
+target_link_libraries ( ${TARGET_NAME}
     PRIVATE
-    libGwhisperSettings
-    gwhisperUtils
-    version
     reflection
-    cli
-    stdc++fs
+    protoDoc
     )
-
+target_link_libraries ( ${TARGET_NAME}
+    PUBLIC
+    gwhisperUtils
+    DescDbProxy
+    ArgParse
+    nlohmann_json::nlohmann_json
+)
+target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

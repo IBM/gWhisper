@@ -33,4 +33,7 @@ add_test(NAME RpcTimeoutTests
 add_test(NAME CacheTests
     COMMAND python ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py  ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/tests/testServer/cert-key-pair/ ${PROJECT_SOURCE_DIR}/tests/functionTests/cacheFunctionTests.txt)
 
+add_test(NAME ConfigTests
+    COMMAND python ${PROJECT_SOURCE_DIR}/tests/functionTests/runFunctionTest.py  ${gwhisper_exec}  ${testserver_exec} ${CMAKE_CURRENT_SOURCE_DIR}/resources/ ${PROJECT_BINARY_DIR}/tests/testServer/cert-key-pair/ ${PROJECT_SOURCE_DIR}/tests/functionTests/configTests.txt)
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/data.bin DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)

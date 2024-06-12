@@ -68,7 +68,7 @@ RPC succeeded :D
 #END_TEST
 
 #START_TEST check value default timeout for unary RPCs 
-@@CMD@@ --disableCache localhost:50051 examples.StatusHandling rpcSleepForSeconds number=9
+@@CMD@@ --configFile=/@@testResources@@/testDefaultConfig.json  --disableCache localhost:50051 examples.StatusHandling rpcSleepForSeconds number=9
 /.* Received message:
 
 RPC succeeded :D
