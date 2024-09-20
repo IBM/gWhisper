@@ -2,6 +2,8 @@ syntax = "proto3";
 
 import "google/protobuf/descriptor.proto";
 
+option java_package = "com.ibm.gwhisper.protodoc";
+
 extend google.protobuf.MethodOptions {
     string rpc_doc = 51009;
 }
