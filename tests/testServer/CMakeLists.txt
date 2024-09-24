@@ -53,6 +53,29 @@ target_link_libraries(${TARGET_NAME}
     protoDoc
     gwhisperUtils
     )
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    target_link_libraries(${TARGET_NAME}
+        PUBLIC
+        ${TARGET_NAME}_protobuf
+        ${LIB_GRPC++_REFLECTION}
+        )
+else()
+    target_link_libraries(${TARGET_NAME}
+        PUBLIC
+        ${TARGET_NAME}_protobuf
+        # on linux we need to link the whole reflection lib, even though the compiler might
+        # think we do not use any symbols. (This is because gRPC dynamically
+        # checks if reflection is linked and has no hard dependency on any symbols
+        # there)
+        # This is done with --no-as-needed in case we link dynamically and
+        # --whole-archive in case we link statically.
+        -Wl,--push-state,--no-as-needed,--whole-archive ${LIB_GRPC++_REFLECTION} -Wl,--pop-state
+        )
+
+endif()
+
+
     
 add_custom_command(
 OUTPUT cert-key-pair/ca.crt cert-key-pair/ca.key cert-key-pair/ca.srl cert-key-pair/client_crt.pem cert-key-pair/client_csr.pem cert-key-pair/client_key.pem cert-key-pair/server_crt.pem cert-key-pair/server_csr.pem cert-key-pair/server_key.pem
