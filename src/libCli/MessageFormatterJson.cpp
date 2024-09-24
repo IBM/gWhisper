@@ -26,7 +26,7 @@ namespace cli
         printOptions.preserve_proto_field_names = true;
 
         // Will print primitive fields regardless of their values. So e.g. an int32 field set to 0 will not be omitted. 
-        printOptions.always_print_primitive_fields = true;
+        printOptions.always_print_fields_with_no_presence = true;
 
         const auto status = google::protobuf::util::MessageToJsonString(f_message, &resultString, printOptions);
         if(not status.ok())

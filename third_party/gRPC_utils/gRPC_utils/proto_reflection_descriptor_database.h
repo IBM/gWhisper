@@ -1,22 +1,22 @@
-/*
- *
- * Copyright 2016 gRPC authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-#ifndef GRPC_TEST_CPP_PROTO_SERVER_REFLECTION_DATABSE_H
-#define GRPC_TEST_CPP_PROTO_SERVER_REFLECTION_DATABSE_H
+//
+//
+// Copyright 2016 gRPC authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+//
+#ifndef GRPC_TEST_CPP_UTIL_PROTO_REFLECTION_DESCRIPTOR_DATABASE_H
+#define GRPC_TEST_CPP_UTIL_PROTO_REFLECTION_DESCRIPTOR_DATABASE_H
 
 #include <mutex>
 #include <unordered_map>
@@ -44,9 +44,9 @@ class ProtoReflectionDescriptorDatabase : public protobuf::DescriptorDatabase {
       std::unique_ptr<reflection::v1alpha::ServerReflection::Stub> stub);
 
   explicit ProtoReflectionDescriptorDatabase(
-      const std::shared_ptr<grpc::Channel>& channel);
+      const std::shared_ptr<grpc::ChannelInterface>& channel);
 
-  virtual ~ProtoReflectionDescriptorDatabase();
+  ~ProtoReflectionDescriptorDatabase() override;
 
   // The following four methods implement DescriptorDatabase interfaces.
   //
@@ -80,10 +80,7 @@ class ProtoReflectionDescriptorDatabase : public protobuf::DescriptorDatabase {
                                std::vector<int>* output) override;
 
   // Provide a list of full names of registered services
-  bool GetServices(std::vector<grpc::string>* output);
-
-  /// @brief close the reflection stream with a default deadline.
-  /// @return return grpc status as a result of call the finish() on the reflection stream.
+  bool GetServices(std::vector<std::string>* output);
   grpc::Status closeDescDbStream();
 
  private:
@@ -92,18 +89,18 @@ class ProtoReflectionDescriptorDatabase : public protobuf::DescriptorDatabase {
       grpc::reflection::v1alpha::ServerReflectionResponse>
       ClientStream;
 
-  const protobuf::FileDescriptorProto ParseFileDescriptorProtoResponse(
-      const grpc::string& byte_fd_proto);
+  protobuf::FileDescriptorProto ParseFileDescriptorProtoResponse(
+      const std::string& byte_fd_proto);
 
   void AddFileFromResponse(
       const grpc::reflection::v1alpha::FileDescriptorResponse& response);
 
-  const std::shared_ptr<ClientStream> GetStream();
+  std::shared_ptr<ClientStream> GetStream();
 
   bool DoOneRequest(
       const grpc::reflection::v1alpha::ServerReflectionRequest& request,
       grpc::reflection::v1alpha::ServerReflectionResponse& response);
-
+  // MODIFIED:
   grpc::Status closeStream();
 
   std::shared_ptr<ClientStream> stream_;
