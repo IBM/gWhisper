@@ -41,15 +41,6 @@ MakeKeyCert
 target_link_libraries(${TARGET_NAME}
     PUBLIC
     ${TARGET_NAME}_protobuf
-
-    # we need to link the whole reflection lib, even though the compiler might
-    # think we do not use any symbols. (This is because gRPC dynamically
-    # checks if reflection is linked and has no hard dependency on any symbols
-    # there)
-    # This is done with --no-as-needed in case we link dynamically and
-    # --whole-archive in case we link statically.
-    -Wl,--push-state,--no-as-needed,--whole-archive ${LIB_GRPC++_REFLECTION} -Wl,--pop-state
-
     protoDoc
     gwhisperUtils
     )
