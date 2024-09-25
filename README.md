@@ -155,16 +155,20 @@ What is working:
 - Calling RPCs (unary + streaming)
 - Input and output of all protocol buffer types
 - Security: SSL is supported
+- Performance: Caching of reflection queries
 
 Some notable things which are not yet working:
 
 - Using Proto files instead of Reflection API (currently gWhisper only works with servers which have reflection enabled)
-- Performance: Caching of reflection queries
 
 ## Supported platforms
 
-Development and testing is done on Fedora Linux 33 and Arch Linux.
-We expect no bigger problems with building and running this software on different linux distributions.
+We support the following platforms:
+- Linux
+- MacOS
+
+Development is done on Fedora Linux and Arch Linux.
+CI tests are run on `ubuntu-latest` and `macos-latest` GitHub Action runners.
 
 ## Reporting issues
 
