@@ -20,6 +20,7 @@
 #include <libCli/Call.hpp>
 #include <libCli/Completion.hpp>
 #include <versionDefine.h> // generated during build
+#include "absl/log/initialize.h"
 
 using namespace ArgParse;
 
@@ -48,6 +49,9 @@ const char* g_helpString =
 
 int main(int argc, char **argv)
 {
+    // Some components we are consuming from gRPC (descDb / cliCall) use absl logging. Initialize it here:
+    absl::InitializeLog();
+
     // First we construct the initial Grammar for the CLI tool:
     Grammar grammarPool;
     GrammarElement *grammarRoot = cli::constructGrammar(grammarPool);

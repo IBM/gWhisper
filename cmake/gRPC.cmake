@@ -67,7 +67,7 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
     FetchContent_Declare(
         grpc
         GIT_REPOSITORY https://github.com/grpc/grpc
-        GIT_TAG        v1.62.0
+        GIT_TAG        v1.66.1
         GIT_PROGRESS TRUE
     )
     set(FETCHCONTENT_QUIET OFF)
