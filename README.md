@@ -1,4 +1,7 @@
 # gWhisper - A gRPC command line tool
+
+> Due to my limited time, this project is not actively maintained anymore. If you are interested in taking over the project and / or maintenance, feel free to reach out :-)
+
 A gRPC command line client.
 It allows to invoke gRPC Calls from the commandline, supports tab-completion
 and formats the replies in a human readable format.
