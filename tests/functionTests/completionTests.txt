@@ -318,3 +318,49 @@ RPC succeeded :D
 /Error.*
 Error parsing method arguments -> aborting the call :-(
 #END_TEST
+
+##############################################################################
+# Additional completion tests for improved Completion.cpp coverage
+##############################################################################
+
+#START_TEST complete nested sub-message fields
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.NestedTypeRpcs echoNestedMaps number_and_string=:
+number=  (uint32)
+str=     (string)
+#END_TEST
+
+#START_TEST complete nested sub-message after partial field entry
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.NestedTypeRpcs echoNestedMaps number_and_string=:number=5
+5 number=  (uint32)
+5 str=     (string)
+5:         (uint32)
+#END_TEST
+
+#START_TEST complete rpcTimeout bash mode strips prefix
+@@CMD@@ --complete=bash --rpcTimeoutMilliseconds
+--rpcTimeoutMilliseconds=None
+--rpcTimeoutMilliseconds=
+#END_TEST
+
+#START_TEST complete nestedMaps top-level fields
+@@CMD@@ --complete --disableCache 127.0.0.1 examples.NestedTypeRpcs echoNestedMaps
+echoNestedMaps number_and_string=           (Simple sub-message)
+echoNestedMaps sub_message=        (Sub-message containing maps)
+echoNestedMaps simple_map_int=            (map uint32 -> uint32)
+echoNestedMaps simple_map_string=         (Map string -> uint32)
+echoNestedMaps
+#END_TEST
+
+#START_TEST complete ScalarTypeRpcs with no additional arg shows only service names
+@@CMD@@ --complete --disableCache 127.0.0.1
+127.0.0.1:
+127.0.0.1
+127.0.0.1 examples.ScalarTypeRpcs              (int, bool, string, bytes)
+127.0.0.1 examples.NestedTypeRpcs   (Nested and recursive datastructures)
+127.0.0.1 examples.ComplexTypeRpcs           (Enum, oneof, repeated, map)
+127.0.0.1 examples.StreamingRpcs        (uni- and bi-directional streams)
+127.0.0.1 examples.StatusHandling                   (gRPC error handling)
+/^127.0.0.1 grpc.reflection.*$
+/^127.0.0.1 grpc.reflection.*$
+#END_TEST
+

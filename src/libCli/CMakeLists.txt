@@ -34,6 +34,7 @@ target_link_libraries ( ${TARGET_NAME}
     PRIVATE
     reflection
     protoDoc
+    $<$<BOOL:${GWHISPER_ENABLE_COVERAGE}>:coverage_config>
     )
 target_link_libraries ( ${TARGET_NAME}
     PUBLIC

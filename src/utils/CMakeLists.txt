@@ -21,10 +21,10 @@ target_include_directories(${TARGET_NAME}
     INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     )
- 
 
 target_link_libraries(${TARGET_NAME}
-    stdc++fs
+    $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
+    $<$<BOOL:${GWHISPER_ENABLE_COVERAGE}>:coverage_config>
     )
 
 

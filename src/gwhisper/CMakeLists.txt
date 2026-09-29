@@ -38,6 +38,7 @@ target_link_libraries ( ${TARGET_NAME}
     reflection
     version
     generateHelpString
+    $<$<BOOL:${GWHISPER_ENABLE_COVERAGE}>:coverage_config>
     )
 
 set_target_properties(

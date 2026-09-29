@@ -55,16 +55,31 @@ namespace gwhisper
         }
 
         std::string createFile(std::string f_filePath) //TODO What if folder fails?
-        {   
+        {
             if(std::filesystem::exists(f_filePath))
             {
-                //TODO: TEST!!
+                std::string base;
+                std::string ext;
                 size_t pos = f_filePath.find_last_of('.');
-                std::string substr1 = f_filePath.substr(0, pos);
-                std::string substr2 = f_filePath.substr(pos+1);
+                if (pos == std::string::npos)
+                {
+                    base = f_filePath;
+                    ext = "";
+                }
+                else
+                {
+                    base = f_filePath.substr(0, pos);
+                    ext = f_filePath.substr(pos); // includes '.'
+                }
 
-                substr1.append("_copy");
-                f_filePath = substr1 + substr2;
+                std::string candidate = base + "_copy" + ext;
+                int copyIdx = 1;
+                while (std::filesystem::exists(candidate))
+                {
+                    candidate = base + "_copy_" + std::to_string(copyIdx) + ext;
+                    ++copyIdx;
+                }
+                f_filePath = candidate;
             }
 
             std::ofstream newFile(f_filePath);

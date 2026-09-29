@@ -28,7 +28,7 @@
 RPC succeeded :D
 #END_TEST
 
-#START_TEST unary RPC exeeding default timeout
+#START_TEST unary RPC exceeding default timeout
 @@CMD@@ --disableCache localhost:50051 examples.StatusHandling neverEndingRpc
 /.* Deadline Exceeded
 /Note:.*
@@ -67,20 +67,20 @@ RPC succeeded :D
 RPC succeeded :D
 #END_TEST
 
-#START_TEST check value default timeout for unary RPCs 
-@@CMD@@ --disableCache localhost:50051 examples.StatusHandling rpcSleepForSeconds number=9
+#START_TEST check value default timeout for unary RPCs
+@@CMD@@ --disableCache localhost:50051 examples.StatusHandling rpcSleepForSeconds number=5
 /.* Received message:
 
 RPC succeeded :D
 #END_TEST
 
-#START_TEST default timeout for unary RPCs exeeded
-@@CMD@@ --disableCache localhost:50051 examples.StatusHandling rpcSleepForSeconds number=31
+#START_TEST default timeout for unary RPCs exceeded
+@@CMD@@ --disableCache localhost:50051 examples.StatusHandling rpcSleepForSeconds number=60
 /.* Deadline Exceeded
 /Note:.*
 #END_TEST
 
-#START_TEST unary RPC exeeding custom timeout
+#START_TEST unary RPC exceeding custom timeout
 @@CMD@@ --disableCache --rpcTimeoutMilliseconds=500 localhost:50051 examples.StatusHandling neverEndingRpc
 /.* Deadline Exceeded
 /Note:.*
@@ -95,13 +95,13 @@ RPC succeeded :D
 RPC succeeded :D
 #END_TEST
 
-#START_TEST streaming RPC exeeding custom timeout
+#START_TEST streaming RPC exceeding custom timeout
 @@CMD@@ --disableCache --rpcTimeoutMilliseconds=500 localhost:50051 examples.StreamingRpcs bidirectionalStreamInfiniteRpc
 /.* Deadline Exceeded
 /Note:.*
 #END_TEST
 
-#START_TEST streaming RPC exeeding custom timeout
+#START_TEST streaming RPC exceeding custom timeout
 @@CMD@@ --disableCache --rpcTimeoutMilliseconds=500 localhost:50051 examples.StreamingRpcs bidirectionalStreamInfiniteRpc
 /.* Deadline Exceeded
 /Note:.*

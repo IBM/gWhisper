@@ -20,6 +20,7 @@
 
 #include <string>
 #include <deque>
+#include "absl/strings/string_view.h"
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -33,23 +34,23 @@
 #include <grpcpp/impl/codegen/config_protobuf.h>
 #include <libCli/cliUtils.hpp>
 
-bool DescDbProxy::FindFileByName(const std::string& filename, grpc::protobuf::FileDescriptorProto* output)
+bool DescDbProxy::FindFileByName(absl::string_view filename, grpc::protobuf::FileDescriptorProto* output)
 {
-    return m_localDB.FindFileByName(filename, output);                 
+    return m_localDB.FindFileByName(filename, output);
 }
 
-bool DescDbProxy::FindFileContainingSymbol(const std::string& symbol_name,
+bool DescDbProxy::FindFileContainingSymbol(absl::string_view symbol_name,
                                         grpc::protobuf::FileDescriptorProto* output)
 {
-    return m_localDB.FindFileContainingSymbol(symbol_name, output);                 
-}                              
+    return m_localDB.FindFileContainingSymbol(symbol_name, output);
+}
 
-bool DescDbProxy::FindFileContainingExtension(const std::string& containing_type,
+bool DescDbProxy::FindFileContainingExtension(absl::string_view containing_type,
                                         int f_field_number,
                                         grpc::protobuf::FileDescriptorProto* output)
 {
-    return m_localDB.FindFileContainingExtension(containing_type, f_field_number, output);                 
-}       
+    return m_localDB.FindFileContainingExtension(containing_type, f_field_number, output);
+}
 
 std::vector<grpc::string> DescDbProxy::GetServices()
 {
@@ -198,7 +199,7 @@ void DescDbProxy::fetchDescNamesFromReflection(const std::string &f_hostAddress)
         // Retrieve all proto files used by the service
         int dependencyCounter = serviceFileDesc->dependency_count();
 
-        m_descNames.insert(serviceFileDesc->name());
+        m_descNames.insert(std::string(serviceFileDesc->name()));
 
         for (int i=0; i<dependencyCounter; i++){
             const grpc::protobuf::FileDescriptor * dependencyDesc = serviceFileDesc->dependency(i);
@@ -231,15 +232,15 @@ void DescDbProxy::getDependencies(const grpc::protobuf::FileDescriptor& f_parent
             int amountChildren;
             amountChildren = todoList.front()->dependency_count();
             for (int c=0; c < amountChildren; c++)
-            {    
+            {
                 todoList.push_back(todoList.front()->dependency(c));
             }
-            std::string currentFileName = todoList.front()->name();  
+            std::string currentFileName(todoList.front()->name());
             m_descNames.insert(currentFileName); // insert prevents duplicates
             doneList.push_back(todoList.front());
-            todoList.pop_front();    
-        }          
-    }       
+            todoList.pop_front();
+        }
+    }
 }
 
 void DescDbProxy::convertHostEntryToSimpleDescDb(localDescDb::DescriptorDb f_dbProtoFile, const std::string &f_hostAddress)

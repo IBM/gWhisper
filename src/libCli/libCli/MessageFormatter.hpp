@@ -230,7 +230,7 @@ namespace cli
 
             std::string stringFromEnum(const google::protobuf::EnumValueDescriptor * f_value, const CustomStringModifier & f_modifier)
             {
-                return colorize(ColorClass::EnumValue, f_value->name());
+                return colorize(ColorClass::EnumValue, std::string(f_value->name()));
             }
 
             std::string stringFromBytes(const std::string & f_value, const CustomStringModifier & f_modifier, const std::string & f_prefix);
@@ -242,9 +242,9 @@ namespace cli
                     if(!f_map.empty())
                     {
                         result += colorize(ColorClass::VerticalGuides, f_currentPrefix);
-                        result += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);
+                        result += getColor(ColorClass::RepeatedFieldName) + std::string(f_fieldDescriptor->name()) + getColor(ColorClass::Normal);
                         result += getColor(ColorClass::RepeatedCount) + "[" + std::to_string(f_map.size()) + "]" + getColor(ColorClass::Normal);
-                        result += " = " + colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
+                        result += " = " + colorize(ColorClass::MessageTypeName, "{" + std::string(f_fieldDescriptor->message_type()->name()) + "}");
                     }
                     return result;
                 }

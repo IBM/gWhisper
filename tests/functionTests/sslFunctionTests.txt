@@ -43,10 +43,10 @@ RPC succeeded :D
 /Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials.*
 #END_TEST
 
+# Note: OpenSSL 3 / gRPC 1.63+ no longer surfaces SSL_ERROR_SSL in this error path;
+# only the generic channel-establishment error is emitted.
 #START_TEST secure gRPC with missing serverCert at default location
 @@CMD@@ --disableCache --ssl localhost:50052 examples.NestedTypeRpcs echoNestedMaps
-/.*SSL_ERROR_SSL.*
-?.*SSL_ERROR_SSL.*
 /Error: Could not establish Channel. Try checking network connection, hostname or SSL credentials*
 #END_TEST
 
