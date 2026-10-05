@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+include(filesystem)
 
 set(TARGET_NAME "DescDbProxy")
 set(TARGET_SRC
@@ -32,6 +32,9 @@ target_link_libraries(${TARGET_NAME}
     version
     reflection
     cli
-    stdc++fs
     )
 
+# Link FS library if required:
+if (FILESYSTEM_LIB)
+    target_link_libraries(${TARGET_NAME} PRIVATE ${MANUAL_FILESYSTEM_LIB})
+endif()

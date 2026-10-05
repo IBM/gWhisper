@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include(filesystem)
+
 set(TARGET_NAME "gwhisperUtils")
 set(TARGET_SRC
     ./gwhisperUtils.cpp
@@ -21,11 +23,8 @@ target_include_directories(${TARGET_NAME}
     INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     )
- 
 
-target_link_libraries(${TARGET_NAME}
-    stdc++fs
-    )
-
-
-
+# Link FS library if required:
+if (FILESYSTEM_LIB)
+    target_link_libraries(${TARGET_NAME} PRIVATE ${MANUAL_FILESYSTEM_LIB})
+endif()

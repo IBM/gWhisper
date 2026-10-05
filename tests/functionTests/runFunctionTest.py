@@ -106,7 +106,7 @@ with open(testFile) as file:
             for expectedLine in expected:
                 if len(expected)>len(received):
                     fail = True
-                    failtext = "Test '{}' at line {} received not enough lines.".format(testname, testline)
+                    failtext = "Test '{}' at line {} received not enough lines. expected: {}, received: {}".format(testname, testline, expected, received)
                     break
                 if(len(expected) <= idx):
                     if(expectedLine.startswith("?")):
