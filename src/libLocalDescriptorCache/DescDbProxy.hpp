@@ -19,6 +19,8 @@
 #include <set>
 #include <optional>
 
+#include "absl/strings/string_view.h"
+
 #include <grpcpp/grpcpp.h>
 #include <gRPC_utils/proto_reflection_descriptor_database.h>
 #include "libCli/libCli/ConnectionManager.hpp"
@@ -35,17 +37,17 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
 
     /// Find a file by file name.  Fills in in *output and returns true if found.
     /// Otherwise, returns false, leaving the contents of *output undefined.
-    virtual bool FindFileByName(const std::string& filename, grpc::protobuf::FileDescriptorProto* output) override;
+    virtual bool FindFileByName(absl::string_view filename, grpc::protobuf::FileDescriptorProto* output) override;
 
     /// Find the file that declares the given fully-qualified symbol name.
     /// If found, fills in *output and returns true, otherwise returns false
     /// and leaves *output undefined.
-    virtual bool FindFileContainingSymbol(const std::string& symbol_name,  grpc::protobuf::FileDescriptorProto* output) override;
+    virtual bool FindFileContainingSymbol(absl::string_view symbol_name,  grpc::protobuf::FileDescriptorProto* output) override;
 
     /// Find the file which defines an extension extending the given message type
     /// with the given field number.  If found, fills in *output and returns true,
     /// otherwise returns false and leaves *output undefined.
-    virtual bool FindFileContainingExtension(const std::string& containing_type, int field_number,
+    virtual bool FindFileContainingExtension(absl::string_view containing_type, int field_number,
                                             grpc::protobuf::FileDescriptorProto* output) override;
 
     /// Fetch service list offered by cache / reflection
@@ -119,4 +121,3 @@ class DescDbProxy : public grpc::protobuf::DescriptorDatabase{
     std::vector<grpc::string> m_serviceList;
     bool m_disableCache;
 };
-

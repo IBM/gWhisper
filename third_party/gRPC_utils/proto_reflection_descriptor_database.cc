@@ -20,11 +20,16 @@
 // original: #include "test/cpp/util/proto_reflection_descriptor_database.h"
 #include "proto_reflection_descriptor_database.h"
 // MODIFIED by IBM (Rahman Abber Tahir)
+// MODIFIED by IBM (Edwin Guenthner)
 // END MODIFIED
 
+// MODIFIED: unneeded include:
+//#include <string>
 #include <vector>
 
 #include "absl/log/log.h"
+// MODIFIED: new include:
+#include "absl/strings/string_view.h"
 
 // MODIFIED: unneeded include:
 //#include "src/core/util/crash.h"
@@ -66,9 +71,11 @@ ProtoReflectionDescriptorDatabase::~ProtoReflectionDescriptorDatabase() {
     }
   }
 }
-
 bool ProtoReflectionDescriptorDatabase::FindFileByName(
-    const string& filename, protobuf::FileDescriptorProto* output) {
+// MODIFIED: new parameter type, and local variable to keep names unchanged
+// original: const string& filename, protobuf::FileDescriptorProto* output) {
+    absl::string_view filename_sv, protobuf::FileDescriptorProto* output) {
+  const std::string filename(filename_sv);
   if (cached_db_.FindFileByName(filename, output)) {
     return true;
   }
@@ -111,7 +118,10 @@ bool ProtoReflectionDescriptorDatabase::FindFileByName(
 }
 
 bool ProtoReflectionDescriptorDatabase::FindFileContainingSymbol(
-    const string& symbol_name, protobuf::FileDescriptorProto* output) {
+// MODIFIED: new parameter type, and local variable to keep names unchanged
+// original: const string& symbol_name, protobuf::FileDescriptorProto* output) {
+    absl::string_view symbol_name_sv, protobuf::FileDescriptorProto* output) {
+  const std::string symbol_name(symbol_name_sv);
   if (cached_db_.FindFileContainingSymbol(symbol_name, output)) {
     return true;
   }
@@ -154,8 +164,11 @@ bool ProtoReflectionDescriptorDatabase::FindFileContainingSymbol(
 }
 
 bool ProtoReflectionDescriptorDatabase::FindFileContainingExtension(
-    const string& containing_type, int field_number,
+// MODIFIED: new parameter type, and local variable to keep names unchanged
+// original: const string& containing_type, int field_number,
+    absl::string_view containing_type_sv, int field_number,
     protobuf::FileDescriptorProto* output) {
+  const std::string containing_type(containing_type_sv);
   if (cached_db_.FindFileContainingExtension(containing_type, field_number,
                                              output)) {
     return true;
@@ -212,7 +225,10 @@ bool ProtoReflectionDescriptorDatabase::FindFileContainingExtension(
 }
 
 bool ProtoReflectionDescriptorDatabase::FindAllExtensionNumbers(
-    const string& extendee_type, std::vector<int>* output) {
+// MODIFIED: new parameter type, and local variable to keep names unchanged
+// original: std::string extendee_type, std::vector<int>* output) {
+    absl::string_view extendee_type_sv, std::vector<int>* output) {
+  const std::string extendee_type(extendee_type_sv);
   if (cached_extension_numbers_.find(extendee_type) !=
       cached_extension_numbers_.end()) {
     *output = cached_extension_numbers_[extendee_type];

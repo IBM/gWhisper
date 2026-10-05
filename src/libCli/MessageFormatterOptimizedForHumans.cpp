@@ -104,7 +104,7 @@ std::string MessageFormatterOptimizedForHumans::repeatedFieldValueToString(const
             {
                 const google::protobuf::Message & subMessage = reflection->GetRepeatedMessage(f_message, f_fieldDescriptor, f_fieldIndex);
                 //result += "\n" + f_currentPrefix + f_initPrefix + ":\n";
-                result += colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
+                result += colorize(ColorClass::MessageTypeName, "{" + std::string(f_fieldDescriptor->message_type()->name()) + "}");
                 result += "\n";
                 result += messageToStringInternal(subMessage,f_fieldDescriptor->message_type(), f_initPrefix, f_currentPrefix+f_initPrefix);
                 //result += "\n" + f_currentPrefix + f_initPrefix + ":";
@@ -304,7 +304,7 @@ std::string MessageFormatterOptimizedForHumans::fieldValueToString(const grpc::p
                     return result;
                 }
                 const google::protobuf::Message & subMessage = reflection->GetMessage(f_message, f_fieldDescriptor);
-                result += colorize(ColorClass::MessageTypeName, std::string("{") + f_fieldDescriptor->message_type()->name() + "}");
+                result += colorize(ColorClass::MessageTypeName, "{" + std::string(f_fieldDescriptor->message_type()->name()) + "}");
                 std::string formattedMessage = messageToStringInternal(subMessage,f_fieldDescriptor->message_type(), f_initPrefix, f_currentPrefix+f_initPrefix);
                 if(formattedMessage.size() != 0)
                 {
@@ -335,7 +335,7 @@ std::string MessageFormatterOptimizedForHumans::fieldToString(const grpc::protob
             // TODO: remove duplicate code
             result += colorize(ColorClass::VerticalGuides, f_currentPrefix);
             std::string repName;
-            repName += colorize(ColorClass::RepeatedFieldName, f_fieldDescriptor->name());
+            repName += colorize(ColorClass::RepeatedFieldName, std::string(f_fieldDescriptor->name()));
             repName += colorize(ColorClass::RepeatedCount, "[0/0]");
             result += repName;
             size_t nameSize = repName.size();
@@ -446,7 +446,7 @@ std::string MessageFormatterOptimizedForHumans::fieldToString(const grpc::protob
             }
             result += colorize(ColorClass::VerticalGuides, f_currentPrefix);
             std::string repName;
-            repName += getColor(ColorClass::RepeatedFieldName) + f_fieldDescriptor->name() + getColor(ColorClass::Normal);
+            repName += getColor(ColorClass::RepeatedFieldName) + std::string(f_fieldDescriptor->name()) + getColor(ColorClass::Normal);
             repName += getColor(ColorClass::RepeatedCount) + "[" + std::to_string(i+1) + "/" + std::to_string(numberOfRepetitions) + "]" + getColor(ColorClass::Normal);
             result += repName;
             size_t nameSize = repName.size();
@@ -459,7 +459,7 @@ std::string MessageFormatterOptimizedForHumans::fieldToString(const grpc::protob
     else
     {
         result += colorize(ColorClass::VerticalGuides, f_currentPrefix);
-        result += colorize(ColorClass::NonRepeatedFieldName, f_fieldDescriptor->name());
+        result += colorize(ColorClass::NonRepeatedFieldName, std::string(f_fieldDescriptor->name()));
         size_t nameSize = f_fieldDescriptor->name().size();
         result += generateHorizontalGuide(nameSize, maxFieldNameSize);
         result += " = ";

@@ -18,11 +18,14 @@ if(GWHISPER_BUILD_TESTS)
     FetchContent_Declare (
         googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG release-1.11.0
+        GIT_TAG v1.15.2
         )
     FetchContent_GetProperties(googletest)
     if(NOT googletest_POPULATED)
         message("Downloading googletest...")
+        if(POLICY CMP0169)
+            cmake_policy(SET CMP0169 OLD)
+        endif()
         FetchContent_Populate(googletest)
         message("Download of googletest finished.")
     endif()

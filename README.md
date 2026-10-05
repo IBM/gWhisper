@@ -97,8 +97,14 @@ Follow the usual CMake flow:
 
     mkdir build
     cd build
-    cmake .. <cmake-options>
+    cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5 <cmake-options>
     make -j<numCores>
+
+> **Note:** `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` suppresses CMake deprecation
+> warnings that originate inside the gRPC and googletest source trees (which
+> have not yet updated their minimum CMake version declarations). Without it
+> you may see many `CMake Warning (dev)` messages from those sub-projects.
+> This flag has no effect on CMake versions older than 3.27.
 
 #### CMake options
 You can list gWhisper related build options via

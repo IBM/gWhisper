@@ -24,16 +24,29 @@ set(TARGET_SRC
     RepetitionTest.cpp
     GrammarComboTests.cpp
     ParsedDocumentTest.cpp
+    EscapedStringTest.cpp
+    GrammarFactoryTest.cpp
+    GwhisperUtilsTest.cpp
+    MessageFormatterCustomTest.cpp
     testmain.cpp
     )
 
 add_executable(${TARGET_NAME} ${TARGET_SRC})
+add_dependencies(${TARGET_NAME} testServer_protobuf)
 
 target_link_libraries (${TARGET_NAME}
     ArgParse
+    gwhisperUtils
     reflection
+    cli
     gtest
+    $<$<BOOL:${GWHISPER_ENABLE_COVERAGE}>:coverage_config>
     )
+if(APPLE)
+    target_link_libraries(${TARGET_NAME} -Wl,-force_load,$<TARGET_FILE:testServer_protobuf>)
+else()
+    target_link_libraries(${TARGET_NAME} -Wl,--whole-archive,$<TARGET_FILE:testServer_protobuf>,--no-whole-archive)
+endif()
 if(BUILD_CONFIG_USE_BOOST_REGEX)
     target_link_libraries (${TARGET_NAME}
         boost_regex
@@ -41,3 +54,16 @@ if(BUILD_CONFIG_USE_BOOST_REGEX)
 endif()
 
 add_test(NAME UnitTests COMMAND ${TARGET_NAME})
+
+if(GWHISPER_ENABLE_COVERAGE)
+    gwhisper_coverage_target(
+        TEST_BINARY ${TARGET_NAME}
+        SOURCE_DIRS ${CMAKE_SOURCE_DIR}/src
+    )
+    gwhisper_coverage_full_target(
+        UNIT_TEST_BINARY  ${TARGET_NAME}
+        GWHISPER_BINARY   gwhisper
+        TESTSERVER_BINARY testServer
+        SOURCE_DIRS       ${CMAKE_SOURCE_DIR}/src
+    )
+endif()

@@ -13,6 +13,27 @@
 # limitations under the License.
 
 include_guard()
+
+# ---------------------------------------------------------------------------
+# Apple arm64 helper: replace GNU ld --whole-archive flags with -force_load
+# Must be defined before the if-block so cmake_language(DEFER CALL ...) works.
+# ---------------------------------------------------------------------------
+function(_gwhisper_fix_apple_whole_archive)
+    get_property(_all_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
+    foreach(_target IN LISTS _all_targets)
+        get_target_property(_link_libs ${_target} LINK_LIBRARIES)
+        if(_link_libs)
+            string(REGEX REPLACE
+                "-Wl,--push-state,--no-as-needed,--whole-archive;([^;]+);-Wl,--pop-state"
+                "-Wl,-force_load,\\1"
+                _link_libs_fixed "${_link_libs}")
+            if(NOT "${_link_libs}" STREQUAL "${_link_libs_fixed}")
+                set_target_properties(${_target} PROPERTIES LINK_LIBRARIES "${_link_libs_fixed}")
+            endif()
+        endif()
+    endforeach()
+endfunction()
+
 if(NOT GWHISPER_FORCE_BUILDING_GRPC)
     # find grpc + protobuf libs and code generators:
     find_library(LIB_PROTOBUF protobuf)
@@ -67,13 +88,16 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
     FetchContent_Declare(
         grpc
         GIT_REPOSITORY https://github.com/grpc/grpc
-        GIT_TAG        v1.66.1
+        GIT_TAG        v1.84.0
         GIT_PROGRESS TRUE
     )
     set(FETCHCONTENT_QUIET OFF)
     FetchContent_GetProperties(grpc)
     if(NOT grpc_POPULATED)
         message("Downloading gRPC and its dependencies. This might take a while...")
+        if(POLICY CMP0169)
+            cmake_policy(SET CMP0169 OLD)
+        endif()
         FetchContent_Populate(grpc)
         message("Download of gRPC finished")
     endif()
@@ -89,10 +113,42 @@ if(GWHISPER_FORCE_BUILDING_GRPC OR GRPC_NOT_FOUND)
     set(gRPC_ZLIB_PROVIDER "package" CACHE STRING "force overwritten by gWhisper" FORCE )
 
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "s390x")
-        set(gRPC_SSL_PROVIDER "package" CACHE STRING "force overwritten by gWhisper, as boringSSL does not support s390x -> need to fall-back to system installed libssl" FORCE )
+        set(gRPC_SSL_PROVIDER "package" CACHE STRING "force overwritten by gWhisper, as BoringSSL does not support s390x -> need to fall-back to system installed libssl" FORCE)
     endif()
-    set(ABSL_PROPAGATE_CXX_STD ON CACHE STRING "force overwritten by gWhisper to conform to Abseil recommendations" FORCE )
+
+    if(APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+        if(NOT CMAKE_OSX_ARCHITECTURES)
+            set(CMAKE_OSX_ARCHITECTURES "${CMAKE_SYSTEM_PROCESSOR}" CACHE STRING "Set by gWhisper to prevent abseil multi-arch x86 flag path" FORCE)
+        endif()
+        cmake_language(DEFER CALL _gwhisper_fix_apple_whole_archive)
+    endif()
+
+    set(ABSL_PROPAGATE_CXX_STD ON CACHE STRING "force overwritten by gWhisper to conform to Abseil recommendations" FORCE)
     add_subdirectory(${grpc_SOURCE_DIR} ${grpc_BINARY_DIR} EXCLUDE_FROM_ALL)
+    # Suppress all warnings from gRPC and its third-party dependencies.
+    # set_property(DIRECTORY ...) must come after add_subdirectory so the directory exists in CMake.
+    # Setting -w on grpc_SOURCE_DIR alone is not sufficient because CMake directory-property
+    # inheritance only flows to subdirectories configured *after* the property is set.
+    # Instead, collect every subdirectory that was registered under the gRPC source tree and
+    # apply -w to each one explicitly.
+    set(_grpc_root ${grpc_SOURCE_DIR})
+    get_property(_grpc_subdirs DIRECTORY ${_grpc_root} PROPERTY SUBDIRECTORIES)
+    set(_all_grpc_dirs ${_grpc_root})
+    # Recursively collect all subdirectories registered with CMake under grpc_SOURCE_DIR.
+    set(_queue ${_grpc_subdirs})
+    while(_queue)
+        list(POP_FRONT _queue _cur)
+        list(APPEND _all_grpc_dirs ${_cur})
+        get_property(_children DIRECTORY ${_cur} PROPERTY SUBDIRECTORIES)
+        if(_children)
+            list(APPEND _queue ${_children})
+        endif()
+    endwhile()
+    foreach(_dir IN LISTS _all_grpc_dirs)
+        if(IS_DIRECTORY "${_dir}")
+            set_property(DIRECTORY "${_dir}" APPEND PROPERTY COMPILE_OPTIONS "-w")
+        endif()
+    endforeach()
 
     # Since FetchContent uses add_subdirectory under the hood, we can use
     # the grpc targets directly from this build.

@@ -18,7 +18,7 @@ BUILD_DIR="$SOURCE_DIR/build"
 if [ ! -f "$BUILD_DIR/Makefile" ]; then
     mkdir $BUILD_DIR
     cd $BUILD_DIR
-    cmake $SOURCE_DIR $@
+    cmake $SOURCE_DIR -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $@
     RC=$?
     if [ "$RC" -ne 0 ]; then
         # cmake failed
@@ -27,5 +27,5 @@ if [ ! -f "$BUILD_DIR/Makefile" ]; then
     cd $SOURCE_DIR
 fi
 cd $BUILD_DIR
-make -j$(nproc)
+make -j$(nproc 2>/dev/null || sysctl -n hw.logicalcpu)
 exit $?

@@ -44,6 +44,7 @@ option(GWHISPER_BUILD_TESTSERVER "Build a test server, which may be used to play
 option(GWHISPER_BUILD_TESTS "Build unit and functional tests - needs active internet connection for googletest" OFF)
 option(GWHISPER_FORCE_BUILDING_GRPC "Fetch, build and statically link against gRPC even if gRPC is found to be installed" ON)
 option(GWHISPER_USE_BOOST_REGEX "Use Boost regex library instead of c++ standard library regex" OFF)
+option(GWHISPER_ENABLE_COVERAGE "Instrument binaries for coverage (Clang: LLVM source-based; GCC: gcov/--coverage). Requires GWHISPER_BUILD_TESTS=ON" OFF)
 
 ################################################################################
 # MISC PROJECT SETUP
@@ -57,6 +58,13 @@ else()
 endif()
 
 include(gRPC)
+
+if(GWHISPER_ENABLE_COVERAGE)
+    if(NOT GWHISPER_BUILD_TESTS)
+        message(FATAL_ERROR "GWHISPER_ENABLE_COVERAGE=ON requires GWHISPER_BUILD_TESTS=ON")
+    endif()
+    include(Coverage)
+endif()
 
 if(GWHISPER_USE_BOOST_REGEX)
     add_definitions(-DBUILD_CONFIG_USE_BOOST_REGEX)

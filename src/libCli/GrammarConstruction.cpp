@@ -165,7 +165,7 @@ namespace cli
                 {
                     const google::protobuf::EnumValueDescriptor *enumValueDesc = enumDesc->value(i);
                     // FIXME: null possible?
-                    enumGrammar->addChild(m_grammar.createElement<FixedString>(enumValueDesc->name()));
+                    enumGrammar->addChild(m_grammar.createElement<FixedString>(std::string(enumValueDesc->name())));
                 }
                 f_fieldGrammar->addChild(enumGrammar);
                 break;
@@ -222,7 +222,7 @@ namespace cli
             if (f_field->options().GetExtension(field_doc).empty())
             {
                 // add default documentation, if no explicit docstring is given
-                f_fieldGrammar->setDocument(f_field->type_name());
+                f_fieldGrammar->setDocument(std::string(f_field->type_name()));
             }
         }
 
@@ -257,7 +257,7 @@ namespace cli
 
                 // now we add grammar to the fieldsAlt alternation:
                 auto fieldGrammar = m_grammar.createElement<Concatenation>("Field");
-                fieldGrammar->addChild(m_grammar.createElement<FixedString>(field->name(), "FieldName"));
+                fieldGrammar->addChild(m_grammar.createElement<FixedString>(std::string(field->name()), "FieldName"));
                 fieldGrammar->addChild(m_grammar.createElement<FixedString>("="));
                 fieldsAlt->addChild(fieldGrammar);
                 fieldGrammar->setDocument(field->options().GetExtension(field_doc)); //get the in the custom filed option of .proto definited document and set it into the grammer.
@@ -321,7 +321,7 @@ namespace cli
             {
                 for (int i = 0; i < service->method_count(); ++i)
                 {
-                    auto childAlt = m_grammar.createElement<FixedString>(service->method(i)->name());
+                    auto childAlt = m_grammar.createElement<FixedString>(std::string(service->method(i)->name()));
                     //childAlt->setDocument(service->method(i)->input_type()->options().GetExtension(rpc_doc))//custom option in protoDoc: message_doc
                     childAlt->setDocument(service->method(i)->options().GetExtension(rpc_doc)); //grpc field_doc (methodcustom option in protoDoc: method_doc)
                     result->addChild(childAlt);

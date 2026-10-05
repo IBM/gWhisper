@@ -6,3 +6,6 @@ very useful gRPC RPC call and reflection abtractions.
 
 Some minor modifications were made to those files to allow building them
 in this projects. Those modifications are clearly marked.
+
+For the upgrade to gRPC 1.84, additional changes were necessary,
+those are also clearly marked.

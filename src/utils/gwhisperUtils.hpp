@@ -32,12 +32,12 @@ namespace gwhisper
         /// @return Status "OK" if creating Folder was successful. Else returns "FAIL".
         std::string createFolder(const std::string pathToNewFolder);
 
-        /// Utility function for creating a new file at given location.
-        /// This function creates a new file filename_copy, if file already exists.
-        /// @param filePath Location, where new file should be created.
-        /// @param fileName Name of the new file
-        /// @return Status "OK" if creating File was successful. Else returns "FAIL".
-        std::string createFile(std::string filePath, const std::string fileName);
+        /// Utility function for creating a new file at given path.
+        /// If a file already exists at that path, the new file is created with
+        /// "_copy" inserted before the extension (or appended if there is no extension).
+        /// @param filePath Desired file path; modified in-place to the actual path used.
+        /// @return Status "OK" if creating the file was successful. Else returns "FAIL".
+        std::string createFile(std::string filePath);
     }
 
 }

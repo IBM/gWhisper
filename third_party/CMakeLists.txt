@@ -12,4 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+add_compile_options(-w)   # suppress warnings from third-party code
 add_subdirectory(gRPC_utils)

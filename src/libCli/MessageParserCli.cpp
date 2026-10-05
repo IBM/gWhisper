@@ -229,12 +229,12 @@ int MessageParserCli::parseFieldValue(
                 // if we have a bytes field, we parse a hex string or file input:
                 if(valueString.substr(0,2) == "0x")
                 {
-                    int rc = parseBytesFieldFromHexStr(resultString, valueString, f_fieldDescriptor->name());
+                    int rc = parseBytesFieldFromHexStr(resultString, valueString, std::string(f_fieldDescriptor->name()));
                     if(rc) return rc;
                 }
                 else if(valueString.substr(0,7) == "file://")
                 {
-                    int rc = parseBytesFieldFromFile(resultString, valueString, f_fieldDescriptor->name());
+                    int rc = parseBytesFieldFromFile(resultString, valueString, std::string(f_fieldDescriptor->name()));
                     if(rc) return rc;
                 }
                 else

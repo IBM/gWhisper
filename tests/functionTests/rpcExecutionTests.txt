@@ -220,3 +220,29 @@ Error parsing method arguments -> aborting the call :-(
 | str.............. = "Top Level String"
 RPC succeeded :D
 #END_TEST
+
+##############################################################################
+# Negative parsing / error-handling tests (MessageParserCli error branches)
+##############################################################################
+
+# Note: numeric fields like m_float/m_int32 use grammar-level validation, so
+# passing non-numeric text causes a parse failure before reaching MessageParserCli.
+# We cover the MessageParserCli error branches through inputs that DO parse but
+# contain semantically invalid values (invalid enum name, bad bytes prefix/length).
+
+#START_TEST parseError_invalidEnum
+@@CMD@@ --disableCache 127.0.0.1 examples.ComplexTypeRpcs echoColorEnum color=notacolor
+/Parse failed.*
+#END_TEST
+
+#START_TEST parseError_bytesFieldInvalidPrefix
+@@CMD@@ --disableCache 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes data=plainstring
+/Parse failed.*
+#END_TEST
+
+#START_TEST parseError_bytesOddHexLength
+@@CMD@@ --disableCache 127.0.0.1 examples.ScalarTypeRpcs bitwiseInvertBytes data=0xabc
+/Error parsing bytes field 'data': Given value is not a multiple of 8 bits long
+Error parsing method arguments -> aborting the call :-(
+#END_TEST
+
